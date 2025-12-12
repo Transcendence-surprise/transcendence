@@ -3,33 +3,54 @@
 ## Makefile
 Development
 
-Frontend:
+### Development
 
+**Frontend:**
+
+```bash
 make dev        # run Postgres
-
 make dev-front  # run Vite
+```
 
-Backend:
+**Backend:**
 
+```bash
 make dev        # run Postgres
-
 make dev-back   # run NestJS dev
-
 dev-install     # run npm install
+```
 
-🔹 clean
+### 🔹 clean
 
-Delete: volumes, PostgreSQL clean.
+Delete volumes, PostgreSQL clean.
 
-🔹 reb, ref, rng, rdb
+```bash
+make clean
+```
+
+### 🔹 reb, ref, rng, rdb
 
 Rebuild of separate service:
 
-reb - backend, ref - frontend, rng - nginx, rdb - PostGress
+- `reb` - backend
+- `ref` - frontend
+- `rng` - nginx
+- `rdb` - PostgreSQL
 
-🔹 prune
+```bash
+make reb  # rebuild backend
+make ref  # rebuild frontend
+make rng  # rebuild nginx
+make rdb  # rebuild PostgreSQL
+```
+
+### 🔹 prune
 
 Clean dangling images
+
+```bash
+make prune
+```
 
 ## Architecture (Development)
 
@@ -48,24 +69,27 @@ GET /api/health
 ## Frontend ↔ Backend Communication
 
 - Backend exposes a REST API under `/api/*`
-- Example health endpoint: `GET /api/health`
+- Example health endpoint: 
+  ```http
+  GET /api/health
+  ```
 - Frontend fetches data using relative paths (e.g. `/api/health`)
 - This allows Nginx to proxy requests in production without changing frontend code
 
 ## Tech Stack
 
 ### Frontend
-- Node.js:      20.x
-- npm:          10.x
-- React:        18
-- Vite:         5.x
+- **Node.js:**      20.x
+- **npm:**          10.x
+- **React:**        18
+- **Vite:**         5.x
 
 ### Backend
-- Node.js:      20.x
-- NestJS:       11.x
-- Express:      4.x
+- **Node.js:**      20.x
+- **NestJS:**       11.x
+- **Express:**      4.x
 
 ### Infrastructure (planned)
-- Nginx         1.27
-- PostgreSQL    16
-- Docker & Docker Compose
+- **Nginx:**        1.27
+- **PostgreSQL:**   16
+- **Docker & Docker Compose**
