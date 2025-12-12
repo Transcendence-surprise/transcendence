@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    command: ["npm", "run", "build"]
+    volumes:
+      - frontend_build:/app/dist
+    networks:
+      - transcendence_net
+
+  backend:
+    build: ./backend
+    container_name: backend
+    env_file:
+      - ./backend/.env
+    expose:
+      - "3000"
+    depends_on:
+      - db
+    networks:
+      - transcendence_net
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
+    volumes:
+      - frontend_build:/usr/share/nginx/html:ro
+    networks:
+      - transcendence_net
+
+  db:
+    container_name: postgres
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: transcendence
+      POSTGRES_PASSWORD: transcendence
+      POSTGRES_DB: transcendence
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - transcendence_net
+
+volumes:
+  db_data:
+  frontend_build:
+
+networks:
+  transcendence_net:
