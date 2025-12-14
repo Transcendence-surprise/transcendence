@@ -5,6 +5,10 @@
 COMPOSE = docker compose
 PROJECT = transcendence
 
+# Start prod
+prod:
+	$(COMPOSE) -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+
 # Start full stack
 up:
 	$(COMPOSE) up --build -d
