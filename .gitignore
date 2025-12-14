@@ -37,3 +37,6 @@ Thumbs.db
 # --- React/Vite ---
 *.local
 *.cache
+
+# --- Nginx ---
+nginx/cert/
