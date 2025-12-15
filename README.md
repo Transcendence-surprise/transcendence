@@ -82,9 +82,3 @@ GET /api/health
 - Nginx         1.27
 - PostgreSQL    16
 - Docker & Docker Compose
-
-
-
-
-
-[text](backend) [text](backend/dist) [text](backend/node_modules) [text](backend/src) [text](backend/test) [text](backend/.env) [text](backend/.env.example) [text](backend/.gitignore) [text](backend/.prettierrc) [text](backend/Dockerfile) [text](backend/eslint.config.mjs) [text](backend/nest-cli.json) [text](backend/package-lock.json) [text](backend/package.json) [text](backend/README.md) [text](backend/tsconfig.build.json) [text](backend/tsconfig.json) [text](frontend) [text](frontend/node_modules) [text](frontend/public) [text](frontend/src) [text](frontend/.gitignore) [text](frontend/Dockerfile) [text](frontend/eslint.config.js) [text](frontend/index.html) [text](frontend/package-lock.json) [text](frontend/package.json) [text](frontend/README.md) [text](frontend/vite.config.js) [text](nginx) [text](nginx/Dockerfile) [text](nginx/nginx.conf) [text](.env.example) [text](.gitignore) [text](docker-compose.dev.yml) [text](docker-compose.yml) [text](Makefile) [text](README.md)
