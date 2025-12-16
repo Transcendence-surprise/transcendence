@@ -1,18 +1,5 @@
 # Transcendence
 
-Backend:
-
-npm run start:dev
-
-Health checkpoint
-
-GET /api/health
-https://automatic-space-spork-69975pq577rc5g5-3000.app.github.dev/api/health
-
-Frontend:
-
-npm run dev
-
 ## Makefile
 Development
 
