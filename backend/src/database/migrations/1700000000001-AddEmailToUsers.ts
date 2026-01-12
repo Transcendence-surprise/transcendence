@@ -13,7 +13,7 @@ export class AddEmailToUsers1700000000001 implements MigrationInterface {
     // 2) Backfill any existing rows
     await queryRunner.query(`
       UPDATE "users"
-      SET "email" = "login" || '@example.com'
+      SET "email" = "username" || '@example.com'
       WHERE "email" IS NULL;
     `);
 

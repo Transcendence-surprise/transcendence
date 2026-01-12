@@ -7,10 +7,25 @@ Development
 
 **Frontend:**
 
-NOTE: find all backend dev documentaion at:
+NOTE: (from Ilia) I moved all documentation related to backend and API endpoints to `docs/` dir. Find all there.
+
+1. If you need to run backend, read:
 ```bash
 /docs/BACKEND-DEV.md
 ```
+2. API documentation, read:
+```bash
+/docs/API-DOCS.md
+```
+3. If you need to check db inside docker container, read:
+```bash
+/docs/DATABESE-DEV.md
+```
+
+
+
+
+
 
 **Step 1:** After cloning the repo run at the first time:
 ```bash

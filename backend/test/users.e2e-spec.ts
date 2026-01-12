@@ -35,9 +35,9 @@ describe('Users (e2e)', () => {
     expect(Array.isArray(res.body)).toBe(true);
   });
 
-  it('/api/users/:login (GET) returns user by login', async () => {
-    const login = 'e2e_user_login';
-    const email = 'e2e_user_login@example.com';
+  it('/api/users/:username (GET) returns user by username', async () => {
+    const username = 'e2e_user_username';
+    const email = 'e2e_user_username@example.com';
 
     const client = new Client({
       host: process.env.DB_HOST ?? 'localhost',
@@ -48,28 +48,28 @@ describe('Users (e2e)', () => {
     });
     await client.connect();
     try {
-      await client.query('DELETE FROM users WHERE login = $1', [login]);
+      await client.query('DELETE FROM users WHERE username = $1', [username]);
       await client.query(
-        'INSERT INTO users (login, email) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-        [login, email],
+        'INSERT INTO users (username, email) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        [username, email],
       );
     } finally {
       await client.end();
     }
 
     const res = await request(app.getHttpServer())
-      .get(`/api/users/${login}`)
+      .get(`/api/users/${username}`)
       .expect(200);
 
-    expect(res.body).toMatchObject({ login, email });
+    expect(res.body).toMatchObject({ username, email });
   });
 
-  it('/api/users/:login (GET) returns 404 when not found', async () => {
+  it('/api/users/:username (GET) returns 404 when not found', async () => {
     await request(app.getHttpServer()).get('/api/users/no_such_user').expect(404);
   });
 
-  it('/api/users/:login (DELETE) deletes user by login', async () => {
-    const login = 'e2e_user_delete';
+  it('/api/users/:username (DELETE) deletes user by username', async () => {
+    const username = 'e2e_user_delete';
     const email = 'e2e_user_delete@example.com';
 
     const client = new Client({
@@ -81,24 +81,24 @@ describe('Users (e2e)', () => {
     });
     await client.connect();
     try {
-      await client.query('DELETE FROM users WHERE login = $1', [login]);
+      await client.query('DELETE FROM users WHERE username = $1', [username]);
       await client.query(
-        'INSERT INTO users (login, email) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-        [login, email],
+        'INSERT INTO users (username, email) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        [username, email],
       );
     } finally {
       await client.end();
     }
 
     await request(app.getHttpServer())
-      .delete(`/api/users/${login}`)
+      .delete(`/api/users/${username}`)
       .expect(200)
-      .expect({ deleted: true, login });
+      .expect({ deleted: true, username });
 
-    await request(app.getHttpServer()).get(`/api/users/${login}`).expect(404);
+    await request(app.getHttpServer()).get(`/api/users/${username}`).expect(404);
   });
 
-  it('/api/users/:login (DELETE) returns 404 when not found', async () => {
+  it('/api/users/:username (DELETE) returns 404 when not found', async () => {
     await request(app.getHttpServer())
       .delete('/api/users/no_such_user_delete')
       .expect(404);
