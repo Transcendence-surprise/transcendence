@@ -8,6 +8,9 @@ export class User {
   @Column({ unique: true, length: 32 })
   login: string;
 
+  @Column({ unique: true, length: 32 })
+  email: string;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
