@@ -11,15 +11,15 @@ export class UsersService {
     return this.repo.find();
   }
 
-  async getUserByLogin(login: string) {
-    const user = await this.repo.findOne({ where: { login } });
-    if (!user) throw new NotFoundException(`User '${login}' not found`);
+  async getUserByusername(username: string) {
+    const user = await this.repo.findOne({ where: { username } });
+    if (!user) throw new NotFoundException(`User '${username}' not found`);
     return user;
   }
 
-  async deleteUserByLogin(login: string) {
-    const res = await this.repo.delete({ login });
-    if (!res.affected) throw new NotFoundException(`User '${login}' not found`);
-    return { deleted: true, login };
+  async deleteUserByusername(username: string) {
+    const res = await this.repo.delete({ username });
+    if (!res.affected) throw new NotFoundException(`User '${username}' not found`);
+    return { deleted: true, username };
   }
 }

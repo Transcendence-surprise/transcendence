@@ -9,17 +9,36 @@ git clone git@github.com:Transcendence-surprise/transcendence.git && cd transcen
 
 ## Frontend
 
+**NOTE:** (from Ilia) I comment out `make dev`, it has no porpose anymore I think. We will add another command to connect front and back later when API endpoints will be ready.
+
 ```bash
-make dev
+# make dev  
+# Ilia comment it out -> I do not see the porpose of the command on the current stage
+# make dev-back
 make dev-front
 ```
 
 ## Backend
 
-NOTE: find all backend dev documentaion at:
+NOTE: (from Ilia) I moved all documentation related to backend and API endpoints to `docs/` dir. Find all there.
+
+1. If you need to run backend, read:
 ```bash
 /docs/BACKEND-DEV.md
 ```
+2. API documentation, read:
+```bash
+/docs/API-DOCS.md
+```
+3. If you need to check db inside docker container, read:
+```bash
+/docs/DATABESE-DEV.md
+```
+
+
+
+
+
 
 **Step 1:** After cloning the repo run at the first time:
 ```bash

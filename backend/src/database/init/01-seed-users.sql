@@ -3,12 +3,13 @@
 
 CREATE TABLE IF NOT EXISTS "users" (
   "id" SERIAL PRIMARY KEY,
-  "login" VARCHAR(32) NOT NULL UNIQUE,
+  "username" VARCHAR(32) UNIQUE,
   "email" VARCHAR(32) NOT NULL UNIQUE,
+  "password" VARCHAR(255) NOT NULL,
   "createdAt" timestamptz NOT NULL DEFAULT now(),
   "updatedAt" timestamptz NOT NULL DEFAULT now()
 );
 
-INSERT INTO users (login, email)
-VALUES ('user1', 'user1@example.com'), ('user2', 'user2@example.com')
+INSERT INTO users (username, email, password)
+VALUES ('user1', 'user1@example.com', 'password1337'), ('user2', 'user2@example.com', 'password42')
 ON CONFLICT DO NOTHING;

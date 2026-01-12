@@ -10,13 +10,13 @@ export class UsersController {
     return this.usersService.getAllUsers();
   }
 
-  @Get(':login')
-  getByLogin(@Param('login') login: string) {
-    return this.usersService.getUserByLogin(login);
+  @Get(':username')
+  getByusername(@Param('username') username: string) {
+    return this.usersService.getUserByusername(username);
   }
 
-  @Delete(':login')
-  deleteByLogin(@Param('login') login: string) {
-    return this.usersService.deleteUserByLogin(login);
+  @Delete(':username')
+  deleteByusername(@Param('username') username: string) {
+    return this.usersService.deleteUserByusername(username);
   }
 }
