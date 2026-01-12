@@ -1,7 +1,18 @@
 # -----------------------------------
 # ft_transcendence Makefile
 # -----------------------------------
+# -------- Colors --------
 
+RED     = \033[31m
+GREEN   = \033[32m
+YELLOW  = \033[33m
+BLUE    = \033[34m
+MAGENTA = \033[35m
+CYAN    = \033[36m
+WHITE   = \033[37m
+RESET = \033[0m
+
+# -------- Variables --------
 COMPOSE = docker compose
 PROJECT = transcendence
 
@@ -20,6 +31,11 @@ down:
 dev:
 	$(COMPOSE) -f docker-compose.dev.yml up -d
 
+# Start dev DB only
+dev-db:
+	@echo "$(CYAN)Starting PostgreSQL...$(RESET)"
+	$(COMPOSE) -f docker-compose.dev.yml up -d db
+
 # Stop DB
 dev-down:
 	$(COMPOSE) -f docker-compose.dev.yml down
@@ -28,16 +44,29 @@ dev-down:
 dev-front:
 	cd frontend && npm run dev
 
-# Backend dev server
-dev-back:
-	cd backend && npm run start:dev
+# Backend dev server (runs migrations first)
+dev-back: dev-migrate
+	@echo "$(CYAN)Starting backend...$(RESET)"
+	cd backend && npm run start:dev &
+
+# Run migrations (dev DB must be up)
+dev-migrate: dev-db
+	@echo "$(CYAN)Running migrations...$(RESET)"
+	cd backend && npm run migration:run
 
 dev-install:
+	@echo "$(CYAN)Installing dependencies...$(RESET)"
 	cd frontend && npm install
 	cd backend && npm install
 
-# Stop and remove everything (volumes too)
+# Stop containers (keep volumes)
 clean:
+	@echo "$(CYAN)Stopping containers...$(RESET)"
+	$(COMPOSE) down
+
+# Stop and remove everything (volumes too)
+fclean:
+	@echo "$(CYAN)Stopping containers and removing volumes...$(RESET)"
 	$(COMPOSE) down -v
 
 # Rebuild from scratch
@@ -67,7 +96,8 @@ rng:
 rdb:
 	$(COMPOSE) up --build -d db
 
-prune:
+prune: fclean
+	@echo "$(CYAN)Pruning dangling images...$(RESET)"
 	docker system prune -af
 
-.PHONY: up down clean re logs ps reb ref rng rdb
+.PHONY: up down dev dev-db dev-down dev-front dev-back dev-migrate dev-install clean fclean re logs ps reb ref rng rdb prune prod

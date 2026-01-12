@@ -3,7 +3,7 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 
-describe('AppController (e2e)', () => {
+describe('Users (e2e)', () => {
   let app: NestFastifyApplication;
 
   beforeEach(async () => {
@@ -22,10 +22,17 @@ describe('AppController (e2e)', () => {
     await app.close();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
+  it('/api/health (GET)', async () => {
+    await request(app.getHttpServer())
+      .get('/api/health')
       .expect(200)
-      .expect('Hello World!');
+      .expect({ status: 'ok' });
+  });
+
+  it('/api/users (GET) returns an array', async () => {
+    const res = await request(app.getHttpServer()).get('/api/users').expect(200);
+    expect(Array.isArray(res.body)).toBe(true);
   });
 });
+
+
