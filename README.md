@@ -7,26 +7,36 @@ Development
 
 **Frontend:**
 
-After cloning the repo run at the first time:
+NOTE: find all backend dev documentaion at:
+```bash
+/docs/BACKEND-DEV.md
+```
+
+**Step 1:** After cloning the repo run at the first time:
 ```bash
 make dev-install
 ```
 
-Start dev DB, run migrations, start NestJS dev
+**Step 2:** Start dev DB, run migrations, start NestJS dev
 ```bash
 make dev-back
 ```
 
-After starting backend run server health check:
+**Step 3:** After starting backend run server health check:
 ```bash
 curl -i http://localhost:3000/api/health # should retun 200
 ```
 
-## Postgres Database
-
-Use README-DB.md to communicate with database directly at:
+## API 
+Read API_DOCS.md:
 ```bash
-/transcendence/backend/README-DB.md
+/docs/API_DOCS.md
+```
+
+## Database
+Read DATABESE-DEV.md to communicate with database directly:
+```bash
+/docs/DATABESE-DEV.md
 ```
 
 ### 🔹 clean

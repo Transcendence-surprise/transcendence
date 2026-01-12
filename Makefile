@@ -31,11 +31,6 @@ down:
 dev:
 	$(COMPOSE) -f docker-compose.dev.yml up -d
 
-# Start dev DB only
-dev-db:
-	@echo "$(CYAN)Starting PostgreSQL...$(RESET)"
-	$(COMPOSE) -f docker-compose.dev.yml up -d db
-
 # Stop DB
 dev-down:
 	$(COMPOSE) -f docker-compose.dev.yml down
@@ -44,16 +39,29 @@ dev-down:
 dev-front:
 	cd frontend && npm run dev
 
-# Backend dev server (runs migrations first)
-dev-back: dev-migrate
-	@echo "$(CYAN)Starting backend...$(RESET)"
-	cd backend && npm run start:dev &
+# Backend dev server 
+# Starts dev DB only
+dev-db:
+	@echo "$(CYAN)Starting PostgreSQL...$(RESET)"
+	$(COMPOSE) -f docker-compose.dev.yml up -d db
 
 # Run migrations (dev DB must be up)
 dev-migrate: dev-db
 	@echo "$(CYAN)Running migrations...$(RESET)"
 	cd backend && npm run migration:run
 
+# Seed dev DB with a couple of users (safe to run multiple times)
+dev-seed: dev-migrate
+	@echo "$(CYAN)Seeding users table...$(RESET)"
+	docker exec -i postgres_dev psql -U transcendence -d transcendence < backend/src/database/init/01-seed-users.sql
+
+# Backend dev server (runs migrations first)
+dev-back: dev-seed
+	@echo "$(CYAN)Starting backend...$(RESET)"
+	@echo "$(YELLOW)Running in foreground. Stop with Ctrl+C.$(RESET)"
+	cd backend && npm run start:dev
+
+# Install dependencies
 dev-install:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
 	cd frontend && npm install
@@ -100,4 +108,4 @@ prune: fclean
 	@echo "$(CYAN)Pruning dangling images...$(RESET)"
 	docker system prune -af
 
-.PHONY: up down dev dev-db dev-down dev-front dev-back dev-migrate dev-install clean fclean re logs ps reb ref rng rdb prune prod
+.PHONY: up down dev dev-db dev-down dev-front dev-back dev-migrate dev-seed dev-install clean fclean re logs ps reb ref rng rdb prune prod
