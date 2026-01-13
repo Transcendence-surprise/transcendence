@@ -1,0 +1,107 @@
+import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { EngineService } from '../services/engine.service.nest';
+// import { GameState, GameSettings } from '../models/state';
+// import { BoardAction } from '../models/boardAction';
+// import { MoveAction } from '../models/moveAction';
+import { ApiBody, ApiOkResponse, ApiParam } from '@nestjs/swagger';
+// import {
+//   CreateGameDto,
+//   StartGameDto,
+//   JoinGameDto,
+//   MoveDto,
+//   LeaveGameDto,
+//   LobbyGamesResponseDto,
+//   GameStateDto,
+// } from '../dtos/game.dto';
+import { SingleLevelDto } from '../dtos/level-registry.dto';
+
+@Controller('game')
+export class GameController {
+  constructor(private readonly engine: EngineService) {}
+
+//   // Create Game
+//   @Post('create')
+//   @ApiBody({ type: CreateGameDto })
+//   createGame(
+//     @Body() body: {
+//       hostId: string;
+//       settings: GameSettings;
+//     }
+//   ) {
+//     const { gameId } = this.engine.createGame(
+//       body.hostId,
+//       body.settings
+//     );
+
+//     return { ok: true, gameId };
+//   }
+
+//   // Start game
+//   @Post('start')
+//   @ApiBody({ type: StartGameDto })
+//   startGame(
+//     @Body() body: { gameId: string; hostId: string }
+//   ) {
+//     const result = this.engine.startGame(body.gameId, body.hostId);
+//     return result.ok ? { ok: true } : { ok: false, error: result.error };
+//   }
+
+//   // Join game
+//   @Post('join')
+//   @ApiBody({ type: JoinGameDto })
+//   join(@Body() body: { gameId: string; playerId: string; role: "PLAYER" | "SPECTATOR" }) {
+//     return this.engine.joinGame(body.gameId, body.playerId, body.role);
+//   }
+
+//   // Make move
+//   @Post('move')
+//   @ApiBody({ type: MoveDto })
+//   move(
+//     @Body() body: {
+//       gameId: string;
+//       playerId: string;
+//       boardAction?: BoardAction;
+//       moveAction?: MoveAction;
+//     }
+//   ) {
+//     // Retrieve game state (from memory/db)
+//     const state: GameState = this.engine.getGameState(body.gameId);
+
+//     // Call your engine logic
+//     const result = this.engine.processTurn(
+//       state,
+//       body.boardAction ?? null,
+//       body.moveAction
+//     );
+
+//     return result.ok ? { ok: true } : { ok: false, error: result.error };
+//   }
+
+//   @Post('leave')
+//   @ApiBody({ type: LeaveGameDto })
+//   leaveGame(
+//     @Body() body: { gameId: string; playerId: string }
+//   ) {
+//     const result = this.engine.leaveGame(body.gameId, body.playerId);
+//     return result.ok ? { ok: true } : { ok: false, error: result.error };
+//   }
+
+//   @Get('lobby')
+//   @ApiOkResponse({ type: [LobbyGamesResponseDto] })
+//   getLobbyGames() {
+//     return this.engine.getLobbyGames();
+//   }
+
+//   @Get(':gameId')
+//   @ApiParam({ name: 'gameId', type: 'string' })
+//   @ApiOkResponse({ type: GameStateDto })
+//   getGameState(@Param('gameId') gameId: string) {
+//     return this.engine.getGameState(gameId);
+//   }
+
+  @Get('single/levels')
+  @ApiOkResponse({ type: SingleLevelDto, isArray: true })
+  getSingleLevels(): SingleLevelDto[] {
+    return this.engine.getSinglePlayerLevels();
+  }
+}
