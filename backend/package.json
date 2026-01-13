@@ -23,10 +23,12 @@
     "migration:revert": "node -r ts-node/register ./node_modules/typeorm/cli.js -d src/database/data-source.ts migration:revert"
   },
   "dependencies": {
+    "@fastify/static": "^8.3.0",
     "@nestjs/common": "11.1.9",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "11.1.9",
     "@nestjs/platform-fastify": "11.1.9",
+    "@nestjs/swagger": "^11.2.4",
     "@nestjs/typeorm": "^11.0.0",
     "dotenv": "^17.2.3",
     "fastify": "5.6.2",

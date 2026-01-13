@@ -1,4 +1,4 @@
-import { LevelMeta } from "../models/levelMmeta";
+import { LevelMeta } from "../models/levelMeta";
 
 export const Puzzle02Meta: LevelMeta = {
   id: "puzzle-01",
