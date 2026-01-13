@@ -6,17 +6,17 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get()
-  getAll() {
-    return this.usersService.getAllUsers();
+  findAll() {
+    return this.usersService.findAll();
   }
 
   @Get(':username')
-  getByusername(@Param('username') username: string) {
-    return this.usersService.getUserByusername(username);
+  findOneByUsername(@Param('username') username: string) {
+    return this.usersService.findOneByUsername(username);
   }
 
   @Delete(':username')
-  deleteByusername(@Param('username') username: string) {
-    return this.usersService.deleteUserByusername(username);
+  removeByUsername(@Param('username') username: string) {
+    return this.usersService.removeByUsername(username);
   }
 }
