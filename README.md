@@ -1,54 +1,86 @@
 # Transcendence
 
-## Quick Start
+## Usage
+```bash
+git clone git@github.com:Transcendence-surprise/transcendence.git && cd transcendence
+```
 
-### Backend
+## Development
+
+## Frontend
+
+**NOTE:** (from Ilia) I comment out `make dev`, it has no porpose anymore I think. We will add another command to connect front and back later when API endpoints will be ready.
 
 ```bash
-npm run start:dev
+# make dev  
+# Ilia comment it out -> I do not see the porpose of the command on the current stage
+# make dev-back
+make dev-front
 ```
 
-**Health checkpoint:**
+## Backend
 
-```http
-GET /api/health
-```
+NOTE: (from Ilia) I moved all documentation related to backend and API endpoints to `docs/` dir. Find all there.
 
-```
-https://automatic-space-spork-69975pq577rc5g5-3000.app.github.dev/api/health
-```
-
-### Frontend
-
+1. If you need to run backend, read:
 ```bash
-npm run dev
+/docs/BACKEND-DEV.md
+```
+2. API documentation, read:
+```bash
+/docs/API-DOCS.md
+```
+3. If you need to check db inside docker container, read:
+```bash
+/docs/DATABESE-DEV.md
 ```
 
-## Makefile Commands
 
-### Development
 
-**Frontend:**
 
+
+
+**Step 1:** After cloning the repo run at the first time:
 ```bash
-make dev        # run Postgres
-make dev-front  # run Vite
+make dev-install
 ```
 
-**Backend:**
-
+**Step 2:** Start dev DB, run migrations, start NestJS dev
 ```bash
-make dev        # run Postgres
-make dev-back   # run NestJS dev
-dev-install     # run npm install
+make dev-back
+```
+
+**Step 3:** After starting backend run server health check:
+```bash
+curl -i http://localhost:3000/api/health # should retun 200
+```
+
+## API 
+Read API_DOCS.md:
+```bash
+/docs/API_DOCS.md
+```
+
+## Database
+Read DATABESE-DEV.md to communicate with database directly:
+```bash
+/docs/DATABESE-DEV.md
 ```
 
 ### 🔹 clean
 
-Delete volumes, PostgreSQL clean.
+Stop containers (keeps volumes).
 
 ```bash
 make clean
+```
+
+### 🔹 fclean
+
+Stop containers and remove volumes (full reset).
+
+```bash
+make fclean
 ```
 
 ### 🔹 reb, ref, rng, rdb
@@ -73,6 +105,14 @@ Clean dangling images
 
 ```bash
 make prune
+```
+
+### 🔹 prod
+
+Start production stack (build + detached).
+
+```bash
+make prod
 ```
 
 ## Architecture (Development)

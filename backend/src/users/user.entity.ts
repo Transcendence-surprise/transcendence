@@ -1,0 +1,23 @@
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+
+@Entity({ name: 'users' })
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ unique: true, length: 32, nullable: true })
+  username: string;
+
+  @Column({ unique: true, length: 32 })
+  email: string;
+
+  // NOTE: this should store a hash (never plaintext). Hidden from default queries.
+  @Column({ length: 255, default: '', select: false })
+  password: string;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
+}

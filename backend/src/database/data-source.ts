@@ -1,0 +1,17 @@
+import 'reflect-metadata';
+import * as dotenv from 'dotenv';
+import { DataSource } from 'typeorm';
+import { User } from '../users/user.entity';
+
+dotenv.config(); // reads backend/.env when you run from backend/
+
+export default new DataSource({
+  type: 'postgres',
+  host: process.env.DB_HOST ?? 'localhost',
+  port: Number(process.env.DB_PORT ?? 5432),
+  username: process.env.DB_USER ?? 'transcendence',
+  password: process.env.DB_PASSWORD ?? 'transcendence',
+  database: process.env.DB_NAME ?? 'transcendence',
+  entities: [User],
+  migrations: ['src/database/migrations/*.ts'],
+});
