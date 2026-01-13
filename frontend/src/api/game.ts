@@ -18,7 +18,13 @@ export async function createGame(hostId: string, settings: GameSettings) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ hostId, settings }),
   });
-  return res.json();
+  const data = await res.json();
+
+  if (!res.ok || !data.ok) {
+    throw new Error(data?.message || 'Failed to create game');
+  }
+
+  return data; // { ok: true, gameId: string }
 }
 
 export async function joinGame(gameId: string, playerId: string) {
@@ -41,7 +47,13 @@ export async function startGame(gameId: string, hostId: string) {
 
 export async function getGameState(gameId: string) {
   const res = await fetch(`/game/${gameId}`);
-  return res.json();
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data?.message || 'Failed to fetch game state');
+  }
+
+  return data; // full game object
 }
 
 export async function makeMove(
