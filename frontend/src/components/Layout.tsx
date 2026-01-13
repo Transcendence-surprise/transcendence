@@ -3,9 +3,13 @@ import { Outlet } from 'react-router-dom';
 import { checkHealth } from '../api/health';
 import LoginForm from './auth/LoginForm';
 import SignupForm from './auth/SignupForm';
+import LoginForm from './auth/LoginForm';
+import SignupForm from './auth/SignupForm';
 
 export default function Layout() {
   const [status, setStatus] = useState('loading...');
+  const [showLogin, setShowLogin] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
 
@@ -38,16 +42,16 @@ export default function Layout() {
               Backend status: {status}
             </p>
           </div>
-          <div className="flex items-center gap-3 bg-gray-900/50 rounded-full p-1 border border-gray-700">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => setShowLogin(true)}
-              className="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-full transition-all border border-gray-600"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded transition-colors"
             >
               Login
             </button>
             <button
               onClick={() => setShowSignup(true)}
-              className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-medium rounded-full transition-all shadow-lg shadow-cyan-500/30"
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded transition-colors"
             >
               Sign Up
             </button>
@@ -56,20 +60,10 @@ export default function Layout() {
       </header>
 
       {/* Login Modal */}
-      {showLogin && (
-        <LoginForm 
-          onClose={() => setShowLogin(false)} 
-          onSwitchToSignup={handleSwitchToSignup}
-        />
-      )}
+      {showLogin && <LoginForm onClose={() => setShowLogin(false)} />}
       
       {/* Signup Modal */}
-      {showSignup && (
-        <SignupForm 
-          onClose={() => setShowSignup(false)}
-          onSwitchToLogin={handleSwitchToLogin}
-        />
-      )}
+      {showSignup && <SignupForm onClose={() => setShowSignup(false)} />}
 
       {/* Main content - this is where child routes will render */}
       <main className="p-4">
