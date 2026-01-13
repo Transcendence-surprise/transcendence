@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthController } from './health/health.controller';
 import { UsersModule } from './users/users.module';
+import { GameModule } from './ game/game.module'; // My GAME
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UsersModule } from './users/users.module';
       synchronize: false, // keep false since we use migrations
     }),
     UsersModule,
+    GameModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService],
