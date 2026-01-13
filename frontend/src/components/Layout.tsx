@@ -15,6 +15,16 @@ export default function Layout() {
       .catch(() => setStatus('error'));
   }, []);
 
+  const handleSwitchToSignup = () => {
+    setShowLogin(false);
+    setShowSignup(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    setShowSignup(false);
+    setShowLogin(true);
+  };
+
   return (
     <div className="min-h-screen bg-black text-blue-400 font-mono">
       {/* Header */}
@@ -28,16 +38,16 @@ export default function Layout() {
               Backend status: {status}
             </p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 bg-gray-900/50 rounded-full p-1 border border-gray-700">
             <button
               onClick={() => setShowLogin(true)}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded transition-colors"
+              className="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-full transition-all border border-gray-600"
             >
               Login
             </button>
             <button
               onClick={() => setShowSignup(true)}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded transition-colors"
+              className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-medium rounded-full transition-all shadow-lg shadow-cyan-500/30"
             >
               Sign Up
             </button>
@@ -46,10 +56,20 @@ export default function Layout() {
       </header>
 
       {/* Login Modal */}
-      {showLogin && <LoginForm onClose={() => setShowLogin(false)} />}
+      {showLogin && (
+        <LoginForm 
+          onClose={() => setShowLogin(false)} 
+          onSwitchToSignup={handleSwitchToSignup}
+        />
+      )}
       
       {/* Signup Modal */}
-      {showSignup && <SignupForm onClose={() => setShowSignup(false)} />}
+      {showSignup && (
+        <SignupForm 
+          onClose={() => setShowSignup(false)}
+          onSwitchToLogin={handleSwitchToLogin}
+        />
+      )}
 
       {/* Main content - this is where child routes will render */}
       <main className="p-4">
