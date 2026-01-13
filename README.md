@@ -1,89 +1,40 @@
 # Transcendence
 
-## Usage
-```bash
-git clone git@github.com:Transcendence-surprise/transcendence.git && cd transcendence
-```
+Backend:
 
-## Development
+npm run start:dev
 
-## Frontend
+Health checkpoint
 
-**NOTE:** (from Ilia) I comment out `make dev`, it has no porpose anymore I think. We will add another command to connect front and back later when API endpoints will be ready.
+GET /api/health
+https://automatic-space-spork-69975pq577rc5g5-3000.app.github.dev/api/health
 
-```bash
-# make dev  
-# Ilia comment it out -> I do not see the porpose of the command on the current stage
-# make dev-back
-make dev-front
-```
+Frontend:
 
-## Backend
+npm run dev
 
-NOTE: (from Ilia) I moved all documentation related to backend and API endpoints to `docs/` dir. Find all there.
+## Makefile
+Development
 
-1. If you need to run backend, read:
-```bash
-/docs/BACKEND-DEV.md
-```
-2. API documentation, read:
-```bash
-/docs/API-DOCS.md
-```
-3. If you need to check db inside docker container, read:
-```bash
-/docs/DATABESE-DEV.md
-```
+Frontend:
 
+make dev        # run Postgres
 
+make dev-front  # run Vite
 
+Backend:
 
+make dev        # run Postgres
 
+make dev-back   # run NestJS dev
 
-**Step 1:** After cloning the repo run at the first time:
-```bash
-make dev-install
-```
+dev-install     # run npm install
 
-**Step 2:** Start dev DB, run migrations, start NestJS dev
-```bash
-make dev-back
-```
+🔹 clean
 
-**Step 3:** After starting backend run server health check:
-```bash
-curl -i http://localhost:3000/api/health # should retun 200
-```
+Delete: volumes, PostgreSQL clean.
 
-## API 
-Read API_DOCS.md:
-```bash
-/docs/API_DOCS.md
-```
-
-## Database
-Read DATABESE-DEV.md to communicate with database directly:
-```bash
-/docs/DATABESE-DEV.md
-```
-
-### 🔹 clean
-
-Stop containers (keeps volumes).
-
-```bash
-make clean
-```
-
-### 🔹 fclean
-
-Stop containers and remove volumes (full reset).
-
-```bash
-make fclean
-```
-
-### 🔹 reb, ref, rng, rdb
+🔹 reb, ref, rng, rdb
 
 Rebuild of separate service:
 
@@ -153,6 +104,12 @@ GET /api/health
 - **Express:**      4.x
 
 ### Infrastructure (planned)
-- **Nginx:**        1.27
-- **PostgreSQL:**   16
-- **Docker & Docker Compose**
+- Nginx         1.27
+- PostgreSQL    16
+- Docker & Docker Compose
+
+
+
+
+
+[text](backend) [text](backend/dist) [text](backend/node_modules) [text](backend/src) [text](backend/test) [text](backend/.env) [text](backend/.env.example) [text](backend/.gitignore) [text](backend/.prettierrc) [text](backend/Dockerfile) [text](backend/eslint.config.mjs) [text](backend/nest-cli.json) [text](backend/package-lock.json) [text](backend/package.json) [text](backend/README.md) [text](backend/tsconfig.build.json) [text](backend/tsconfig.json) [text](frontend) [text](frontend/node_modules) [text](frontend/public) [text](frontend/src) [text](frontend/.gitignore) [text](frontend/Dockerfile) [text](frontend/eslint.config.js) [text](frontend/index.html) [text](frontend/package-lock.json) [text](frontend/package.json) [text](frontend/README.md) [text](frontend/vite.config.js) [text](nginx) [text](nginx/Dockerfile) [text](nginx/nginx.conf) [text](.env.example) [text](.gitignore) [text](docker-compose.dev.yml) [text](docker-compose.yml) [text](Makefile) [text](README.md)
