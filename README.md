@@ -1,40 +1,54 @@
 # Transcendence
 
-Backend:
+## Development
 
-npm run start:dev
+At the first time:
+```bash
+make dev-install
+```
 
-Health checkpoint
+## Frontend
 
-GET /api/health
-https://automatic-space-spork-69975pq577rc5g5-3000.app.github.dev/api/health
+```bash
+make dev       # run Postgres
+make dev-front # run Vite
+```
 
-Frontend:
+## Backend
 
-npm run dev
+NOTE: (from Ilia) I moved all documentation related to backend and API endpoints to `docs/` dir. Find all there.
 
-## Makefile
-Development
+1. If you need to run backend, read:
+```bash
+/docs/BACKEND-DEV.md
+```
+2. API documentation, read:
+```bash
+/docs/API-DOCS.md
+```
+3. If you need to check db inside docker container, read:
+```bash
+/docs/DATABESE-DEV.md
+```
 
-Frontend:
 
-make dev        # run Postgres
+### 🔹 clean
 
-make dev-front  # run Vite
+Stop containers (keeps volumes).
 
-Backend:
+```bash
+make clean
+```
 
-make dev        # run Postgres
+### 🔹 fclean
 
-make dev-back   # run NestJS dev
+Stop containers and remove volumes (full reset).
 
-dev-install     # run npm install
+```bash
+make fclean
+```
 
-🔹 clean
-
-Delete: volumes, PostgreSQL clean.
-
-🔹 reb, ref, rng, rdb
+### 🔹 reb, ref, rng, rdb
 
 Rebuild of separate service:
 
@@ -104,12 +118,6 @@ GET /api/health
 - **Express:**      4.x
 
 ### Infrastructure (planned)
-- Nginx         1.27
-- PostgreSQL    16
-- Docker & Docker Compose
-
-
-
-
-
-[text](backend) [text](backend/dist) [text](backend/node_modules) [text](backend/src) [text](backend/test) [text](backend/.env) [text](backend/.env.example) [text](backend/.gitignore) [text](backend/.prettierrc) [text](backend/Dockerfile) [text](backend/eslint.config.mjs) [text](backend/nest-cli.json) [text](backend/package-lock.json) [text](backend/package.json) [text](backend/README.md) [text](backend/tsconfig.build.json) [text](backend/tsconfig.json) [text](frontend) [text](frontend/node_modules) [text](frontend/public) [text](frontend/src) [text](frontend/.gitignore) [text](frontend/Dockerfile) [text](frontend/eslint.config.js) [text](frontend/index.html) [text](frontend/package-lock.json) [text](frontend/package.json) [text](frontend/README.md) [text](frontend/vite.config.js) [text](nginx) [text](nginx/Dockerfile) [text](nginx/nginx.conf) [text](.env.example) [text](.gitignore) [text](docker-compose.dev.yml) [text](docker-compose.yml) [text](Makefile) [text](README.md)
+- **Nginx:**        1.27
+- **PostgreSQL:**   16
+- **Docker & Docker Compose**
