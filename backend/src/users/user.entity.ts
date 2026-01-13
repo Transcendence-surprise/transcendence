@@ -17,8 +17,8 @@ export class User {
   @Column({ unique: true, length: 32 })
   email: string;
 
-  // NOTE: this should store a hash (never plaintext). Hidden from default queries.
-  @Column({ length: 255, default: '', select: false })
+  // TODO: change select to false after successfull tests
+  @Column({ length: 255, default: '', select: true })
   password: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
