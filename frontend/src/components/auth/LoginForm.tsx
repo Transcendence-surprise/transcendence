@@ -31,7 +31,6 @@ export default function LoginForm({ onClose, onSwitchToSignup }: LoginFormProps)
   };
 
   const handleGoogleSignIn = () => {
-    // TODO: Implement Google OAuth
     alert('Google Sign In - ready for OAuth integration');
   };
 
