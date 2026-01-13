@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from './components/Layout';
 import Home from './pages/Home';
-//import IndexPage from './game/pages/Index';
+import GameSetupRoute from './game/screens/GameRoute';
 
 export default function App() {
   return (
@@ -13,7 +13,7 @@ export default function App() {
           <Route index element={<Home />} />
           
           {/* Game routes */}
-          {/* <Route path="game" element={<IndexPage />} /> */}
+          <Route path="game" element={<GameSetupRoute />} />
           
           {/* Future routes - uncomment when ready */}
           {/* <Route path="profile" element={<Profile />} /> */}
@@ -22,7 +22,7 @@ export default function App() {
           
           {/* 404 Not Found */}
           {/* <Route path="*" element={<NotFound />} /> */}
-        </Route>
+        </Route> 
       </Routes>
     </BrowserRouter>
   );

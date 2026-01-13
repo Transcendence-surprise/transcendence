@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-// import { checkHealth } from '../api/health';
+import { checkHealth } from '../api/health';
 
 export default function Layout() {
   const [status, setStatus] = useState('loading...');
 
-//   useEffect(() => {
-//     checkHealth()
-//       .then(data => setStatus(data.status))
-//       .catch(() => setStatus('error'));
-//   }, []);
+  useEffect(() => {
+    checkHealth()
+      .then(data => setStatus(data.status))
+      .catch(() => setStatus('error'));
+  }, []);
 
   return (
     <div className="min-h-screen bg-black text-blue-400 font-mono">
