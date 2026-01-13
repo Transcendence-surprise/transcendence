@@ -35,10 +35,6 @@ export default function SignupForm({ onClose, onSwitchToLogin }: SignupFormProps
     
     // TODO: Add API call to backend signup endpoint
     // Example: await fetch('/api/auth/signup', { method: 'POST', body: JSON.stringify(formData) })
-<<<<<<< HEAD
-=======
-    
->>>>>>> 0bf18d6 (add buttons for loging, signin)
     alert('Signup functionality - ready for backend integration');
   };
 
@@ -66,10 +62,10 @@ export default function SignupForm({ onClose, onSwitchToLogin }: SignupFormProps
         </button>
 
         {/* Progress indicator */}
-        <div className="flex justify-center gap-2 mb-6">
+        {/* <div className="flex justify-center gap-2 mb-6">
           <div className="w-16 h-1 bg-cyan-500 rounded-full"></div>
           <div className="w-16 h-1 bg-gray-600 rounded-full"></div>
-        </div>
+        </div> */}
 
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-white mb-3">Create Account</h1>
