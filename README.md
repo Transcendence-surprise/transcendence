@@ -7,25 +7,69 @@ Development
 
 **Frontend:**
 
+After cloning the repo run at the first time:
 ```bash
-make dev        # run Postgres
-make dev-front  # run Vite
+make dev-install
 ```
 
-**Backend:**
+Start dev DB, run migrations, start NestJS dev
+```bash
+make dev-back
+```
+
+Optional (mostly no needed):
+- start dev DB + run migrations only
 
 ```bash
-make dev        # run Postgres
-make dev-back   # run NestJS dev
-dev-install     # run npm install
+make dev-migrate
+```
+
+- start dev DB only
+```bash
+make dev-db
+```
+### Backend Health Check
+
+After starting backend run server health check:
+```bash
+curl -i http://localhost:3000/api/health # should retun 200
+```
+### Backend run all tests
+**ALWAYS** test all endpoits before merging a branch:
+```bash
+cd backend
+npm run test:e2e
+```
+
+### Clean after use
+After using backend -  check and stop port 3000:
+```bash
+ss -ltnp | grep 3000
+```
+```bash
+kill <pid>
+```
+## Postgres Database
+
+Use README-DB.md to communicate with database directly at:
+```bash
+/transcendence/backend/README-DB.md
 ```
 
 ### 🔹 clean
 
-Delete volumes, PostgreSQL clean.
+Stop containers (keeps volumes).
 
 ```bash
 make clean
+```
+
+### 🔹 fclean
+
+Stop containers and remove volumes (full reset).
+
+```bash
+make fclean
 ```
 
 ### 🔹 reb, ref, rng, rdb
@@ -50,6 +94,14 @@ Clean dangling images
 
 ```bash
 make prune
+```
+
+### 🔹 prod
+
+Start production stack (build + detached).
+
+```bash
+make prod
 ```
 
 ## Architecture (Development)
