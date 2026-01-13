@@ -1,9 +1,6 @@
 import 'reflect-metadata';
-import * as dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
 import { User } from '../users/user.entity';
-
-dotenv.config(); // reads backend/.env when you run from backend/
 
 export default new DataSource({
   type: 'postgres',
