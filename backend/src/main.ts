@@ -12,6 +12,10 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
 
+  app.setGlobalPrefix('api', {
+    exclude: ['health'],
+  });
+
   app.enableCors({
     origin: true,
     credentials: true,
@@ -25,7 +29,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app as unknown as any, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api/docs', app, document);
 
   const port = process.env.PORT ?? '3000';
   await app.listen(port, '0.0.0.0');
