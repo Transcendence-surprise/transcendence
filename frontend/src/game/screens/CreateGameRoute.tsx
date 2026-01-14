@@ -1,7 +1,7 @@
 // src/game/routes/CreateGameRoute.tsx
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getGameState, makeMove } from "../../api/game";
+import { getGameState } from "../../api/game";
 import Board from "../../components/game/Board";
 
 export default function CreateGameRoute() {
