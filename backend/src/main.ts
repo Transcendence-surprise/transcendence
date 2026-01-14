@@ -22,9 +22,7 @@ async function bootstrap() {
     }),
   );
 
-  app.setGlobalPrefix('api', {
-    exclude: ['health'],
-  });
+  app.setGlobalPrefix('api');
 
   app.enableCors({
     origin: true,
