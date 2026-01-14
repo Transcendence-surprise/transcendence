@@ -32,19 +32,6 @@ export class UsersService {
     });
   }
 
-  async findOneById(id: number) {
-    const user = await this.repo.findOne({ where: { id } });
-    if (!user) throw new NotFoundException(`User '${id}' not found`);
-    return user;
-  }
-
-  async findByUsernameWithPassword(username: string) {
-    return this.repo.findOne({
-      where: { username },
-      select: ['id', 'email', 'username', 'password'],
-    });
-  }
-
   async removeByUsername(username: string) {
     const res = await this.repo.delete({ username });
     if (!res.affected)
