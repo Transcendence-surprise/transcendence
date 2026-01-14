@@ -15,6 +15,9 @@ services:
       - ./backend/.env
     environment:
       - DB_HOST=db
+    volumes:
+      - ./database:/database:ro
+      - ./backend:/backend:ro
     expose:
       - "3000"
     depends_on:
