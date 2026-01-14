@@ -4,12 +4,10 @@ import { checkHealth } from '../api/health';
 import LoginForm from './auth/LoginForm';
 import SignupForm from './auth/SignupForm';
 
-
 export default function Layout() {
   const [status, setStatus] = useState('loading...');
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
- 
 
   useEffect(() => {
     checkHealth()
