@@ -1,5 +1,10 @@
 # API Documentation
 
+Swagger:
+```bash
+http://localhost/api/docs
+```
+
 ## Users 
 
 ### GET
