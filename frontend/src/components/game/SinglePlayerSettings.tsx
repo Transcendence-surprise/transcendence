@@ -38,6 +38,7 @@ export default function SinglePlayerSettingsForm({
           value={settings.levelId || ""}
           onChange={(e) => onChange({ ...settings, levelId: e.target.value })}
         >
+          <option value="">Select Level</option>
           {levels.map((level) => (
             <option key={level.id} value={level.id}>
               {level.name}

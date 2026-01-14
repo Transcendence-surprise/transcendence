@@ -1,40 +1,40 @@
 import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { EngineService } from '../services/engine.service.nest';
-// import { GameState, GameSettings } from '../models/state';
+import { GameState, GameSettings } from '../models/state';
 // import { BoardAction } from '../models/boardAction';
 // import { MoveAction } from '../models/moveAction';
 import { ApiBody, ApiOkResponse, ApiParam } from '@nestjs/swagger';
-// import {
-//   CreateGameDto,
+import {
+  CreateGameDto,
 //   StartGameDto,
 //   JoinGameDto,
 //   MoveDto,
 //   LeaveGameDto,
 //   LobbyGamesResponseDto,
-//   GameStateDto,
-// } from '../dtos/game.dto';
+  GameStateDto,
+} from '../dtos/game.dto';
 import { SingleLevelDto } from '../dtos/level-registry.dto';
 
 @Controller('game')
 export class GameController {
   constructor(private readonly engine: EngineService) {}
 
-//   // Create Game
-//   @Post('create')
-//   @ApiBody({ type: CreateGameDto })
-//   createGame(
-//     @Body() body: {
-//       hostId: string;
-//       settings: GameSettings;
-//     }
-//   ) {
-//     const { gameId } = this.engine.createGame(
-//       body.hostId,
-//       body.settings
-//     );
+  // Create Game
+  @Post('create')
+  @ApiBody({ type: CreateGameDto })
+  createGame(
+    @Body() body: {
+      hostId: string;
+      settings: GameSettings;
+    }
+  ) {
+    const { gameId } = this.engine.createGame(
+      body.hostId,
+      body.settings
+    );
 
-//     return { ok: true, gameId };
-//   }
+    return { ok: true, gameId };
+  }
 
 //   // Start game
 //   @Post('start')
@@ -92,12 +92,12 @@ export class GameController {
 //     return this.engine.getLobbyGames();
 //   }
 
-//   @Get(':gameId')
-//   @ApiParam({ name: 'gameId', type: 'string' })
-//   @ApiOkResponse({ type: GameStateDto })
-//   getGameState(@Param('gameId') gameId: string) {
-//     return this.engine.getGameState(gameId);
-//   }
+  @Get(':gameId')
+  @ApiParam({ name: 'gameId', type: 'string' })
+  @ApiOkResponse({ type: GameStateDto })
+  getGameState(@Param('gameId') gameId: string) {
+    return this.engine.getGameState(gameId);
+  }
 
   @Get('single/levels')
   @ApiOkResponse({ type: SingleLevelDto, isArray: true })

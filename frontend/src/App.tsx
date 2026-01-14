@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import GameSetupRoute from './game/screens/GameRoute';
+import CreateGameRoute from "./game/screens/CreateGameRoute"; 
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
           
           {/* Game routes */}
           <Route path="game" element={<GameSetupRoute />} />
+          <Route path="/game/:id" element={<CreateGameRoute />} />
           
           {/* Future routes - uncomment when ready */}
           {/* <Route path="profile" element={<Profile />} /> */}

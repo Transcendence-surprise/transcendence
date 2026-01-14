@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-// import { GameState, GameSettings } from '../models/state';
+import { GameState, GameSettings } from '../models/state';
 // import { BoardAction } from '../models/boardAction';
 // import { MoveAction } from '../models/moveAction';
 // import { MoveResult } from '../models/moveResult';
 // import { processTurn as processTurnFn } from '../engine/turn.engine';
-// import { createGame as  createGameEngine} from '../engine/create.engine';
+import { createGame as  createGameEngine} from '../engine/create.engine';
 // import { joinGameEngine } from '../engine/join.engine';
 // import { startGameEngine } from "../engine/start.engine";
 // import { leaveGameEngine } from "../engine/leave.engine";
@@ -15,20 +15,20 @@ import * as crypto from 'crypto';
 
 @Injectable()
 export class EngineService {
-//   private games = new Map<string, GameState>();
+  private games = new Map<string, GameState>();
 
-//   createGame(hostId: string, settings: GameSettings) {
-//     const state = createGameEngine(hostId, settings); // from create.engine.ts
-//     const gameId = crypto.randomUUID();
-//     this.games.set(gameId, state);
-//     return { gameId };
-//   }
+  createGame(hostId: string, settings: GameSettings) {
+    const state = createGameEngine(hostId, settings); // from create.engine.ts
+    const gameId = crypto.randomUUID();
+    this.games.set(gameId, state);
+    return { gameId };
+  }
 
-//   getGameState(gameId: string): GameState {
-//     const state = this.games.get(gameId);
-//     if (!state) throw new Error('Game not found');
-//     return state;
-//   }
+  getGameState(gameId: string): GameState {
+    const state = this.games.get(gameId);
+    if (!state) throw new Error('Game not found');
+    return state;
+  }
 
 //   startGame(gameId: string, hostId: string) {
 //     const state = this.getGameState(gameId);

@@ -13,62 +13,74 @@ export type PlayerInfo = {
 };
 
 export async function createGame(hostId: string, settings: GameSettings) {
-  const res = await fetch('/game/create', {
+  const res = await fetch('/api/game/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ hostId, settings }),
   });
-  return res.json();
+  const data = await res.json();
+
+  if (!res.ok || !data.ok) {
+    throw new Error(data?.message || 'Failed to create game');
+  }
+
+  return data; // { ok: true, gameId: string }
 }
 
-export async function joinGame(gameId: string, playerId: string) {
-  const res = await fetch('/game/join', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ gameId, playerId }),
-  });
-  return res.json();
-}
+// export async function joinGame(gameId: string, playerId: string) {
+//   const res = await fetch('/game/join', {
+//     method: 'POST',
+//     headers: { 'Content-Type': 'application/json' },
+//     body: JSON.stringify({ gameId, playerId }),
+//   });
+//   return res.json();
+// }
 
-export async function startGame(gameId: string, hostId: string) {
-  const res = await fetch('/game/start', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ gameId, hostId }),
-  });
-  return res.json();
-}
+// export async function startGame(gameId: string, hostId: string) {
+//   const res = await fetch('/game/start', {
+//     method: 'POST',
+//     headers: { 'Content-Type': 'application/json' },
+//     body: JSON.stringify({ gameId, hostId }),
+//   });
+//   return res.json();
+// }
 
 export async function getGameState(gameId: string) {
-  const res = await fetch(`/game/${gameId}`);
-  return res.json();
+  const res = await fetch(`/api/game/${gameId}`);
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data?.message || 'Failed to fetch game state');
+  }
+
+  return data; // full game object
 }
 
-export async function makeMove(
-  gameId: string,
-  playerId: string,
-  boardAction?: any,
-  moveAction?: any
-) {
-  const res = await fetch('/game/move', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ gameId, playerId, boardAction, moveAction }),
-  });
-  return res.json();
-}
+// export async function makeMove(
+//   gameId: string,
+//   playerId: string,
+//   boardAction?: any,
+//   moveAction?: any
+// ) {
+//   const res = await fetch('api/game/move', {
+//     method: 'POST',
+//     headers: { 'Content-Type': 'application/json' },
+//     body: JSON.stringify({ gameId, playerId, boardAction, moveAction }),
+//   });
+//   return res.json();
+// }
 
-export async function leaveGame(gameId: string, playerId: string) {
-  const res = await fetch('/game/leave', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ gameId, playerId }),
-  });
-  return res.json();
-}
+// export async function leaveGame(gameId: string, playerId: string) {
+//   const res = await fetch('/game/leave', {
+//     method: 'POST',
+//     headers: { 'Content-Type': 'application/json' },
+//     body: JSON.stringify({ gameId, playerId }),
+//   });
+//   return res.json();
+// }
 
 export async function getSingleLevels(): Promise<SingleLevel[]> {
-  const res = await fetch("/game/single/levels");
+  const res = await fetch("/api/game/single/levels");
 
   if (!res.ok) {
     throw new Error("Failed to load levels");
