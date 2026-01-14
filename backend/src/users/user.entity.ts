@@ -18,7 +18,7 @@ export class User {
   email: string;
 
   // TODO: change select to false after successfull tests
-  @Column({ length: 255, default: '', select: true })
+  @Column({ length: 60, default: '', select: true })
   password: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
