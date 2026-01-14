@@ -23,6 +23,18 @@ prod:
 # Start full stack
 up:
 	$(COMPOSE) up --build -d
+	@echo "$(CYAN)Running migrations...$(RESET)"
+	@i=0; \
+	while ! $(COMPOSE) exec -T backend npm run migration:run >/dev/null 2>&1; do \
+		i=$$((i+1)); \
+		if [ $$i -ge 10 ]; then \
+			echo "$(RED)Migrations failed after retries.$(RESET)"; \
+			exit 1; \
+		fi; \
+		sleep 2; \
+	done
+	@echo "$(GREEN)Migrations successful.$(RESET)";
+
 
 # Stop containers (keep volumes)
 down:
