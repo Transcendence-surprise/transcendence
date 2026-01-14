@@ -1,5 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
 import { Client } from 'pg';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
@@ -23,21 +26,23 @@ describe('Users (e2e)', () => {
     await app.close();
   });
 
-  it('/api/health (GET)', async () => {
+  it('/health (GET)', async () => {
     await request(app.getHttpServer())
-      .get('/api/health')
+      .get('/health')
       .expect(200)
       .expect({ status: 'ok' });
   });
 
-  it('/api/users (GET) returns an array', async () => {
-    const res = await request(app.getHttpServer()).get('/api/users').expect(200);
+  it('/users (GET) returns an array', async () => {
+    const res = await request(app.getHttpServer()).get('/users').expect(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
 
-  it('/api/users/:username (GET) returns user by username', async () => {
+  it('/users/:username (GET) returns user by username', async () => {
     const username = 'e2e_user_username';
     const email = 'e2e_user_username@example.com';
+    const password =
+      '$2b$10$K1wFn0Zr.0Y.L4L8zN5Zj.U0vQ3K4hQ5tQ6K7hQ8tQ9K0hQ1K2hQ3'; // Dummy bcrypt hash
 
     const client = new Client({
       host: process.env.DB_HOST ?? 'localhost',
@@ -50,27 +55,25 @@ describe('Users (e2e)', () => {
     try {
       await client.query('DELETE FROM users WHERE username = $1', [username]);
       await client.query(
-        'INSERT INTO users (username, email) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-        [username, email],
+        'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
+        [username, email, password], // ← Add password
       );
     } finally {
       await client.end();
     }
 
     const res = await request(app.getHttpServer())
-      .get(`/api/users/${username}`)
+      .get(`/users/${username}`)
       .expect(200);
 
     expect(res.body).toMatchObject({ username, email });
   });
 
-  it('/api/users/:username (GET) returns 404 when not found', async () => {
-    await request(app.getHttpServer()).get('/api/users/no_such_user').expect(404);
-  });
-
-  it('/api/users/:username (DELETE) deletes user by username', async () => {
+  it('/users/:username (DELETE) deletes user by username', async () => {
     const username = 'e2e_user_delete';
     const email = 'e2e_user_delete@example.com';
+    const password =
+      '$2b$10$K1wFn0Zr.0Y.L4L8zN5Zj.U0vQ3K4hQ5tQ6K7hQ8tQ9K0hQ1K2hQ3'; // Dummy bcrypt hash
 
     const client = new Client({
       host: process.env.DB_HOST ?? 'localhost',
@@ -83,26 +86,24 @@ describe('Users (e2e)', () => {
     try {
       await client.query('DELETE FROM users WHERE username = $1', [username]);
       await client.query(
-        'INSERT INTO users (username, email) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-        [username, email],
+        'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
+        [username, email, password], // ← Add password
       );
     } finally {
       await client.end();
     }
 
     await request(app.getHttpServer())
-      .delete(`/api/users/${username}`)
+      .delete(`/users/${username}`)
       .expect(200)
       .expect({ deleted: true, username });
 
-    await request(app.getHttpServer()).get(`/api/users/${username}`).expect(404);
+    await request(app.getHttpServer()).get(`/users/${username}`).expect(404);
   });
 
-  it('/api/users/:username (DELETE) returns 404 when not found', async () => {
+  it('/users/:username (DELETE) returns 404 when not found', async () => {
     await request(app.getHttpServer())
-      .delete('/api/users/no_such_user_delete')
+      .delete('/users/no_such_user_delete')
       .expect(404);
   });
 });
-
-
