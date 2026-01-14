@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 import 'dotenv/config';
+import { join } from 'node:path';
 import { DataSource } from 'typeorm';
-import { User } from '../users/user.entity';
+import { User } from '../backend/src/users/user.entity';
 
 export default new DataSource({
   type: 'postgres',
@@ -11,5 +12,5 @@ export default new DataSource({
   password: process.env.DB_PASSWORD ?? 'transcendence',
   database: process.env.DB_NAME ?? 'transcendence',
   entities: [User],
-  migrations: ['src/database/migrations/*.ts'],
+  migrations: [join(__dirname, 'migrations', '*.{ts,js}')],
 });
