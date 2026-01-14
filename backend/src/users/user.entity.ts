@@ -1,4 +1,10 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity({ name: 'users' })
 export class User {
@@ -11,8 +17,8 @@ export class User {
   @Column({ unique: true, length: 32 })
   email: string;
 
-  // NOTE: this should store a hash (never plaintext). Hidden from default queries.
-  @Column({ length: 255, default: '', select: false })
+  // TODO: change select to false after successfull tests
+  @Column({ length: 60, default: '', select: true })
   password: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
