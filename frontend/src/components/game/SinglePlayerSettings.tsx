@@ -8,6 +8,8 @@ type Props = {
   onChange: (newSettings: SinglePlayerSettings) => void;
   onCreate: () => void;
   onBack: () => void;
+  error?: string | null;      // <-- add this
+  loading?: boolean;          // <-- add this
 };
 
 export default function SinglePlayerSettingsForm({
@@ -15,14 +17,16 @@ export default function SinglePlayerSettingsForm({
   onChange,
   onCreate,
   onBack,
+  loading,
+  error,
 }: Props) {
   const [levels, setLevels] = useState<SingleLevel[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingLevels, setLoadingLevels] = useState(true);
 
   useEffect(() => {
     getSingleLevels()
       .then(setLevels)
-      .finally(() => setLoading(false));
+      .finally(() => setLoadingLevels(false));
   }, []);
 
   if (loading) return <div>Loading levels...</div>;
@@ -30,6 +34,8 @@ export default function SinglePlayerSettingsForm({
   return (
     <div className="min-h-screen bg-black text-blue-400 font-mono flex flex-col items-center justify-center space-y-4">
       <h2 className="text-2xl font-bold">Single Player Settings</h2>
+
+      {error && <p className="text-red-500">{error}</p>}
 
       <label>
         Level:
@@ -50,13 +56,16 @@ export default function SinglePlayerSettingsForm({
       <button
         className="px-6 py-3 bg-green-600 rounded-lg shadow-lg hover:bg-green-500 transition-all"
         onClick={onCreate}
-        disabled={!settings.levelId} // cannot create without selection
+        disabled={!settings.levelId || loading} // cannot create without selection
       >
         Create Game
       </button>
 
-      <button className="mt-2 text-sm underline text-blue-300" onClick={onBack}>
-        Back
+      <button
+        className="mt-2 text-sm underline text-blue-300"
+        onClick={onBack}
+        >
+          Back
       </button>
     </div>
   );

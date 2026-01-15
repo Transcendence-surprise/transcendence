@@ -1,39 +1,36 @@
-import { GameSettings } from "../../game/models/gameSettings";
-
+// src/components/game/GameModePicker.tsx
 type Props = {
-  onSelectMode: (settings: GameSettings) => void;
-  onBack: () => void;
+  onSelectSingle: () => void;
+  onSelectMulti: () => void;
+  onBack?: () => void; // optional
 };
 
-export default function GameModePicker({ onSelectMode, onBack }: Props) {
+export default function GameModePicker({ onSelectSingle, onSelectMulti, onBack }: Props) {
   return (
     <div className="min-h-screen bg-black text-blue-400 font-mono flex flex-col items-center justify-center space-y-6">
-      <h2 className="text-2xl font-bold drop-shadow-lg">Choose Game Mode</h2>
-      <div className="flex space-x-4">
+      <h2 className="text-3xl font-bold drop-shadow-lg">Choose Game Mode</h2>
+
+      <div className="flex flex-col space-y-4">
         <button
           className="px-6 py-3 bg-blue-900 rounded-lg shadow-lg hover:bg-blue-800 transition-all"
-          onClick={() => onSelectMode({ mode: "SINGLE" })}
+          onClick={onSelectSingle}
         >
           Single Player
         </button>
+
         <button
-          className="px-6 py-3 bg-blue-900 rounded-lg shadow-lg hover:bg-blue-800 transition-all"
-          onClick={() =>
-            onSelectMode({
-              mode: "MULTI",
-              maxPlayers: 3,
-              allowSpectators: true,
-              boardSize: 7,
-              collectiblesPerPlayer: 5,
-            })
-          }
+          className="px-6 py-3 bg-purple-900 rounded-lg shadow-lg hover:bg-purple-800 transition-all"
+          onClick={onSelectMulti}
         >
           Multiplayer
         </button>
       </div>
-      <button className="mt-4 text-sm underline text-blue-300" onClick={onBack}>
-        Back
-      </button>
+
+      {onBack && (
+        <button className="mt-6 text-sm underline text-blue-300" onClick={onBack}>
+          Back
+        </button>
+      )}
     </div>
   );
 }

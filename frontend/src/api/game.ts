@@ -1,6 +1,7 @@
 // src/api/game.ts
 
 import { SingleLevel } from "../game/models/singleLevel";
+import { MultiGame } from "../game/models/multiGames";
 
 export type GameSettings =
   | ({ mode: 'SINGLE'; allowSpectators?: false; levelId?: string })
@@ -27,14 +28,14 @@ export async function createGame(hostId: string, settings: GameSettings) {
   return data; // { ok: true, gameId: string }
 }
 
-// export async function joinGame(gameId: string, playerId: string) {
-//   const res = await fetch('/game/join', {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({ gameId, playerId }),
-//   });
-//   return res.json();
-// }
+export async function joinGame(gameId: string, playerId: string) {
+  const res = await fetch('/game/join', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ gameId, playerId }),
+  });
+  return res.json();
+}
 
 export async function startGame(gameId: string, hostId: string) {
   const res = await fetch('/game/start', {
@@ -89,3 +90,15 @@ export async function getSingleLevels(): Promise<SingleLevel[]> {
   return res.json();
 }
 
+export async function getMultiplayerGames(): Promise<MultiGame[]> {
+  const res = await fetch("/api/game/multi/games");
+
+  if (!res.ok) {
+    throw new Error("Failed to load multiplayer games");
+  }
+
+  const data = await res.json();
+  console.log("Multiplayer games:", data);
+
+  return data;
+}
