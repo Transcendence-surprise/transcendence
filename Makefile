@@ -74,12 +74,21 @@ dev-back-serv:
 	@echo "$(YELLOW)Running in foreground. Stop with Ctrl+C.$(RESET)"
 	cd backend && npm run start:dev
 
-# Start all backend services at once
-dev-back: 
-	make dev-db
-	make dev-migrate
-	make dev-seed
-	make dev-back-serv
+# Backend auth-service
+dev-back-auth:
+	@echo "$(CYAN)Starting auth-service...$(RESET)"
+	@echo "$(YELLOW)Running in foreground. Stop with Ctrl+C.$(RESET)"
+	cd services/auth-service && npm run start:dev
+
+# Start all backend services at once (parallel)
+dev-back:
+	@$(MAKE) dev-db
+	@$(MAKE) dev-migrate
+	@$(MAKE) dev-seed
+	@cd backend && npm run start:dev & \
+	cd services/auth-service && npm run start:dev & \
+	wait
+
 # Stop containers (keep volumes)
 dev-clean:
 	@echo "$(CYAN)Stopping containers...$(RESET)"
