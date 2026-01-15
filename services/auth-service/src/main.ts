@@ -6,6 +6,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -16,6 +17,23 @@ async function bootstrap() {
       },
     }),
   );
+
+  const config = new DocumentBuilder()
+    .setTitle('Authentication API')
+    .setDescription(
+      'Microservice for user authentication and JWT token generation',
+    )
+    .setVersion('1.0.0')
+    .addTag('Authentication', 'User login and token management')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/auth/docs', app, document, {
+    customSiteTitle: 'Auth API Docs',
+    swaggerOptions: {
+      defaultModelsExpandDepth: -1,
+      persistAuthorization: true,
+    },
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
