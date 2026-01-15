@@ -36,14 +36,14 @@ export async function createGame(hostId: string, settings: GameSettings) {
 //   return res.json();
 // }
 
-// export async function startGame(gameId: string, hostId: string) {
-//   const res = await fetch('/game/start', {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({ gameId, hostId }),
-//   });
-//   return res.json();
-// }
+export async function startGame(gameId: string, hostId: string) {
+  const res = await fetch('/game/start', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ gameId, hostId }),
+  });
+  return res.json();
+}
 
 export async function getGameState(gameId: string) {
   const res = await fetch(`/api/game/${gameId}`);

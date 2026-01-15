@@ -3,11 +3,14 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getGameState } from "../../api/game";
 import Board from "../../components/game/Board";
+import Lobby from "../../components/game/Lobby";
+import { generateTempUserId } from "../utils/randomUser";
 
 export default function CreateGameRoute() {
   const { id } = useParams<{ id: string }>();
   const [game, setGame] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const UserId = generateTempUserId();
 
   useEffect(() => {
     if (!id) return;
@@ -22,6 +25,15 @@ export default function CreateGameRoute() {
 
   if (error) return <div className="text-red-500">Error: {error}</div>;
   if (!game) return <div>Loading game...</div>;
+
+  // Decide what to render based on phase
+  if (game.phase === "LOBBY") {
+      return <Lobby 
+      game={game} 
+      currentUserId={UserId} 
+      onGameStarted={(updatedGame) => setGame(updatedGame)} 
+    />
+  }
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center space-y-4 p-4">
