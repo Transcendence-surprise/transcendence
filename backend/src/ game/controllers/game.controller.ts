@@ -14,6 +14,8 @@ import {
   GameStateDto,
 } from '../dtos/game.dto';
 import { SingleLevelDto } from '../dtos/level-registry.dto';
+import { MultiGameDto } from '../dtos/game-lobby-list';
+import { MultiGame } from '../models/gameInfo';
 
 @Controller('game')
 export class GameController {
@@ -103,5 +105,11 @@ export class GameController {
   @ApiOkResponse({ type: SingleLevelDto, isArray: true })
   getSingleLevels(): SingleLevelDto[] {
     return this.engine.getSinglePlayerLevels();
+  }
+
+  @Get("multi/games")                                           //Fake for now
+  @ApiOkResponse({ type: MultiGameDto, isArray: true })
+  getMultiplayerGames(): MultiGame[] {
+    return this.engine.getRandomGamesList(); // returns LOBBY or PLAY games
   }
 }

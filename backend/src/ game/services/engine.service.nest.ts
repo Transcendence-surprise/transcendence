@@ -10,12 +10,17 @@ import { createGame as  createGameEngine} from '../engine/create.engine';
 // import { leaveGameEngine } from "../engine/leave.engine";
 // import { LeaveResult } from '../models/leaveResult';
 import { listSinglePlayerLevels } from '../engine/levelRegistry.engine';
+import { getMultiplayerGames } from '../engine/multiGames.engine';
 import { SingleLevelInfo } from '../models/levelInfo';
+import { MultiGame } from '../models/gameInfo';
 import * as crypto from 'crypto';
+import { getFakeMultiplayerGames } from './game.generator'; // REMOVE, Random test
 
 @Injectable()
 export class EngineService {
   private games = new Map<string, GameState>();
+
+
 
   createGame(hostId: string, settings: GameSettings) {
     const state = createGameEngine(hostId, settings); // from create.engine.ts
@@ -70,5 +75,12 @@ export class EngineService {
 
   getSinglePlayerLevels(): SingleLevelInfo[] {
     return listSinglePlayerLevels();
+  }
+
+  getMultiGames(): MultiGame[] {
+    return getMultiplayerGames(this.games);
+  }
+  getRandomGamesList() {
+    return getFakeMultiplayerGames(10);
   }
 }

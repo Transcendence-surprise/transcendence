@@ -1,7 +1,7 @@
 const s01Map: string[][] = [
-  ["I1", "I1", "I1"],
-  ["L0", "X0", "X0"],
-  ["X0", "X0", "X0"]
+  ["L1", "T1", "L2"],
+  ["T0", "X0", "T2"],
+  ["L0", "T3", "L3"]
 ];
 
 export default s01Map;
