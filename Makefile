@@ -57,7 +57,7 @@ dev-front:
 dev-db:
 	@echo "$(CYAN)Starting PostgreSQL...$(RESET)"
 	$(COMPOSE) -f docker-compose.dev.yml up -d db
-	
+
 # Run migrations (dev DB must be up)
 dev-migrate:
 	@echo "$(CYAN)Running migrations...$(RESET)"
