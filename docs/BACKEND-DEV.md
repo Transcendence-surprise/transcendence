@@ -1,7 +1,19 @@
 # Backend Development Documentation
 
 ## Usage
-**NOTE:** to start all backend services at once run `Step 0` or follow steps from `Step 1` to `Step 4`
+**NOTE**: (DOCKER) to start all backend services at once run `Step 0`
+
+### **Step 0:** Build dev backend + frontend
+```bash
+make dev-build
+```
+
+### **Step 0:** Run dev backend + nginx 
+```bash
+make dev
+```
+
+**NOTE:** (NOT-DOCKER) to start all backend services at once run `Step 0` or follow steps from `Step 1` to `Step 5`
 
 ### **Step 0:** Start all backend serveces
 ```bash
@@ -34,10 +46,14 @@ make dev-seed
 make dev-back-serv
 ```
 
-## Health check
-After starting backend run server health check:
+**Step 5:** Start auth-service (in another terminal)
 ```bash
-curl -i http://localhost:3000/api/health # should retun 200
+make dev-back-auth
+```
+
+**Auth-service:**
+```bash
+curl -i http://localhost:3001/api/auth/docs # should return Swagger UI
 ```
 
 ## Tests
