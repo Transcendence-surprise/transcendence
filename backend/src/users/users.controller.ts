@@ -1,4 +1,5 @@
 import {
+  ParseIntPipe,
   Body,
   Controller,
   Delete,
@@ -55,15 +56,15 @@ export class UsersController {
   // Auth-test: allows to find user by id only if this user logged in
   @UseGuards(AuthGuard)
   @Get('id/:id')
-  findOneById(
-    @Param('id') id: number,
+  async findOneById(
+    @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: { sub: number; username: string },
   ) {
     if (user.sub !== id) {
       throw new UnauthorizedException();
     }
 
-    return this.usersService.findOneById(id);
+    return await this.usersService.findOneById(id);
   }
 
   @Delete(':username')
