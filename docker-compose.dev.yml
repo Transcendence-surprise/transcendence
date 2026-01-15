@@ -11,6 +11,74 @@ services:
     volumes:
       - db_data_dev:/var/lib/postgresql/data
       - ./database/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - transcendence_net
+
+  nginx:
+    build: ./nginx
+    container_name: nginx-dev
+    env_file:
+      - ./.env
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - auth-service
+    networks:
+      - transcendence_net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend-dev
+    env_file:
+      - ./backend/.env
+    environment:
+      - DB_HOST=${DB_HOST}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+      - NODE_ENV=development
+    volumes:
+      - ./backend/src:/app/src:ro
+      - ./backend/package.json:/app/package.json:ro
+      - ./backend/tsconfig.json:/app/tsconfig.json:ro
+      - ./backend/nest-cli.json:/app/nest-cli.json:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - auth-service
+    networks:
+      - transcendence_net
+    command: npm run start:dev
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+      target: development
+    container_name: auth-service-dev
+    env_file:
+      - ./services/auth-service/.env
+    environment:
+      - DB_HOST=${DB_HOST}
+      - BACKEND_URL=${BACKEND_URL}
+      - NODE_ENV=development
+    volumes:
+      - ./services/auth-service/src:/app/src:ro
+      - ./services/auth-service/package.json:/app/package.json:ro
+      - ./services/auth-service/tsconfig.json:/app/tsconfig.json:ro
+      - ./services/auth-service/nest-cli.json:/app/nest-cli.json:ro
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+    networks:
+      - transcendence_net
+    command: npm run start:dev
 
 volumes:
   db_data_dev:
+
+networks:
+  transcendence_net:
