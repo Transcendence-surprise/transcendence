@@ -43,6 +43,22 @@ down:
 dev:
 	$(COMPOSE) -f docker-compose.dev.yml up -d
 
+# Build and start dev using base + dev compose files
+dev-build:
+	@echo "$(CYAN)Building dev stack...$(RESET)"
+	$(COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+	@echo "$(CYAN)Running migrations...$(RESET)"
+	@i=0; \
+	while ! $(COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml exec -T backend npm run migration:run >/dev/null 2>&1; do \
+		i=$$((i+1)); \
+		if [ $$i -ge 10 ]; then \
+			echo "$(RED)Migrations failed after retries.$(RESET)"; \
+			exit 1; \
+		fi; \
+		sleep 2; \
+	done
+	@echo "$(GREEN)Migrations successful.$(RESET)";
+
 # Stop DB
 dev-down:
 	$(COMPOSE) -f docker-compose.dev.yml down
@@ -151,4 +167,4 @@ prune: fclean
 	@echo "$(CYAN)Pruning dangling images...$(RESET)"
 	docker system prune -af
 
-.PHONY: up down dev dev-db dev-down dev-clean dev-fclean dev-prune dev-front dev-back dev-migrate dev-seed dev-install clean fclean re logs ps reb ref rng rdb prune prod
+.PHONY: up down dev dev-build dev-db dev-down dev-clean dev-fclean dev-prune dev-front dev-back dev-migrate dev-seed dev-install clean fclean re logs ps reb ref rng rdb prune prod
