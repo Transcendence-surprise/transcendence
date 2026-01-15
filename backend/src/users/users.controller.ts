@@ -12,6 +12,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
+import * as bcrypt from 'bcrypt';
 
 @Controller('users')
 export class UsersController {
@@ -20,6 +21,30 @@ export class UsersController {
   @Get()
   findAll() {
     return this.usersService.findAll();
+  }
+
+  // For auth-service to validate credentials
+  @Post('validate-credentials')
+  async validateCredentials(
+    @Body() dto: { username: string; password: string },
+  ) {
+    const user = await this.usersService.findByUsernameWithPassword(
+      dto.username,
+    );
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const passwordCorrect = await bcrypt.compare(dto.password, user.password);
+
+    if (!passwordCorrect) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 
   @Get(':username')
