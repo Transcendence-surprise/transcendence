@@ -1,0 +1,40 @@
+### Variables
+@baseUrl = http://localhost:3000
+@authUrl = http://localhost:3001
+@contentType = application/json
+
+### Get All Users
+GET {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+### Create New User
+# @name createUser
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser",
+  "email": "testuser@example.com",
+  "password": "Test123456!"
+}
+
+### Login User
+# @name login
+POST {{authUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser",
+  "password": "Test123456!"
+}
+
+### Get User by ID
+GET {{baseUrl}}/api/users/1
+Content-Type: {{contentType}}
+
+### Get User by ID (with auth token if needed)
+@token = {{login.response.body.access_token}}
+
+GET {{baseUrl}}/api/users/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
