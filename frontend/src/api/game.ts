@@ -38,7 +38,7 @@ export async function joinGame(gameId: string, playerId: string) {
 }
 
 export async function startGame(gameId: string, hostId: string) {
-  const res = await fetch('/game/start', {
+  const res = await fetch('/api/game/start', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ gameId, hostId }),

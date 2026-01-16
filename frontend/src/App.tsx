@@ -5,8 +5,8 @@ import GameEntryRoute from './game/routes/GameEntryRote';
 import SinglePlayerSetupRoute from "./game/routes/SingleSetupRoute";
 import MultiplayerSetupRoute from "./game/routes/MultiplayerSetupRoute"; 
 import MultiplayerCreateRoute from "./game/routes/MultiplayerCreateRoute";
-import MultiplayerJoinRoute from "./game/routes/JoinOrCreate"; 
-// import LobbyRoute from "./game/routes/LobbyRoute"; 
+import MultiplayerJoinRoute from "./game/routes/JoinRoute"; 
+import LobbyRoute from "./game/routes/LobbyRoute"; 
 import GameRoute from "./game/routes/GameRoute"; 
 
 
@@ -36,7 +36,7 @@ export default function App() {
             <Route path="/multiplayer/join" element={<MultiplayerJoinRoute />} />
 
             {/* Multiplayer lobby */}
-            {/* <Route path="multiplayer/lobby/:gameId" element={<LobbyRoute />} /> */}
+            <Route path="multiplayer/lobby/:gameId" element={<LobbyRoute />} />
 
             {/* Game screen */}
             <Route path="game/:id" element={<GameRoute />} />

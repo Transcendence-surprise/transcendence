@@ -21,7 +21,7 @@ export interface GameRulesDto {
   collectiblesPerPlayer?: number;
 }
 
-export interface GameStateDto {
+export interface GameState {
   gameId: string;
 
   phase: GamePhase;

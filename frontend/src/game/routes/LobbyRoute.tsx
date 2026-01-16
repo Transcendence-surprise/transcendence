@@ -1,22 +1,91 @@
 // // multiplayer lobby
 
-// export default function LobbyRoute() {
-//   const { gameId } = useParams();
-//   const [game, setGame] = useState<any>(null);
-//   const currentUserId = generateTempUserId(); // temp
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useLocation } from "react-router-dom";
+import { generateTempUserId } from "../utils/randomUser";
+import { getGameState, startGame } from "../../api/game";
+import Lobby from "../../components/game/Lobby";
 
-//   useEffect(() => {
-//     const interval = setInterval(() => {
-//       getGameState(gameId!).then(setGame);
-//     }, 1000);
-//     return () => clearInterval(interval);
-//   }, [gameId]);
+export default function LobbyRoute() {
+  const navigate = useNavigate();
+  const { gameId } = useParams();
+  const location = useLocation();
 
-//   const handleStart = () => {
-//     startGame(gameId!).then(() => navigate(`/game/${gameId}`));
-//   };
+ const { currentUserId, hostId } = location.state as { currentUserId: string; hostId: string };
 
-//   if (!game) return <div>Loading...</div>;
+  const [game, setGame] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
-//   return <Lobby game={game} currentUserId={currentUserId} onGameStarted={handleStart} />;
-// }
+  const [startError, setStartError] = useState<string | null>(null);
+  const [starting, setStarting] = useState(false);
+
+  // Poll game state
+  useEffect(() => {
+    if (!gameId) return;
+
+    const fetchGame = () => {
+      getGameState(gameId)
+        .then(setGame)
+        .catch((err) => {
+          console.error(err);
+          setError("Failed to load game state");
+        });
+    };
+
+    fetchGame();
+    const interval = setInterval(fetchGame, 1000);
+    return () => clearInterval(interval);
+  }, [gameId]);
+
+  // Start game (host only)
+  const handleStart = async () => { // Read about Websockets vs POLL
+    if (!gameId) return;
+
+    setStartError(null);
+    setStarting(true);
+
+    try {
+      setStarting(true);
+      setError(null);
+
+      const res = await startGame(gameId!, currentUserId);
+
+      if (!res.ok) {
+        console.warn("Cannot start game:", res.error);
+        if (res.error === "NOT_ENOUGH_PLAYERS") {
+          setStartError("Not enough players to start the game");
+        } else if (res.error === "NOT_HOST") {
+          setStartError("Only the host can start the game");
+        } else {
+          setStartError("Cannot start game");
+        }
+      return;
+    }
+      const updatedGame = await getGameState(gameId!);
+      setGame(updatedGame);
+
+      // backend switched phase → PLAY
+      if (updatedGame.phase === "PLAY") {
+        navigate(`/game/${gameId}`);
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Cannot start game yet");
+    } finally {
+      setStarting(false);
+    }
+  };
+
+  if (!game) return <div>Loading...</div>;
+
+  return (
+    <Lobby
+      game={game}
+      currentUserId={currentUserId}
+      onGameStarted={handleStart}
+      error={startError}
+      starting={starting}
+    />
+  );
+}
