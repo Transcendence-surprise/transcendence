@@ -6,7 +6,7 @@ import { GameState, GameSettings } from '../models/state';
 import { ApiBody, ApiOkResponse, ApiParam } from '@nestjs/swagger';
 import {
   CreateGameDto,
-//   StartGameDto,
+  StartGameDto,
 //   JoinGameDto,
 //   MoveDto,
 //   LeaveGameDto,
@@ -38,15 +38,15 @@ export class GameController {
     return { ok: true, gameId };
   }
 
-//   // Start game
-//   @Post('start')
-//   @ApiBody({ type: StartGameDto })
-//   startGame(
-//     @Body() body: { gameId: string; hostId: string }
-//   ) {
-//     const result = this.engine.startGame(body.gameId, body.hostId);
-//     return result.ok ? { ok: true } : { ok: false, error: result.error };
-//   }
+  // Start game
+  @Post('start')
+  @ApiBody({ type: StartGameDto })
+  startGame(
+    @Body() body: { gameId: string; hostId: string }
+  ) {
+    const result = this.engine.startGame(body.gameId, body.hostId);
+    return result.ok ? { ok: true } : { ok: false, error: result.error };
+  }
 
 //   // Join game
 //   @Post('join')
@@ -86,12 +86,6 @@ export class GameController {
 //   ) {
 //     const result = this.engine.leaveGame(body.gameId, body.playerId);
 //     return result.ok ? { ok: true } : { ok: false, error: result.error };
-//   }
-
-//   @Get('lobby')
-//   @ApiOkResponse({ type: [LobbyGamesResponseDto] })
-//   getLobbyGames() {
-//     return this.engine.getLobbyGames();
 //   }
 
   @Get(':gameId')

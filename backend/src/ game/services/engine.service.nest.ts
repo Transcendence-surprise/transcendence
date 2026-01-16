@@ -6,7 +6,7 @@ import { GameState, GameSettings } from '../models/state';
 // import { processTurn as processTurnFn } from '../engine/turn.engine';
 import { createGame as  createGameEngine} from '../engine/create.engine';
 // import { joinGameEngine } from '../engine/join.engine';
-// import { startGameEngine } from "../engine/start.engine";
+import { startGameEngine } from "../engine/start.engine";
 // import { leaveGameEngine } from "../engine/leave.engine";
 // import { LeaveResult } from '../models/leaveResult';
 import { listSinglePlayerLevels } from '../engine/levelRegistry.engine';
@@ -35,10 +35,10 @@ export class EngineService {
     return state;
   }
 
-//   startGame(gameId: string, hostId: string) {
-//     const state = this.getGameState(gameId);
-//     return startGameEngine(state, hostId);
-//   }
+  startGame(gameId: string, hostId: string) {
+    const state = this.getGameState(gameId);
+    return startGameEngine(state, hostId);
+  }
 
 //   joinGame(
 //     gameId: string,

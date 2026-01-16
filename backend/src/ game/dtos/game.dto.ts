@@ -21,13 +21,13 @@ export class CreateGameDto {
   settings: GameSettings;
 }
 
-// export class StartGameDto {
-//   @ApiProperty()
-//   gameId: string;
+export class StartGameDto {
+  @ApiProperty()
+  gameId: string;
 
-//   @ApiProperty()
-//   hostId: string;
-// }
+  @ApiProperty()
+  hostId: string;
+}
 
 // export class JoinGameDto {
 //   @ApiProperty()
