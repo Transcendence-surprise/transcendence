@@ -9,5 +9,5 @@ export class PlayerStateDto {
   name: string;
 
   @ApiProperty()
-  score: number;
+  score: number;        // optional, later
 }
