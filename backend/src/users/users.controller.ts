@@ -72,6 +72,11 @@ export class UsersController {
     return this.usersService.removeByUsername(username);
   }
 
+  @Delete('id/:id')
+  removeById(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.removeById(id);
+  }
+
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
