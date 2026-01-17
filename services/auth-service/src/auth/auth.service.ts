@@ -1,20 +1,24 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  HttpStatus,
+  BadRequestException,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserDto } from './dto/login-user.dto';
+import { SignupUserDto } from './dto/signup-user.dto';
+import axios from 'axios';
 
 export interface ValidatedUser {
   id: number;
   username: string;
+  email: string;
 }
 
 @Injectable()
 export class AuthService {
-  private readonly backendUrl =
-    process.env.BACKEND_URL || 'http://localhost:3000';
+  private readonly backendUrl = process.env.BACKEND_URL;
 
   constructor(
     private httpService: HttpService,
@@ -25,27 +29,46 @@ export class AuthService {
     try {
       const response = await this.httpService.axiosRef.post<ValidatedUser>(
         `${this.backendUrl}/api/users/validate-credentials`,
-        {
-          username: loginUserDto.username,
-          password: loginUserDto.password,
-        },
+        loginUserDto,
       );
-
-      const user = response.data;
-
-      const payload = {
-        sub: user.id,
-        username: user.username,
-      };
-
-      const access_token = await this.jwtService.signAsync(payload);
-
-      return {
-        access_token,
-        user,
-      };
+      return this.generateAuthResponse(response.data);
     } catch {
       throw new UnauthorizedException('Invalid username or password');
     }
+  }
+
+  async signup(signupUserDto: SignupUserDto) {
+    try {
+      const response = await this.httpService.axiosRef.post<ValidatedUser>(
+        `${this.backendUrl}/api/users`,
+        signupUserDto,
+      );
+      return this.generateAuthResponse(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        if (status === HttpStatus.CONFLICT) {
+          throw new UnauthorizedException('Username or email already exists');
+        } else if (status === HttpStatus.BAD_REQUEST) {
+          throw new BadRequestException('Validation failed');
+        }
+      }
+      throw new UnauthorizedException('Signup failed');
+    }
+  }
+
+  private async generateAuthResponse(user: ValidatedUser) {
+    const payload = {
+      sub: user.id,
+      username: user.username,
+      email: user.email,
+    };
+
+    const access_token = await this.jwtService.signAsync(payload);
+
+    return {
+      access_token,
+      user,
+    };
   }
 }
