@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { ValidateCredDto } from './dto/validate-credentials.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
@@ -26,16 +27,19 @@ export class UsersController {
 
   // For auth-service to validate credentials
   @Post('validate-credentials')
-  async validateCredentials(
-    @Body() dto: { identifier: string; password: string },
-  ) {
-    const user = await this.usersService.findByIdentifier(dto.identifier);
+  async validateCredentials(@Body() validateCredDto: ValidateCredDto) {
+    const user = await this.usersService.findByIdentifier(
+      validateCredDto.identifier,
+    );
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const passwordCorrect = await bcrypt.compare(dto.password, user.password);
+    const passwordCorrect = await bcrypt.compare(
+      validateCredDto.password,
+      user.password,
+    );
 
     if (!passwordCorrect) {
       throw new UnauthorizedException('Invalid credentials');
