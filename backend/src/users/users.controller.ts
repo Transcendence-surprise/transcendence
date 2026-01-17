@@ -27,11 +27,9 @@ export class UsersController {
   // For auth-service to validate credentials
   @Post('validate-credentials')
   async validateCredentials(
-    @Body() dto: { username: string; password: string },
+    @Body() dto: { identifier: string; password: string },
   ) {
-    const user = await this.usersService.findByUsernameWithPassword(
-      dto.username,
-    );
+    const user = await this.usersService.findByIdentifier(dto.identifier);
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');

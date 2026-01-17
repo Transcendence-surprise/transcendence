@@ -32,6 +32,17 @@ export class UsersService {
     });
   }
 
+  // try find by email or username
+  async findByIdentifier(identifier: string) {
+    return this.repo.findOne({
+      where: [
+        { username: identifier }, //
+        { email: identifier },
+      ],
+      select: ['id', 'email', 'username', 'password'],
+    });
+  }
+
   async removeByUsername(username: string) {
     const res = await this.repo.delete({ username });
     if (!res.affected)
