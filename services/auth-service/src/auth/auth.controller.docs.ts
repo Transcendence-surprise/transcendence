@@ -66,10 +66,17 @@ const SignupDocs = () =>
         },
       },
     }),
-    ApiResponse({ status: 401, description: 'Invalid credentials' }),
+    ApiResponse({
+      status: 409,
+      description: 'Username or email already exists',
+    }),
     ApiResponse({
       status: 400,
-      description: 'Bad request - validation failed',
+      description: 'Validation failed',
+    }),
+    ApiResponse({
+      status: 500,
+      description: 'Internal Server Error',
     }),
   );
 
