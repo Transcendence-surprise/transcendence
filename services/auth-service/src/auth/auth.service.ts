@@ -3,6 +3,8 @@ import {
   UnauthorizedException,
   HttpStatus,
   BadRequestException,
+  ConflictException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
@@ -48,12 +50,12 @@ export class AuthService {
       if (axios.isAxiosError(error)) {
         const status = error.response?.status;
         if (status === HttpStatus.CONFLICT) {
-          throw new UnauthorizedException('Username or email already exists');
+          throw new ConflictException('Username or email already exists');
         } else if (status === HttpStatus.BAD_REQUEST) {
           throw new BadRequestException('Validation failed');
         }
       }
-      throw new UnauthorizedException('Signup failed');
+      throw new InternalServerErrorException();
     }
   }
 
