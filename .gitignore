@@ -22,6 +22,7 @@ logs/
 *.pid.lock
 
 # --- Editor ---
+.github/instructions
 .vscode/
 .idea/
 *.swp
