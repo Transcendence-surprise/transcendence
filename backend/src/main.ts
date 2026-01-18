@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import {
@@ -43,10 +42,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  const port = process.env.PORT ?? '3000';
+  const port = process.env.BACKEND_PORT ?? '3000';
   await app.listen(port, '0.0.0.0');
-  console.log(`Server running on http://localhost:${port}`);
-  console.log(`Swagger docs on http://localhost:${port}/api/docs`);
+  console.log(`Server running on ${process.env.BACKEND_URL}`);
+  console.log(`Swagger docs on ${process.env.BACKEND_URL}/api/docs`);
 }
 
 bootstrap().catch((error) => {

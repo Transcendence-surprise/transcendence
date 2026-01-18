@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import {
@@ -50,9 +49,9 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const port = process.env.PORT ?? '3001';
+  const port = process.env.AUTH_SERVICE_PORT ?? '3001';
   await app.listen(port, '0.0.0.0');
-  console.log(`Auth Service running on http://localhost:${port}`);
+  console.log(`Auth Service running on ${process.env.AUTH_SERVICE_URL}`);
 }
 
 bootstrap().catch((error) => {
