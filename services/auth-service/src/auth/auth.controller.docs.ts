@@ -17,13 +17,21 @@ const LoginDocs = () =>
     }),
     ApiResponse({
       status: 200,
-      description: 'Login successful, JWT token returned',
+      description: 'Login successful, JWT token and user returned',
       schema: {
         type: 'object',
         properties: {
           access_token: {
             type: 'string',
             example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          },
+          user: {
+            type: 'object',
+            example: {
+              id: 74,
+              username: 'test',
+              email: 'test@gmail.com',
+            },
           },
         },
       },
@@ -47,7 +55,7 @@ const SignupDocs = () =>
     }),
     ApiResponse({
       status: 200,
-      description: 'Signup successful, JWT token returned',
+      description: 'Signup successful, JWT token and user returned',
       schema: {
         type: 'object',
         properties: {
