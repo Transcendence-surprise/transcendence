@@ -169,7 +169,7 @@ describe('Auth & Protected Routes (e2e)', () => {
       const res = await request(app.getHttpServer())
         .post('/api/users/validate-credentials')
         .send({
-          username: testUsername,
+          identifier: testUsername,
           password: testPassword, // Use the plain password
         })
         .expect(201);
@@ -186,7 +186,7 @@ describe('Auth & Protected Routes (e2e)', () => {
       await request(app.getHttpServer())
         .post('/api/users/validate-credentials')
         .send({
-          username: 'nonexistent',
+          identifier: 'nonexistent',
           password: 'password',
         })
         .expect(401);
@@ -196,7 +196,7 @@ describe('Auth & Protected Routes (e2e)', () => {
       await request(app.getHttpServer())
         .post('/api/users/validate-credentials')
         .send({
-          username: testUsername,
+          identifier: testUsername,
           password: 'wrongpassword',
         })
         .expect(401);
