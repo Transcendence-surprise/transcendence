@@ -5,7 +5,7 @@ import { GameState, GameSettings } from '../models/state';
 // import { MoveResult } from '../models/moveResult';
 // import { processTurn as processTurnFn } from '../engine/turn.engine';
 import { createGame as  createGameEngine} from '../engine/create.engine';
-// import { joinGameEngine } from '../engine/join.engine';
+import { joinGameEngine } from '../engine/join.engine';
 import { startGameEngine } from "../engine/start.engine";
 // import { leaveGameEngine } from "../engine/leave.engine";
 // import { LeaveResult } from '../models/leaveResult';
@@ -40,14 +40,14 @@ export class EngineService {
     return startGameEngine(state, hostId);
   }
 
-//   joinGame(
-//     gameId: string,
-//     playerId: string,
-//     role: "PLAYER" | "SPECTATOR"
-//   ) {
-//     const state = this.getGameState(gameId);
-//     return joinGameEngine(state, playerId, role);
-//   }
+  joinGame(
+    gameId: string,
+    playerId: string,
+    role: "PLAYER" | "SPECTATOR"
+  ) {
+    const state = this.getGameState(gameId);
+    return joinGameEngine(state, playerId, role);
+  }
 
 //   processTurn(
 //     state: GameState,

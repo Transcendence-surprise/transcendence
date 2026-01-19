@@ -7,7 +7,7 @@ import { ApiBody, ApiOkResponse, ApiParam } from '@nestjs/swagger';
 import {
   CreateGameDto,
   StartGameDto,
-//   JoinGameDto,
+  JoinGameDto,
 //   MoveDto,
 //   LeaveGameDto,
 //   LobbyGamesResponseDto,
@@ -48,12 +48,12 @@ export class GameController {
     return result.ok ? { ok: true } : { ok: false, error: result.error };
   }
 
-//   // Join game
-//   @Post('join')
-//   @ApiBody({ type: JoinGameDto })
-//   join(@Body() body: { gameId: string; playerId: string; role: "PLAYER" | "SPECTATOR" }) {
-//     return this.engine.joinGame(body.gameId, body.playerId, body.role);
-//   }
+  // Join game
+  @Post('join')
+  @ApiBody({ type: JoinGameDto })
+  join(@Body() body: { gameId: string; playerId: string; role: "PLAYER" | "SPECTATOR" }) {
+    return this.engine.joinGame(body.gameId, body.playerId, body.role);
+  }
 
 //   // Make move
 //   @Post('move')

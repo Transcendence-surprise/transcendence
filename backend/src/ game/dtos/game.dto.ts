@@ -29,16 +29,16 @@ export class StartGameDto {
   hostId: string;
 }
 
-// export class JoinGameDto {
-//   @ApiProperty()
-//   gameId: string;
+export class JoinGameDto {
+  @ApiProperty()
+  gameId: string;
 
-//   @ApiProperty()
-//   playerId: string;
+  @ApiProperty()
+  playerId: string;
 
-//   @ApiProperty({ enum: ['PLAYER', 'SPECTATOR'] })
-//   role: 'PLAYER' | 'SPECTATOR';
-// }
+  @ApiProperty({ enum: ['PLAYER', 'SPECTATOR'] })
+  role: 'PLAYER' | 'SPECTATOR';
+}
 
 // export class MoveDto {
 //   @ApiProperty()
