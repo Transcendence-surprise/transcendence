@@ -22,8 +22,6 @@ services:
     command: ["npm", "run", "build"]
 
   backend:
-    build:
-      target: production
     environment:
       - NODE_ENV=production
     expose:
@@ -34,8 +32,6 @@ services:
       - transcendence_net
 
   auth-service:
-    build:
-      target: production
     environment:
       - NODE_ENV=production
     expose:
