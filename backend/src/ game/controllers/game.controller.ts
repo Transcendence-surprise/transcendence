@@ -101,9 +101,9 @@ export class GameController {
     return this.engine.getSinglePlayerLevels();
   }
 
-  @Get("multi/games")                                           //Fake for now
+  @Get("multi/games")
   @ApiOkResponse({ type: MultiGameDto, isArray: true })
   getMultiplayerGames(): MultiGame[] {
-    return this.engine.getRandomGamesList(); // returns LOBBY or PLAY games
+    return this.engine.getMultiGames();
   }
 }

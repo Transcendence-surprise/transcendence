@@ -14,7 +14,6 @@ import { getMultiplayerGames } from '../engine/multiGames.engine';
 import { SingleLevelInfo } from '../models/levelInfo';
 import { MultiGame } from '../models/gameInfo';
 import * as crypto from 'crypto';
-import { getFakeMultiplayerGames } from './game.generator'; // REMOVE, Random test
 
 @Injectable()
 export class EngineService {
@@ -79,8 +78,5 @@ export class EngineService {
 
   getMultiGames(): MultiGame[] {
     return getMultiplayerGames(this.games);
-  }
-  getRandomGamesList() {
-    return getFakeMultiplayerGames(10);
   }
 }
