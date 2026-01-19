@@ -1,55 +1,9 @@
 services:
-  frontend:
-    build: ./frontend
-    container_name: frontend
-    command: ["npm", "run", "build"]
-    volumes:
-      - frontend_build:/app/dist
-    networks:
-      - transcendence_net
-
-  backend:
-    build: ./backend
-    container_name: backend
-    env_file:
-      - ./backend/.env
-    environment:
-      - DB_HOST=${DB_HOST}
-      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
-    volumes:
-      - ./database:/database:ro
-      - ./backend:/backend:ro
-    expose:
-      - "3000"
-    depends_on:
-      - db
-      - auth-service
-    networks:
-      - transcendence_net
-
-  auth-service:
-    build: ./services/auth-service
-    container_name: auth-service
-    env_file:
-      - ./services/auth-service/.env
-    environment:
-      - DB_HOST=${DB_HOST}
-      - BACKEND_URL=${BACKEND_URL}
-    expose:
-      - "3001"
-    depends_on:
-      - db
-    networks:
-      - transcendence_net
-
   nginx:
     build: ./nginx
     container_name: nginx
     env_file:
       - ./.env
-    ports:
-      - "80:80"
-      - "443:443"
     depends_on:
       - frontend
       - backend
@@ -58,19 +12,53 @@ services:
       - frontend_build:/usr/share/nginx/html:ro
     networks:
       - transcendence_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:80/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    env_file:
+      - ./.env
+    volumes:
+      - frontend_build:/app/dist
+    networks:
+      - transcendence_net
+    command: ["npm", "run", "build"]
+
+  backend:
+    build: ./backend
+    container_name: backend
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - auth-service
+    volumes:
+      - ./database:/database:ro
+    networks:
+      - transcendence_net
+
+  auth-service:
+    build: ./services/auth-service
+    container_name: auth-service
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    networks:
+      - transcendence_net
 
   db:
+    image: postgres:17-alpine
     container_name: postgres
-    image: postgres:16
-    restart: always
-    environment:
-      POSTGRES_USER: transcendence
-      POSTGRES_PASSWORD: transcendence
-      POSTGRES_DB: transcendence
+    env_file:
+      - ./.env
     volumes:
       - db_data:/var/lib/postgresql/data
-    expose:
-      - "5432"
     networks:
       - transcendence_net
 

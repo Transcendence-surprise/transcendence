@@ -18,11 +18,11 @@ PROJECT = transcendence
 
 # Start prod
 prod:
-	$(COMPOSE) -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+	$(COMPOSE) -f docker-compose.prod.yml up -d --build
 
 # Start full stack
 up:
-	$(COMPOSE) up --build -d
+	$(COMPOSE) -f docker-compose.dev.yml up --build -d
 	@echo "$(CYAN)Running migrations...$(RESET)"
 	@i=0; \
 	while ! $(COMPOSE) exec -T backend npm run migration:run >/dev/null 2>&1; do \
@@ -46,10 +46,10 @@ dev:
 # Build and start dev using base + dev compose files
 dev-build:
 	@echo "$(CYAN)Building dev stack...$(RESET)"
-	$(COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+	$(COMPOSE) -f docker-compose.dev.yml up -d --build
 	@echo "$(CYAN)Running migrations...$(RESET)"
 	@i=0; \
-	while ! $(COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml exec -T backend npm run migration:run >/dev/null 2>&1; do \
+	while ! $(COMPOSE) -f docker-compose.dev.yml exec -T backend npm run migration:run >/dev/null 2>&1; do \
 		i=$$((i+1)); \
 		if [ $$i -ge 10 ]; then \
 			echo "$(RED)Migrations failed after retries.$(RESET)"; \
@@ -84,18 +84,6 @@ dev-seed:
 	@echo "$(CYAN)Seeding users table...$(RESET)"
 	docker exec -i postgres_dev psql -U transcendence -d transcendence < database/init/01-seed-users.sql
 
-# Backend dev server
-dev-back-serv:
-	@echo "$(CYAN)Starting backend...$(RESET)"
-	@echo "$(YELLOW)Running in foreground. Stop with Ctrl+C.$(RESET)"
-	cd backend && npm run start:dev
-
-# Backend auth-service
-dev-back-auth:
-	@echo "$(CYAN)Starting auth-service...$(RESET)"
-	@echo "$(YELLOW)Running in foreground. Stop with Ctrl+C.$(RESET)"
-	cd services/auth-service && npm run start:dev
-
 # Start all backend services at once (parallel)
 dev-back:
 	@$(MAKE) dev-db
@@ -125,11 +113,6 @@ dev-install:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
 	cd frontend && npm install
 	cd backend && npm install
-
-# Stop containers (keep volumes)
-clean:
-	@echo "$(CYAN)Stopping containers...$(RESET)"
-	$(COMPOSE) down
 
 # Stop and remove everything (volumes too)
 fclean:
