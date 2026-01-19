@@ -1,4 +1,54 @@
+include:
+  - docker-compose.yml
+
 services:
   nginx:
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - NODE_ENV=production
     volumes:
+      - frontend_build:/usr/share/nginx/html:ro
       - ./nginx/cert:/etc/nginx/cert:ro
+    networks:
+      - transcendence_net
+
+  frontend:
+    environment:
+      - NODE_ENV=production
+    networks:
+      - transcendence_net
+    command: ["npm", "run", "build"]
+
+  backend:
+    environment:
+      - NODE_ENV=production
+    expose:
+      - "3000"
+    volumes:
+      - ./database:/database:ro
+    networks:
+      - transcendence_net
+
+  auth-service:
+    environment:
+      - NODE_ENV=production
+    expose:
+      - "3001"
+    networks:
+      - transcendence_net
+
+  db:
+    environment:
+      - NODE_ENV=production
+    expose:
+      - "5432"
+    volumes:
+      - db_data_prod:/var/lib/postgresql/data
+    networks:
+      - transcendence_net
+
+volumes:
+  db_data_prod:
+  frontend_build:

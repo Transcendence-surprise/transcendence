@@ -1,22 +1,54 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { FastifyAdapter, NestFastifyApplication, } from '@nestjs/platform-fastify';
-
-if (process.env.APP_ENV !== 'production') {
-  require('dotenv').config();
-}
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(),
+    new FastifyAdapter({
+      routerOptions: {
+        ignoreTrailingSlash: true,
+      },
+    }),
   );
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  app.setGlobalPrefix('api');
 
   app.enableCors({
     origin: true,
     credentials: true,
   });
 
-  await app.listen(3000, '0.0.0.0');
+  // Swagger setup
+  const config = new DocumentBuilder()
+    .setTitle('Transcendence API')
+    .setDescription('Game engine endpoints')
+    .setVersion('1.0')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
+
+  const port = process.env.BACKEND_PORT ?? '3000';
+  await app.listen(port, '0.0.0.0');
+  console.log(`Server running on ${process.env.BACKEND_URL}`);
+  console.log(`Swagger docs on ${process.env.BACKEND_URL}/api/docs`);
 }
-bootstrap();
+
+bootstrap().catch((error) => {
+  console.error('Failed to start application:', error);
+  process.exit(1);
+});
