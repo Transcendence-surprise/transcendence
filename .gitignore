@@ -41,3 +41,7 @@ Thumbs.db
 
 # --- Nginx ---
 nginx/cert/
+
+#Maria's ignore
+docker-compose.db.yml
+instructions
