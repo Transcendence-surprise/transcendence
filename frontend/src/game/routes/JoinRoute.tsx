@@ -11,6 +11,10 @@ export default function MultiplayerJoinRoute() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const secondUser = "user-3yaosz";   // optional second player   FAKE
+
+  console.log("currentUserId from join:", secondUser);
+
   useEffect(() => {
     setLoading(true);
     getMultiplayerGames()
@@ -19,15 +23,24 @@ export default function MultiplayerJoinRoute() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleJoin = (gameId: string) => {
-    // temp user for now
-    const userId = "user-" + Math.random().toString(36).substring(2, 8);
-    // API join could go here: joinGame(gameId, userId)     // LOBBY CALLED HERE
-    // For now just navigate to lobby
-    void navigate(`/multiplayer/lobby/${gameId}`);
+  const handleJoin = async (gameId: string) => {
+    try {
+      setLoading(true);
+
+      const result = await joinGame(gameId, secondUser, "PLAYER");
+
+      navigate(`/multiplayer/lobby/${gameId}`, {
+        state: { currentUserId: secondUser },
+      });
+    } catch (err: any) {
+      setError(err.message || "Failed to join game");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSpectate = (gameId: string) => {
+    // await joinGame(gameId, currentUserId, "SPECTATOR");
     void navigate(`/game/${gameId}`);
   };
 
@@ -37,7 +50,11 @@ export default function MultiplayerJoinRoute() {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4">
       <h2 className="text-2xl font-bold mb-4">Join Multiplayer Game</h2>
-      <JoinTable games={games} onJoin={handleJoin} onSpectate={handleSpectate} onBack={() => navigate("/multiplayer/setup")}/>
+      <JoinTable
+        games={games}
+        onJoin={handleJoin}
+        onSpectate={handleSpectate}
+        onBack={() => navigate("/multiplayer/setup")}/>
     </div>
   );
 }

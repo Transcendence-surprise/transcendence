@@ -3,7 +3,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { generateTempUserId } from "../utils/randomUser";
+import { socket } from "../../services/socket";
 import { getGameState, startGame } from "../../api/game";
 import Lobby from "../../components/game/Lobby";
 
@@ -12,7 +12,7 @@ export default function LobbyRoute() {
   const { gameId } = useParams();
   const location = useLocation();
 
- const { currentUserId, hostId } = location.state as { currentUserId: string; hostId: string };
+  const { currentUserId } = location.state as { currentUserId: string; };
 
   const [game, setGame] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -20,26 +20,30 @@ export default function LobbyRoute() {
   const [startError, setStartError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
 
-  // Poll game state
+  // Websocket for update game state
   useEffect(() => {
-    if (!gameId) return;
+    if (!gameId || !currentUserId) return;
 
-    const fetchGame = () => {
-      getGameState(gameId)
-        .then(setGame)
-        .catch((err) => {
-          console.error(err);
-          setError("Failed to load game state");
-        });
+    socket.emit("joinLobby", { gameId, userId: currentUserId });
+
+    socket.on("lobbyUpdate", (data) => {
+      setGame({
+        id: data.gameId,
+        hostId: data.host,
+        players: data.players,
+        rules: { maxPlayers: data.maxPlayers },
+        phase: data.phase,
+      });
+      console.log(data.players);
+    });
+
+    return () => {
+      socket.off("lobbyUpdate");
     };
-
-    fetchGame();
-    const interval = setInterval(fetchGame, 1000);
-    return () => clearInterval(interval);
-  }, [gameId]);
+  }, [gameId, currentUserId]);
 
   // Start game (host only)
-  const handleStart = async () => { // Read about Websockets vs POLL
+  const handleStart = async () => {
     if (!gameId) return;
 
     setStartError(null);

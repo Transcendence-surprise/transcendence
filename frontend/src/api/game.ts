@@ -28,11 +28,15 @@ export async function createGame(hostId: string, settings: GameSettings) {
   return data; // { ok: true, gameId: string }
 }
 
-export async function joinGame(gameId: string, playerId: string) {
-  const res = await fetch('/game/join', {
+export async function joinGame(
+  gameId: string,
+  playerId: string,
+  role: "PLAYER" | "SPECTATOR" = "PLAYER"
+) {
+  const res = await fetch('/api/game/join', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ gameId, playerId }),
+    body: JSON.stringify({ gameId, playerId, role }),
   });
   return res.json();
 }

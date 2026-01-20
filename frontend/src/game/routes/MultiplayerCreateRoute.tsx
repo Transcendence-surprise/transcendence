@@ -23,6 +23,8 @@ export default function MultiplayerCreateRoute() {
   const currentUser = getCurrentUser(); // host                     FAKE
   const secondUser = getSecondUser();   // optional second player   FAKE
 
+  console.log("currentUserId:", currentUser);
+
   const handleCreate = async () => {
     setError(null);
     setLoading(true);
@@ -34,7 +36,7 @@ export default function MultiplayerCreateRoute() {
 
       // Multiplayer always goes to lobby first
       navigate(`/multiplayer/lobby/${game.gameId}`, {
-        state: { hostId, currentUserId: currentUser.id },         // Can check with different FAKE users
+        state: { currentUserId: currentUser.id },         // Can check with different FAKE users
       });
 
     } catch (err: any) {

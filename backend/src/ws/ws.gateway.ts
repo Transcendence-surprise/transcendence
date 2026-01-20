@@ -59,6 +59,10 @@ export class WsGateway {
 
         const state = this.engine.getGameState(data.gameId);
 
+        console.log("WS lobby state", {
+          players: state.players.map(p => p.id),
+        });
+
         this.server.to(room).emit('lobbyUpdate', {
         gameId: data.gameId,
         host: state.hostId,
