@@ -6,11 +6,15 @@ import { useParams, useLocation } from "react-router-dom";
 import { socket } from "../../services/socket";
 import { getGameState, startGame } from "../../api/game";
 import Lobby from "../../components/game/Lobby";
+import { LobbyMessage } from "../models/lobbyMessage";
 
 export default function LobbyRoute() {
   const navigate = useNavigate();
   const { gameId } = useParams();
   const location = useLocation();
+
+  const [messages, setMessages] = useState<LobbyMessage[]>([]);
+  const [input, setInput] = useState("");
 
   const { currentUserId } = location.state as { currentUserId: string; };
 
@@ -37,8 +41,13 @@ export default function LobbyRoute() {
       console.log(data.players);
     });
 
+    socket.on("lobbyMessage", (msg) => {
+      setMessages(prev => [...prev, msg]);
+    });
+
     return () => {
       socket.off("lobbyUpdate");
+      socket.off("lobbyMessage");
     };
   }, [gameId, currentUserId]);
 
@@ -81,6 +90,18 @@ export default function LobbyRoute() {
     }
   };
 
+  const sendMessage = () => {
+    if (!input.trim() || !gameId) return;
+
+    socket.emit("lobbyMessage", {
+      gameId,
+      userId: currentUserId,
+      message: input,
+    });
+
+    setInput("");
+  };
+
   if (!game) return <div>Loading...</div>;
 
   return (
@@ -90,6 +111,10 @@ export default function LobbyRoute() {
       onGameStarted={handleStart}
       error={startError}
       starting={starting}
+      messages={messages}
+      input={input}
+      setInput={setInput}
+      sendMessage={sendMessage}
     />
   );
 }

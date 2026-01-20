@@ -1,5 +1,7 @@
 // src/game/components/Lobby.tsx
 import React from "react";
+import LobbyChat from "./LobbyChat";
+import { LobbyMessage } from "../../game/models/lobbyMessage";
 
 export type LobbyProps = {
   game: any;
@@ -7,6 +9,10 @@ export type LobbyProps = {
   onGameStarted: () => void;
   error?: string | null;
   starting?: boolean;
+  messages: LobbyMessage[];
+  input: string;
+  setInput: (value: string) => void;
+  sendMessage: () => void;
 };
 
 export default function Lobby({
@@ -15,6 +21,10 @@ export default function Lobby({
   onGameStarted,
   error,
   starting,
+  messages,
+  input,
+  setInput,
+  sendMessage,
 }: LobbyProps) {
 
   const isHost = game.hostId === currentUserId;
@@ -52,6 +62,15 @@ export default function Lobby({
           {starting ? "Starting..." : "Start Game"}
         </button>
       )}
+      <div className="flex flex-col items-start space-y-1 mt-4">
+        <LobbyChat
+          messages={messages}
+          input={input}
+          setInput={setInput}
+          onSend={sendMessage}
+        />
+      </div>
+
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getMultiplayerGames, joinGame } from "../../api/game";
 import { MultiGame } from "../models/multiGames";
 import JoinTable from "../../components/game/Join";
+import { socket } from "../../services/socket";
 
 export default function MultiplayerJoinRoute() {
   const navigate = useNavigate();
@@ -21,6 +22,17 @@ export default function MultiplayerJoinRoute() {
       .then((data) => setGames(data))
       .catch((err) => setError(err.message || "Failed to load games"))
       .finally(() => setLoading(false));
+
+      socket.emit("joinMultiplayerList");
+
+      socket.on("multiplayerListUpdate", (data) => {
+        setGames(data.games);
+      });
+
+      return () => {
+        socket.off("multiplayerListUpdate");
+      };
+
   }, []);
 
   const handleJoin = async (gameId: string) => {

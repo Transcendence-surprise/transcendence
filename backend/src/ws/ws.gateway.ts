@@ -8,8 +8,14 @@ import {
 import { Server, Socket } from 'socket.io';
 import { EngineService } from '../game/services/engine.service.nest';
 
-@WebSocketGateway({ cors: { origin: '*' } })
+type LobbyMessage = {
+  userId: string;
+  message: string;
+  timestamp: number;
+};
 
+
+@WebSocketGateway({ cors: { origin: '*' } })
 export class WsGateway {
   @WebSocketServer()
   server: Server;
@@ -87,6 +93,27 @@ export class WsGateway {
         games,
       });
     }
+
+
+  @SubscribeMessage("lobbyMessage")
+  handleLobbyMessage(
+    @MessageBody()
+    payload: { gameId: string; userId: string; message: string },
+  ) {
+    const chatMessage = {
+      userId: payload.userId,
+      message: payload.message,
+      timestamp: Date.now(),
+    };
+
+    this.server
+      .to(`lobby:${payload.gameId}`)
+      .emit("lobbyMessage", chatMessage);
+  }
+
+  // --------------------
+  // Something else
+  // --------------------
 
 }
 
