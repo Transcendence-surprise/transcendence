@@ -36,6 +36,10 @@ export class UsersController {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (!user.password) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
     const passwordCorrect = await bcrypt.compare(
       validateCredDto.password,
       user.password,
