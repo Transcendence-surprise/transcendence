@@ -21,24 +21,24 @@ export class CreateGameDto {
   settings: GameSettings;
 }
 
-// export class StartGameDto {
-//   @ApiProperty()
-//   gameId: string;
+export class StartGameDto {
+  @ApiProperty()
+  gameId: string;
 
-//   @ApiProperty()
-//   hostId: string;
-// }
+  @ApiProperty()
+  hostId: string;
+}
 
-// export class JoinGameDto {
-//   @ApiProperty()
-//   gameId: string;
+export class JoinGameDto {
+  @ApiProperty()
+  gameId: string;
 
-//   @ApiProperty()
-//   playerId: string;
+  @ApiProperty()
+  playerId: string;
 
-//   @ApiProperty({ enum: ['PLAYER', 'SPECTATOR'] })
-//   role: 'PLAYER' | 'SPECTATOR';
-// }
+  @ApiProperty({ enum: ['PLAYER', 'SPECTATOR'] })
+  role: 'PLAYER' | 'SPECTATOR';
+}
 
 // export class MoveDto {
 //   @ApiProperty()

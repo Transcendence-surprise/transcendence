@@ -5,17 +5,21 @@ import { GameState, GameSettings } from '../models/state';
 // import { MoveResult } from '../models/moveResult';
 // import { processTurn as processTurnFn } from '../engine/turn.engine';
 import { createGame as  createGameEngine} from '../engine/create.engine';
-// import { joinGameEngine } from '../engine/join.engine';
-// import { startGameEngine } from "../engine/start.engine";
+import { joinGameEngine } from '../engine/join.engine';
+import { startGameEngine } from "../engine/start.engine";
 // import { leaveGameEngine } from "../engine/leave.engine";
 // import { LeaveResult } from '../models/leaveResult';
 import { listSinglePlayerLevels } from '../engine/levelRegistry.engine';
+import { getMultiplayerGames } from '../engine/multiGames.engine';
 import { SingleLevelInfo } from '../models/levelInfo';
+import { MultiGame } from '../models/gameInfo';
 import * as crypto from 'crypto';
 
 @Injectable()
 export class EngineService {
   private games = new Map<string, GameState>();
+
+
 
   createGame(hostId: string, settings: GameSettings) {
     const state = createGameEngine(hostId, settings); // from create.engine.ts
@@ -30,19 +34,19 @@ export class EngineService {
     return state;
   }
 
-//   startGame(gameId: string, hostId: string) {
-//     const state = this.getGameState(gameId);
-//     return startGameEngine(state, hostId);
-//   }
+  startGame(gameId: string, hostId: string) {
+    const state = this.getGameState(gameId);
+    return startGameEngine(state, hostId);
+  }
 
-//   joinGame(
-//     gameId: string,
-//     playerId: string,
-//     role: "PLAYER" | "SPECTATOR"
-//   ) {
-//     const state = this.getGameState(gameId);
-//     return joinGameEngine(state, playerId, role);
-//   }
+  joinGame(
+    gameId: string,
+    playerId: string,
+    role: "PLAYER" | "SPECTATOR"
+  ) {
+    const state = this.getGameState(gameId);
+    return joinGameEngine(state, playerId, role);
+  }
 
 //   processTurn(
 //     state: GameState,
@@ -70,5 +74,9 @@ export class EngineService {
 
   getSinglePlayerLevels(): SingleLevelInfo[] {
     return listSinglePlayerLevels();
+  }
+
+  getMultiGames(): MultiGame[] {
+    return getMultiplayerGames(this.games);
   }
 }

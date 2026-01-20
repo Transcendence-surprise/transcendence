@@ -5,9 +5,19 @@ type Props = {
   onChange: (newSettings: MultiplayerSettings) => void;
   onCreate: () => void;
   onBack: () => void;
+  error?: string | null;
+  loading?: boolean;
 };
 
-export default function MultiplayerSettingsForm({ settings, onChange, onCreate, onBack }: Props) {
+export default function MultiplayerSettingsForm({
+  settings,
+  onChange,
+  onCreate,
+  onBack,
+  error,
+  loading,
+}: Props) {
+
   return (
     <div className="min-h-screen bg-black text-blue-400 font-mono flex flex-col items-center justify-center space-y-4">
       <h2 className="text-2xl font-bold">Multiplayer Settings</h2>
@@ -65,9 +75,12 @@ export default function MultiplayerSettingsForm({ settings, onChange, onCreate, 
         />
       </label>
 
+      {error && <p className="text-red-500">{error}</p>}
+
       <button
         className="px-6 py-3 bg-green-600 rounded-lg shadow-lg hover:bg-green-500 transition-all"
         onClick={onCreate}
+        disabled={loading}
       >
         Create Game
       </button>

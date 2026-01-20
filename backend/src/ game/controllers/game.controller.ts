@@ -6,14 +6,16 @@ import { GameState, GameSettings } from '../models/state';
 import { ApiBody, ApiOkResponse, ApiParam } from '@nestjs/swagger';
 import {
   CreateGameDto,
-//   StartGameDto,
-//   JoinGameDto,
+  StartGameDto,
+  JoinGameDto,
 //   MoveDto,
 //   LeaveGameDto,
 //   LobbyGamesResponseDto,
   GameStateDto,
 } from '../dtos/game.dto';
 import { SingleLevelDto } from '../dtos/level-registry.dto';
+import { MultiGameDto } from '../dtos/game-lobby-list';
+import { MultiGame } from '../models/gameInfo';
 
 @Controller('game')
 export class GameController {
@@ -36,22 +38,22 @@ export class GameController {
     return { ok: true, gameId };
   }
 
-//   // Start game
-//   @Post('start')
-//   @ApiBody({ type: StartGameDto })
-//   startGame(
-//     @Body() body: { gameId: string; hostId: string }
-//   ) {
-//     const result = this.engine.startGame(body.gameId, body.hostId);
-//     return result.ok ? { ok: true } : { ok: false, error: result.error };
-//   }
+  // Start game
+  @Post('start')
+  @ApiBody({ type: StartGameDto })
+  startGame(
+    @Body() body: { gameId: string; hostId: string }
+  ) {
+    const result = this.engine.startGame(body.gameId, body.hostId);
+    return result.ok ? { ok: true } : { ok: false, error: result.error };
+  }
 
-//   // Join game
-//   @Post('join')
-//   @ApiBody({ type: JoinGameDto })
-//   join(@Body() body: { gameId: string; playerId: string; role: "PLAYER" | "SPECTATOR" }) {
-//     return this.engine.joinGame(body.gameId, body.playerId, body.role);
-//   }
+  // Join game
+  @Post('join')
+  @ApiBody({ type: JoinGameDto })
+  join(@Body() body: { gameId: string; playerId: string; role: "PLAYER" | "SPECTATOR" }) {
+    return this.engine.joinGame(body.gameId, body.playerId, body.role);
+  }
 
 //   // Make move
 //   @Post('move')
@@ -86,12 +88,6 @@ export class GameController {
 //     return result.ok ? { ok: true } : { ok: false, error: result.error };
 //   }
 
-//   @Get('lobby')
-//   @ApiOkResponse({ type: [LobbyGamesResponseDto] })
-//   getLobbyGames() {
-//     return this.engine.getLobbyGames();
-//   }
-
   @Get(':gameId')
   @ApiParam({ name: 'gameId', type: 'string' })
   @ApiOkResponse({ type: GameStateDto })
@@ -103,5 +99,11 @@ export class GameController {
   @ApiOkResponse({ type: SingleLevelDto, isArray: true })
   getSingleLevels(): SingleLevelDto[] {
     return this.engine.getSinglePlayerLevels();
+  }
+
+  @Get("multi/games")
+  @ApiOkResponse({ type: MultiGameDto, isArray: true })
+  getMultiplayerGames(): MultiGame[] {
+    return this.engine.getMultiGames();
   }
 }

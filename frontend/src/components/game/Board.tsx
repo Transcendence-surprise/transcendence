@@ -1,4 +1,4 @@
-// src/game/components/game/Board.tsx
+// src/game/components/game/BoardView.tsx
 import Cell from "./Cell";
 
 export type Tile = {
@@ -18,7 +18,7 @@ type Props = {
   board: BoardData;
 };
 
-export default function Board({ board }: Props) {
+export default function BoardView({ board }: Props) {
   if (!board || !board.tiles) return <div>Loading board...</div>;
 
   return (
