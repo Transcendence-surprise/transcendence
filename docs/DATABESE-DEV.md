@@ -3,7 +3,7 @@
 ## Usage
 **Step 1:** Health check
 ```bash
-curl -i http://localhost:3000/api/health # should retun 200
+curl -i http://localhost/api/health # should retun 200
 ```
 If it was not success - restart backend.
 
