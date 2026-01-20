@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from './components/Layout';
 import Home from './pages/Home';
+import LayoutWithSidebar from './components/LayoutWithSidebar';
 import GameEntryRoute from './game/routes/GameEntryRote';
 import SinglePlayerSetupRoute from "./game/routes/SingleSetupRoute";
 import MultiplayerSetupRoute from "./game/routes/MultiplayerSetupRoute";
@@ -19,7 +20,7 @@ export default function App() {
         <Route path="/" element={<Layout />}>
           {/* Home page */}
           <Route index element={<Home />} />
-          
+          <Route element={<LayoutWithSidebar />}>
           {/* Game routes */}
             {/* Game entry: select Single or Multiplayer */}
             <Route path="game" element={<GameEntryRoute />} />
@@ -72,7 +73,8 @@ export default function App() {
           
           {/* 404 Not Found */}
           {/* <Route path="*" element={<NotFound />} /> */}
-        </Route> 
+        </Route>
+      </Route> 
       </Routes>
     </BrowserRouter>
   );
