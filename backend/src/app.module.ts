@@ -5,8 +5,9 @@ import { AppService } from './app.service';
 import { WsGateway } from './ws/ws.gateway';
 import { HealthController } from './health/health.controller';
 import { UsersModule } from './users/users.module';
-import { GameModule } from './ game/game.module'; // My GAME
+import { GameModule } from './game/modules/game.module'; // My GAME
 import { AuthModule } from './auth/auth.module';
+import { WsModule } from './ws/ws.module';
 
 @Module({
   imports: [
@@ -23,8 +24,9 @@ import { AuthModule } from './auth/auth.module';
     UsersModule,
     GameModule,
     AuthModule,
+    WsModule,
   ],
   controllers: [AppController, HealthController],
-  providers: [AppService, WsGateway],
+  providers: [AppService],
 })
 export class AppModule {}

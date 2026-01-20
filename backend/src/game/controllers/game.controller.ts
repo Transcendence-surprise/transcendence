@@ -1,6 +1,7 @@
 import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { EngineService } from '../services/engine.service.nest';
 import { GameState, GameSettings } from '../models/state';
+import { WsGateway } from '../../ws/ws.gateway';
 // import { BoardAction } from '../models/boardAction';
 // import { MoveAction } from '../models/moveAction';
 import { ApiBody, ApiOkResponse, ApiParam } from '@nestjs/swagger';
@@ -19,7 +20,10 @@ import { MultiGame } from '../models/gameInfo';
 
 @Controller('game')
 export class GameController {
-  constructor(private readonly engine: EngineService) {}
+  constructor(
+    private readonly engine: EngineService,
+  private readonly wsGateway: WsGateway,
+) {}
 
   // Create Game
   @Post('create')
@@ -35,6 +39,8 @@ export class GameController {
       body.settings
     );
 
+    this.wsGateway.sendMultiplayerListUpdate();
+    console.log("Game was created", gameId );
     return { ok: true, gameId };
   }
 
@@ -45,6 +51,11 @@ export class GameController {
     @Body() body: { gameId: string; hostId: string }
   ) {
     const result = this.engine.startGame(body.gameId, body.hostId);
+
+    if (result.ok) {
+      this.wsGateway.sendMultiplayerListUpdate();
+    }
+
     return result.ok ? { ok: true } : { ok: false, error: result.error };
   }
 
@@ -52,7 +63,15 @@ export class GameController {
   @Post('join')
   @ApiBody({ type: JoinGameDto })
   join(@Body() body: { gameId: string; playerId: string; role: "PLAYER" | "SPECTATOR" }) {
-    return this.engine.joinGame(body.gameId, body.playerId, body.role);
+    const result = this.engine.joinGame(body.gameId, body.playerId, body.role);
+
+    if (result.ok) {
+      this.wsGateway.sendMultiplayerListUpdate();
+    }
+
+    console.log("User Joined: ", body.playerId );
+
+    return result;
   }
 
 //   // Make move
