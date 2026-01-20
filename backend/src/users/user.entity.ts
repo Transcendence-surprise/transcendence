@@ -2,11 +2,16 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity({ name: 'users' })
+@Index('users_email_unique_not_null', ['email'], {
+  unique: true,
+  where: '"email" IS NOT NULL',
+})
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -14,11 +19,14 @@ export class User {
   @Column({ unique: true, length: 32, nullable: true })
   username: string;
 
-  @Column({ unique: true, length: 32 })
-  email: string;
+  @Column({ type: 'varchar', length: 32, nullable: true })
+  email: string | null;
 
-  @Column({ length: 60, default: '', select: false })
-  password: string;
+  @Column({ type: 'varchar', length: 255, nullable: true, select: false })
+  password: string | null;
+
+  @Column({ name: 'user_type', length: 16, default: 'registered' })
+  userType: 'registered' | 'visitor';
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
