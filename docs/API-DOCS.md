@@ -9,7 +9,7 @@ http://localhost/api/docs
 
 ### Auth Service API
 ```bash
-http://localhost:3001/api/auth/docs
+http://localhost/api/auth/docs
 ```
 
 ## Authentication
@@ -22,7 +22,7 @@ Authenticate with username and password to receive a JWT access token.
 
 **Example:**
 ```bash
-curl -i -X POST http://localhost:3001/api/auth/login \
+curl -i -X POST http://localhost/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"john_doe","password":"yourPassword"}'
 ```
@@ -32,7 +32,7 @@ curl -i -X POST http://localhost:3001/api/auth/login \
 Protected endpoints require the JWT token in the Authorization header:
 
 ```bash
-curl -i http://localhost:3000/api/users/id/1 \
+curl -i http://localhost/api/users/id/1 \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
@@ -42,17 +42,17 @@ curl -i http://localhost:3000/api/users/id/1 \
 
 1. Get all users from db
 ```bash
-curl -i http://localhost:3000/api/users
+curl -i http://localhost/api/users
 ```
 
 2. Get user by username
 ```bash
-curl -i http://localhost:3000/api/users/<username>
+curl -i http://localhost/api/users/<username>
 ```
 
 ### DELETE
 
 1. Delete user by username
 ```bash
-curl -i -X DELETE http://localhost:3000/api/users/<username>
+curl -i -X DELETE http://localhost/api/users/<username>
 ```
