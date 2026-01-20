@@ -1,39 +1,21 @@
 # Backend Development Documentation
 
 ## Usage
-**NOTE**: (DOCKER) to start all backend services at once run `Step 0`
+**NOTE**: to start all services
 
-### **Step 0:** Build dev backend + frontend
+### **Step 0:** Run once to install dependencies
+```bash
+make dev-install
+```
+
+### **Step 1:** Build and start the development stack + db migration
 ```bash
 make dev-build
 ```
 
-### **Step 0:** Run dev backend + nginx 
+### **Step 2:** Start the development services (no rebuild):
 ```bash
 make dev
-```
-
-**NOTE:** (NOT-DOCKER) to start all backend services at once run `Step 0` or follow steps from `Step 1` to `Step 5`
-
-### **Step 0:** Start all backend serveces
-```bash
-make dev-back
-```
-
-### **Step 1:** Start dev DB
-```bash
-make dev-db
-```
-
-### **Step 1:** Start dev DB
-```bash
-make dev-db
-```
-
-### **Step 2:** Run migrations
-
-```bash
-make dev-migrate
 ```
 
 ### **Step 3 (Optional):** Add test users into db
@@ -41,19 +23,9 @@ make dev-migrate
 make dev-seed
 ```
 
-### **Step 4:** Start NestJS dev
-```bash
-make dev-back-serv
-```
-
-**Step 5:** Start auth-service (in another terminal)
-```bash
-make dev-back-auth
-```
-
 **Auth-service:**
 ```bash
-curl -i http://localhost:3001/api/auth/docs # should return Swagger UI
+curl -i http://localhost/api/auth/docs # should return Swagger UI
 ```
 
 ## Tests
