@@ -1,17 +1,36 @@
 # Transcendence
 
-## Development
+## Prerequisites
 
-At the first time:
+- Docker and Docker Compose v5
+
+## Installation (backend + frontend)
+
+Run once to install dependencies:
 ```bash
 make dev-install
 ```
 
-## Frontend
-
+Build and start the development stack + db migration:
 ```bash
-make dev       # run Postgres
-make dev-front # run Vite
+make dev-build
+```
+
+Start the development services (no rebuild):
+```bash
+make dev
+```
+
+Insert test users in database (Optional):
+```bash
+make dev-seed
+```
+
+## Frontend (local)
+
+Start only frontend
+```bash
+make dev-front
 ```
 
 ## Backend
