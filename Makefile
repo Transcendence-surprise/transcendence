@@ -20,30 +20,10 @@ PROJECT = transcendence
 prod:
 	$(COMPOSE) -f docker-compose.prod.yml up -d --build
 
-# Start full stack
-up:
-	$(COMPOSE) -f docker-compose.dev.yml up --build -d
-	@echo "$(CYAN)Running migrations...$(RESET)"
-	@i=0; \
-	while ! $(COMPOSE) exec -T backend npm run migration:run >/dev/null 2>&1; do \
-		i=$$((i+1)); \
-		if [ $$i -ge 10 ]; then \
-			echo "$(RED)Migrations failed after retries.$(RESET)"; \
-			exit 1; \
-		fi; \
-		sleep 2; \
-	done
-	@echo "$(GREEN)Migrations successful.$(RESET)";
-
-
-# Stop containers (keep volumes)
-down:
-	$(COMPOSE) down
-
 dev:
 	$(COMPOSE) -f docker-compose.dev.yml up -d
 
-# Build and start dev using base + dev compose files
+# Build and start dev using base + dev compose files + database migration
 dev-build:
 	@echo "$(CYAN)Building dev stack...$(RESET)"
 	$(COMPOSE) -f docker-compose.dev.yml up -d --build
@@ -58,6 +38,10 @@ dev-build:
 		sleep 2; \
 	done
 	@echo "$(GREEN)Migrations successful.$(RESET)";
+
+# Stop containers (keep volumes)
+down:
+	$(COMPOSE) down
 
 # Stop DB
 dev-down:
@@ -113,6 +97,11 @@ dev-install:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
 	cd frontend && npm install
 	cd backend && npm install
+
+# Stop containers (keep volumes)
+clean:
+	@echo "$(CYAN)Stopping containers...$(RESET)"
+	$(COMPOSE) down
 
 # Stop and remove everything (volumes too)
 fclean:
