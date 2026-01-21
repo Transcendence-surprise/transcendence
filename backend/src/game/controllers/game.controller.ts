@@ -14,8 +14,10 @@ import {
   GameStateDto,
 } from '../dtos/game.dto';
 import { SingleLevelDto } from '../dtos/level-registry.dto';
-import { MultiGameDto } from '../dtos/game-lobby-list';
+import { MultiGameDto } from '../dtos/game-lobby-list.dto';
 import { MultiGame } from '../models/gameInfo';
+import { CheckPlayerAvailabilityDto } from '../dtos/checkPlayer.dto';
+
 
 @Controller('game')
 export class GameController {
@@ -129,4 +131,19 @@ export class GameController {
   getMultiplayerGames(): MultiGame[] {
     return this.engine.getMultiGames();
   }
+
+  @Get("check-player/:playerId")
+  @ApiParam({
+    name: "playerId",
+    type: String,
+    description: "Player ID to check availability across multiplayer games",
+  })
+  @ApiOkResponse({
+    description: "Player availability result",
+    type: CheckPlayerAvailabilityDto,
+  })
+  checkPlayer(@Param("playerId") playerId: string) {
+    return this.engine.checkPlayerAvailability(playerId);
+  }
+
 }

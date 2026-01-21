@@ -8,7 +8,7 @@ import { PlayerStateDto } from './player-state.dto';
 import { SpectatorDto } from './spectator.dto';
 import { GameRulesDto } from './game-rules.dto';
 import { BoardDto } from './board.dto';
-import { BoardActionDto } from './board-action-dto';
+import { BoardActionDto } from './board-action.dto';
 import { PlayerProgressDto } from './player-progress.dto';
 import { TurnActionsDto } from './turn-action.dto';
 import { GameResultDto } from './game-result.dto';

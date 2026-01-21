@@ -83,4 +83,19 @@ export class EngineService {
   getMultiGames(): MultiGame[] {
     return getMultiplayerGames(this.games);
   }
+
+  checkPlayerAvailability(playerId: string): {
+    ok: boolean;
+    gameId?: string;
+  } {
+    for (const [gameId, state] of this.games.entries()) {
+      const isPlayer = state.players.some(p => p.id === playerId);
+      const isSpectator = state.spectators.some(s => s.id === playerId);
+
+      if (isPlayer || isSpectator) {
+        return { ok: false, gameId };
+      }
+    }
+    return { ok: true };
+  }
 }
