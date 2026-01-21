@@ -106,3 +106,18 @@ export async function getMultiplayerGames(): Promise<MultiGame[]> {
 
   return data;
 }
+
+export async function checkPlayerAvailability(playerId: string): Promise<{
+  ok: boolean;
+  gameId?: string;
+  phase: string;
+}> {
+
+  const res = await fetch("/api/game/check-player/:playerId");
+
+  if (!res.ok) {
+    throw new Error("Failed to check player availability");
+  }
+
+  return res.json();
+}
