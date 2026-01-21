@@ -52,6 +52,25 @@ services:
       - transcendence_net
     command: npm run start:dev
 
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+      target: development
+    container_name: api-gateway-dev
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./services/api-gateway/src:/app/src:ro
+      - ./services/api-gateway/package.json:/app/package.json:ro
+      - ./services/api-gateway/tsconfig.json:/app/tsconfig.json:ro
+      - ./services/api-gateway/nest-cli.json:/app/nest-cli.json:ro
+    networks:
+      - transcendence_net
+    command: npm run start:dev
+
   db:
     container_name: postgres_dev
     ports:

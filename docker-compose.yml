@@ -52,6 +52,16 @@ services:
     networks:
       - transcendence_net
 
+  api-gateway:
+    build: ./servoces/api-gateway
+    container_name: api-gateway
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    networks:
+      - transcendence_net
+
   db:
     image: postgres:17-alpine
     container_name: postgres
