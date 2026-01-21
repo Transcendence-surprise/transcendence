@@ -60,14 +60,23 @@ export class WsGateway {
         @MessageBody() data: { gameId: string; userId: string },
         @ConnectedSocket() client: Socket,
     ) {
-        const room = `lobby:${data.gameId}`;
-        client.join(room);
-
         const state = this.engine.getGameState(data.gameId);
 
-        console.log("WS lobby state", {
-          players: state.players.map(p => p.id),
-        });
+        if (!state) {
+          return client.emit("error", { error: "GAME_NOT_FOUND" });
+        }
+        if (state.phase !== "LOBBY") {
+          return client.emit("error", { error: "LOBBY_CLOSED" });
+        }
+        if (
+          state.players.some(p => p.id === data.userId) ||
+          state.spectators.some(s => s.id === data.userId)
+        ) {
+          return client.emit("error", { error: "ALREADY_JOINED" });
+        }
+
+        const room = `lobby:${data.gameId}`;
+        client.join(room);
 
         this.server.to(room).emit('lobbyUpdate', {
         gameId: data.gameId,
@@ -100,6 +109,28 @@ export class WsGateway {
     @MessageBody()
     payload: { gameId: string; userId: string; message: string },
   ) {
+    const state = this.engine.getGameState(payload.gameId);
+
+    if (!state) {
+      return; // or emit error
+    }
+
+    const isInLobby =
+      state.players.some(p => p.id === payload.userId) ||
+      state.spectators.some(s => s.id === payload.userId);
+
+    if (!isInLobby) {
+      return this.server
+        .to(`lobby:${payload.gameId}`)
+        .emit("error", { error: "NOT_IN_LOBBY" });
+    }
+
+    if (!payload.message.trim()) {
+      return this.server
+        .to(`lobby:${payload.gameId}`)
+        .emit("error", { error: "EMPTY_MESSAGE" });
+    }
+
     const chatMessage = {
       userId: payload.userId,
       message: payload.message,
