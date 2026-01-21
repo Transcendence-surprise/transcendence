@@ -1,5 +1,7 @@
 export interface PlayerCheckResult {
   ok: boolean;
+  gameId?: string;
+  phase?: "LOBBY" | "PLAY" | "END";
   error?: PlayerCheckError;
 }
 

@@ -3,6 +3,7 @@ import { GameState, GameSettings } from '../models/state';
 // import { BoardAction } from '../models/boardAction';
 // import { MoveAction } from '../models/moveAction';
 // import { MoveResult } from '../models/moveResult';
+import { PlayerCheckResult } from '../models/payerCheckResult';
 // import { processTurn as processTurnFn } from '../engine/turn.engine';
 import { createGame as  createGameEngine} from '../engine/create.engine';
 import { joinGameEngine } from '../engine/join.engine';
@@ -84,16 +85,17 @@ export class EngineService {
     return getMultiplayerGames(this.games);
   }
 
-  checkPlayerAvailability(playerId: string): {
-    ok: boolean;
-    gameId?: string;
-  } {
+  checkPlayerAvailability(playerId: string): PlayerCheckResult {
     for (const [gameId, state] of this.games.entries()) {
       const isPlayer = state.players.some(p => p.id === playerId);
       const isSpectator = state.spectators.some(s => s.id === playerId);
 
       if (isPlayer || isSpectator) {
-        return { ok: false, gameId };
+        return {
+          ok: false,
+          gameId,
+          phase: state.phase,
+        };
       }
     }
     return { ok: true };

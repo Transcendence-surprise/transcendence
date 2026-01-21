@@ -62,21 +62,21 @@ export class WsGateway {
     ) {
         const state = this.engine.getGameState(data.gameId);
 
+        console.log("LOBBY_UPDATE_START");
+
         if (!state) {
+          console.log("GAME_NOT_FOUND");
           return client.emit("error", { error: "GAME_NOT_FOUND" });
         }
         if (state.phase !== "LOBBY") {
+          console.log("LOBBY_CLOSED");
           return client.emit("error", { error: "LOBBY_CLOSED" });
-        }
-        if (
-          state.players.some(p => p.id === data.userId) ||
-          state.spectators.some(s => s.id === data.userId)
-        ) {
-          return client.emit("error", { error: "ALREADY_JOINED" });
         }
 
         const room = `lobby:${data.gameId}`;
         client.join(room);
+
+        console.log("SOMEONE_JOINED");
 
         this.server.to(room).emit('lobbyUpdate', {
         gameId: data.gameId,
@@ -86,6 +86,7 @@ export class WsGateway {
         phase: state.phase,
         });
     }
+
     @SubscribeMessage('joinMultiplayerList')
     handleJoinMultiplayerList(
       @ConnectedSocket() client: Socket,
