@@ -75,14 +75,14 @@ export async function getGameState(gameId: string) {
 //   return res.json();
 // }
 
-// export async function leaveGame(gameId: string, playerId: string) {
-//   const res = await fetch('/game/leave', {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({ gameId, playerId }),
-//   });
-//   return res.json();
-// }
+export async function leaveGame(gameId: string, playerId: string) {
+  const res = await fetch('/api/game/leave', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ gameId, playerId }),
+  });
+  return res.json();
+}
 
 export async function getSingleLevels(): Promise<SingleLevel[]> {
   const res = await fetch("/api/game/single/levels");
