@@ -6,10 +6,16 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { EngineService } from '../ game/services/engine.service.nest';
+import { EngineService } from '../game/services/engine.service.nest';
+
+type LobbyMessage = {
+  userId: string;
+  message: string;
+  timestamp: number;
+};
+
 
 @WebSocketGateway({ cors: { origin: '*' } })
-
 export class WsGateway {
   @WebSocketServer()
   server: Server;
@@ -71,5 +77,43 @@ export class WsGateway {
         phase: state.phase,
         });
     }
+    @SubscribeMessage('joinMultiplayerList')
+    handleJoinMultiplayerList(
+      @ConnectedSocket() client: Socket,
+    ) {
+      client.join('multiplayer:list');
+        this.server.to(client.id).emit("multiplayerListUpdate", {
+        games: this.engine.getMultiGames(),
+        });
+    }
+
+    sendMultiplayerListUpdate() {
+      const games = this.engine.getMultiGames();
+      this.server.to("multiplayer:list").emit("multiplayerListUpdate", {
+        games,
+      });
+    }
+
+
+  @SubscribeMessage("lobbyMessage")
+  handleLobbyMessage(
+    @MessageBody()
+    payload: { gameId: string; userId: string; message: string },
+  ) {
+    const chatMessage = {
+      userId: payload.userId,
+      message: payload.message,
+      timestamp: Date.now(),
+    };
+
+    this.server
+      .to(`lobby:${payload.gameId}`)
+      .emit("lobbyMessage", chatMessage);
+  }
+
+  // --------------------
+  // Something else
+  // --------------------
+
 }
 

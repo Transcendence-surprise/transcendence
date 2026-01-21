@@ -7,8 +7,8 @@ import { GameState, GameSettings } from '../models/state';
 import { createGame as  createGameEngine} from '../engine/create.engine';
 import { joinGameEngine } from '../engine/join.engine';
 import { startGameEngine } from "../engine/start.engine";
-// import { leaveGameEngine } from "../engine/leave.engine";
-// import { LeaveResult } from '../models/leaveResult';
+import { leaveGameEngine } from "../engine/leave.engine";
+import { LeaveResult } from '../models/leaveResult';
 import { listSinglePlayerLevels } from '../engine/levelRegistry.engine';
 import { getMultiplayerGames } from '../engine/multiGames.engine';
 import { SingleLevelInfo } from '../models/levelInfo';
@@ -56,21 +56,21 @@ export class EngineService {
 //     return processTurnFn(state, boardAction, moveAction);
 //   }
 
-//   leaveGame(gameId: string, playerId: string): LeaveResult {
-//     const state = this.getGameState(gameId);
-//     return leaveGameEngine(state, playerId);
-//   }
+  leaveGame(gameId: string, playerId: string): LeaveResult {
+    const state = this.getGameState(gameId);
+    const result = leaveGameEngine(state, playerId);
+    if (!result.ok) return result;
 
-//   // Return all games currently in LOBBY phase
-//   getLobbyGames(): { gameId: string; state: GameState }[] {
-//     const result: { gameId: string; state: GameState }[] = [];
-//     for (const [gameId, state] of this.games.entries()) {
-//       if (state.phase === "LOBBY") {
-//         result.push({ gameId, state });
-//       }
-//     }
-//     return result;
-//   }
+    if (result.deleteGame) {
+      this.games.delete(gameId);
+    // later in controller:
+    // this.ws.sendMultiplayerListUpdate();
+    // this.ws.sendToRoom(`lobby:${gameId}`, "gameDeleted", { gameId });
+      return { ok: true, deleteGame: true };
+    }
+
+    return { ok: true };
+  }
 
   getSinglePlayerLevels(): SingleLevelInfo[] {
     return listSinglePlayerLevels();

@@ -4,7 +4,7 @@ import { LevelMeta } from "../models/levelMeta";
 import { createTile } from "./tile.factory";
 import { PositionedTile } from "../models/positionedTile";
 import { validateSingleLevelMeta, validateMapTokens } from "../validators/level.validator";
-import { singlePlayerLevels } from "../factories/mapRegistry";
+import { singlePlayerLevels } from "./mapRegistry";
 
 export function createSingleplayerLevel(
   mapTokens: string[][],

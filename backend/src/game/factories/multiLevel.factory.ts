@@ -2,8 +2,8 @@ import { Level } from "../models/level";
 import { MultiplayerSettings } from "../models/state";
 import { LevelObjective } from "../models/objective";
 import { Board } from "../models/board";
-import { createMultiplayerBoard } from "../factories/board.factory";
-import { generateMultiplayerCollectibles } from "../factories/collectibles.factory";
+import { createMultiplayerBoard } from "./board.factory";
+import { generateMultiplayerCollectibles } from "./collectibles.factory";
 import { Collectible } from "../models/collectible";
 
 export function createMultiplayerLevel(

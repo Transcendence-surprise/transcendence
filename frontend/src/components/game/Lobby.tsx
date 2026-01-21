@@ -1,20 +1,34 @@
 // src/game/components/Lobby.tsx
 import React from "react";
+import LobbyChat from "./LobbyChat";
+import { LobbyMessage } from "../../game/models/lobbyMessage";
 
 export type LobbyProps = {
   game: any;
   currentUserId: string;
   onGameStarted: () => void;
+  onGameLeave: () => void;
   error?: string | null;
   starting?: boolean;
+  leaveError?: string | null;
+  messages: LobbyMessage[];
+  input: string;
+  setInput: (value: string) => void;
+  sendMessage: () => void;
 };
 
 export default function Lobby({
   game,
   currentUserId,
   onGameStarted,
+  onGameLeave,
   error,
   starting,
+  leaveError,
+  messages,
+  input,
+  setInput,
+  sendMessage,
 }: LobbyProps) {
 
   const isHost = game.hostId === currentUserId;
@@ -52,6 +66,29 @@ export default function Lobby({
           {starting ? "Starting..." : "Start Game"}
         </button>
       )}
+
+      <button
+        className="px-6 py-3 bg-red-600 rounded-lg shadow-lg hover:bg-red-500 mt-4"
+        onClick={onGameLeave}
+      >
+        Leave Lobby
+      </button>
+
+      {leaveError && (
+        <p className="text-red-400 text-sm mt-2">
+          {leaveError}
+        </p>
+      )}
+
+      <div className="flex flex-col items-start space-y-1 mt-4">
+        <LobbyChat
+          messages={messages}
+          input={input}
+          setInput={setInput}
+          onSend={sendMessage}
+        />
+      </div>
+
     </div>
   );
 }
