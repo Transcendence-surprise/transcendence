@@ -10,8 +10,7 @@ import {
   StartGameDto,
   JoinGameDto,
 //   MoveDto,
-//   LeaveGameDto,
-//   LobbyGamesResponseDto,
+  LeaveGameDto,
   GameStateDto,
 } from '../dtos/game.dto';
 import { SingleLevelDto } from '../dtos/level-registry.dto';
@@ -98,14 +97,19 @@ export class GameController {
 //     return result.ok ? { ok: true } : { ok: false, error: result.error };
 //   }
 
-//   @Post('leave')
-//   @ApiBody({ type: LeaveGameDto })
-//   leaveGame(
-//     @Body() body: { gameId: string; playerId: string }
-//   ) {
-//     const result = this.engine.leaveGame(body.gameId, body.playerId);
-//     return result.ok ? { ok: true } : { ok: false, error: result.error };
-//   }
+  @Post('leave')
+  @ApiBody({ type: LeaveGameDto })
+  leaveGame(
+    @Body() body: { gameId: string; playerId: string }
+  ) {
+    const result = this.engine.leaveGame(body.gameId, body.playerId);
+
+    if (result.ok) {
+      this.wsGateway.sendMultiplayerListUpdate();
+    }
+
+    return result.ok ? { ok: true } : { ok: false, error: result.error };
+  }
 
   @Get(':gameId')
   @ApiParam({ name: 'gameId', type: 'string' })

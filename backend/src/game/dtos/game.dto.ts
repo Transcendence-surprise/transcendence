@@ -54,18 +54,13 @@ export class JoinGameDto {
 //   moveAction?: MoveAction;
 // }
 
-// export class LeaveGameDto {
-//   @ApiProperty()
-//   gameId: string;
+export class LeaveGameDto {
+  @ApiProperty()
+  gameId: string;
 
-//   @ApiProperty()
-//   playerId: string;
-// }
-
-// export class LobbyGamesResponseDto {
-//   gameId: string;
-//   state: GameState;
-// }
+  @ApiProperty()
+  playerId: string;
+}
 
 export class GameStateDto {
   @ApiProperty()
