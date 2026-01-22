@@ -31,7 +31,8 @@ List database tables
 Inspect a specific table (for exmp `users`)
 ```bash
 \d users 
-```xit
+```
+
 ```bash
 SELECT * FROM users;
 ```
