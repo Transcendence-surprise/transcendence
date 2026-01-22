@@ -60,14 +60,23 @@ export class WsGateway {
         @MessageBody() data: { gameId: string; userId: string },
         @ConnectedSocket() client: Socket,
     ) {
+        const state = this.engine.getGameState(data.gameId);
+
+        console.log("LOBBY_UPDATE_START");
+
+        if (!state) {
+          console.log("GAME_NOT_FOUND");
+          return client.emit("error", { error: "GAME_NOT_FOUND" });
+        }
+        if (state.phase !== "LOBBY") {
+          console.log("LOBBY_CLOSED");
+          return client.emit("error", { error: "LOBBY_CLOSED" });
+        }
+
         const room = `lobby:${data.gameId}`;
         client.join(room);
 
-        const state = this.engine.getGameState(data.gameId);
-
-        console.log("WS lobby state", {
-          players: state.players.map(p => p.id),
-        });
+        console.log("SOMEONE_JOINED");
 
         this.server.to(room).emit('lobbyUpdate', {
         gameId: data.gameId,
@@ -77,6 +86,7 @@ export class WsGateway {
         phase: state.phase,
         });
     }
+
     @SubscribeMessage('joinMultiplayerList')
     handleJoinMultiplayerList(
       @ConnectedSocket() client: Socket,
@@ -100,6 +110,28 @@ export class WsGateway {
     @MessageBody()
     payload: { gameId: string; userId: string; message: string },
   ) {
+    const state = this.engine.getGameState(payload.gameId);
+
+    if (!state) {
+      return; // or emit error
+    }
+
+    const isInLobby =
+      state.players.some(p => p.id === payload.userId) ||
+      state.spectators.some(s => s.id === payload.userId);
+
+    if (!isInLobby) {
+      return this.server
+        .to(`lobby:${payload.gameId}`)
+        .emit("error", { error: "NOT_IN_LOBBY" });
+    }
+
+    if (!payload.message.trim()) {
+      return this.server
+        .to(`lobby:${payload.gameId}`)
+        .emit("error", { error: "EMPTY_MESSAGE" });
+    }
+
     const chatMessage = {
       userId: payload.userId,
       message: payload.message,

@@ -1,7 +1,7 @@
 // src/routes/MultiplayerJoinRoute.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMultiplayerGames, joinGame } from "../../api/game";
+import { getMultiplayerGames, joinGame, checkPlayerAvailability } from "../../api/game";
 import { MultiGame } from "../models/multiGames";
 import JoinTable from "../../components/game/Join";
 import { socket } from "../../services/socket";
@@ -39,17 +39,38 @@ export default function MultiplayerJoinRoute() {
     try {
       setLoading(true);
 
-      const result = await joinGame(gameId, secondUser, "PLAYER");
+      const availability = await checkPlayerAvailability(secondUser);
 
-      navigate(`/multiplayer/lobby/${gameId}`, {
-        state: { currentUserId: secondUser },
-      });
-    } catch (err: any) {
-      setError(err.message || "Failed to join game");
-    } finally {
-      setLoading(false);
-    }
-  };
+      if (!availability.ok) {
+        if (!availability.gameId) {
+          setError("Player is busy but no game found.");
+          return;
+          }
+          if (availability.phase === "PLAY") {
+            navigate(`/game/${availability.gameId}`);
+          } else {
+            navigate(`/multiplayer/lobby/${availability.gameId}`);
+          }
+          return;
+        }
+
+        const result = await joinGame(gameId, secondUser, "PLAYER");
+
+        if (!result.ok) {
+          setError(result.error || "Failed to join game");
+          return;
+        }
+
+        navigate(`/multiplayer/lobby/${gameId}`, {
+          state: { currentUserId: secondUser },
+        });
+
+      } catch (err: any) {
+        setError(err.message || "Failed to join game");
+      } finally {
+        setLoading(false);
+      }
+    };
 
   const handleSpectate = (gameId: string) => {
     // await joinGame(gameId, currentUserId, "SPECTATOR");

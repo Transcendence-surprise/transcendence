@@ -32,6 +32,7 @@ export default function LobbyRoute() {
     socket.emit("joinLobby", { gameId, userId: currentUserId });
 
     socket.on("lobbyUpdate", (data) => {
+      console.log("LOBBY UPDATE RECEIVED", data);
       setGame({
         id: data.gameId,
         hostId: data.host,
@@ -43,12 +44,19 @@ export default function LobbyRoute() {
     });
 
     socket.on("lobbyMessage", (msg) => {
+      console.log("LOBBY MESSAGE", msg);
       setMessages(prev => [...prev, msg]);
+    });
+
+    socket.on("error", (err) => {
+      console.log("LOBBY ERROR", err);
+      setError(err.error || "Failed to join lobby");
     });
 
     return () => {
       socket.off("lobbyUpdate");
       socket.off("lobbyMessage");
+      socket.off("error"); 
     };
   }, [gameId, currentUserId]);
 
@@ -118,6 +126,7 @@ export default function LobbyRoute() {
     setInput("");
   };
 
+  if (error) return <div>Error: {error}</div>;
   if (!game) return <div>Loading...</div>;
 
   return (

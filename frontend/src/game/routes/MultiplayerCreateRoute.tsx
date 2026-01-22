@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser, getSecondUser } from "../utils/fakeUser";
-import { createGame } from "../../api/game";
+import { createGame, checkPlayerAvailability } from "../../api/game";
 import { GameSettings, MultiplayerSettings } from "../models/gameSettings";
 import MultiplayerSettingsForm from "../../components/game/MultiplayerSettings";
 
@@ -31,7 +31,24 @@ export default function MultiplayerCreateRoute() {
 
     try {
       if (!currentUser) throw new Error("No fake user available");
+
+      const availability = await checkPlayerAvailability(currentUser.id);
+
+      if (!availability.ok) {
+        if (!availability.gameId) {
+          setError("Player is busy but no game found.");
+          return;
+        }
+        if (availability.phase === "PLAY") {
+          navigate(`/game/${availability.gameId}`);
+        } else {
+          navigate(`/multiplayer/lobby/${availability.gameId}`);
+        }
+        return;
+      }
+
       const hostId = currentUser.id;
+
       const game = await createGame(hostId, settings as GameSettings);
 
       // Multiplayer always goes to lobby first

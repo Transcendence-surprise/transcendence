@@ -7,13 +7,6 @@ export function joinGameEngine(
   role: "PLAYER" | "SPECTATOR"
 ): JoinResult {
 
-  console.log("JOIN ENGINE CALLED", {
-    playerId,
-    role,
-    playersBefore: state.players.map(p => p.id),
-    spectatorsBefore: state.spectators.map(s => s.id),
-  });
-
   // Rule 1: cannot join twice
   if (
     state.players.some(p => p.id === playerId) ||
@@ -39,11 +32,6 @@ export function joinGameEngine(
   // Apply join
   if (role === "PLAYER") {
 
-    console.log("ADDING PLAYER", {
-      playerId,
-      spawnIndex: state.players.length,
-    });
-
     const spawnIndex = state.players.length;
     const spawn = state.level.startingPoints[spawnIndex] ?? { x: 0, y: 0 };
 
@@ -66,20 +54,6 @@ export function joinGameEngine(
       })),
     };
 
-    // Set first player turn if lobby was empty
-    // if (state.players.length === 1) {
-    //   state.currentPlayerIndex = 0;
-    //   state.currentPlayerId = playerId;
-    // }
-    console.log("STATE AFTER JOIN", {
-      playersAfter: state.players.map(p => ({
-        id: p.id,
-        x: p.x,
-        y: p.y,
-      })),
-      currentPlayerId: state.currentPlayerId,
-      currentPlayerIndex: state.currentPlayerIndex,
-    });
     return { ok: true, role: "PLAYER" };
   } else {
     // Spectator
