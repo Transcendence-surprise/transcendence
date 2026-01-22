@@ -72,7 +72,7 @@ services:
     command: npm run start:dev
 
   db:
-    container_name: postgres_dev
+    container_name: postgres-dev
     ports:
       - "5432:5432"
     volumes:

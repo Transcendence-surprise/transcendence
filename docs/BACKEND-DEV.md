@@ -31,7 +31,7 @@ curl -i http://localhost/api/auth/docs # should return Swagger UI
 ## Tests
 ```bash
 # only for dev stage (not secure)
-docker exec -i postgres_dev psql -U transcendence -d transcendence -c "SELECT * FROM users;"
+docker exec -i postgres-dev psql -U transcendence -d transcendence -c "SELECT * FROM users;"
 ```
 
 **ALWAYS** test all endpoits before merging a branch:

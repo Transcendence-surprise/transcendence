@@ -66,7 +66,7 @@ dev-migrate:
 # Seed dev DB with a couple of users (safe to run multiple times)
 dev-seed:
 	@echo "$(CYAN)Seeding users table...$(RESET)"
-	docker exec -i postgres_dev psql -U transcendence -d transcendence < backend/database/init/01-seed-users.sql
+	docker exec -i postgres-dev psql -U transcendence -d transcendence < database/init/01-seed-users.sql
 
 # Start all backend services at once (parallel)
 dev-back:
