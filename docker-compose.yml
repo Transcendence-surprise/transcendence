@@ -27,7 +27,6 @@ services:
       - frontend_build:/app/dist
     networks:
       - transcendence_net
-    command: ["npm", "run", "build"]
 
   backend:
     build: ./backend

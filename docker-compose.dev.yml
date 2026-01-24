@@ -7,15 +7,20 @@ services:
     container_name: nginx-dev
     ports:
       - "80:80"
+      - "8080:8080"
     networks:
       - transcendence_net
 
   frontend:
     build: ./frontend
+    container_name: frontend-dev
+    volumes:
+      - ./frontend:/app:rw
     ports:
       - "5173:5173"
     networks:
       - transcendence_net
+    command: npm run dev
 
   backend:
     build: ./backend
