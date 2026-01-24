@@ -2,14 +2,7 @@ include:
   - docker-compose.yml
 
 services:
-  nginx:
-    build: ./nginx
-    container_name: nginx-dev
-    ports:
-      - "80:80"
-      - "8080:8080"
-    networks:
-      - transcendence_net
+  # === Core Application ===
 
   frontend:
     build: ./frontend
@@ -37,6 +30,8 @@ services:
     networks:
       - transcendence_net
     command: npm run start:dev
+
+  # === Microservices ===
 
   auth-service:
     build:
@@ -72,6 +67,8 @@ services:
       - transcendence_net
     command: npm run start:dev
 
+  # === Infrastructure ===
+
   db:
     container_name: postgres-dev
     ports:
@@ -79,6 +76,15 @@ services:
     volumes:
       - db_data_dev:/var/lib/postgresql/data
       - ./backend/database/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - transcendence_net
+
+  nginx:
+    build: ./nginx
+    container_name: nginx-dev
+    ports:
+      - "80:80"
+      - "8080:8080"
     networks:
       - transcendence_net
 

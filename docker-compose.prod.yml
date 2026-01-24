@@ -2,15 +2,7 @@ include:
   - docker-compose.yml
 
 services:
-  nginx:
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - frontend_build:/usr/share/nginx/html:ro
-      - ./nginx/cert:/etc/nginx/cert:ro
-    networks:
-      - transcendence_net
+  # === Core Application ===
 
   frontend:
     networks:
@@ -25,17 +17,37 @@ services:
     networks:
       - transcendence_net
 
+  # === Microservices ===
+
+  api-gateway:
+    expose:
+      - "3002"
+    networks:
+      - transcendence_net
+
   auth-service:
     expose:
       - "3001"
     networks:
       - transcendence_net
 
+  # === Infrastructure ===
+
   db:
     expose:
       - "5432"
     volumes:
       - db_data_prod:/var/lib/postgresql/data
+    networks:
+      - transcendence_net
+
+  nginx:
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - frontend_build:/usr/share/nginx/html:ro
+      - ./nginx/cert:/etc/nginx/cert:ro
     networks:
       - transcendence_net
 

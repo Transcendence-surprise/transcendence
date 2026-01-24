@@ -1,22 +1,5 @@
 services:
-  nginx:
-    build: ./nginx
-    container_name: nginx
-    env_file:
-      - ./.env
-    depends_on:
-      - frontend
-      - backend
-      - auth-service
-    volumes:
-      - frontend_build:/usr/share/nginx/html:ro
-    networks:
-      - transcendence_net
-    healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:80/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+  # === Core Application ===
 
   frontend:
     build: ./frontend
@@ -41,6 +24,8 @@ services:
     networks:
       - transcendence_net
 
+  # === Microservices ===
+
   auth-service:
     build: ./services/auth-service
     container_name: auth-service
@@ -61,6 +46,8 @@ services:
     networks:
       - transcendence_net
 
+  # === Infrastructure ===
+
   db:
     image: postgres:17-alpine
     container_name: postgres
@@ -70,6 +57,25 @@ services:
       - db_data:/var/lib/postgresql/data
     networks:
       - transcendence_net
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    env_file:
+      - ./.env
+    depends_on:
+      - frontend
+      - backend
+      - auth-service
+    volumes:
+      - frontend_build:/usr/share/nginx/html:ro
+    networks:
+      - transcendence_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:80/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   db_data:
