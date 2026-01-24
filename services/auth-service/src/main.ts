@@ -17,6 +17,21 @@ async function bootstrap() {
     }),
   );
 
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  app.setGlobalPrefix('api');
+
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Authentication API')
     .setDescription(
@@ -32,21 +47,6 @@ async function bootstrap() {
       defaultModelsExpandDepth: -1,
       persistAuthorization: true,
     },
-  });
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
-
-  app.setGlobalPrefix('api');
-
-  app.enableCors({
-    origin: true,
-    credentials: true,
   });
 
   const port = process.env.AUTH_SERVICE_PORT ?? '3001';
