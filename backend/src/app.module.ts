@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthController } from './health/health.controller';
 import { UsersModule } from './users/users.module';
 import { GameModule } from './game/modules/game.module'; // My GAME
-import { AuthModule } from './auth/auth.module';
 import { WsModule } from './ws/ws.module';
 
 @Module({
@@ -20,7 +19,6 @@ import { WsModule } from './ws/ws.module';
     }),
     UsersModule,
     GameModule,
-    AuthModule,
     WsModule,
   ],
   controllers: [HealthController],

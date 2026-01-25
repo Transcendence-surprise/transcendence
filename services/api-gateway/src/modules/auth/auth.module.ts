@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { AuthHttpService } from './auth.service';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -9,8 +11,12 @@ import { AuthHttpService } from './auth.service';
       timeout: 5000,
       maxRedirects: 5,
     }),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1h' },
+    }),
   ],
-  providers: [AuthHttpService],
-  exports: [AuthHttpService],
+  providers: [AuthHttpService, AuthGuard],
+  exports: [AuthHttpService, AuthGuard, JwtModule],
 })
 export class AuthHttpModule {}

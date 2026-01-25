@@ -1,7 +1,15 @@
-import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Param,
+  Body,
+  UseGuards,
+} from '@nestjs/common';
 import { UsersHttpService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { ValidateCredDto } from './dto/validate-credentials.dto';
+import { AuthGuard } from '../../common/guards/auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -23,6 +31,7 @@ export class UsersController {
   }
 
   @Get('id/:id')
+  @UseGuards(AuthGuard)
   findOneById(@Param('id') id: string) {
     return this.usersClient.findOneById(Number(id));
   }

@@ -5,6 +5,7 @@ import {
   UserResponse,
   UsersListResponse,
 } from './interfaces/service-user-response';
+import { AuthGuard } from '../../common/guards/auth.guard';
 
 /* eslint-disable @typescript-eslint/unbound-method */
 
@@ -13,6 +14,7 @@ describe('UsersController', () => {
   let service: jest.Mocked<UsersHttpService>;
 
   beforeEach(async () => {
+    const mockAuthGuard = { canActivate: jest.fn(() => true) };
     const mockService = {
       findAll: jest.fn(),
       validateCredentials: jest.fn(),
@@ -31,7 +33,10 @@ describe('UsersController', () => {
           useValue: mockService,
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(AuthGuard)
+      .useValue(mockAuthGuard)
+      .compile();
 
     controller = module.get<UsersController>(UsersController);
     service = module.get(UsersHttpService);

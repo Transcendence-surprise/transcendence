@@ -7,12 +7,10 @@ import {
   Param,
   Post,
   UnauthorizedException,
-  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ValidateCredDto } from './dto/validate-credentials.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { AuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import * as bcrypt from 'bcrypt';
 import {
@@ -74,7 +72,6 @@ export class UsersController {
   }
 
   // Auth-test: allows to find user by id only if this user logged in
-  @UseGuards(AuthGuard)
   @Get('id/:id')
   @FindOneByIdDocs()
   async findOneById(

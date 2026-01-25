@@ -4,7 +4,6 @@ import { UnauthorizedException } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { AuthGuard } from '../auth/auth.guard';
 import * as bcrypt from 'bcrypt';
 
 // Mock bcrypt module
@@ -36,10 +35,6 @@ describe('UsersController', () => {
     create: jest.fn(),
   };
 
-  const mockAuthGuard = {
-    canActivate: jest.fn(() => true),
-  };
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
@@ -49,10 +44,7 @@ describe('UsersController', () => {
           useValue: mockUsersService,
         },
       ],
-    })
-      .overrideGuard(AuthGuard)
-      .useValue(mockAuthGuard)
-      .compile();
+    }).compile();
 
     controller = module.get<UsersController>(UsersController);
     service = module.get<UsersService>(UsersService);
