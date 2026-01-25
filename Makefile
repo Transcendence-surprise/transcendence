@@ -103,21 +103,17 @@ test-all: test-back test-front
 test-back:
 	@echo "$(MAGENTA)\n== Backend tests ==$(RESET)"
 	@cd backend && npm run test --silent
-	@cd backend && npm run test:e2e --silent
 
 	@echo "$(MAGENTA)\n== Auth-service tests ==$(RESET)"
 	@cd services/auth-service && npm run test --silent
-	@cd services/auth-service && npm run test:e2e --silent
 
 	@echo "$(MAGENTA)\n== Api-gateway tests ==$(RESET)"
 	@cd services/api-gateway && npm run test --silent
-	@cd services/api-gateway && npm run test:e2e --silent
 
 # Run frontend test
 test-front:
 	@echo "$(MAGENTA)\n== Frontend tests ==$(RESET)"
 	@cd frontend && npm run test --silent
-	@cd frontend && npm run test:e2e --silent
 
 # =========== Clean commands ===========
 

@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run src/components/__tests__/",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "vitest run src/components/__tests__/",
     "test:watch": "vitest --watch",
     "test:e2e": "vitest run src/e2e/"
   },
