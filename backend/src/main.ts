@@ -40,7 +40,13 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api/docs', app, document, {
+    customSiteTitle: 'Transcendence API Docs',
+    swaggerOptions: {
+      defaultModelsExpandDepth: -1,
+      persistAuthorization: true,
+    },
+  });
 
   const port = process.env.BACKEND_PORT ?? '3000';
   await app.listen(port, '0.0.0.0');

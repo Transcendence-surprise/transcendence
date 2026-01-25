@@ -15,18 +15,31 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import * as bcrypt from 'bcrypt';
+import {
+  UsersControllerDocs,
+  FindAllDocs,
+  ValidateCredentialsDocs,
+  FindOneByUsernameDocs,
+  FindOneByIdDocs,
+  RemoveByUsernameDocs,
+  RemoveByIdDocs,
+  CreateDocs,
+} from './users.controller.docs';
 
+@UsersControllerDocs()
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get()
+  @FindAllDocs()
   findAll() {
     return this.usersService.findAll();
   }
 
   // For auth-service to validate credentials
   @Post('validate-credentials')
+  @ValidateCredentialsDocs()
   async validateCredentials(@Body() validateCredDto: ValidateCredDto) {
     const user = await this.usersService.findByIdentifier(
       validateCredDto.identifier,
@@ -55,6 +68,7 @@ export class UsersController {
   }
 
   @Get(':username')
+  @FindOneByUsernameDocs()
   findOneByUsername(@Param('username') username: string) {
     return this.usersService.findOneByUsername(username);
   }
@@ -62,6 +76,7 @@ export class UsersController {
   // Auth-test: allows to find user by id only if this user logged in
   @UseGuards(AuthGuard)
   @Get('id/:id')
+  @FindOneByIdDocs()
   async findOneById(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: { sub: number; username: string },
@@ -74,16 +89,19 @@ export class UsersController {
   }
 
   @Delete(':username')
+  @RemoveByUsernameDocs()
   removeByUsername(@Param('username') username: string) {
     return this.usersService.removeByUsername(username);
   }
 
   @Delete('id/:id')
+  @RemoveByIdDocs()
   removeById(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.removeById(id);
   }
 
   @Post()
+  @CreateDocs()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }

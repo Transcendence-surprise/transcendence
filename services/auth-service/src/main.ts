@@ -40,6 +40,7 @@ async function bootstrap() {
     .setVersion('1.0.0')
     .addTag('Authentication', 'User login and token management')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/auth/docs', app, document, {
     customSiteTitle: 'Auth API Docs',
