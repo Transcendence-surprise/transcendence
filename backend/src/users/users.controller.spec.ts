@@ -31,7 +31,7 @@ describe('UsersController', () => {
     findAll: jest.fn(),
     findOneByUsername: jest.fn(),
     findOneById: jest.fn(),
-    findByUsernameWithPassword: jest.fn(),
+    findByIdentifier: jest.fn(),
     removeByUsername: jest.fn(),
     create: jest.fn(),
   };
@@ -78,24 +78,20 @@ describe('UsersController', () => {
 
   describe('validateCredentials', () => {
     it('should validate correct credentials and return user without password', async () => {
-      const dto = { username: 'testuser', password: 'correctPassword' };
-      mockUsersService.findByUsernameWithPassword.mockResolvedValue(
-        mockUserWithPassword,
-      );
+      const dto = { identifier: 'testuser', password: 'correctPassword' };
+      mockUsersService.findByIdentifier.mockResolvedValue(mockUserWithPassword);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
       const result = await controller.validateCredentials(dto);
 
       expect(result).toEqual(mockUser);
       expect(result).not.toHaveProperty('password');
-      expect(service.findByUsernameWithPassword).toHaveBeenCalledWith(
-        'testuser',
-      );
+      expect(service.findByIdentifier).toHaveBeenCalledWith('testuser');
     });
 
     it('should throw UnauthorizedException when user not found', async () => {
-      const dto = { username: 'nonexistent', password: 'password' };
-      mockUsersService.findByUsernameWithPassword.mockResolvedValue(null);
+      const dto = { identifier: 'nonexistent', password: 'password' };
+      mockUsersService.findByIdentifier.mockResolvedValue(null);
 
       await expect(controller.validateCredentials(dto)).rejects.toThrow(
         UnauthorizedException,
@@ -106,10 +102,8 @@ describe('UsersController', () => {
     });
 
     it('should throw UnauthorizedException when password is incorrect', async () => {
-      const dto = { username: 'testuser', password: 'wrongPassword' };
-      mockUsersService.findByUsernameWithPassword.mockResolvedValue(
-        mockUserWithPassword,
-      );
+      const dto = { identifier: 'testuser', password: 'wrongPassword' };
+      mockUsersService.findByIdentifier.mockResolvedValue(mockUserWithPassword);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       await expect(controller.validateCredentials(dto)).rejects.toThrow(

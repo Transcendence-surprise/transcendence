@@ -21,6 +21,7 @@ describe('UsersService', () => {
     password: 'hashedPassword',
     createdAt: new Date(),
     updatedAt: new Date(),
+    userType: 'registered',
   };
 
   const mockRepository = {
