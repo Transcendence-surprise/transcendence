@@ -44,7 +44,7 @@ export class UsersHttpService {
   }
 
   private async request<T>(
-    method: 'get' | 'post' | 'delete',
+    method: 'get' | 'post' | 'delete' | 'put',
     path: string,
     body?: any,
   ) {

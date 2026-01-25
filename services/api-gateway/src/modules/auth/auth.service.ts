@@ -13,16 +13,20 @@ import { AuthSignupResponse } from './interfaces/service-auth-signup-response';
 export class AuthHttpService {
   constructor(private readonly http: HttpService) {}
   async login(body: LoginUserDto): Promise<AuthLoginResponse> {
-    return this.post<AuthLoginResponse>('/api/auth/login', body);
+    return this.request<AuthLoginResponse>('post', '/api/auth/login', body);
   }
 
   async signup(body: SignupUserDto): Promise<AuthSignupResponse> {
-    return this.post<AuthSignupResponse>('/api/auth/signup', body);
+    return this.request<AuthSignupResponse>('post', '/api/auth/signup', body);
   }
 
-  private async post<T>(path: string, body: unknown) {
+  private async request<T>(
+    method: 'get' | 'post' | 'delete' | 'put',
+    path: string,
+    body?: any,
+  ) {
     try {
-      const res = await lastValueFrom(this.http.post<T>(path, body));
+      const res = await lastValueFrom(this.http[method]<T>(path, body));
       return res.data;
     } catch (err: unknown) {
       if (err instanceof HttpException) {
