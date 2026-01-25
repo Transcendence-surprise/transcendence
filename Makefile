@@ -97,7 +97,7 @@ build-api-gateway:
 # =========== Test commands ===========
 
 # Run frontend and backend tests
-test-all: test-back test-front
+test: test-back test-front
 
 # Run backend test
 test-back:
