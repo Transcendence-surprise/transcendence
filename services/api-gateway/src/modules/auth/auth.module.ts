@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { AuthHttpService } from './auth.service';
+import { AuthController } from './auth.controller';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { JwtModule } from '@nestjs/jwt';
 
@@ -16,6 +17,7 @@ import { JwtModule } from '@nestjs/jwt';
       signOptions: { expiresIn: '1h' },
     }),
   ],
+  controllers: [AuthController],
   providers: [AuthHttpService, AuthGuard],
   exports: [AuthHttpService, AuthGuard, JwtModule],
 })

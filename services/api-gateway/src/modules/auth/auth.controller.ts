@@ -6,7 +6,7 @@ import { AuthLoginResponse } from './interfaces/service-auth-login-response';
 import { AuthSignupResponse } from './interfaces/service-auth-signup-response';
 
 @Controller('auth')
-export class GatewayAuthController {
+export class AuthController {
   constructor(private readonly authClient: AuthHttpService) {}
 
   @Post('login')

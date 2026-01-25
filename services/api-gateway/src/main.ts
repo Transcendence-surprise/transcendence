@@ -24,7 +24,7 @@ async function bootstrap() {
     }),
   );
 
-  app.setGlobalPrefix('api-gateway');
+  app.setGlobalPrefix('api');
 
   app.enableCors({
     origin: true,

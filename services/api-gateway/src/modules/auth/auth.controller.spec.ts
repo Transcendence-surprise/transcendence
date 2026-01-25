@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GatewayAuthController } from './auth.controller';
+import { AuthController } from './auth.controller';
 import { AuthHttpService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
@@ -8,8 +8,8 @@ import { AuthSignupResponse } from './interfaces/service-auth-signup-response';
 
 /* eslint-disable @typescript-eslint/unbound-method */
 
-describe('GatewayAuthController', () => {
-  let controller: GatewayAuthController;
+describe('AuthController', () => {
+  let controller: AuthController;
   let service: jest.Mocked<AuthHttpService>;
 
   beforeEach(async () => {
@@ -19,7 +19,7 @@ describe('GatewayAuthController', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [GatewayAuthController],
+      controllers: [AuthController],
       providers: [
         {
           provide: AuthHttpService,
@@ -28,7 +28,7 @@ describe('GatewayAuthController', () => {
       ],
     }).compile();
 
-    controller = module.get<GatewayAuthController>(GatewayAuthController);
+    controller = module.get<AuthController>(AuthController);
     service = module.get(AuthHttpService);
   });
 
