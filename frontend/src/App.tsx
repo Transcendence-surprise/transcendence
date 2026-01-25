@@ -3,11 +3,12 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import GameEntryRoute from './game/routes/GameEntryRote';
 import SinglePlayerSetupRoute from "./game/routes/SingleSetupRoute";
-import MultiplayerSetupRoute from "./game/routes/MultiplayerSetupRoute"; 
+import MultiplayerSetupRoute from "./game/routes/MultiplayerSetupRoute";
 import MultiplayerCreateRoute from "./game/routes/MultiplayerCreateRoute";
-import MultiplayerJoinRoute from "./game/routes/JoinRoute"; 
-import LobbyRoute from "./game/routes/LobbyRoute"; 
-import GameRoute from "./game/routes/GameRoute"; 
+import MultiplayerJoinRoute from "./game/routes/JoinRoute";
+import LobbyRoute from "./game/routes/LobbyRoute";
+import GameRoute from "./game/routes/GameRoute";
+import ProtectedRoute from "./game/routes/ProtectedRoute";
 
 
 export default function App() {
@@ -30,16 +31,37 @@ export default function App() {
             <Route path="multiplayer/setup" element={<MultiplayerSetupRoute />} />
 
             {/* Create Game route (Host) */}
-            <Route path="/multiplayer/create" element={<MultiplayerCreateRoute />} />
+            <Route
+              path="multiplayer/create"
+              element={
+                // <ProtectedRoute>
+                  <MultiplayerCreateRoute />
+                // </ProtectedRoute>
+              }
+            />
 
             {/* Join Game route (Player) */}
             <Route path="/multiplayer/join" element={<MultiplayerJoinRoute />} />
 
             {/* Multiplayer lobby */}
-            <Route path="multiplayer/lobby/:gameId" element={<LobbyRoute />} />
+            <Route
+              path="multiplayer/lobby/:gameId"
+              element={
+                // <ProtectedRoute>
+                  <LobbyRoute />
+                // </ProtectedRoute>
+              }
+            />
 
             {/* Game screen */}
-            <Route path="game/:id" element={<GameRoute />} />
+            <Route
+              path="game/:id"
+              element={
+                // <ProtectedRoute>
+                  <GameRoute />
+                // </ProtectedRoute>
+              }
+            />
 
           {/* Other XD routes */}
 
