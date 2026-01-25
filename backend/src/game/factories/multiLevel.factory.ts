@@ -31,7 +31,8 @@ export function createMultiplayerLevel(
 
   const collectiblesBase = generateMultiplayerCollectibles(
     playerIds,
-    settings.collectiblesPerPlayer
+    settings.collectiblesPerPlayer,
+    board.width
   );
 
   const collectibles = placeCollectiblesRandomly(
@@ -39,6 +40,8 @@ export function createMultiplayerLevel(
     board,
     startingPoints
   );
+
+  injectCollectiblesToBoard(board, collectibles);
 
   return {
     id: `multi-${settings.boardSize}x${settings.boardSize}`,
@@ -54,18 +57,22 @@ function getAvailableCollectiblePositions(
   board: Board,
   startingPoints: { x: number; y: number }[]
 ): { x: number; y: number }[] {
-  const forbidden = new Set(
-    startingPoints.map(p => `${p.x},${p.y}`)
-  );
+  const forbidden = new Set(startingPoints.map(p => `${p.x},${p.y}`));
 
   const positions: { x: number; y: number }[] = [];
 
-  for (let y = 1; y < board.height - 1; y++) {
-    for (let x = 1; x < board.width - 1; x++) {
+  for (let y = 0; y < board.height; y++) {
+    for (let x = 0; x < board.width; x++) {
       const key = `${x},${y}`;
-      if (!forbidden.has(key)) {
-        positions.push({ x, y });
-      }
+
+      // Skip starting points
+      if (forbidden.has(key)) continue;
+
+      // Skip if tile doesn't exist (just in case)
+      const tile = board.tiles[y]?.[x];
+      if (!tile) continue;
+
+      positions.push({ x, y });
     }
   }
 
@@ -90,4 +97,11 @@ function placeCollectiblesRandomly(
     x: shuffledPositions[i].x,
     y: shuffledPositions[i].y,
   }));
+}
+
+function injectCollectiblesToBoard(board: Board, collectibles: Collectible[]) {
+  for (const c of collectibles) {
+    const tile = board.tiles[c.y]?.[c.x];
+    if (tile) tile.collectableId = c.id;
+  }
 }

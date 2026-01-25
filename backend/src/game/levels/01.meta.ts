@@ -13,7 +13,8 @@ export const Puzzle01Meta: LevelMeta = {
   startingPoints: [{ playerId: "P1", x: 0, y: 0 }],
 
   collectibles: [
-    { id: "C01", x: 1, y: 0 },
-    { id: "C02", x: 1, y: 2 }
+    { id: "C01", x: 1, y: 1 },
+    { id: "C02", x: 2, y: 2 },
+    { id: "C03", x: 1, y: 2 }
   ]
 };

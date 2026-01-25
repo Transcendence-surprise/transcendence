@@ -1,7 +1,7 @@
 export interface Collectible {
   id: string;                   // unique identifier
-  x?: number;                   // position (single-player fixed, multi optional)
-  y?: number;
+  x: number;                   // position (single-player fixed, multi optional)
+  y: number;
   ownerId?: string;             // multiplayer: which player must collect it
   // optional: image, effect handled by frontend
 }
