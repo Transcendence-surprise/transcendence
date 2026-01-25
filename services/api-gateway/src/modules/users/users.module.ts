@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
-import { UsersHttpService } from './users-http.service';
+import { UsersHttpService } from './users.service';
 import { UsersController } from './users.controller';
 
 @Module({

@@ -1,9 +1,9 @@
 import { Controller, Post, Body } from '@nestjs/common';
-import { AuthHttpService } from './auth-http.service';
-import { LoginUserDto } from '../../interfaces/auth/dto/login-user.dto';
-import { SignupUserDto } from '../../interfaces/auth/dto/signup-user.dto';
-import { AuthLoginResponse } from '../../interfaces/auth/service-auth-login-response';
-import { AuthSignupResponse } from '../../interfaces/auth/service-auth-signup-response';
+import { AuthHttpService } from './auth.service';
+import { LoginUserDto } from './dto/login-user.dto';
+import { SignupUserDto } from './dto/signup-user.dto';
+import { AuthLoginResponse } from './interfaces/service-auth-login-response';
+import { AuthSignupResponse } from './interfaces/service-auth-signup-response';
 
 @Controller('auth')
 export class GatewayAuthController {

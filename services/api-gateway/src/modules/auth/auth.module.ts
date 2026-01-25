@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
-import { AuthHttpService } from './auth-http.service';
+import { AuthHttpService } from './auth.service';
 
 @Module({
   imports: [

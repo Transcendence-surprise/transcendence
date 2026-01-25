@@ -3,12 +3,12 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { AxiosError, isAxiosError } from 'axios';
 
-import { CreateUserDto } from '../../interfaces/users/dto/create-user.dto';
-import { ValidateCredDto } from '../../interfaces/users/dto/validate-credentials.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { ValidateCredDto } from './dto/validate-credentials.dto';
 import {
   UserResponse,
   UsersListResponse,
-} from '../../interfaces/users/service-user-response';
+} from './interfaces/service-user-response';
 
 @Injectable()
 export class UsersHttpService {

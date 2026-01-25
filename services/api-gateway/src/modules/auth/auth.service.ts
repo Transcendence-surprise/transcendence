@@ -3,11 +3,11 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import { AxiosError, isAxiosError } from 'axios';
 
-import { LoginUserDto } from '../../interfaces/auth/dto/login-user.dto';
-import { SignupUserDto } from '../../interfaces/auth/dto/signup-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import { SignupUserDto } from './dto/signup-user.dto';
 
-import { AuthLoginResponse } from '../../interfaces/auth/service-auth-login-response';
-import { AuthSignupResponse } from '../../interfaces/auth/service-auth-signup-response';
+import { AuthLoginResponse } from './interfaces/service-auth-login-response';
+import { AuthSignupResponse } from './interfaces/service-auth-signup-response';
 
 @Injectable()
 export class AuthHttpService {
