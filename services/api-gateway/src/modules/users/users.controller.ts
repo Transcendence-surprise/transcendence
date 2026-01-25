@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common';
 import { UsersHttpService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { ValidateCredDto } from './dto/validate-credentials.dto';
 
 @Controller('users')
 export class UsersController {
@@ -12,7 +13,7 @@ export class UsersController {
   }
 
   @Post('validate-credentials')
-  validateCredentials(@Body() dto: any) {
+  validateCredentials(@Body() dto: ValidateCredDto) {
     return this.usersClient.validateCredentials(dto);
   }
 
