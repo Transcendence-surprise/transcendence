@@ -28,23 +28,14 @@ prod:
 dev:
 	$(COMPOSE) -f docker-compose.dev.yml up -d
 
-# Build and start dev using base + dev compose files + database migration
-dev-build:
-	@echo "$(CYAN)Building dev stack...$(RESET)"
-	$(COMPOSE) -f docker-compose.dev.yml up -d --build
-
 # Stop containers (keep volumes)
 down:
 	$(COMPOSE) down
 
-# Frontend dev server (local)
-dev-front:
-	cd frontend && npm run dev
-
-# Start dev DB only
-dev-db:
-	@echo "$(CYAN)Starting PostgreSQL...$(RESET)"
-	$(COMPOSE) -f docker-compose.dev.yml up -d db
+# Build and start dev using base + dev compose files + database migration
+dev-build:
+	@echo "$(CYAN)Building dev stack...$(RESET)"
+	$(COMPOSE) -f docker-compose.dev.yml up -d --build
 
 # Run migrations (dev DB must be up)
 dev-migrate:
@@ -64,6 +55,23 @@ dev-migrate:
 dev-seed:
 	@echo "$(CYAN)Seeding users table...$(RESET)"
 	docker exec -i postgres-dev psql -U transcendence -d transcendence < database/init/01-seed-users.sql
+
+# Start dev DB only
+dev-db:
+	@echo "$(CYAN)Starting PostgreSQL...$(RESET)"
+	$(COMPOSE) -f docker-compose.dev.yml up -d db
+
+# Frontend dev server (local)
+dev-front:
+	cd frontend && npm run dev
+
+# Install dependencies for tests (Legacy for dev: Containers install dependencies)
+dev-install:
+	@echo "$(CYAN)Installing dependencies...$(RESET)"
+	cd frontend && npm install
+	cd backend && npm install
+	cd auth-service && npm install
+	cd api-gateway && npm install
 
 # =========== Rebuild commands ===========
 
@@ -151,14 +159,6 @@ logs:
 # Show running containers
 ps:
 	$(COMPOSE) ps
-
-# Install dependencies (Legacy: Containers install dependencies)
-dev-install:
-	@echo "$(CYAN)Installing dependencies...$(RESET)"
-	cd frontend && npm install
-	cd backend && npm install
-	cd auth-service && npm install
-	cd api-gateway && npm install
 
 .PHONY: \
 	up down dev dev-build dev-db dev-down dev-clean dev-fclean dev-prune \

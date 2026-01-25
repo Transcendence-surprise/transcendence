@@ -3,19 +3,19 @@
 ## Usage
 **NOTE**: to start all services
 
-### **Step 0:** Run once to install dependencies
+### **Step 0:** Run once to install dependencies for tests
 ```bash
 make dev-install
 ```
 
-### **Step 1:** Build and start the development stack + db migration
+### **Step 1:** Build and start the development stack
 ```bash
 make dev-build
 ```
 
-### **Step 2:** Start the development services (no rebuild):
+### **Step 2:** Run once for db migration to create tables
 ```bash
-make dev
+make dev-migrate
 ```
 
 ### **Step 3 (Optional):** Add test users into db
