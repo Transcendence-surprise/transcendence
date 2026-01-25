@@ -13,4 +13,4 @@ import { AuthHttpService } from './auth-http.service';
   providers: [AuthHttpService],
   exports: [AuthHttpService],
 })
-export class HttpClientsModule {}
+export class AuthHttpModule {}

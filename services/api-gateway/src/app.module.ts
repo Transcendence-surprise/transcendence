@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { HttpClientsModule } from './http-clients/http-clients.module';
-import { GatewayAuthController } from './controllers/gateway-auth.controller';
 import { HealthController } from './health/health.controller';
+import { AuthHttpModule } from './modules/auth/auth-http.module';
+import { UsersHttpModule } from './modules/users/users-http.module';
 
 @Module({
-  imports: [HttpClientsModule],
-  controllers: [GatewayAuthController, HealthController],
+  imports: [AuthHttpModule, UsersHttpModule],
+  controllers: [HealthController],
   providers: [],
 })
 export class AppModule {}
