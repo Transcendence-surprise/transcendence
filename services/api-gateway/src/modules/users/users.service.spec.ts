@@ -3,7 +3,6 @@ import { HttpService } from '@nestjs/axios';
 import { of, throwError } from 'rxjs';
 import { AxiosResponse, AxiosError } from 'axios';
 import { UsersHttpService } from './users.service';
-import { ValidateCredDto } from './dto/validate-credentials.dto';
 import {
   UserResponse,
   UsersListResponse,
@@ -57,38 +56,6 @@ describe('UsersHttpService', () => {
       const result = await service.findAll();
 
       expect(httpService.get).toHaveBeenCalledWith('/api/users', undefined);
-      expect(result).toEqual(response);
-    });
-  });
-
-  describe('validateCredentials', () => {
-    it('should call post and return data', async () => {
-      const dto: ValidateCredDto = { identifier: 'test', password: 'pass' };
-      const response: UserResponse = {
-        id: 1,
-        username: 'test',
-        email: 'test@example.com',
-        userType: 'registered',
-        createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z',
-      };
-      const axiosResponse: AxiosResponse = {
-        data: response,
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-
-        config: {} as any,
-      };
-
-      httpService.post.mockReturnValue(of(axiosResponse));
-
-      const result = await service.validateCredentials(dto);
-
-      expect(httpService.post).toHaveBeenCalledWith(
-        '/api/users/validate-credentials',
-        dto,
-      );
       expect(result).toEqual(response);
     });
   });

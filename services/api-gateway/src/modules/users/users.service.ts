@@ -4,7 +4,6 @@ import { lastValueFrom } from 'rxjs';
 import { AxiosError, isAxiosError } from 'axios';
 
 import { CreateUserDto } from './dto/create-user.dto';
-import { ValidateCredDto } from './dto/validate-credentials.dto';
 import {
   UserResponse,
   UsersListResponse,
@@ -16,14 +15,6 @@ export class UsersHttpService {
 
   findAll(): Promise<UsersListResponse> {
     return this.request<UsersListResponse>('get', '/api/users');
-  }
-
-  validateCredentials(dto: ValidateCredDto): Promise<UserResponse> {
-    return this.request<UserResponse>(
-      'post',
-      '/api/users/validate-credentials',
-      dto,
-    );
   }
 
   findOneByUsername(username: string): Promise<UserResponse> {

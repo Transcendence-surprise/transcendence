@@ -59,27 +59,6 @@ describe('UsersController', () => {
     });
   });
 
-  describe('validateCredentials', () => {
-    it('should call service.validateCredentials', async () => {
-      const dto = { identifier: 'test', password: 'pass' };
-      const response: UserResponse = {
-        id: 1,
-        username: 'test',
-        email: 'test@example.com',
-        userType: 'registered',
-        createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z',
-      };
-
-      service.validateCredentials.mockResolvedValue(response);
-
-      const result = controller.validateCredentials(dto);
-
-      expect(service.validateCredentials).toHaveBeenCalledWith(dto);
-      await expect(result).resolves.toEqual(response);
-    });
-  });
-
   describe('findOneByUsername', () => {
     it('should call service.findOneByUsername', async () => {
       const username = 'test';

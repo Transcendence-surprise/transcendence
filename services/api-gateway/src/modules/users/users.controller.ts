@@ -20,11 +20,6 @@ export class UsersController {
     return this.usersClient.findAll();
   }
 
-  @Post('validate-credentials')
-  validateCredentials(@Body() dto: ValidateCredDto) {
-    return this.usersClient.validateCredentials(dto);
-  }
-
   @Get(':username')
   findOneByUsername(@Param('username') username: string) {
     return this.usersClient.findOneByUsername(username);
