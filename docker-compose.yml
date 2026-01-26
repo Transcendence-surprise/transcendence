@@ -18,7 +18,6 @@ services:
       - ./.env
     depends_on:
       - db
-      - auth-service
     volumes:
       - ./database:/database:ro
     networks:
