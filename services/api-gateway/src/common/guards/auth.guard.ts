@@ -10,6 +10,7 @@ import { FastifyRequest } from 'fastify';
 interface JwtPayload {
   sub: number;
   username: string;
+  email: string;
 }
 
 interface RequestWithUser extends FastifyRequest {
@@ -31,6 +32,10 @@ export class AuthGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
       request['user'] = payload;
+      // Add user info to headers for backend
+      request.headers['x-user-id'] = payload.sub.toString();
+      request.headers['x-user-username'] = payload.username;
+      request.headers['x-user-email'] = payload.email || '';
     } catch {
       throw new UnauthorizedException();
     }

@@ -1,4 +1,63 @@
 services:
+  # === Core Application ===
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    env_file:
+      - ./.env
+    volumes:
+      - frontend_build:/app/dist
+    networks:
+      - transcendence_net
+
+  backend:
+    build: ./backend
+    container_name: backend
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - auth-service
+    volumes:
+      - ./database:/database:ro
+    networks:
+      - transcendence_net
+
+  # === Microservices ===
+
+  auth-service:
+    build: ./services/auth-service
+    container_name: auth-service
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    networks:
+      - transcendence_net
+
+  api-gateway:
+    build: ./services/api-gateway
+    container_name: api-gateway
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    networks:
+      - transcendence_net
+
+  # === Infrastructure ===
+
+  db:
+    image: postgres:17-alpine
+    container_name: postgres
+    env_file:
+      - ./.env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - transcendence_net
+
   nginx:
     build: ./nginx
     container_name: nginx
@@ -17,50 +76,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
-  frontend:
-    build: ./frontend
-    container_name: frontend
-    env_file:
-      - ./.env
-    volumes:
-      - frontend_build:/app/dist
-    networks:
-      - transcendence_net
-    command: ["npm", "run", "build"]
-
-  backend:
-    build: ./backend
-    container_name: backend
-    env_file:
-      - ./.env
-    depends_on:
-      - db
-      - auth-service
-    volumes:
-      - ./database:/database:ro
-    networks:
-      - transcendence_net
-
-  auth-service:
-    build: ./services/auth-service
-    container_name: auth-service
-    env_file:
-      - ./.env
-    depends_on:
-      - db
-    networks:
-      - transcendence_net
-
-  db:
-    image: postgres:17-alpine
-    container_name: postgres
-    env_file:
-      - ./.env
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    networks:
-      - transcendence_net
 
 volumes:
   db_data:

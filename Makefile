@@ -16,17 +16,29 @@ RESET = \033[0m
 COMPOSE = docker compose
 PROJECT = transcendence
 
+# =========== Prod commands ===========
+
 # Start prod
 prod:
 	$(COMPOSE) -f docker-compose.prod.yml up -d --build
 
+# =========== Build commands ===========
+
+# Run containers
 dev:
 	$(COMPOSE) -f docker-compose.dev.yml up -d
+
+# Stop containers (keep volumes)
+down:
+	$(COMPOSE) down
 
 # Build and start dev using base + dev compose files + database migration
 dev-build:
 	@echo "$(CYAN)Building dev stack...$(RESET)"
 	$(COMPOSE) -f docker-compose.dev.yml up -d --build
+
+# Run migrations (dev DB must be up)
+dev-migrate:
 	@echo "$(CYAN)Running migrations...$(RESET)"
 	@i=0; \
 	while ! $(COMPOSE) -f docker-compose.dev.yml exec -T backend npm run migration:run >/dev/null 2>&1; do \
@@ -39,43 +51,85 @@ dev-build:
 	done
 	@echo "$(GREEN)Migrations successful.$(RESET)";
 
-# Stop containers (keep volumes)
-down:
-	$(COMPOSE) down
+# Seed dev DB with a couple of users (safe to run multiple times)
+dev-seed:
+	@echo "$(CYAN)Seeding users table...$(RESET)"
+	docker exec -i postgres-dev psql -U transcendence -d transcendence < database/init/01-seed-users.sql
 
-# Stop DB
-dev-down:
-	$(COMPOSE) -f docker-compose.dev.yml down
-
-
-# Frontend dev server
-dev-front:
-	cd frontend && npm run dev
-
-# =========== Backend commands ===========
 # Start dev DB only
 dev-db:
 	@echo "$(CYAN)Starting PostgreSQL...$(RESET)"
 	$(COMPOSE) -f docker-compose.dev.yml up -d db
 
-# Run migrations (dev DB must be up)
-dev-migrate:
-	@echo "$(CYAN)Running migrations...$(RESET)"
-	cd backend && npm run migration:run
+# Frontend dev server (local)
+dev-front:
+	cd frontend && npm run dev
 
-# Seed dev DB with a couple of users (safe to run multiple times)
-dev-seed:
-	@echo "$(CYAN)Seeding users table...$(RESET)"
-	docker exec -i postgres_dev psql -U transcendence -d transcendence < backend/database/init/01-seed-users.sql
+# Install dependencies for tests (Legacy for dev: Containers install dependencies)
+dev-install:
+	@echo "$(CYAN)Installing dependencies...$(RESET)"
+	cd frontend && npm install
+	cd backend && npm install
+	cd auth-service && npm install
+	cd api-gateway && npm install
 
-# Start all backend services at once (parallel)
-dev-back:
-	@$(MAKE) dev-db
-	@$(MAKE) dev-migrate
-	@$(MAKE) dev-seed
-	@cd backend && npm run start:dev & \
-	cd services/auth-service && npm run start:dev & \
-	wait
+# =========== Rebuild commands ===========
+
+# Rebuild shortcuts
+build-db:
+	$(COMPOSE) -f docker-compose.dev.yml up -d --build db
+
+build-nginx:
+	$(COMPOSE) -f docker-compose.dev.yml up -d --build nginx
+
+build-backend:
+	$(COMPOSE) -f docker-compose.dev.yml up -d --build backend
+
+build-frontend:
+	$(COMPOSE) -f docker-compose.dev.yml up -d --build frontend
+
+build-auth-service:
+	$(COMPOSE) -f docker-compose.dev.yml up -d --build auth-service
+
+build-api-gateway:
+	$(COMPOSE) -f docker-compose.dev.yml up -d --build api-gateway
+
+# =========== Test commands ===========
+
+# Run frontend and backend tests
+test: test-back test-front
+
+# Run backend test
+test-back:
+	@echo "$(MAGENTA)\n== Backend tests ==$(RESET)"
+	@cd backend && npm run test --silent
+
+	@echo "$(MAGENTA)\n== Auth-service tests ==$(RESET)"
+	@cd services/auth-service && npm run test --silent
+
+	@echo "$(MAGENTA)\n== Api-gateway tests ==$(RESET)"
+	@cd services/api-gateway && npm run test --silent
+
+# Run frontend test
+test-front:
+	@echo "$(MAGENTA)\n== Frontend tests ==$(RESET)"
+	@cd frontend && npm run test --silent
+
+# =========== Clean commands ===========
+
+# Stop containers (keep volumes)
+clean:
+	@echo "$(CYAN)Stopping containers...$(RESET)"
+	$(COMPOSE) down
+
+# Stop and remove everything (volumes too)
+fclean:
+	@echo "$(CYAN)Stopping containers and removing volumes...$(RESET)"
+	$(COMPOSE) down -v
+
+prune: fclean
+	@echo "$(CYAN)Pruning dangling images...$(RESET)"
+	docker system prune -af
 
 # Stop containers (keep volumes)
 dev-clean:
@@ -92,24 +146,7 @@ dev-prune: dev-fclean
 	@echo "$(CYAN)Pruning dangling images...$(RESET)"
 	docker system prune -af
 
-# Install dependencies
-dev-install:
-	@echo "$(CYAN)Installing dependencies...$(RESET)"
-	cd frontend && npm install
-	cd backend && npm install
-
-# Stop containers (keep volumes)
-clean:
-	@echo "$(CYAN)Stopping containers...$(RESET)"
-	$(COMPOSE) down
-
-# Stop and remove everything (volumes too)
-fclean:
-	@echo "$(CYAN)Stopping containers and removing volumes...$(RESET)"
-	$(COMPOSE) down -v
-
-# Rebuild from scratch
-re: clean up
+# =========== Utility commands ===========
 
 # View logs
 logs:
@@ -119,24 +156,8 @@ logs:
 ps:
 	$(COMPOSE) ps
 
-# Restart backend ONLY
-reb:
-	$(COMPOSE) up --build -d backend
-
-# Restart frontend ONLY
-ref:
-	$(COMPOSE) up --build -d frontend
-
-# Restart nginx ONLY
-rng:
-	$(COMPOSE) up --build -d nginx
-
-# Restart database ONLY
-rdb:
-	$(COMPOSE) up --build -d db
-
-prune: fclean
-	@echo "$(CYAN)Pruning dangling images...$(RESET)"
-	docker system prune -af
-
-.PHONY: up down dev dev-build dev-db dev-down dev-clean dev-fclean dev-prune dev-front dev-back dev-migrate dev-seed dev-install clean fclean re logs ps reb ref rng rdb prune prod
+.PHONY: \
+	up down dev dev-build dev-db dev-down dev-clean dev-fclean dev-prune \
+	dev-front dev-back dev-migrate dev-seed dev-install clean fclean \
+	re logs ps rebuild-db rebuild-nginx rebuild-backend rebuild-frontend \
+	rebuild-auth-service rebuild-api-gateway dev-rebuild prune prod

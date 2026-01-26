@@ -1,5 +1,10 @@
 # Transcendence
 
+## Overview
+
+- [Database Structure](https://drawsql.app/teams/ilias-team-10/diagrams/transcendence-db) - Visualizes the database schema.
+- [Application Architecture](https://s.icepanel.io/GVOJBUo15pQ7B3/lvV5) - Visualizes the app architecture.
+
 ## Prerequisites
 
 - Docker and Docker Compose v5
@@ -116,7 +121,7 @@ GET /api/health
 ## Frontend ↔ Backend Communication
 
 - Backend exposes a REST API under `/api/*`
-- Example health endpoint: 
+- Example health endpoint:
   ```http
   GET /api/health
   ```
