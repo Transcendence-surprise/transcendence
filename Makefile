@@ -70,8 +70,16 @@ dev-install:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
 	cd frontend && npm install
 	cd backend && npm install
-	cd auth-service && npm install
-	cd api-gateway && npm install
+	cd services/auth-service && npm install
+	cd services/api-gateway && npm install
+
+# Clean Install for CI/CD
+dev-ci:
+	@echo "$(CYAN)Installing dependencies...$(RESET)"
+	cd frontend && npm ci
+	cd backend && npm ci
+	cd services/auth-service && npm ci
+	cd services/api-gateway && npm ci
 
 # =========== Rebuild commands ===========
 
@@ -158,6 +166,6 @@ ps:
 
 .PHONY: \
 	up down dev dev-build dev-db dev-down dev-clean dev-fclean dev-prune \
-	dev-front dev-back dev-migrate dev-seed dev-install clean fclean \
+	dev-front dev-back dev-migrate dev-seed dev-install dev-ci clean fclean \
 	re logs ps rebuild-db rebuild-nginx rebuild-backend rebuild-frontend \
 	rebuild-auth-service rebuild-api-gateway dev-rebuild prune prod

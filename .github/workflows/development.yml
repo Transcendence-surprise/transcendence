@@ -4,8 +4,8 @@ on:
       - development
 
 jobs:
-  backend:
-    name: Backend build and test
+  setup:
+    name: Setup environment
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -13,15 +13,25 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install backend dependencies
-        run: npm ci
-        working-directory: backend
-      - name: Install auth-service dependencies
-        run: npm ci
-        working-directory: services/auth-service
-      - name: Install api-gateway dependencies
-        run: npm ci
-        working-directory: services/api-gateway
+      - name: Install dependencies for backend and frontend
+        run: make dev-ci
+      - name: Prepare env file
+        run: cp .env.example .env
+      - name: Run db container
+        run: make build-db
+      - name: Run db migration
+        run: cd backend && npm run migration:run
+
+  backend:
+    name: Backend build and test
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
       - name: Run backend tests
         run: make test-back
       - name: Build backend
@@ -31,15 +41,13 @@ jobs:
   frontend:
     name: Frontend build and test
     runs-on: ubuntu-latest
+    needs: setup
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install frontend dependencies
-        run: npm ci
-        working-directory: frontend
       - name: Run frontend tests
         run: make test-front
       - name: Build frontend
