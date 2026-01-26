@@ -83,7 +83,7 @@ services:
     build: ./nginx
     container_name: nginx-dev
     ports:
-      - "80:80"
+      # - "80:80" // comment out port for compatability with hive's computers
       - "8080:8080"
     networks:
       - transcendence_net
