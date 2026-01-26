@@ -5,6 +5,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
+import { setupMergedSwagger } from './swagger/merge-swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -30,6 +31,8 @@ async function bootstrap() {
     origin: true,
     credentials: true,
   });
+
+  await setupMergedSwagger(app);
 
   const port = process.env.API_GATEWAY_PORT ?? '3002';
   await app.listen(port, '0.0.0.0');
