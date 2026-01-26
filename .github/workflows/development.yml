@@ -23,8 +23,10 @@ jobs:
         run: cp .env.example .env
       - name: Run db container
         run: make build-db
+      - name: Run backend for migration
+        run: make build-backend
       - name: Run db migration
-        run: cd backend && npm run migration:run
+        run: make dev-migrate
 
   backend:
     name: Backend build and test
