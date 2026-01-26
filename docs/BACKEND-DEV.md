@@ -3,19 +3,19 @@
 ## Usage
 **NOTE**: to start all services
 
-### **Step 0:** Run once to install dependencies
+### **Step 0:** Run once to install dependencies for tests
 ```bash
 make dev-install
 ```
 
-### **Step 1:** Build and start the development stack + db migration
+### **Step 1:** Build and start the development stack
 ```bash
 make dev-build
 ```
 
-### **Step 2:** Start the development services (no rebuild):
+### **Step 2:** Run once for db migration to create tables
 ```bash
-make dev
+make dev-migrate
 ```
 
 ### **Step 3 (Optional):** Add test users into db
@@ -31,7 +31,7 @@ curl -i http://localhost/api/auth/docs # should return Swagger UI
 ## Tests
 ```bash
 # only for dev stage (not secure)
-docker exec -i postgres_dev psql -U transcendence -d transcendence -c "SELECT * FROM users;"
+docker exec -i postgres-dev psql -U transcendence -d transcendence -c "SELECT * FROM users;"
 ```
 
 **ALWAYS** test all endpoits before merging a branch:

@@ -17,23 +17,6 @@ async function bootstrap() {
     }),
   );
 
-  const config = new DocumentBuilder()
-    .setTitle('Authentication API')
-    .setDescription(
-      'Microservice for user authentication and JWT token generation',
-    )
-    .setVersion('1.0.0')
-    .addTag('Authentication', 'User login and token management')
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/auth/docs', app, document, {
-    customSiteTitle: 'Auth API Docs',
-    swaggerOptions: {
-      defaultModelsExpandDepth: -1,
-      persistAuthorization: true,
-    },
-  });
-
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -47,6 +30,24 @@ async function bootstrap() {
   app.enableCors({
     origin: true,
     credentials: true,
+  });
+
+  const config = new DocumentBuilder()
+    .setTitle('Authentication API')
+    .setDescription(
+      'Microservice for user authentication and JWT token generation',
+    )
+    .setVersion('1.0.0')
+    .addTag('Authentication', 'User login and token management')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/auth/docs', app, document, {
+    customSiteTitle: 'Auth API Docs',
+    swaggerOptions: {
+      defaultModelsExpandDepth: -1,
+      persistAuthorization: true,
+    },
   });
 
   const port = process.env.AUTH_SERVICE_PORT ?? '3001';

@@ -9,7 +9,7 @@ If it was not success - restart backend.
 
 **Step 2:** Connect to database
 ```bash
-docker exec -it postgres_dev psql -U transcendence -d transcendence
+docker exec -it postgres-dev psql -U transcendence -d transcendence
 ```
 
 ## Usful Commands
@@ -48,7 +48,7 @@ exit
 
 Check the table:
 ```bash
- docker exec -i postgres_dev psql -U transcendence -d transcendence -c "SELECT * FROM users;"
+ docker exec -i postgres-dev psql -U transcendence -d transcendence -c "SELECT * FROM users;"
  ```
 | Column     | Type         | Constraints                               | Description                     |
 |------------|--------------|-------------------------------------------|---------------------------------|
@@ -68,7 +68,7 @@ Notes:
 
 Check the table: 
 ```bash
- docker exec -i postgres_dev psql -U transcendence -d transcendence -c "SELECT * FROM games;"
+ docker exec -i postgres-dev psql -U transcendence -d transcendence -c "SELECT * FROM games;"
  ```
 | Column          | Type         | Constraints                                  | Description                     |
 |-----------------|--------------|----------------------------------------------|---------------------------------|
@@ -94,7 +94,7 @@ Notes:
 
 Check the table:
 ```bash
- docker exec -i postgres_dev psql -U transcendence -d transcendence -c "SELECT * FROM game_players;"
+ docker exec -i postgres-dev psql -U transcendence -d transcendence -c "SELECT * FROM game_players;"
 ```
 | Column    | Type        | Constraints                                      | Description                     |
 |-----------|-------------|--------------------------------------------------|---------------------------------|
