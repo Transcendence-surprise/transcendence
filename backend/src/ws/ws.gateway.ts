@@ -55,54 +55,55 @@ export class WsGateway {
   // Game / Lobby logic
   // --------------------
 
-    @SubscribeMessage('joinLobby')
-    handleJoinLobby(
-        @MessageBody() data: { gameId: string; userId: string },
-        @ConnectedSocket() client: Socket,
-    ) {
-        const state = this.engine.getGameState(data.gameId);
-
-        console.log("LOBBY_UPDATE_START");
-
-        if (!state) {
-          console.log("GAME_NOT_FOUND");
-          return client.emit("error", { error: "GAME_NOT_FOUND" });
-        }
-        if (state.phase !== "LOBBY") {
-          console.log("LOBBY_CLOSED");
-          return client.emit("error", { error: "LOBBY_CLOSED" });
-        }
-
-        const room = `lobby:${data.gameId}`;
-        client.join(room);
-
-        console.log("SOMEONE_JOINED");
-
-        this.server.to(room).emit('lobbyUpdate', {
-        gameId: data.gameId,
-        host: state.hostId,
-        players: state.players,
-        maxPlayers: state.rules.maxPlayers,
-        phase: state.phase,
-        });
-    }
-
-    @SubscribeMessage('joinMultiplayerList')
-    handleJoinMultiplayerList(
+  @SubscribeMessage('joinLobby')
+  handleJoinLobby(
+      @MessageBody() data: { gameId: string; userId: string },
       @ConnectedSocket() client: Socket,
-    ) {
-      client.join('multiplayer:list');
-        this.server.to(client.id).emit("multiplayerListUpdate", {
-        games: this.engine.getMultiGames(),
-        });
-    }
+  ) {
+      const state = this.engine.getGameState(data.gameId);
 
-    sendMultiplayerListUpdate() {
-      const games = this.engine.getMultiGames();
-      this.server.to("multiplayer:list").emit("multiplayerListUpdate", {
-        games,
+      console.log("LOBBY_UPDATE_START");
+
+      if (!state) {
+        console.log("GAME_NOT_FOUND");
+        return client.emit("error", { error: "GAME_NOT_FOUND" });
+      }
+      if (state.phase !== "LOBBY") {
+        console.log("LOBBY_CLOSED");
+        return client.emit("error", { error: "LOBBY_CLOSED" });
+      }
+
+      const room = `lobby:${data.gameId}`;
+      client.join(room);
+
+      console.log("Spectators: ", state.rules.allowSpectators);
+
+      this.server.to(room).emit('lobbyUpdate', {
+      gameId: data.gameId,
+      host: state.hostId,
+      players: state.players,
+      maxPlayers: state.rules.maxPlayers,
+      allowSpectators: state.rules.allowSpectators,
+      phase: state.phase,
       });
-    }
+  }
+
+  @SubscribeMessage('joinMultiplayerList')
+  handleJoinMultiplayerList(
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.join('multiplayer:list');
+      this.server.to(client.id).emit("multiplayerListUpdate", {
+      games: this.engine.getMultiGames(),
+      });
+  }
+
+  sendMultiplayerListUpdate() {
+    const games = this.engine.getMultiGames();
+    this.server.to("multiplayer:list").emit("multiplayerListUpdate", {
+      games,
+    });
+  }
 
 
   @SubscribeMessage("lobbyMessage")
@@ -141,6 +142,32 @@ export class WsGateway {
     this.server
       .to(`lobby:${payload.gameId}`)
       .emit("lobbyMessage", chatMessage);
+  }
+
+  @SubscribeMessage('joinPlay')
+  handleJoinPlay(
+    @MessageBody() data: { gameId: string; userId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const state = this.engine.getGameState(data.gameId);
+
+    if (!state) {
+      return client.emit("error", { error: "GAME_NOT_FOUND" });
+    }
+    if (state.phase !== "PLAY") {
+      return client.emit("error", { error: "GAME_NOT_IN_PLAY" });
+    }
+
+    const room = `play:${data.gameId}`;
+    client.join(room);
+
+    // Send initial state immediately
+    client.emit("playUpdate", {
+      phase: "PLAY",
+      board: state.board,
+      players: state.players,
+      playerProgress: state.playerProgress,
+    });
   }
 
   // --------------------

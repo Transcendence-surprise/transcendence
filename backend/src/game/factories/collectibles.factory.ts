@@ -2,7 +2,8 @@ import { COLLECTIBLE_IDS, Collectible } from "../models/collectible";
 
 export function generateMultiplayerCollectibles(
   players: string[],
-  collectiblesPerPlayer: number
+  collectiblesPerPlayer: number,
+  boardSize: number
 ): Collectible[] {
   const totalNeeded = players.length * collectiblesPerPlayer;
   if (totalNeeded > COLLECTIBLE_IDS.length) {
@@ -19,7 +20,8 @@ export function generateMultiplayerCollectibles(
       result.push({
         id: shuffledIds[idIndex++],
         ownerId: playerId,
-        // x/y will be assigned later
+        x: Math.floor(Math.random() * boardSize),
+        y: Math.floor(Math.random() * boardSize),
       });
     }
   }

@@ -4,17 +4,23 @@ import { Board } from "./board";
 
 export type GamePhase = "LOBBY" | "PLAY" | "END";
 
-export interface PlayerDto {
+export interface PlayerState {
   id: string;
   x: number;
   y: number;
+  hasMoved: boolean;
+  color: string; // new
 }
 
-export interface SpectatorDto {
+export interface PlayerProgress {
+  collectedItems: string[];
+}
+
+export interface Spectator {
   id: string;
 }
 
-export interface GameRulesDto {
+export interface GameRules {
   mode: "SINGLE" | "MULTI";
   maxPlayers: number;
   allowSpectators: boolean;
@@ -27,10 +33,10 @@ export interface GameState {
   phase: GamePhase;
   hostId?: string;
 
-  players: PlayerDto[];
-  spectators: SpectatorDto[];
+  players: PlayerState[];
+  spectators: Spectator[];
 
-  rules: GameRulesDto;
+  rules: GameRules;
 
   board?: Board; // ❗ undefined in LOBBY
 }

@@ -1,6 +1,6 @@
 // Settings for multiplayer game creation
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser, getSecondUser } from "../utils/fakeUser";
 import { createGame, checkPlayerAvailability } from "../../api/game";
@@ -17,6 +17,11 @@ export default function MultiplayerCreateRoute() {
     allowSpectators: false,
     collectiblesPerPlayer: 5,
   });
+
+  useEffect(() => {             // FOR LOG
+    console.log("🔧 Multiplayer settings changed:", settings);
+  }, [settings]);
+
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -31,6 +36,8 @@ export default function MultiplayerCreateRoute() {
 
     try {
       if (!currentUser) throw new Error("No fake user available");
+
+      console.log("🚀 Creating game with settings:", settings);
 
       const availability = await checkPlayerAvailability(currentUser.id);
 

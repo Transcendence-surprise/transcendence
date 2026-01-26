@@ -18,6 +18,19 @@ export function createSingleplayerLevel(
     row.map((token, x) => createTile(token, x, y))
   );
 
+  const collectibles = meta.collectibles ?? [];
+
+  console.log("collectibles:", meta.collectibles);
+
+  for (const c of collectibles) {
+    if (typeof c.x !== "number" || typeof c.y !== "number") continue;
+
+    const tile = tiles[c.y][c.x];
+    if (tile) tile.collectableId = c.id;
+  }
+
+
+
   const board: Board = {
     width: tiles[0].length,
     height: tiles.length,

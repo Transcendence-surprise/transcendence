@@ -68,7 +68,7 @@ export default function MultiplayerSettingsForm({
         <input
           type="number"
           min={1}
-          max={10}
+          max={7}
           className="ml-2 px-2 py-1 bg-gray-800 rounded w-16"
           value={settings.collectiblesPerPlayer}
           onChange={(e) => onChange({ ...settings, collectiblesPerPlayer: Number(e.target.value) })}

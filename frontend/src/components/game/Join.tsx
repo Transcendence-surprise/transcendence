@@ -23,6 +23,7 @@ export default function JoinTable({ games, onJoin, onSpectate, onBack }: Props) 
             <th className="p-2 border-b border-gray-700">Players</th>
             <th className="p-2 border-b border-gray-700">Max</th>
             <th className="p-2 border-b border-gray-700">Phase</th>
+            <th className="p-2 border-b border-gray-700">Spectators</th>
             <th className="p-2 border-b border-gray-700">Action</th>
           </tr>
         </thead>
@@ -33,6 +34,7 @@ export default function JoinTable({ games, onJoin, onSpectate, onBack }: Props) 
               <td className="p-2 border-b border-gray-700">{game.joinedPlayers}</td>
               <td className="p-2 border-b border-gray-700">{game.maxPlayers}</td>
               <td className="p-2 border-b border-gray-700">{game.phase}</td>
+              <td className="p-2 border-b border-gray-700">{game.allowSpectators ? "Yes" : "No"}</td>
               <td className="p-2 border-b border-gray-700">
                 {/* Join as player if in lobby and space */}
                 {game.phase === "LOBBY" && game.joinedPlayers < game.maxPlayers && (
@@ -45,7 +47,7 @@ export default function JoinTable({ games, onJoin, onSpectate, onBack }: Props) 
                 )}
 
                 {/* Spectate in lobby or play if allowed */}
-                {(game.phase === "LOBBY" || (game.phase === "PLAY" && game.allowSpectators)) && (
+                {(game.phase === "PLAY" && game.allowSpectators) && (
                   <button
                     className="px-4 py-1 bg-blue-600 rounded hover:bg-blue-500"
                     onClick={() => onSpectate(game.id)}
@@ -55,7 +57,7 @@ export default function JoinTable({ games, onJoin, onSpectate, onBack }: Props) 
                 )}
 
                 {/* Full games */}
-                {game.phase === "PLAY" && !game.allowSpectators && game.joinedPlayers >= game.maxPlayers && (
+                {game.phase === "PLAY" && !game.allowSpectators && (
                   <span className="text-gray-500">Full</span>
                 )}
               </td>
