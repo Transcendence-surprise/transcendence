@@ -31,6 +31,12 @@ services:
     networks:
       - transcendence_net
 
+  game-service:
+    expose:
+      - "3003"
+    networks:
+      - transcendence_net
+
   # === Infrastructure ===
 
   db:

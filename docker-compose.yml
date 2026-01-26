@@ -45,6 +45,16 @@ services:
     networks:
       - transcendence_net
 
+  game-service:
+    build: ./services/game-service
+    container_name: game-service
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    networks:
+      - transcendence_net
+
   # === Infrastructure ===
 
   db:
@@ -66,6 +76,8 @@ services:
       - frontend
       - backend
       - auth-service
+      - api-gateway
+      - game-service
     volumes:
       - frontend_build:/usr/share/nginx/html:ro
     networks:
