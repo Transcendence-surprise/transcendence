@@ -13,26 +13,26 @@ import { UNIQUE_VIOLATION } from 'pg-error-constants';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(User) private repo: Repository<User>) {}
+  constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
   findAll() {
-    return this.repo.find();
+    return this.userRepo.find();
   }
 
   async findOneByUsername(username: string) {
-    const user = await this.repo.findOne({ where: { username } });
+    const user = await this.userRepo.findOne({ where: { username } });
     if (!user) throw new NotFoundException(`User '${username}' not found`);
     return user;
   }
 
   async findOneById(id: number) {
-    const user = await this.repo.findOne({ where: { id } });
+    const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException(`User '${id}' not found`);
     return user;
   }
 
   async findByUsernameWithPassword(username: string) {
-    return this.repo.findOne({
+    return this.userRepo.findOne({
       where: { username },
       select: ['id', 'email', 'username', 'password'],
     });
@@ -40,7 +40,7 @@ export class UsersService {
 
   // try find by email or username
   async findByIdentifier(identifier: string) {
-    return this.repo.findOne({
+    return this.userRepo.findOne({
       where: [
         { username: identifier }, //
         { email: identifier },
@@ -50,25 +50,25 @@ export class UsersService {
   }
 
   async removeByUsername(username: string) {
-    const res = await this.repo.delete({ username });
+    const res = await this.userRepo.delete({ username });
     if (!res.affected)
       throw new NotFoundException(`User '${username}' not found`);
     return { deleted: true, username };
   }
 
   async removeById(id: number) {
-    const res = await this.repo.delete({ id });
+    const res = await this.userRepo.delete({ id });
     if (!res.affected) throw new NotFoundException(`User '${id}' not found`);
     return { deleted: true, id };
   }
 
   async create(createUserDto: CreateUserDto) {
-    const user = this.repo.create(createUserDto);
+    const user = this.userRepo.create(createUserDto);
     if (user.password !== null) {
       user.password = await bcrypt.hash(user.password, 10);
     }
     try {
-      return await this.repo.save(user);
+      return await this.userRepo.save(user);
     } catch (error) {
       if (this.isUniqueConstraintError(error)) {
         throw new ConflictException('Username or email already exists');
