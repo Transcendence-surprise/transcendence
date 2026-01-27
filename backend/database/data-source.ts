@@ -2,9 +2,10 @@ import 'reflect-metadata';
 import 'dotenv/config';
 import { join } from 'node:path';
 import { DataSource } from 'typeorm';
-import { Game } from '../src/game/game.entity';
-import { GamePlayer } from '../src/game/game-player.entity';
-import { User } from '../src/users/user.entity';
+
+import { Game } from './game/game.entity';
+import { GamePlayer } from './game/game-player.entity';
+import { User } from './users/user.entity';
 
 export default new DataSource({
   type: 'postgres',
