@@ -5,7 +5,7 @@ export interface LoginResponse {
 }
 
 export async function login(username: string, password: string): Promise<LoginResponse> {
-  const res = await fetch("http://localhost:3001/api/auth/login", {
+  const res = await fetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
@@ -28,7 +28,7 @@ export async function getCurrentUser(): Promise<{ id: string; username: string }
   const token = localStorage.getItem("authToken");
   if (!token) throw new Error("Not logged in");
 
-  const res = await fetch("http://localhost:3000/api/users/me", {
+  const res = await fetch("/api/users/me", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
