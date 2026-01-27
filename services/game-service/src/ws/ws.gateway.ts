@@ -1,0 +1,178 @@
+import {
+  WebSocketGateway,
+  WebSocketServer,
+  SubscribeMessage,
+  MessageBody,
+  ConnectedSocket,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+import { EngineService } from '../game/services/engine.service.nest';
+
+type LobbyMessage = {
+  userId: string;
+  message: string;
+  timestamp: number;
+};
+
+
+@WebSocketGateway({ cors: { origin: '*' } })
+export class WsGateway {
+  @WebSocketServer()
+  server: Server;
+
+// Dont touch!!!
+
+  constructor(private engine: EngineService) {}
+
+  // --------------------
+  // Generic room control
+  // --------------------
+
+  @SubscribeMessage('joinRoom') // Lets the frontend decide which room to join
+  handleJoinRoom(
+    @MessageBody() data: { room: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.join(data.room);
+    client.emit('joinedRoom', data.room);
+  }
+
+  // Leave room
+  @SubscribeMessage('leaveRoom') // Cleanly removes a socket from a room
+  handleLeaveRoom(
+    @MessageBody() data: { room: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.leave(data.room);
+  }
+
+  // Send message to room
+  sendToRoom(room: string, event: string, payload: any) { // Avoid repeating this.server.to(...).emit(...)
+    this.server.to(room).emit(event, payload);
+  }
+
+  // --------------------
+  // Game / Lobby logic
+  // --------------------
+
+  @SubscribeMessage('joinLobby')
+  handleJoinLobby(
+      @MessageBody() data: { gameId: string; userId: string },
+      @ConnectedSocket() client: Socket,
+  ) {
+      const state = this.engine.getGameState(data.gameId);
+
+      console.log("LOBBY_UPDATE_START");
+
+      if (!state) {
+        console.log("GAME_NOT_FOUND");
+        return client.emit("error", { error: "GAME_NOT_FOUND" });
+      }
+      if (state.phase !== "LOBBY") {
+        console.log("LOBBY_CLOSED");
+        return client.emit("error", { error: "LOBBY_CLOSED" });
+      }
+
+      const room = `lobby:${data.gameId}`;
+      client.join(room);
+
+      console.log("Spectators: ", state.rules.allowSpectators);
+
+      this.server.to(room).emit('lobbyUpdate', {
+      gameId: data.gameId,
+      host: state.hostId,
+      players: state.players,
+      maxPlayers: state.rules.maxPlayers,
+      allowSpectators: state.rules.allowSpectators,
+      phase: state.phase,
+      });
+  }
+
+  @SubscribeMessage('joinMultiplayerList')
+  handleJoinMultiplayerList(
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.join('multiplayer:list');
+      this.server.to(client.id).emit("multiplayerListUpdate", {
+      games: this.engine.getMultiGames(),
+      });
+  }
+
+  sendMultiplayerListUpdate() {
+    const games = this.engine.getMultiGames();
+    this.server.to("multiplayer:list").emit("multiplayerListUpdate", {
+      games,
+    });
+  }
+
+
+  @SubscribeMessage("lobbyMessage")
+  handleLobbyMessage(
+    @MessageBody()
+    payload: { gameId: string; userId: string; message: string },
+  ) {
+    const state = this.engine.getGameState(payload.gameId);
+
+    if (!state) {
+      return; // or emit error
+    }
+
+    const isInLobby =
+      state.players.some(p => p.id === payload.userId) ||
+      state.spectators.some(s => s.id === payload.userId);
+
+    if (!isInLobby) {
+      return this.server
+        .to(`lobby:${payload.gameId}`)
+        .emit("error", { error: "NOT_IN_LOBBY" });
+    }
+
+    if (!payload.message.trim()) {
+      return this.server
+        .to(`lobby:${payload.gameId}`)
+        .emit("error", { error: "EMPTY_MESSAGE" });
+    }
+
+    const chatMessage = {
+      userId: payload.userId,
+      message: payload.message,
+      timestamp: Date.now(),
+    };
+
+    this.server
+      .to(`lobby:${payload.gameId}`)
+      .emit("lobbyMessage", chatMessage);
+  }
+
+  @SubscribeMessage('joinPlay')
+  handleJoinPlay(
+    @MessageBody() data: { gameId: string; userId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const state = this.engine.getGameState(data.gameId);
+
+    if (!state) {
+      return client.emit("error", { error: "GAME_NOT_FOUND" });
+    }
+    if (state.phase !== "PLAY") {
+      return client.emit("error", { error: "GAME_NOT_IN_PLAY" });
+    }
+
+    const room = `play:${data.gameId}`;
+    client.join(room);
+
+    // Send initial state immediately
+    client.emit("playUpdate", {
+      phase: "PLAY",
+      board: state.board,
+      players: state.players,
+      playerProgress: state.playerProgress,
+    });
+  }
+
+  // --------------------
+  // Something else
+  // --------------------
+
+}
+

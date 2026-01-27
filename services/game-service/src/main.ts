@@ -48,9 +48,9 @@ async function bootstrap() {
     },
   });
 
-  const port = process.env.AUTH_SERVICE_PORT ?? '3001';
+  const port = process.env.GAME_SERVICE_PORT ?? '3001';
   await app.listen(port, '0.0.0.0');
-  console.log(`Game Service running on ${process.env.AUTH_SERVICE_URL}`);
+  console.log(`Game Service running on ${process.env.GAME_SERVICE_URL}`);
 }
 
 bootstrap().catch((error) => {
