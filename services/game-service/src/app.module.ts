@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthController } from './health/health.controller';
-import { UsersModule } from './users/users.module';
+import { GameModule } from './game/modules/game.module'; // My GAME
+import { WsModule } from './ws/ws.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { UsersModule } from './users/users.module';
       autoLoadEntities: true,
       synchronize: false, // keep false since we use migrations
     }),
-    UsersModule,
+    GameModule,
+    WsModule,
   ],
   controllers: [HealthController],
   providers: [],

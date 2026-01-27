@@ -72,6 +72,7 @@ dev-install:
 	cd backend && npm install
 	cd services/auth-service && npm install
 	cd services/api-gateway && npm install
+	cd services/game-service && npm install
 
 # Clean Install for CI/CD
 dev-ci:
@@ -80,10 +81,11 @@ dev-ci:
 	cd backend && npm ci
 	cd services/auth-service && npm ci
 	cd services/api-gateway && npm ci
+	cd services/game-service && npm ci
 
 # =========== Rebuild commands ===========
 
-# Rebuild shortcuts
+# Build shortcuts
 build-db:
 	$(COMPOSE) -f docker-compose.dev.yml up -d --build db
 
@@ -102,6 +104,9 @@ build-auth-service:
 build-api-gateway:
 	$(COMPOSE) -f docker-compose.dev.yml up -d --build api-gateway
 
+build-game-service:
+	$(COMPOSE) -f docker-compose.dev.yml up -d --build game-service
+
 # =========== Test commands ===========
 
 # Run frontend and backend tests
@@ -117,6 +122,9 @@ test-back:
 
 	@echo "$(MAGENTA)\n== Api-gateway tests ==$(RESET)"
 	@cd services/api-gateway && npm run test --silent
+
+	@echo "$(MAGENTA)\n== Game-service tests ==$(RESET)"
+	@cd services/game-service && npm run test --silent
 
 # Run frontend test
 test-front:
@@ -167,5 +175,6 @@ ps:
 .PHONY: \
 	up down dev dev-build dev-db dev-down dev-clean dev-fclean dev-prune \
 	dev-front dev-back dev-migrate dev-seed dev-install dev-ci clean fclean \
-	re logs ps rebuild-db rebuild-nginx rebuild-backend rebuild-frontend \
-	rebuild-auth-service rebuild-api-gateway dev-rebuild prune prod
+	re logs ps build-db build-nginx build-backend build-frontend \
+	build-auth-service build-api-gateway build-game-service \
+	dev-build prune prod
