@@ -8,6 +8,7 @@ const HealthDocs = () =>
     ApiOperation({
       summary: 'Health check',
       description: 'Check if the service is running and healthy',
+      operationId: 'backendHealth',
     }),
     ApiResponse({
       status: 200,
