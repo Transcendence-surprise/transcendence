@@ -42,6 +42,9 @@ services:
       - ./.env
     depends_on:
       - db
+      - backend
+      - game-service
+      - auth-service
     networks:
       - transcendence_net
 
