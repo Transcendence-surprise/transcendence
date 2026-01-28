@@ -1,5 +1,7 @@
-import axios, { AxiosResponse } from 'axios';
-import { SwaggerModule, OpenAPIObject } from '@nestjs/swagger';
+import {
+  SwaggerModule,
+  OpenAPIObject as NestOpenAPIObject,
+} from '@nestjs/swagger';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 export async function setupMergedSwagger(app: NestFastifyApplication) {
@@ -9,92 +11,85 @@ export async function setupMergedSwagger(app: NestFastifyApplication) {
         'BACKEND_URL and AUTH_SERVICE_URL environment variables must be set',
       );
     }
+
     const backendUrl = process.env.BACKEND_URL.replace(/\/$/, '');
     const authUrl = process.env.AUTH_SERVICE_URL.replace(/\/$/, '');
 
     const backendDocsUrl = `${backendUrl}/api/docs-json`;
     const authDocsUrl = `${authUrl}/api/auth/docs-json`;
 
-    const backendResp: AxiosResponse<OpenAPIObject> | null = await axios
-      .get<OpenAPIObject>(backendDocsUrl)
-      .catch(() => {
-        console.warn(`Error fetching ${backendDocsUrl}:`);
-        return null;
-      });
-    const authResp: AxiosResponse<OpenAPIObject> | null = await axios
-      .get<OpenAPIObject>(authDocsUrl)
-      .catch(() => {
-        console.warn(`Error fetching ${authDocsUrl}:`);
-        return null;
-      });
-
-    const mergedDocument: OpenAPIObject = {
-      openapi: '3.0.0',
+    const config = {
+      version: '3.0.0',
       info: { title: 'Transcendence Merged API', version: '1.0.0' },
-      paths: {},
-      components: {},
-    } as OpenAPIObject;
-
-    const mergePaths = (doc?: OpenAPIObject) => {
-      if (!doc || !doc.paths) return;
-      const paths = doc.paths as Record<string, unknown>;
-      for (const [p, v] of Object.entries(paths)) {
-        if ((mergedDocument.paths as Record<string, unknown>)[p]) {
-          console.warn(
-            `Duplicate path '${p}' found while merging; keeping first occurrence.`,
-          );
-          continue;
-        }
-        (mergedDocument.paths as Record<string, unknown>)[p] = v;
-      }
+      apis: [{ url: backendDocsUrl }, { url: authDocsUrl }],
     };
 
-    const mergeComponents = (doc?: OpenAPIObject) => {
-      if (!doc || !doc.components) return;
-      const comps = doc.components as Record<string, Record<string, unknown>>;
-      for (const compKey of Object.keys(comps)) {
-        const compValue = comps[compKey];
-        if (!(mergedDocument.components as Record<string, unknown>)[compKey]) {
-          (mergedDocument.components as Record<string, unknown>)[compKey] = {};
-        }
-        Object.assign(
-          (mergedDocument.components as Record<string, unknown>)[
-            compKey
-          ] as object,
-          compValue,
-        );
-      }
+    type OpenAPIObject = {
+      openapi?: string;
+      swagger?: string;
+      info?: { title?: string; version?: string };
+      paths?: Record<string, Record<string, any>>;
+      components?: Record<string, any>;
     };
 
-    if (backendResp) {
-      mergePaths(backendResp.data);
-      mergeComponents(backendResp.data);
-      console.log(`Fetched backend OpenAPI from ${backendDocsUrl}`);
+    type SwaggerCombineFn = (
+      config: unknown,
+      opts?: unknown,
+    ) => Promise<unknown>;
+
+    // dynamic import + narrow the exported function to avoid interop/type issues
+    const mod: unknown = await import('swagger-combine');
+    let swaggerCombine: SwaggerCombineFn;
+    if (typeof mod === 'function') {
+      swaggerCombine = mod as unknown as SwaggerCombineFn;
+    } else if (typeof mod === 'object' && mod !== null && 'default' in mod) {
+      const def = (mod as { default: unknown }).default;
+      if (typeof def === 'function') {
+        swaggerCombine = def as SwaggerCombineFn;
+      } else {
+        throw new Error('swagger-combine default export is not a function');
+      }
     } else {
-      console.warn(`Could not fetch backend OpenAPI from ${backendDocsUrl}`);
+      throw new Error('swagger-combine module not found');
     }
 
-    if (authResp) {
-      mergePaths(authResp.data);
-      mergeComponents(authResp.data);
-      console.log(`Fetched auth OpenAPI from ${authDocsUrl}`);
-    } else {
-      console.warn(`Could not fetch auth OpenAPI from ${authDocsUrl}`);
+    const combinedRaw: unknown = await swaggerCombine(config as any, {
+      verbose: false,
+    });
+    const merged: OpenAPIObject =
+      typeof combinedRaw === 'string'
+        ? (JSON.parse(combinedRaw) as OpenAPIObject)
+        : (combinedRaw as OpenAPIObject);
+
+    // Normalize required fields for Nest's OpenAPIObject type
+    if (merged) {
+      if (!merged.openapi && merged.swagger) merged.openapi = merged.swagger;
+      if (!merged.openapi) merged.openapi = '3.0.0';
     }
 
-    if (mergedDocument.paths && Object.keys(mergedDocument.paths).length > 0) {
-      SwaggerModule.setup('api/docs', app, mergedDocument, {
-        customSiteTitle: 'Transcendence Merged API Docs',
-        swaggerOptions: {
-          defaultModelsExpandDepth: -1,
-          persistAuthorization: true,
-        },
-      });
-      console.log('Merged Swagger docs available at /api/docs');
-    } else {
-      console.warn('No OpenAPI paths were merged; skipping Swagger setup.');
-    }
-  } catch (err) {
+    const mergedSpec: NestOpenAPIObject = {
+      openapi: merged.openapi ?? '3.0.0',
+      info: {
+        title: merged.info?.title ?? 'Transcendence Merged API',
+        version: merged.info?.version ?? '1.0.0',
+      },
+      paths: merged.paths ?? {},
+      components: merged.components ?? {},
+    };
+
+    // Let SwaggerModule expose the UI and the JSON at /api/docs and /api/docs-json
+    SwaggerModule.setup('api/docs', app, mergedSpec, {
+      customSiteTitle: 'Transcendence Merged API Docs',
+      swaggerOptions: {
+        defaultModelsExpandDepth: -1,
+        persistAuthorization: true,
+      },
+    });
+
+    console.log(
+      'Merged Swagger docs available at /api/docs and /api/docs-json',
+    );
+  } catch (err: unknown) {
     console.warn('Error while merging OpenAPI docs:', String(err));
   }
 }
