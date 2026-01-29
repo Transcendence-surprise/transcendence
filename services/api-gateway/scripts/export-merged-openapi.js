@@ -25,6 +25,16 @@ async function main() {
     const merged = await swaggerCombine(config, { verbose: false });
     const mergedObj = typeof merged === 'string' ? JSON.parse(merged) : merged;
 
+    // Ensure correct OpenAPI version field name
+    if (!mergedObj.openapi) {
+      if (mergedObj.version) {
+        mergedObj.openapi = mergedObj.version;
+        delete mergedObj.version;
+      } else {
+        mergedObj.openapi = '3.0.0';
+      }
+    }
+
     // ensure output dir
     const outPath = path.join(__dirname, '..', 'src', 'swagger', 'merged-openapi.json');
     fs.mkdirSync(path.dirname(outPath), { recursive: true });
