@@ -1,6 +1,8 @@
 # Transcendence
 
-## Overview
+## Project Overview
+
+- Transcendence is a server-driven multiplayer web game featuring user profiles, authentication, and global leaderboards. The app is split into microservices so real-time game logic, user/profile management, and authentication can scale independently; nginx routes frontend requests to the appropriate service and PostgreSQL stores persistent data.
 
 - [Database Structure](https://drawsql.app/teams/ilias-team-10/diagrams/transcendence-db) - Visualizes the database schema.
 - [Application Architecture](https://s.icepanel.io/GVOJBUo15pQ7B3/lvV5) - Visualizes the app architecture.
@@ -131,17 +133,17 @@ GET /api/health
 ## Tech Stack
 
 ### Frontend
-- **Node.js:**      20.x
-- **npm:**          10.x
-- **React:**        18
-- **Vite:**         5.x
+- Node.js
+- React
+- Vite
 
 ### Backend
-- **Node.js:**      20.x
-- **NestJS:**       11.x
-- **Express:**      4.x
+- Node.js
+- NestJS
+- Fastify
 
-### Infrastructure (planned)
-- **Nginx:**        1.27
-- **PostgreSQL:**   16
-- **Docker & Docker Compose**
+### Infrastructure
+- Nginx
+- PostgreSQL
+- Docker & Docker Compose
+- Google Cloud
