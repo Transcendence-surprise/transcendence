@@ -1,7 +1,17 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBody,
+  ApiBadRequestResponse,
+  ApiUnauthorizedResponse,
+  ApiOkResponse,
+  ApiConflictResponse,
+} from '@nestjs/swagger';
 import { LoginUserDto } from './dto/login-user.dto';
+import { LoginUserResponseDto } from './dto/login-user-response.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
+import { SignupUserResponseDto } from './dto/signup-user-response.dto';
 
 const AuthControllerDocs = () => ApiTags('Authentication');
 
@@ -12,35 +22,15 @@ const LoginDocs = () =>
       description: 'Authenticate user and return JWT access token',
     }),
     ApiBody({
-      type: LoginUserDto,
       description: 'User credentials',
+      type: LoginUserDto,
     }),
-    ApiResponse({
-      status: 200,
+    ApiOkResponse({
       description: 'Login successful, JWT token and user returned',
-      schema: {
-        type: 'object',
-        properties: {
-          access_token: {
-            type: 'string',
-            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-          },
-          user: {
-            type: 'object',
-            example: {
-              id: 74,
-              username: 'test',
-              email: 'test@gmail.com',
-            },
-          },
-        },
-      },
+      type: LoginUserResponseDto,
     }),
-    ApiResponse({ status: 401, description: 'Invalid credentials' }),
-    ApiResponse({
-      status: 400,
-      description: 'Bad request - validation failed',
-    }),
+    ApiBadRequestResponse({ description: 'Bad request' }),
+    ApiUnauthorizedResponse({ description: 'Invalid credentials' }),
   );
 
 const SignupDocs = () =>
@@ -53,39 +43,12 @@ const SignupDocs = () =>
       type: SignupUserDto,
       description: 'User credentials',
     }),
-    ApiResponse({
-      status: 200,
+    ApiOkResponse({
       description: 'Signup successful, JWT token and user returned',
-      schema: {
-        type: 'object',
-        properties: {
-          access_token: {
-            type: 'string',
-            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-          },
-          user: {
-            type: 'object',
-            example: {
-              id: 74,
-              username: 'test',
-              email: 'test@gmail.com',
-            },
-          },
-        },
-      },
+      type: SignupUserResponseDto,
     }),
-    ApiResponse({
-      status: 409,
-      description: 'Username or email already exists',
-    }),
-    ApiResponse({
-      status: 400,
-      description: 'Validation failed',
-    }),
-    ApiResponse({
-      status: 500,
-      description: 'Internal Server Error',
-    }),
+    ApiBadRequestResponse({ description: 'Bad request' }),
+    ApiConflictResponse({ description: 'Username or email already exists' }),
   );
 
 export { AuthControllerDocs, LoginDocs, SignupDocs };
