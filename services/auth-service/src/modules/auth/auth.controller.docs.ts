@@ -9,9 +9,9 @@ import {
   ApiConflictResponse,
 } from '@nestjs/swagger';
 import { LoginUserDto } from './dto/login-user.dto';
-import { LoginUserResponseDto } from './dto/login-user-response.dto';
+import { LoginUserResDto } from './dto/login-user-res.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
-import { SignupUserResponseDto } from './dto/signup-user-response.dto';
+import { SignupUserResDto } from './dto/signup-user-res.dto';
 
 const AuthControllerDocs = () => ApiTags('Authentication');
 
@@ -27,7 +27,7 @@ const LoginDocs = () =>
     }),
     ApiOkResponse({
       description: 'Login successful, JWT token and user returned',
-      type: LoginUserResponseDto,
+      type: LoginUserResDto,
     }),
     ApiBadRequestResponse({ description: 'Bad request' }),
     ApiUnauthorizedResponse({ description: 'Invalid credentials' }),
@@ -45,7 +45,7 @@ const SignupDocs = () =>
     }),
     ApiOkResponse({
       description: 'Signup successful, JWT token and user returned',
-      type: SignupUserResponseDto,
+      type: SignupUserResDto,
     }),
     ApiBadRequestResponse({ description: 'Bad request' }),
     ApiConflictResponse({ description: 'Username or email already exists' }),
