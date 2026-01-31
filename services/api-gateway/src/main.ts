@@ -14,6 +14,7 @@ async function bootstrap() {
       routerOptions: {
         ignoreTrailingSlash: true,
       },
+      trustProxy: true,
     }),
   );
 
