@@ -50,7 +50,7 @@ export class UsersController {
   // Auth-test: allows to find user by id only if this user logged in
   @Get('id/:id')
   @FindOneByIdDocs()
-  async findOneById(
+  findOneById(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: { sub: number; username: string },
   ) {
@@ -58,7 +58,7 @@ export class UsersController {
       throw new UnauthorizedException();
     }
 
-    return await this.usersService.findOneById(id);
+    return this.usersService.findOneById(id);
   }
 
   @Delete(':username')
