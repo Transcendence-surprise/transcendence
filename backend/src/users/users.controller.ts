@@ -31,7 +31,7 @@ export class UsersController {
 
   @Get()
   @FindAllDocs()
-  findAll() {
+  getUsers() {
     return this.usersService.findAll();
   }
 
@@ -43,14 +43,14 @@ export class UsersController {
 
   @Get(':username')
   @FindOneByUsernameDocs()
-  findOneByUsername(@Param('username') username: string) {
+  getUserByUsername(@Param('username') username: string) {
     return this.usersService.findOneByUsername(username);
   }
 
   // Auth-test: allows to find user by id only if this user logged in
   @Get('id/:id')
   @FindOneByIdDocs()
-  findOneById(
+  getUserById(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: { sub: number; username: string },
   ) {

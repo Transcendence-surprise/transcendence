@@ -23,6 +23,7 @@ const FindAllDocs = () =>
     ApiOperation({
       summary: 'Get all users',
       description: 'Retrieve a list of all users',
+      operationId: 'getUsers',
     }),
     ApiOkResponse({
       description: 'List of users',
@@ -37,6 +38,7 @@ const ValidateCredentialsDocs = () =>
     ApiOperation({
       summary: 'Validate user credentials',
       description: 'Validate user credentials for authentication',
+      operationId: 'validateUserCredentials',
     }),
     ApiBody({
       type: ValidateCredDto,
@@ -56,6 +58,7 @@ const FindOneByUsernameDocs = () =>
     ApiOperation({
       summary: 'Get user by username',
       description: 'Retrieve a user by their username',
+      operationId: 'getUserByUsername',
     }),
     ApiParam({
       name: 'username',
@@ -76,6 +79,7 @@ const FindOneByIdDocs = () =>
     ApiOperation({
       summary: 'Get user by ID',
       description: 'Retrieve a user by their ID (authenticated user only)',
+      operationId: 'getUserById',
     }),
     ApiParam({
       name: 'id',
@@ -97,6 +101,7 @@ const RemoveByUsernameDocs = () =>
     ApiOperation({
       summary: 'Delete user by username',
       description: 'Delete a user by their username',
+      operationId: 'deleteUserByUsername',
     }),
     ApiParam({
       name: 'username',
@@ -114,6 +119,7 @@ const RemoveByIdDocs = () =>
     ApiOperation({
       summary: 'Delete user by ID',
       description: 'Delete a user by their ID',
+      operationId: 'deleteUserById',
     }),
     ApiParam({
       name: 'id',
@@ -131,6 +137,7 @@ const CreateDocs = () =>
     ApiOperation({
       summary: 'Create a new user',
       description: 'Create a new user with the provided data',
+      operationId: 'createUser',
     }),
     ApiBody({
       type: CreateUserDto,

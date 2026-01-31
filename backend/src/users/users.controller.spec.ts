@@ -56,12 +56,12 @@ describe('UsersController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('findAll', () => {
+  describe('getUsers', () => {
     it('should return an array of users', async () => {
       const users = [mockUser];
       mockUsersService.findAll.mockResolvedValue(users);
 
-      const result = await controller.findAll();
+      const result = await controller.getUsers();
 
       expect(result).toEqual(users);
       expect(service.findAll).toHaveBeenCalledTimes(1);
@@ -104,23 +104,23 @@ describe('UsersController', () => {
     });
   });
 
-  describe('findOneByUsername', () => {
+  describe('getUserByUsername', () => {
     it('should return user by username', async () => {
       mockUsersService.findOneByUsername.mockResolvedValue(mockUser);
 
-      const result = await controller.findOneByUsername('testuser');
+      const result = await controller.getUserByUsername('testuser');
 
       expect(result).toEqual(mockUser);
       expect(service.findOneByUsername).toHaveBeenCalledWith('testuser');
     });
   });
 
-  describe('findOneById', () => {
+  describe('getUserById', () => {
     it('should return user by id when user owns the id', async () => {
       const user = { sub: 1, username: 'testuser' };
       mockUsersService.findOneById.mockResolvedValue(mockUser);
 
-      const result = await controller.findOneById(1, user);
+      const result = await controller.getUserById(1, user);
 
       expect(result).toEqual(mockUser);
       expect(service.findOneById).toHaveBeenCalledWith(1);
@@ -129,7 +129,7 @@ describe('UsersController', () => {
     it('should throw UnauthorizedException when user does not own the id', async () => {
       const user = { sub: 1, username: 'testuser' };
 
-      await expect(controller.findOneById(2, user)).rejects.toThrow(
+      await expect(controller.getUserById(2, user)).rejects.toThrow(
         UnauthorizedException,
       );
       expect(service.findOneById).not.toHaveBeenCalled();
