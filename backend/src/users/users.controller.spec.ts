@@ -31,6 +31,19 @@ describe('UsersController', () => {
     findOneByUsername: jest.fn(),
     findOneById: jest.fn(),
     findByIdentifier: jest.fn(),
+    validateCredentials: jest.fn(async (validateCredDto: { identifier: string; password: string }) => {
+      const user = await mockUsersService.findByIdentifier(validateCredDto.identifier);
+      if (!user) throw new UnauthorizedException('Invalid credentials');
+      if (!user.password) throw new UnauthorizedException('Invalid credentials');
+      const passwordCorrect = await (bcrypt.compare as jest.Mock)(
+        validateCredDto.password,
+        user.password,
+      );
+      if (!passwordCorrect) throw new UnauthorizedException('Invalid credentials');
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    }),
     removeByUsername: jest.fn(),
     create: jest.fn(),
   };
@@ -126,10 +139,10 @@ describe('UsersController', () => {
       expect(service.findOneById).toHaveBeenCalledWith(1);
     });
 
-    it('should throw UnauthorizedException when user does not own the id', async () => {
+    it('should throw UnauthorizedException when user does not own the id', () => {
       const user = { sub: 1, username: 'testuser' };
 
-      await expect(controller.getUserById(2, user)).rejects.toThrow(
+      expect(() => controller.getUserById(2, user)).toThrow(
         UnauthorizedException,
       );
       expect(service.findOneById).not.toHaveBeenCalled();
