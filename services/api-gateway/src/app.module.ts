@@ -3,7 +3,7 @@ import { HealthController } from './health/health.controller';
 import { AuthHttpModule } from './modules/auth/auth.module';
 import { UsersHttpModule } from './modules/users/users.module';
 import { GameModule } from './modules/game/game.module';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 
 @Module({
@@ -11,7 +11,7 @@ import { APP_GUARD } from '@nestjs/core';
     ThrottlerModule.forRoot({
       throttlers: [
         {
-          ttl: 10000,
+          ttl: seconds(10),
           limit: 10,
         },
       ],
