@@ -83,6 +83,10 @@ dev-ci:
 	cd services/api-gateway && npm ci
 	cd services/game-service && npm ci
 
+ts-client:
+	cd services/api-gateway && \
+	npm run generate:ts-client
+
 # =========== Rebuild commands ===========
 
 # Build shortcuts
