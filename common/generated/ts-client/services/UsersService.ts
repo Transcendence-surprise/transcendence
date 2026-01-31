@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { CreateUserDto } from '../models/CreateUserDto';
+import type { GetUserResDto } from '../models/GetUserResDto';
 import type { ValidateCredDto } from '../models/ValidateCredDto';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -11,17 +12,10 @@ export class UsersService {
     /**
      * Get all users
      * Retrieve a list of all users
-     * @returns any List of users
+     * @returns GetUserResDto List of users
      * @throws ApiError
      */
-    public static usersControllerFindAll(): CancelablePromise<Array<{
-        id?: number;
-        username?: string;
-        email?: string;
-        userType?: string;
-        createdAt?: string;
-        updatedAt?: string;
-    }>> {
+    public static usersControllerFindAll(): CancelablePromise<Array<GetUserResDto>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/users',
@@ -30,7 +24,7 @@ export class UsersService {
     /**
      * Create a new user
      * Create a new user with the provided data
-     * @returns any User created
+     * @returns GetUserResDto User created
      * @throws ApiError
      */
     public static usersControllerCreate({
@@ -40,14 +34,7 @@ export class UsersService {
          * User data to create
          */
         requestBody: CreateUserDto,
-    }): CancelablePromise<{
-        id?: number;
-        username?: string;
-        email?: string;
-        userType?: string;
-        createdAt?: string;
-        updatedAt?: string;
-    }> {
+    }): CancelablePromise<GetUserResDto> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/users',
@@ -62,7 +49,7 @@ export class UsersService {
     /**
      * Validate user credentials
      * Validate user credentials for authentication
-     * @returns any Credentials are valid, user data returned
+     * @returns GetUserResDto Credentials are valid, user data returned
      * @throws ApiError
      */
     public static usersControllerValidateCredentials({
@@ -72,14 +59,7 @@ export class UsersService {
          * User credentials to validate
          */
         requestBody: ValidateCredDto,
-    }): CancelablePromise<{
-        id?: number;
-        username?: string;
-        email?: string;
-        userType?: string;
-        createdAt?: string;
-        updatedAt?: string;
-    }> {
+    }): CancelablePromise<GetUserResDto> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/users/validate-credentials',
@@ -94,7 +74,7 @@ export class UsersService {
     /**
      * Get user by username
      * Retrieve a user by their username
-     * @returns any User data
+     * @returns GetUserResDto User data
      * @throws ApiError
      */
     public static usersControllerFindOneByUsername({
@@ -104,14 +84,7 @@ export class UsersService {
          * Username of the user
          */
         username: string,
-    }): CancelablePromise<{
-        id?: number;
-        username?: string;
-        email?: string;
-        userType?: string;
-        createdAt?: string;
-        updatedAt?: string;
-    }> {
+    }): CancelablePromise<GetUserResDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/users/{username}',
@@ -151,7 +124,7 @@ export class UsersService {
     /**
      * Get user by ID
      * Retrieve a user by their ID (authenticated user only)
-     * @returns any User data
+     * @returns GetUserResDto User data
      * @throws ApiError
      */
     public static usersControllerFindOneById({
@@ -161,14 +134,7 @@ export class UsersService {
          * ID of the user
          */
         id: number,
-    }): CancelablePromise<{
-        id?: number;
-        username?: string;
-        email?: string;
-        userType?: string;
-        createdAt?: string;
-        updatedAt?: string;
-    }> {
+    }): CancelablePromise<GetUserResDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/users/id/{id}',

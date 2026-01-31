@@ -3,7 +3,7 @@
 curl -sS -f -L http://localhost:8080/api/docs-json -o /tmp/merged-openapi.json
 
 npx openapi --input /tmp/merged-openapi.json  \
-  --output ../../test/ts-client \
+  --output ../../common/generated/ts-client \
   --client axios \
   --exportCore true \
   --exportServices true \

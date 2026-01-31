@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { UserResponseDto } from './UserResponseDto';
-export type AuthResponseDto = {
+export type SignupUserResponseDto = {
     access_token: string;
     user: UserResponseDto;
 };

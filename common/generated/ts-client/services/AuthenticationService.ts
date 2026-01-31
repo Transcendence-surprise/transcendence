@@ -2,9 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { AuthResponseDto } from '../models/AuthResponseDto';
 import type { LoginUserDto } from '../models/LoginUserDto';
+import type { LoginUserResponseDto } from '../models/LoginUserResponseDto';
 import type { SignupUserDto } from '../models/SignupUserDto';
+import type { SignupUserResponseDto } from '../models/SignupUserResponseDto';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
@@ -12,7 +13,7 @@ export class AuthenticationService {
     /**
      * User login
      * Authenticate user and return JWT access token
-     * @returns AuthResponseDto Login successful, JWT token and user returned
+     * @returns LoginUserResponseDto Login successful, JWT token and user returned
      * @throws ApiError
      */
     public static login({
@@ -22,14 +23,14 @@ export class AuthenticationService {
          * User credentials
          */
         requestBody: LoginUserDto,
-    }): CancelablePromise<AuthResponseDto> {
+    }): CancelablePromise<LoginUserResponseDto> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/auth/login',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                400: `Bad request - validation failed`,
+                400: `Bad request`,
                 401: `Invalid credentials`,
                 500: `Internal server error`,
             },
@@ -38,7 +39,8 @@ export class AuthenticationService {
     /**
      * User signup
      * Signup user and return JWT access token
-     * @returns any Signup successful, JWT token and user returned
+     * @returns SignupUserResponseDto Signup successful, JWT token and user returned
+     * @returns any
      * @throws ApiError
      */
     public static signup({
@@ -48,17 +50,14 @@ export class AuthenticationService {
          * User credentials
          */
         requestBody: SignupUserDto,
-    }): CancelablePromise<{
-        access_token?: string;
-        user?: Record<string, any>;
-    }> {
+    }): CancelablePromise<SignupUserResponseDto | any> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/auth/signup',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                400: `Validation failed`,
+                400: `Bad request`,
                 409: `Username or email already exists`,
                 500: `Internal server error`,
             },

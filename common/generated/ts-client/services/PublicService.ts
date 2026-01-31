@@ -2,6 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { CreateUserDto } from '../models/CreateUserDto';
+import type { GetUserResDto } from '../models/GetUserResDto';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
@@ -9,17 +11,10 @@ export class PublicService {
     /**
      * Get all users
      * Retrieve a list of all users
-     * @returns any List of users
+     * @returns GetUserResDto List of users
      * @throws ApiError
      */
-    public static usersControllerFindAll(): CancelablePromise<Array<{
-        id?: number;
-        username?: string;
-        email?: string;
-        userType?: string;
-        createdAt?: string;
-        updatedAt?: string;
-    }>> {
+    public static usersControllerFindAll(): CancelablePromise<Array<GetUserResDto>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/users',
@@ -28,7 +23,7 @@ export class PublicService {
     /**
      * Create a new user
      * Create a new user with the provided data
-     * @returns any User created
+     * @returns GetUserResDto User created
      * @throws ApiError
      */
     public static usersControllerCreate({
@@ -37,28 +32,8 @@ export class PublicService {
         /**
          * User data to create
          */
-        requestBody: {
-            /**
-             * Username or email for authentication
-             */
-            username: string;
-            /**
-             * Username or email for authentication
-             */
-            email: string;
-            /**
-             * User password
-             */
-            password: string;
-        },
-    }): CancelablePromise<{
-        id?: number;
-        username?: string;
-        email?: string;
-        userType?: string;
-        createdAt?: string;
-        updatedAt?: string;
-    }> {
+        requestBody: CreateUserDto,
+    }): CancelablePromise<GetUserResDto> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/users',
@@ -73,7 +48,7 @@ export class PublicService {
     /**
      * Get user by username
      * Retrieve a user by their username
-     * @returns any User data
+     * @returns GetUserResDto User data
      * @throws ApiError
      */
     public static usersControllerFindOneByUsername({
@@ -83,14 +58,7 @@ export class PublicService {
          * Username of the user
          */
         username: string,
-    }): CancelablePromise<{
-        id?: number;
-        username?: string;
-        email?: string;
-        userType?: string;
-        createdAt?: string;
-        updatedAt?: string;
-    }> {
+    }): CancelablePromise<GetUserResDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/users/{username}',
@@ -130,7 +98,7 @@ export class PublicService {
     /**
      * Get user by ID
      * Retrieve a user by their ID (authenticated user only)
-     * @returns any User data
+     * @returns GetUserResDto User data
      * @throws ApiError
      */
     public static usersControllerFindOneById({
@@ -140,14 +108,7 @@ export class PublicService {
          * ID of the user
          */
         id: number,
-    }): CancelablePromise<{
-        id?: number;
-        username?: string;
-        email?: string;
-        userType?: string;
-        createdAt?: string;
-        updatedAt?: string;
-    }> {
+    }): CancelablePromise<GetUserResDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/users/id/{id}',
