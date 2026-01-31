@@ -10,6 +10,7 @@ import {
 import { UsersHttpService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('users')
 export class UsersController {
@@ -27,6 +28,7 @@ export class UsersController {
 
   @Get('id/:id')
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   findOneById(@Param('id') id: string) {
     return this.usersClient.findOneById(Number(id));
   }
