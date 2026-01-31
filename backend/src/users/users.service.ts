@@ -2,11 +2,13 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, QueryFailedError } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { ValidateCredDto } from './dto/validate-credentials.dto';
 import * as bcrypt from 'bcrypt';
 import { DatabaseError } from 'pg-protocol';
 import { UNIQUE_VIOLATION } from 'pg-error-constants';
@@ -38,7 +40,6 @@ export class UsersService {
     });
   }
 
-  // try find by email or username
   async findByIdentifier(identifier: string) {
     return this.userRepo.findOne({
       where: [
@@ -47,6 +48,31 @@ export class UsersService {
       ],
       select: ['id', 'email', 'username', 'password'],
     });
+  }
+
+  async validateCredentials(validateCredDto: ValidateCredDto) {
+    const user = await this.findByIdentifier(validateCredDto.identifier);
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!user.password) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const passwordCorrect = await bcrypt.compare(
+      validateCredDto.password,
+      user.password,
+    );
+
+    if (!passwordCorrect) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 
   async removeByUsername(username: string) {

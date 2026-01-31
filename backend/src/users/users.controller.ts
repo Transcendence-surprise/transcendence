@@ -12,7 +12,7 @@ import { UsersService } from './users.service';
 import { ValidateCredDto } from './dto/validate-credentials.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { CurrentUser } from '../decorators/current-user.decorator';
-import * as bcrypt from 'bcrypt';
+
 import {
   UsersControllerDocs,
   FindAllDocs,
@@ -35,34 +35,10 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  // For auth-service to validate credentials
   @Post('validate-credentials')
   @ValidateCredentialsDocs()
   async validateCredentials(@Body() validateCredDto: ValidateCredDto) {
-    const user = await this.usersService.findByIdentifier(
-      validateCredDto.identifier,
-    );
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    if (!user.password) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const passwordCorrect = await bcrypt.compare(
-      validateCredDto.password,
-      user.password,
-    );
-
-    if (!passwordCorrect) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    return this.usersService.validateCredentials(validateCredDto);
   }
 
   @Get(':username')
