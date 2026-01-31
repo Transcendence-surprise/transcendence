@@ -3,14 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { CreateUserDto } from '../models/CreateUserDto';
-import type { InlineSchema10 } from '../models/InlineSchema10';
-import type { InlineSchema12 } from '../models/InlineSchema12';
-import type { InlineSchema4 } from '../models/InlineSchema4';
-import type { InlineSchema7 } from '../models/InlineSchema7';
-import type { InlineSchema9 } from '../models/InlineSchema9';
-import type { Users__username_GetResponse } from '../models/Users__username_GetResponse';
-import type { Users_id__id_GetResponse } from '../models/Users_id__id_GetResponse';
-import type { UsersGetResponse } from '../models/UsersGetResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
@@ -18,10 +10,17 @@ export class PublicService {
     /**
      * Get all users
      * Retrieve a list of all users
-     * @returns UsersGetResponse List of users
+     * @returns any List of users
      * @throws ApiError
      */
-    public static usersControllerFindAll(): CancelablePromise<UsersGetResponse> {
+    public static usersControllerFindAll(): CancelablePromise<Array<{
+        id?: number;
+        username?: string;
+        email?: string;
+        userType?: string;
+        createdAt?: string;
+        updatedAt?: string;
+    }>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/users',
@@ -30,7 +29,7 @@ export class PublicService {
     /**
      * Create a new user
      * Create a new user with the provided data
-     * @returns InlineSchema4 User created
+     * @returns any User created
      * @throws ApiError
      */
     public static usersControllerCreate({
@@ -40,7 +39,14 @@ export class PublicService {
          * User data to create
          */
         requestBody: CreateUserDto,
-    }): CancelablePromise<InlineSchema4> {
+    }): CancelablePromise<{
+        id?: number;
+        username?: string;
+        email?: string;
+        userType?: string;
+        createdAt?: string;
+        updatedAt?: string;
+    }> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/users',
@@ -55,7 +61,7 @@ export class PublicService {
     /**
      * Get user by username
      * Retrieve a user by their username
-     * @returns Users__username_GetResponse User data
+     * @returns any User data
      * @throws ApiError
      */
     public static usersControllerFindOneByUsername({
@@ -64,8 +70,15 @@ export class PublicService {
         /**
          * Username of the user
          */
-        username: InlineSchema7,
-    }): CancelablePromise<Users__username_GetResponse> {
+        username: string,
+    }): CancelablePromise<{
+        id?: number;
+        username?: string;
+        email?: string;
+        userType?: string;
+        createdAt?: string;
+        updatedAt?: string;
+    }> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/users/{username}',
@@ -89,7 +102,7 @@ export class PublicService {
         /**
          * Username of the user to delete
          */
-        username: InlineSchema9,
+        username: string,
     }): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'DELETE',
@@ -105,7 +118,7 @@ export class PublicService {
     /**
      * Get user by ID
      * Retrieve a user by their ID (authenticated user only)
-     * @returns Users_id__id_GetResponse User data
+     * @returns any User data
      * @throws ApiError
      */
     public static usersControllerFindOneById({
@@ -114,8 +127,15 @@ export class PublicService {
         /**
          * ID of the user
          */
-        id: InlineSchema10,
-    }): CancelablePromise<Users_id__id_GetResponse> {
+        id: number,
+    }): CancelablePromise<{
+        id?: number;
+        username?: string;
+        email?: string;
+        userType?: string;
+        createdAt?: string;
+        updatedAt?: string;
+    }> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/users/id/{id}',
@@ -140,7 +160,7 @@ export class PublicService {
         /**
          * ID of the user to delete
          */
-        id: InlineSchema12,
+        id: number,
     }): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'DELETE',

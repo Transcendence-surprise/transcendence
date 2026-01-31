@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export const $CreateUserDto1 = {
+export const $SignupUserDto = {
     properties: {
         username: {
             type: 'string',

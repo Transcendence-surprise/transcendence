@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export const $ValidateCredDto1 = {
+export const $LoginUserDto = {
     properties: {
         identifier: {
             type: 'string',

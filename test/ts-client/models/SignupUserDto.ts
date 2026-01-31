@@ -2,11 +2,15 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type ValidateCredDto1 = {
+export type SignupUserDto = {
     /**
-     * Username or email for authentication
+     * Username
      */
-    identifier: string;
+    username: string;
+    /**
+     * User email
+     */
+    email: string;
     /**
      * User password
      */

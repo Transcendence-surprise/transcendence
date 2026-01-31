@@ -2,17 +2,15 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export const $Auth_signupPostResponse = {
+export const $AuthResponseDto = {
     properties: {
         access_token: {
             type: 'string',
+            isRequired: true,
         },
         user: {
-            type: 'dictionary',
-            contains: {
-                properties: {
-                },
-            },
+            type: 'UserResponseDto',
+            isRequired: true,
         },
     },
 } as const;

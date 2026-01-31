@@ -2,25 +2,31 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export const $Users__username_GetResponse = {
+export const $UserResponseDto = {
     properties: {
         id: {
             type: 'number',
+            isRequired: true,
         },
         username: {
             type: 'string',
+            isRequired: true,
         },
         email: {
             type: 'string',
+            isRequired: true,
         },
         userType: {
             type: 'string',
+            isRequired: true,
         },
         createdAt: {
             type: 'string',
+            isRequired: true,
         },
         updatedAt: {
             type: 'string',
+            isRequired: true,
         },
     },
 } as const;

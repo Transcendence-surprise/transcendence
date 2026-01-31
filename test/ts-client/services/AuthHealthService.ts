@@ -2,7 +2,6 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Auth_healthGetResponse } from '../models/Auth_healthGetResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
@@ -10,13 +9,18 @@ export class AuthHealthService {
     /**
      * Auth service health check
      * Check if the auth service is running and healthy
-     * @returns Auth_healthGetResponse Auth service is healthy
+     * @returns any Auth service is healthy
      * @throws ApiError
      */
-    public static authHealth(): CancelablePromise<Auth_healthGetResponse> {
+    public static authHealth(): CancelablePromise<{
+        status?: string;
+    }> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/auth/health',
+            errors: {
+                500: `Internal server error`,
+            },
         });
     }
 }

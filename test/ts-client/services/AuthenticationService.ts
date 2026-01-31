@@ -2,10 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Auth_loginPostResponse } from '../models/Auth_loginPostResponse';
-import type { Auth_signupPostResponse } from '../models/Auth_signupPostResponse';
-import type { CreateUserDto1 } from '../models/CreateUserDto1';
-import type { ValidateCredDto1 } from '../models/ValidateCredDto1';
+import type { AuthResponseDto } from '../models/AuthResponseDto';
+import type { LoginUserDto } from '../models/LoginUserDto';
+import type { SignupUserDto } from '../models/SignupUserDto';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
@@ -13,17 +12,17 @@ export class AuthenticationService {
     /**
      * User login
      * Authenticate user and return JWT access token
-     * @returns Auth_loginPostResponse Login successful, JWT token and user returned
+     * @returns AuthResponseDto Login successful, JWT token and user returned
      * @throws ApiError
      */
-    public static authControllerLogin({
+    public static login({
         requestBody,
     }: {
         /**
          * User credentials
          */
-        requestBody: ValidateCredDto1,
-    }): CancelablePromise<Auth_loginPostResponse> {
+        requestBody: LoginUserDto,
+    }): CancelablePromise<AuthResponseDto> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/auth/login',
@@ -32,24 +31,27 @@ export class AuthenticationService {
             errors: {
                 400: `Bad request - validation failed`,
                 401: `Invalid credentials`,
+                500: `Internal server error`,
             },
         });
     }
     /**
      * User signup
      * Signup user and return JWT access token
-     * @returns Auth_signupPostResponse Signup successful, JWT token and user returned
-     * @returns any
+     * @returns any Signup successful, JWT token and user returned
      * @throws ApiError
      */
-    public static authControllerSignup({
+    public static signup({
         requestBody,
     }: {
         /**
          * User credentials
          */
-        requestBody: CreateUserDto1,
-    }): CancelablePromise<Auth_signupPostResponse | any> {
+        requestBody: SignupUserDto,
+    }): CancelablePromise<{
+        access_token?: string;
+        user?: Record<string, any>;
+    }> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/auth/signup',
@@ -58,7 +60,7 @@ export class AuthenticationService {
             errors: {
                 400: `Validation failed`,
                 409: `Username or email already exists`,
-                500: `Internal Server Error`,
+                500: `Internal server error`,
             },
         });
     }
