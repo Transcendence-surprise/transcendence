@@ -4,28 +4,21 @@ import { lastValueFrom } from 'rxjs';
 import { AxiosError, isAxiosError } from 'axios';
 
 import { CreateUserDto } from './dto/create-user.dto';
-import {
-  UserResponse,
-  UsersListResponse,
-} from './interfaces/service-user-response';
 
 @Injectable()
 export class UsersHttpService {
   constructor(private readonly http: HttpService) {}
 
-  findAll(): Promise<UsersListResponse> {
-    return this.request<UsersListResponse>('get', '/api/users');
+  findAll<T = unknown>(): Promise<T> {
+    return this.request<T>('get', '/api/users');
   }
 
-  findOneByUsername(username: string): Promise<UserResponse> {
-    return this.request<UserResponse>(
-      'get',
-      `/api/users/${encodeURIComponent(username)}`,
-    );
+  findOneByUsername<T = unknown>(username: string): Promise<T> {
+    return this.request<T>('get', `/api/users/${encodeURIComponent(username)}`);
   }
 
-  findOneById(id: number): Promise<UserResponse> {
-    return this.request<UserResponse>('get', `/api/users/id/${id}`);
+  findOneById<T = unknown>(id: number): Promise<T> {
+    return this.request<T>('get', `/api/users/id/${id}`);
   }
 
   removeByUsername(username: string): Promise<void> {
@@ -39,8 +32,8 @@ export class UsersHttpService {
     return this.request<void>('delete', `/api/users/id/${id}`);
   }
 
-  create(dto: CreateUserDto): Promise<UserResponse> {
-    return this.request<UserResponse>('post', '/api/users', dto);
+  create<T = unknown>(dto: CreateUserDto): Promise<T> {
+    return this.request<T>('post', '/api/users', dto);
   }
 
   private async request<T>(

@@ -8,6 +8,7 @@ const HealthDocs = () =>
     ApiOperation({
       summary: 'API Gateway health check',
       description: 'Check if the API Gateway is running and healthy',
+      operationId: 'apiGatewayHealth',
     }),
     ApiResponse({
       status: 200,

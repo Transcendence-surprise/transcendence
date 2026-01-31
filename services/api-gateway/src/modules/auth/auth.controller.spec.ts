@@ -3,8 +3,6 @@ import { AuthController } from './auth.controller';
 import { AuthHttpService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
-import { AuthLoginResponse } from './interfaces/service-auth-login-response';
-import { AuthSignupResponse } from './interfaces/service-auth-signup-response';
 
 /* eslint-disable @typescript-eslint/unbound-method */
 
@@ -39,7 +37,7 @@ describe('AuthController', () => {
   describe('login', () => {
     it('should call service.login and return result', async () => {
       const dto: LoginUserDto = { identifier: 'test', password: 'pass' };
-      const response: AuthLoginResponse = { access_token: 'jwt' };
+      const response: any = { access_token: 'jwt' };
 
       service.login.mockResolvedValue(response);
 
@@ -57,7 +55,7 @@ describe('AuthController', () => {
         password: 'pass',
         email: 'test@example.com',
       };
-      const response: AuthSignupResponse = {
+      const response: any = {
         access_token: 'jwt',
         user: {
           id: 1,

@@ -5,8 +5,6 @@ import { AxiosResponse, AxiosError } from 'axios';
 import { AuthHttpService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
-import { AuthLoginResponse } from './interfaces/service-auth-login-response';
-import { AuthSignupResponse } from './interfaces/service-auth-signup-response';
 
 /* eslint-disable @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment */
 
@@ -40,7 +38,7 @@ describe('AuthHttpService', () => {
   describe('login', () => {
     it('should call post and return data', async () => {
       const dto: LoginUserDto = { identifier: 'test', password: 'pass' };
-      const response: AuthLoginResponse = { access_token: 'jwt' };
+      const response: any = { access_token: 'jwt' };
       const axiosResponse: AxiosResponse = {
         data: response,
         status: 200,
@@ -79,7 +77,7 @@ describe('AuthHttpService', () => {
         password: 'pass',
         email: 'test@example.com',
       };
-      const response: AuthSignupResponse = {
+      const response: any = {
         access_token: 'jwt',
         user: {
           id: 1,

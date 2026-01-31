@@ -22,6 +22,11 @@ services:
       - ./database:/database:ro
     networks:
       - transcendence_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://backend:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # === Microservices ===
 
@@ -34,6 +39,11 @@ services:
       - db
     networks:
       - transcendence_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://auth-service:3001/api/auth/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   api-gateway:
     build: ./services/api-gateway
@@ -41,7 +51,14 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+      game-service:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
     networks:
       - transcendence_net
 
@@ -54,6 +71,11 @@ services:
       - db
     networks:
       - transcendence_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://game-service:3003/api/game/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # === Infrastructure ===
 
@@ -66,6 +88,11 @@ services:
       - db_data:/var/lib/postgresql/data
     networks:
       - transcendence_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
 
   nginx:
     build: ./nginx
@@ -74,8 +101,6 @@ services:
       - ./.env
     depends_on:
       - frontend
-      - backend
-      - auth-service
       - api-gateway
       - game-service
     volumes:

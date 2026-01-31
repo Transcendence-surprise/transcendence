@@ -5,7 +5,11 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import {
+  SwaggerModule,
+  DocumentBuilder,
+  SwaggerDocumentOptions,
+} from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -39,9 +43,17 @@ async function bootstrap() {
     )
     .setVersion('1.0.0')
     .addTag('Authentication', 'User login and token management')
+    .addGlobalResponse({
+      status: 500,
+      description: 'Internal server error',
+    })
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const options: SwaggerDocumentOptions = {
+    operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
+  };
+
+  const document = SwaggerModule.createDocument(app, config, options);
   SwaggerModule.setup('api/auth/docs', app, document, {
     customSiteTitle: 'Auth API Docs',
     swaggerOptions: {

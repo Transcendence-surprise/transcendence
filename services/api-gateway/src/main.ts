@@ -5,7 +5,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
-import { setupMergedSwagger } from './swagger/merge-swagger';
+import setupMergedSwagger from './swagger/merge-swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
