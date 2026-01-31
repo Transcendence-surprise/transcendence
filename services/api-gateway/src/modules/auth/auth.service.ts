@@ -6,18 +6,15 @@ import { AxiosError, isAxiosError } from 'axios';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
 
-import { AuthLoginResponse } from './interfaces/service-auth-login-response';
-import { AuthSignupResponse } from './interfaces/service-auth-signup-response';
-
 @Injectable()
 export class AuthHttpService {
   constructor(private readonly http: HttpService) {}
-  async login(body: LoginUserDto): Promise<AuthLoginResponse> {
-    return this.request<AuthLoginResponse>('post', '/api/auth/login', body);
+  async login<T = unknown>(body: LoginUserDto): Promise<T> {
+    return this.request<T>('post', '/api/auth/login', body);
   }
 
-  async signup(body: SignupUserDto): Promise<AuthSignupResponse> {
-    return this.request<AuthSignupResponse>('post', '/api/auth/signup', body);
+  async signup<T = unknown>(body: SignupUserDto): Promise<T> {
+    return this.request<T>('post', '/api/auth/signup', body);
   }
 
   private async request<T>(

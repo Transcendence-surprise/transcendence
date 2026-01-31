@@ -1,10 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersHttpService } from './users.service';
-import {
-  UserResponse,
-  UsersListResponse,
-} from './interfaces/service-user-response';
 import { AuthGuard } from '../../common/guards/auth.guard';
 
 /* eslint-disable @typescript-eslint/unbound-method */
@@ -48,7 +44,7 @@ describe('UsersController', () => {
 
   describe('findAll', () => {
     it('should call service.findAll', async () => {
-      const response: UsersListResponse = [];
+      const response: any = [];
 
       service.findAll.mockResolvedValue(response);
 
@@ -62,7 +58,7 @@ describe('UsersController', () => {
   describe('findOneByUsername', () => {
     it('should call service.findOneByUsername', async () => {
       const username = 'test';
-      const response: UserResponse = {
+      const response: any = {
         id: 1,
         username: 'test',
         email: 'test@example.com',
@@ -83,7 +79,7 @@ describe('UsersController', () => {
   describe('findOneById', () => {
     it('should call service.findOneById', async () => {
       const id = '1';
-      const response: UserResponse = {
+      const response: any = {
         id: 1,
         username: 'test',
         email: 'test@example.com',
@@ -134,7 +130,7 @@ describe('UsersController', () => {
         password: 'pass',
         email: 'test@example.com',
       };
-      const response: UserResponse = {
+      const response: any = {
         id: 1,
         username: 'test',
         email: 'test@example.com',

@@ -3,10 +3,6 @@ import { HttpService } from '@nestjs/axios';
 import { of, throwError } from 'rxjs';
 import { AxiosResponse, AxiosError } from 'axios';
 import { UsersHttpService } from './users.service';
-import {
-  UserResponse,
-  UsersListResponse,
-} from './interfaces/service-user-response';
 
 /* eslint-disable @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-assignment */
 
@@ -41,7 +37,7 @@ describe('UsersHttpService', () => {
 
   describe('findAll', () => {
     it('should call get and return data', async () => {
-      const response: UsersListResponse = [];
+      const response: any = [];
       const axiosResponse: AxiosResponse = {
         data: response,
         status: 200,
@@ -63,7 +59,7 @@ describe('UsersHttpService', () => {
   describe('findOneByUsername', () => {
     it('should call get and return data', async () => {
       const username = 'test';
-      const response: UserResponse = {
+      const response: any = {
         id: 1,
         username: 'test',
         email: 'test@example.com',
@@ -95,7 +91,7 @@ describe('UsersHttpService', () => {
   describe('findOneById', () => {
     it('should call get and return data', async () => {
       const id = 1;
-      const response: UserResponse = {
+      const response: any = {
         id: 1,
         username: 'test',
         email: 'test@example.com',
@@ -177,7 +173,7 @@ describe('UsersHttpService', () => {
         password: 'pass',
         email: 'test@example.com',
       };
-      const response: UserResponse = {
+      const response: any = {
         id: 1,
         username: 'test',
         email: 'test@example.com',
