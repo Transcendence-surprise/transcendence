@@ -59,6 +59,10 @@ export class AuthService {
     }
   }
 
+  intra42Auth() {
+    console.log('yes');
+  }
+
   private async generateAuthResponse(user: ValidatedUser) {
     const payload = {
       sub: user.id,

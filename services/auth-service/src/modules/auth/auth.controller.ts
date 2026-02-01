@@ -1,4 +1,11 @@
-import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  HttpCode,
+  HttpStatus,
+  Get,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
@@ -24,5 +31,10 @@ export class AuthController {
   @SignupDocs()
   signup(@Body() signupUserDto: SignupUserDto) {
     return this.authService.signup(signupUserDto);
+  }
+
+  @Get('intra42')
+  intra42Auth() {
+    return this.authService.intra42Auth();
   }
 }

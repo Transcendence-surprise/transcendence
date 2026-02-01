@@ -17,6 +17,10 @@ export class AuthHttpService {
     return this.request<T>('post', '/api/auth/signup', body);
   }
 
+  async intra42Auth<T = unknown>(): Promise<T> {
+    return this.request<T>('get', '/api/auth/intra42');
+  }
+
   private async request<T>(
     method: 'get' | 'post' | 'delete' | 'put',
     path: string,

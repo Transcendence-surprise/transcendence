@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { AuthHttpService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
@@ -15,5 +15,10 @@ export class AuthController {
   @Post('signup')
   signup(@Body() dto: SignupUserDto) {
     return this.authClient.signup(dto);
+  }
+
+  @Get('intra42')
+  intra42Auth() {
+    return this.authClient.intra42Auth();
   }
 }
