@@ -21,6 +21,32 @@ export class AuthHttpService {
     return this.request<T>('get', '/api/auth/intra42');
   }
 
+  async intra42AuthRedirect(): Promise<{ status: number; location?: string }> {
+    try {
+      const res = await lastValueFrom(
+        this.http.get('/api/auth/intra42', {
+          maxRedirects: 0,
+          validateStatus: () => true,
+        }),
+      );
+      return {
+        status: res.status,
+        location: res.headers?.location as string | undefined,
+      };
+    } catch (err: unknown) {
+      if (isAxiosError(err) && err.response) {
+        return {
+          status: err.response.status,
+          location: err.response.headers?.location as string | undefined,
+        };
+      }
+      throw new HttpException(
+        'Upstream request failed',
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
   private async request<T>(
     method: 'get' | 'post' | 'delete' | 'put',
     path: string,

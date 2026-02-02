@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
+import { Controller, Post, Body, Get, Redirect } from '@nestjs/common';
 import { AuthHttpService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
@@ -18,7 +18,12 @@ export class AuthController {
   }
 
   @Get('intra42')
-  intra42Auth() {
-    return this.authClient.intra42Auth();
+  @Redirect()
+  async intra42Auth() {
+    const res = await this.authClient.intra42AuthRedirect();
+    if (res.location) {
+      return { url: res.location, statusCode: res.status };
+    }
+    throw new Error('No redirect from auth-service');
   }
 }
