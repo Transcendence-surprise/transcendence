@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Get,
+  Redirect,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -34,7 +35,14 @@ export class AuthController {
   }
 
   @Get('intra42')
+  @Redirect()
   intra42Auth() {
-    return this.authService.intra42Auth();
+    const location = this.authService.getIntraAuthUrl();
+    return { url: location };
+  }
+
+  @Post('intra42/callback')
+  intra42AuthCallback() {
+    return this.authService.intra42AuthCallback();
   }
 }

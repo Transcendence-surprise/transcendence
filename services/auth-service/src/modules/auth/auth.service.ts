@@ -8,9 +8,11 @@ import {
   Inject,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import axios from 'axios';
 import { JwtService } from '@nestjs/jwt';
 import type { ConfigType } from '@nestjs/config';
+
+import axios from 'axios';
+import { randomUUID } from 'node:crypto';
 
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
@@ -63,7 +65,21 @@ export class AuthService {
     }
   }
 
-  intra42Auth() {
+  getIntraAuthUrl() {
+    const { clientId, redirectUri, authUrl } = this.config.intra42;
+
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      scope: 'public',
+      state: randomUUID(),
+      response_type: 'code',
+    });
+
+    return `${authUrl}?${params.toString()}`;
+  }
+
+  intra42AuthCallback() {
     console.log('yes');
   }
 
