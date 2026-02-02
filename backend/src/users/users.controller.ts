@@ -41,6 +41,11 @@ export class UsersController {
     return this.usersService.validateCredentials(validateCredDto);
   }
 
+  @Get('by-email/:email')
+  getUserByEmail(@Param('email') email: string) {
+    return this.usersService.findOneByEmail(email);
+  }
+
   @Get(':username')
   @FindOneByUsernameDocs()
   getUserByUsername(@Param('username') username: string) {

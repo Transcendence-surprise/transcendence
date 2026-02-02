@@ -33,6 +33,13 @@ export class UsersService {
     return user;
   }
 
+  async findOneByEmail(email: string) {
+    const user = await this.userRepo.findOne({ where: { email } });
+    if (!user)
+      throw new NotFoundException(`User with email '${email}' not found`);
+    return user;
+  }
+
   async findByUsernameWithPassword(username: string) {
     return this.userRepo.findOne({
       where: { username },
