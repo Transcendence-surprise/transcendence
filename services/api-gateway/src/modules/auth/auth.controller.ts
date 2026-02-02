@@ -1,7 +1,15 @@
-import { Controller, Post, Body, Get, Redirect } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Redirect,
+  BadRequestException,
+} from '@nestjs/common';
 import { AuthHttpService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
+import { OAuth42Params } from '../../common/decorator/oauth42-params.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -25,5 +33,13 @@ export class AuthController {
       return { url: res.location, statusCode: res.status };
     }
     throw new Error('No redirect from auth-service');
+  }
+
+  @Get('intra42/callback')
+  intra42AuthCallback(@OAuth42Params() params: OAuth42Params) {
+    if (!params.code || !params.state) {
+      throw new BadRequestException('Invalid code and/or state in query');
+    }
+    return this.authClient.intra42AuthCallback(params.code, params.state);
   }
 }

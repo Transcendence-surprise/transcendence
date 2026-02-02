@@ -17,10 +17,6 @@ export class AuthHttpService {
     return this.request<T>('post', '/api/auth/signup', body);
   }
 
-  async intra42Auth<T = unknown>(): Promise<T> {
-    return this.request<T>('get', '/api/auth/intra42');
-  }
-
   async intra42AuthRedirect(): Promise<{ status: number; location?: string }> {
     try {
       const res = await lastValueFrom(
@@ -45,6 +41,24 @@ export class AuthHttpService {
         HttpStatus.BAD_GATEWAY,
       );
     }
+  }
+
+  async intra42AuthCallback(
+    code: string,
+    state: string,
+  ): Promise<{ status: number; location?: string }> {
+    const res = await lastValueFrom(
+      this.http.get('/api/auth/intra42/callback', {
+        maxRedirects: 0,
+        validateStatus: () => true,
+        params: { code, state },
+      }),
+    );
+
+    return {
+      status: res.status,
+      location: res.headers?.location as string | undefined,
+    };
   }
 
   private async request<T>(
