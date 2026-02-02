@@ -89,27 +89,17 @@ ts-client:
 
 # =========== Rebuild commands ===========
 
-# Build shortcuts
+# Build specific service
+build-%:
+	$(COMPOSE) -f docker-compose.dev.yml up -d --build $*
+
+# For autocomplete
 build-db:
-	$(COMPOSE) -f docker-compose.dev.yml up -d --build db
-
 build-nginx:
-	$(COMPOSE) -f docker-compose.dev.yml up -d --build nginx
-
 build-backend:
-	$(COMPOSE) -f docker-compose.dev.yml up -d --build backend
-
-build-frontend:
-	$(COMPOSE) -f docker-compose.dev.yml up -d --build frontend
-
-build-auth-service:
-	$(COMPOSE) -f docker-compose.dev.yml up -d --build auth-service
-
 build-api-gateway:
-	$(COMPOSE) -f docker-compose.dev.yml up -d --build api-gateway
-
 build-game-service:
-	$(COMPOSE) -f docker-compose.dev.yml up -d --build game-service
+build-auth-service:
 
 # =========== Test commands ===========
 
@@ -168,9 +158,21 @@ dev-prune: dev-fclean
 
 # =========== Utility commands ===========
 
-# View logs
+# View logs for all services
 logs:
 	$(COMPOSE) logs -f
+
+# View logs for specific service (e.g., make log-backend, make log-nginx)
+log-%:
+	$(COMPOSE) logs -f $*
+
+# For autocomplete
+log-db:
+log-nginx:
+log-backend:
+log-api-gateway:
+log-game-service:
+log-auth-service:
 
 # Show running containers
 ps:
@@ -179,6 +181,5 @@ ps:
 .PHONY: \
 	up down dev dev-build dev-db dev-down dev-clean dev-fclean dev-prune \
 	dev-front dev-back dev-migrate dev-seed dev-install dev-ci clean fclean \
-	re logs ps build-db build-nginx build-backend build-frontend \
-	build-auth-service build-api-gateway build-game-service \
-	dev-build prune prod
+	re logs ps \
+	dev-build prune prod test test-back test-front ts-client \
