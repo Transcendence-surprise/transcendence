@@ -5,12 +5,16 @@ import {
   BadRequestException,
   ConflictException,
   InternalServerErrorException,
+  Inject,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import axios from 'axios';
 import { JwtService } from '@nestjs/jwt';
+import type { ConfigType } from '@nestjs/config';
+
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
-import axios from 'axios';
+import authConfig from 'src/config/auth.config';
 
 export interface ValidatedUser {
   id: number;
@@ -20,9 +24,9 @@ export interface ValidatedUser {
 
 @Injectable()
 export class AuthService {
-  private readonly backendUrl = process.env.BACKEND_URL;
-
   constructor(
+    @Inject(authConfig.KEY)
+    private config: ConfigType<typeof authConfig>,
     private httpService: HttpService,
     private jwtService: JwtService,
   ) {}
@@ -30,7 +34,7 @@ export class AuthService {
   async login(loginUserDto: LoginUserDto) {
     try {
       const response = await this.httpService.axiosRef.post<ValidatedUser>(
-        `${this.backendUrl}/api/users/validate-credentials`,
+        `${this.config.backend.url}/api/users/validate-credentials`,
         loginUserDto,
       );
       return this.generateAuthResponse(response.data);
@@ -42,7 +46,7 @@ export class AuthService {
   async signup(signupUserDto: SignupUserDto) {
     try {
       const response = await this.httpService.axiosRef.post<ValidatedUser>(
-        `${this.backendUrl}/api/users`,
+        `${this.config.backend.url}/api/users`,
         signupUserDto,
       );
       return this.generateAuthResponse(response.data);
