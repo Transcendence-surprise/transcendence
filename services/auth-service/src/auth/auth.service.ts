@@ -16,7 +16,7 @@ import { randomUUID } from 'node:crypto';
 
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
-import authConfig from '../../config/auth.config';
+import authConfig from '../config/auth.config';
 
 export interface IntraProfile {
   email: string;

@@ -22,7 +22,7 @@ import {
   LoginDocs,
   SignupDocs,
 } from './auth.controller.docs';
-import { OAuth42Data } from '../../coommon/oauth42-data.decorator';
+import { OAuth42Data } from '../coommon/oauth42-data.decorator';
 
 @AuthControllerDocs()
 @Controller('auth')
