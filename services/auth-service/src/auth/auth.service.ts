@@ -16,29 +16,10 @@ import { randomUUID } from 'node:crypto';
 
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
+import { OAuth42ResDto } from './dto/oauth42-res.dto';
+import { Profile42ResDto } from './dto/profile42-res.dto';
+import { GetUserResDto } from './dto/get-user-res.dto';
 import authConfig from '../config/auth.config';
-
-export interface IntraProfile {
-  email: string;
-  login: string;
-  first_name: string;
-}
-
-export interface OAuth42Res {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  refresh_token: string;
-  scope: string;
-  created_at: number;
-  secret_valid_until: number;
-}
-
-export interface ValidatedUser {
-  id: number;
-  username: string;
-  email: string;
-}
 
 @Injectable()
 export class AuthService {
@@ -51,7 +32,7 @@ export class AuthService {
 
   async login(loginUserDto: LoginUserDto) {
     try {
-      const response = await this.httpService.axiosRef.post<ValidatedUser>(
+      const response = await this.httpService.axiosRef.post<GetUserResDto>(
         `${this.config.backend.url}/api/users/validate-credentials`,
         loginUserDto,
       );
@@ -63,7 +44,7 @@ export class AuthService {
 
   async signup(signupUserDto: SignupUserDto) {
     try {
-      const response = await this.httpService.axiosRef.post<ValidatedUser>(
+      const response = await this.httpService.axiosRef.post<GetUserResDto>(
         `${this.config.backend.url}/api/users`,
         signupUserDto,
       );
@@ -109,7 +90,7 @@ export class AuthService {
         state: state,
       });
 
-      const tokenResponse = await this.httpService.axiosRef.post<OAuth42Res>(
+      const tokenResponse = await this.httpService.axiosRef.post<OAuth42ResDto>(
         tokenUrl,
         aouthParams.toString(),
         {
@@ -118,7 +99,7 @@ export class AuthService {
       );
 
       const data = tokenResponse.data;
-      const token: OAuth42Res = {
+      const token: OAuth42ResDto = {
         access_token: data.access_token,
         token_type: data.token_type,
         expires_in: data.expires_in,
@@ -128,18 +109,18 @@ export class AuthService {
         secret_valid_until: data.secret_valid_until,
       };
 
-      const profileResponse = await this.httpService.axiosRef.get<IntraProfile>(
+      const profileResponse = await this.httpService.axiosRef.get<Profile42ResDto>(
         userUrl,
         {
           headers: { Authorization: `Bearer ${token.access_token}` },
         },
       );
 
-      const profile: IntraProfile = profileResponse.data;
+      const profile: Profile42ResDto = profileResponse.data;
 
-      let user: ValidatedUser | null = null;
+      let user: GetUserResDto | null = null;
       try {
-        const response = await this.httpService.axiosRef.get<ValidatedUser>(
+        const response = await this.httpService.axiosRef.get<GetUserResDto>(
           `${this.config.backend.url}/api/users/by-email/${profile.email}`,
         );
         user = response.data;
@@ -151,13 +132,13 @@ export class AuthService {
         const timestamp = Math.floor(Date.now() / 1000);
         const username = `${profile.login}_${timestamp}`;
 
-        const createUserDto = {
+        const createUserDto: SignupUserDto = {
           username,
           email: profile.email,
           password: '123',
         };
 
-        const response = await this.httpService.axiosRef.post<ValidatedUser>(
+        const response = await this.httpService.axiosRef.post<GetUserResDto>(
           `${this.config.backend.url}/api/users`,
           createUserDto,
         );
@@ -181,7 +162,7 @@ export class AuthService {
     }
   }
 
-  private async generateAuthResponse(user: ValidatedUser) {
+  private async generateAuthResponse(user: GetUserResDto) {
     const payload = {
       sub: user.id,
       username: user.username,
