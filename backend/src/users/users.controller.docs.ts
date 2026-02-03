@@ -140,8 +140,8 @@ const CreateDocs = () =>
       operationId: 'createUser',
     }),
     ApiBody({
-      type: CreateUserDto,
       description: 'User data to create',
+      type: CreateUserDto,
     }),
     ApiCreatedResponse({ description: 'User created', type: GetUserResDto }),
     ApiBadRequestResponse({ description: 'Validation failed' }),
