@@ -36,10 +36,18 @@ export class AuthController {
   }
 
   @Get('intra42/callback')
-  intra42AuthCallback(@OAuth42Params() params: OAuth42Params) {
+  @Redirect()
+  async intra42AuthCallback(@OAuth42Params() params: OAuth42Params) {
     if (!params.code || !params.state) {
       throw new BadRequestException('Invalid code and/or state in query');
     }
-    return this.authClient.intra42AuthCallback(params.code, params.state);
+    const res = await this.authClient.intra42AuthCallback(
+      params.code,
+      params.state,
+    );
+    if (res.location) {
+      return { url: res.location, statusCode: res.status };
+    }
+    throw new Error('No redirect from auth-service');
   }
 }
