@@ -118,29 +118,6 @@ describe('UsersService', () => {
     });
   });
 
-  describe('findByUsernameWithPassword', () => {
-    it('should return user with password field', async () => {
-      const userWithPassword = { ...mockUser };
-      mockRepository.findOne.mockResolvedValue(userWithPassword);
-
-      const result = await service.findByUsernameWithPassword('testuser');
-
-      expect(result).toEqual(userWithPassword);
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
-        where: { username: 'testuser' },
-        select: ['id', 'email', 'username', 'password'],
-      });
-    });
-
-    it('should return null when user not found', async () => {
-      mockRepository.findOne.mockResolvedValue(null);
-
-      const result = await service.findByUsernameWithPassword('nonexistent');
-
-      expect(result).toBeNull();
-    });
-  });
-
   describe('removeByUsername', () => {
     it('should delete user by username', async () => {
       mockRepository.delete.mockResolvedValue({ affected: 1, raw: [] });

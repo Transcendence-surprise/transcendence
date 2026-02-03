@@ -40,25 +40,23 @@ export class UsersService {
     return user;
   }
 
-  async findByUsernameWithPassword(username: string) {
-    return this.userRepo.findOne({
-      where: { username },
-      select: ['id', 'email', 'username', 'password'],
-    });
+  async findByIdentifierWithPassword(identifier: string) {
+    return this.userRepo
+      .createQueryBuilder('user')
+      .where('user.username = :identifier OR user.email = :identifier', { identifier })
+      .addSelect('user.password')
+      .getOne();
   }
 
   async findByIdentifier(identifier: string) {
-    return this.userRepo.findOne({
-      where: [
-        { username: identifier }, //
-        { email: identifier },
-      ],
-      select: ['id', 'email', 'username', 'password'],
-    });
+    return this.userRepo
+      .createQueryBuilder('user')
+      .where('user.username = :identifier OR user.email = :identifier', { identifier })
+      .getOne();
   }
 
   async validateCredentials(validateCredDto: ValidateCredDto) {
-    const user = await this.findByIdentifier(validateCredDto.identifier);
+    const user = await this.findByIdentifierWithPassword(validateCredDto.identifier);
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
