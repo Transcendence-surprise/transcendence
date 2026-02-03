@@ -46,7 +46,7 @@ export class AuthHttpService {
   async intra42AuthCallback(
     code: string,
     state: string,
-  ): Promise<{ status: number; location?: string }> {
+  ): Promise<{ status: number; location?: string; cookies?: string[] }> {
     const res = await lastValueFrom(
       this.http.get('/api/auth/intra42/callback', {
         maxRedirects: 0,
@@ -55,9 +55,17 @@ export class AuthHttpService {
       }),
     );
 
+    const setCookieHeaders = res.headers['set-cookie'];
+    const cookies = setCookieHeaders
+      ? Array.isArray(setCookieHeaders)
+        ? setCookieHeaders
+        : [setCookieHeaders]
+      : [];
+
     return {
       status: res.status,
       location: res.headers?.location as string | undefined,
+      cookies,
     };
   }
 

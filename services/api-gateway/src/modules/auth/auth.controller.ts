@@ -5,7 +5,9 @@ import {
   Get,
   Redirect,
   BadRequestException,
+  Res,
 } from '@nestjs/common';
+import type { FastifyReply } from 'fastify';
 import { AuthHttpService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
@@ -36,8 +38,10 @@ export class AuthController {
   }
 
   @Get('intra42/callback')
-  @Redirect()
-  async intra42AuthCallback(@OAuth42Params() params: OAuth42Params) {
+  async intra42AuthCallback(
+    @OAuth42Params() params: OAuth42Params,
+    @Res() reply: FastifyReply,
+  ) {
     if (!params.code || !params.state) {
       throw new BadRequestException('Invalid code and/or state in query');
     }
@@ -45,8 +49,13 @@ export class AuthController {
       params.code,
       params.state,
     );
+
+    if (res.cookies) {
+      reply.header('set-cookie', res.cookies);
+    }
+
     if (res.location) {
-      return { url: res.location, statusCode: res.status };
+      return reply.redirect(res.location, res.status);
     }
     throw new Error('No redirect from auth-service');
   }

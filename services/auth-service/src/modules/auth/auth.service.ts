@@ -166,15 +166,10 @@ export class AuthService {
 
       const authResponse = await this.generateAuthResponse(user);
 
-      // Encode auth payload as query parameters in redirect URL
-      const redirectUrl = new URL(this.config.frontend.url);
-      redirectUrl.searchParams.set('access_token', authResponse.access_token);
-      redirectUrl.searchParams.set('user', JSON.stringify(authResponse.user));
-
       return {
         access_token: authResponse.access_token,
         user: authResponse.user,
-        redirect: redirectUrl.toString(),
+        redirect: this.config.frontend.url,
       };
     } catch (error) {
       console.error(
