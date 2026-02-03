@@ -8,6 +8,10 @@ function requireEnv(name: string, value?: string) {
 }
 
 export default registerAs('auth', () => ({
+  NODE_ENV: requireEnv('NODE_ENV', process.env.NODE_ENV),
+  jwt: {
+    secret: requireEnv('JWT_SECRET', process.env.JWT_SECRET),
+  },
   frontend: {
     url: requireEnv('FRONTEND_URL', process.env.FRONTEND_URL),
   },
@@ -20,9 +24,6 @@ export default registerAs('auth', () => ({
     authUrl: requireEnv('INTRA_AUTH_URL', process.env.INTRA_AUTH_URL),
     tokenUrl: requireEnv('INTRA_TOKEN_URL', process.env.INTRA_TOKEN_URL),
     userUrl: requireEnv('INTRA_USER_URL', process.env.INTRA_USER_URL),
-    redirectUri: requireEnv(
-      'INTRA_REDIRECT_URI',
-      process.env.INTRA_REDIRECT_URI,
-    ),
+    redirectUri: requireEnv('INTRA_REDIRECT_URI', process.env.INTRA_REDIRECT_URI),
   },
 }));

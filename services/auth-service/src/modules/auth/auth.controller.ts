@@ -8,9 +8,12 @@ import {
   Redirect,
   BadRequestException,
   Res,
+  Inject,
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
+import type { ConfigType } from '@nestjs/config';
 
+import authConfig from 'src/config/auth.config';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
@@ -24,7 +27,11 @@ import { OAuth42Data } from '../../coommon/oauth42-data.decorator';
 @AuthControllerDocs()
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    @Inject(authConfig.KEY)
+    private config: ConfigType<typeof authConfig>,
+    private authService: AuthService
+  ) {}
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -67,7 +74,7 @@ export class AuthController {
       }),
       {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: this.config.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
         maxAge: 24 * 60 * 60,
