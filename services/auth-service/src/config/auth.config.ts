@@ -8,8 +8,11 @@ function requireEnv(name: string, value?: string) {
 }
 
 export default registerAs('auth', () => ({
+  frontend: {
+    url: requireEnv('FRONTEND_URL', process.env.FRONTEND_URL),
+  },
   backend: {
-    url: process.env.BACKEND_URL,
+    url: requireEnv('BACKEND_URL', process.env.BACKEND_URL),
   },
   intra42: {
     clientId: requireEnv('INTRA_UID', process.env.INTRA_UID),

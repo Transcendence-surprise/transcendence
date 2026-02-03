@@ -6,7 +6,9 @@ import {
   HttpStatus,
   Get,
   Redirect,
+  BadRequestException,
 } from '@nestjs/common';
+
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
@@ -15,6 +17,7 @@ import {
   LoginDocs,
   SignupDocs,
 } from './auth.controller.docs';
+import { OAuth42Data } from '../../coommon/oauth42-data.decorator';
 
 @AuthControllerDocs()
 @Controller('auth')
@@ -41,8 +44,16 @@ export class AuthController {
     return { url: location };
   }
 
-  @Post('intra42/callback')
-  intra42AuthCallback() {
-    return this.authService.intra42AuthCallback();
+  @Get('intra42/callback')
+  @Redirect()
+  async intra42AuthCallback(@OAuth42Data() params: OAuth42Data) {
+    if (!params.code || !params.state) {
+      throw new BadRequestException('Invalid code and/or state in query');
+    }
+    const result = await this.authService.intra42AuthCallback(
+      params.code,
+      params.state,
+    );
+    return { url: result.redirect };
   }
 }

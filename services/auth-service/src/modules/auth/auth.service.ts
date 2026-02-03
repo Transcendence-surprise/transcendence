@@ -18,6 +18,22 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
 import authConfig from 'src/config/auth.config';
 
+export interface IntraProfile {
+  email: string;
+  login: string;
+  first_name: string;
+}
+
+export interface OAuth42Res {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  refresh_token: string;
+  scope: string;
+  created_at: number;
+  secret_valid_until: number;
+}
+
 export interface ValidatedUser {
   id: number;
   username: string;
@@ -79,8 +95,95 @@ export class AuthService {
     return `${authUrl}?${params.toString()}`;
   }
 
-  intra42AuthCallback() {
-    console.log('yes');
+  async intra42AuthCallback(code: string, state: string) {
+    const { clientId, tokenUrl, redirectUri, secret, userUrl } =
+      this.config.intra42;
+
+    try {
+      const aouthParams = new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: clientId,
+        client_secret: secret,
+        code: code,
+        redirect_uri: redirectUri,
+        state: state,
+      });
+
+      const tokenResponse = await this.httpService.axiosRef.post<OAuth42Res>(
+        tokenUrl,
+        aouthParams.toString(),
+        {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        },
+      );
+
+      const data = tokenResponse.data;
+      const token: OAuth42Res = {
+        access_token: data.access_token,
+        token_type: data.token_type,
+        expires_in: data.expires_in,
+        refresh_token: data.refresh_token,
+        scope: data.scope,
+        created_at: data.created_at,
+        secret_valid_until: data.secret_valid_until,
+      };
+
+      const profileResponse = await this.httpService.axiosRef.get<IntraProfile>(
+        userUrl,
+        {
+          headers: { Authorization: `Bearer ${token.access_token}` },
+        },
+      );
+
+      const profile: IntraProfile = profileResponse.data;
+
+      let user: ValidatedUser | null = null;
+      try {
+        const response = await this.httpService.axiosRef.get<ValidatedUser>(
+          `${this.config.backend.url}/api/users/by-email/${profile.email}`,
+        );
+        user = response.data;
+      } catch {
+        /* empty */
+      }
+
+      if (!user) {
+        const timestamp = Math.floor(Date.now() / 1000);
+        const username = `${profile.login}_${timestamp}`;
+
+        const createUserDto = {
+          username,
+          email: profile.email,
+          password: '123',
+        };
+
+        const response = await this.httpService.axiosRef.post<ValidatedUser>(
+          `${this.config.backend.url}/api/users`,
+          createUserDto,
+        );
+        user = response.data;
+      }
+
+      const authResponse = await this.generateAuthResponse(user);
+
+      // Encode auth payload as query parameters in redirect URL
+      const redirectUrl = new URL(this.config.frontend.url);
+      redirectUrl.searchParams.set('access_token', authResponse.access_token);
+      redirectUrl.searchParams.set('user', JSON.stringify(authResponse.user));
+
+      return {
+        access_token: authResponse.access_token,
+        user: authResponse.user,
+        redirect: redirectUrl.toString(),
+      };
+    } catch (error) {
+      console.error(
+        'Intra42 OAuth error:',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        error.response?.data || error.message,
+      );
+      throw new UnauthorizedException('Failed to authenticate with 42');
+    }
   }
 
   private async generateAuthResponse(user: ValidatedUser) {
