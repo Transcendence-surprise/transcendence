@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Get,
   Redirect,
-  BadRequestException,
   Res,
   Inject,
 } from '@nestjs/common';
@@ -58,9 +57,6 @@ export class AuthController {
     @OAuth42Data() params: OAuth42Data,
     @Res() reply: FastifyReply,
   ) {
-    if (!params.code || !params.state) {
-      throw new BadRequestException('Invalid code and/or state in query');
-    }
     const result = await this.authService.intra42AuthCallback(
       params.code,
       params.state,
