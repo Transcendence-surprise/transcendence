@@ -51,11 +51,6 @@ dev-migrate:
 	done
 	@echo "$(GREEN)Migrations successful.$(RESET)";
 
-# Seed dev DB with a couple of users (safe to run multiple times)
-dev-seed:
-	@echo "$(CYAN)Seeding users table...$(RESET)"
-	docker exec -i postgres-dev psql -U transcendence -d transcendence < database/init/01-seed-users.sql
-
 # Start dev DB only
 dev-db:
 	@echo "$(CYAN)Starting PostgreSQL...$(RESET)"
@@ -68,6 +63,8 @@ dev-front:
 # Install dependencies for tests (Legacy for dev: Containers install dependencies)
 dev-install:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
+	cd common/packages/db-entities && npm install && npm run build
+	cd database && npm install
 	cd frontend && npm install
 	cd backend && npm install
 	cd services/auth-service && npm install
@@ -77,6 +74,8 @@ dev-install:
 # Clean Install for CI/CD
 dev-ci:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
+	cd common/packages/db-entities && npm ci && npm run build
+	cd database && npm ci
 	cd frontend && npm ci
 	cd backend && npm ci
 	cd services/auth-service && npm ci
@@ -178,7 +177,7 @@ ps:
 
 .PHONY: \
 	up down dev dev-build dev-db dev-down dev-clean dev-fclean dev-prune \
-	dev-front dev-back dev-migrate dev-seed dev-install dev-ci clean fclean \
+	dev-front dev-back dev-migrate dev-install dev-ci clean fclean \
 	re logs ps build-db build-nginx build-backend build-frontend \
 	build-auth-service build-api-gateway build-game-service \
 	dev-build prune prod
