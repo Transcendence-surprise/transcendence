@@ -13,7 +13,7 @@ import {
 import type { FastifyReply } from 'fastify';
 import type { ConfigType } from '@nestjs/config';
 
-import authConfig from 'src/config/auth.config';
+import authConfig from '../config/auth.config';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
