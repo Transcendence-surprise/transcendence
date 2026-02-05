@@ -7,6 +7,7 @@ import {
 import { ValidationPipe } from '@nestjs/common';
 import setupMergedSwagger from './swagger/merge-swagger';
 import fastifyCookie from '@fastify/cookie';
+import { AxiosExceptionFilter } from './common/filters/axios-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -20,6 +21,8 @@ async function bootstrap() {
   );
 
   await app.register(fastifyCookie);
+
+  app.useGlobalFilters(new AxiosExceptionFilter());
 
   app.useGlobalPipes(
     new ValidationPipe({
