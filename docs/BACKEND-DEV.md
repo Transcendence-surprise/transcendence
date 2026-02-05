@@ -7,6 +7,7 @@
 ```bash
 make dev-install
 ```
+This also installs the shared DB entities and database package dependencies.
 
 ### **Step 1:** Build and start the development stack
 ```bash
@@ -16,11 +17,6 @@ make dev-build
 ### **Step 2:** Run once for db migration to create tables
 ```bash
 make dev-migrate
-```
-
-### **Step 3 (Optional):** Add test users into db
-```bash
-make dev-seed
 ```
 
 **Auth-service:**
