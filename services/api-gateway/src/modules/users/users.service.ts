@@ -9,37 +9,37 @@ import { CreateUserDto } from './dto/create-user.dto';
 export class UsersHttpService {
   constructor(private readonly http: HttpService) {}
 
-  findAll<T = unknown>(): Promise<T> {
+  async findAll<T = unknown>(): Promise<T> {
     return this.request<T>('get', '/api/users');
   }
 
-  findOneByUsername<T = unknown>(username: string): Promise<T> {
+  async findOneByUsername<T = unknown>(username: string): Promise<T> {
     return this.request<T>('get', `/api/users/${encodeURIComponent(username)}`);
   }
 
-  findOneById<T = unknown>(id: number): Promise<T> {
+  async findOneById<T = unknown>(id: number): Promise<T> {
     return this.request<T>('get', `/api/users/id/${id}`);
   }
 
-  findOneByEmail<T = unknown>(email: string): Promise<T> {
+  async findOneByEmail<T = unknown>(email: string): Promise<T> {
     return this.request<T>(
       'get',
       `/api/users/by-email/${encodeURIComponent(email)}`,
     );
   }
 
-  removeByUsername(username: string): Promise<void> {
+  async removeByUsername(username: string): Promise<void> {
     return this.request<void>(
       'delete',
       `/api/users/${encodeURIComponent(username)}`,
     );
   }
 
-  removeById(id: number): Promise<void> {
+  async removeById(id: number): Promise<void> {
     return this.request<void>('delete', `/api/users/id/${id}`);
   }
 
-  create<T = unknown>(dto: CreateUserDto): Promise<T> {
+  async create<T = unknown>(dto: CreateUserDto): Promise<T> {
     return this.request<T>('post', '/api/users', dto);
   }
 
