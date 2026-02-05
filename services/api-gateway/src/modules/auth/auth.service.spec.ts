@@ -1,10 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
+import { ConfigModule } from '@nestjs/config';
 import { of, throwError } from 'rxjs';
 import { AxiosResponse, AxiosError } from 'axios';
+import { config as dotenvConfig } from 'dotenv';
+import { resolve } from 'path';
 import { AuthHttpService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
+import gatewayConfig from '../../common/config/gateway.config';
+
+// Load .env from project root
+dotenvConfig({ path: resolve(__dirname, '../../../../../.env') });
 
 /* eslint-disable @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment */
 
@@ -19,6 +26,11 @@ describe('AuthHttpService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({
+          load: [gatewayConfig],
+        }),
+      ],
       providers: [
         AuthHttpService,
         {
