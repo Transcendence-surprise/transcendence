@@ -6,6 +6,7 @@ import {
 } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
 import setupMergedSwagger from './swagger/merge-swagger';
+import fastifyCookie from '@fastify/cookie';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -14,8 +15,11 @@ async function bootstrap() {
       routerOptions: {
         ignoreTrailingSlash: true,
       },
+      trustProxy: true,
     }),
   );
+
+  await app.register(fastifyCookie);
 
   app.useGlobalPipes(
     new ValidationPipe({

@@ -6,6 +6,7 @@ import {
   SwaggerModule,
   OpenAPIObject as NestOpenAPIObject,
 } from '@nestjs/swagger';
+import { DocumentBuilder } from '@nestjs/swagger';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 export default async function setupMergedSwagger(app: NestFastifyApplication) {
@@ -76,9 +77,25 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
     mergeSimple(backendDoc);
     mergeSimple(authDoc);
 
-    // include top-level info/version if available from one of the docs
-    if (backendDoc && backendDoc.info) merged.info = backendDoc.info;
-    else if (authDoc && authDoc.info) merged.info = authDoc.info;
+    const baseConfig = new DocumentBuilder()
+      .setTitle('Transcendence API')
+      .setDescription('Server-driven web game with user managment')
+      .setVersion('1.0.0')
+      .addBearerAuth()
+      .addApiKey()
+      .build();
+
+    if (
+      !baseConfig.info ||
+      !baseConfig.tags ||
+      !baseConfig.components?.securitySchemes
+    ) {
+      throw new Error('DocumentBuilder produced incomplete OpenAPI config');
+    }
+
+    merged.info = baseConfig.info;
+    merged.tags = baseConfig.tags;
+    merged.components.securitySchemes = baseConfig.components.securitySchemes;
 
     // expose merged spec via SwaggerModule
     const mergedSpec: NestOpenAPIObject =

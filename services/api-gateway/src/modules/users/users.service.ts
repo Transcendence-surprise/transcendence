@@ -21,6 +21,13 @@ export class UsersHttpService {
     return this.request<T>('get', `/api/users/id/${id}`);
   }
 
+  findOneByEmail<T = unknown>(email: string): Promise<T> {
+    return this.request<T>(
+      'get',
+      `/api/users/by-email/${encodeURIComponent(email)}`,
+    );
+  }
+
   removeByUsername(username: string): Promise<void> {
     return this.request<void>(
       'delete',

@@ -10,6 +10,7 @@ import {
   DocumentBuilder,
   SwaggerDocumentOptions,
 } from '@nestjs/swagger';
+import fastifyCookie from '@fastify/cookie';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -20,6 +21,8 @@ async function bootstrap() {
       },
     }),
   );
+
+  await app.register(fastifyCookie);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -62,7 +65,11 @@ async function bootstrap() {
     },
   });
 
-  const port = process.env.AUTH_SERVICE_PORT ?? '3001';
+  if (!process.env.AUTH_SERVICE_PORT) {
+    throw new Error('AUTH_SERVICE_PORT must be valid')
+  }
+
+  const port = process.env.AUTH_SERVICE_PORT;
   await app.listen(port, '0.0.0.0');
   console.log(`Auth Service running on ${process.env.AUTH_SERVICE_URL}`);
 }

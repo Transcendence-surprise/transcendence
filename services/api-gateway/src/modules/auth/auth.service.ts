@@ -17,6 +17,58 @@ export class AuthHttpService {
     return this.request<T>('post', '/api/auth/signup', body);
   }
 
+  async intra42AuthRedirect(): Promise<{ status: number; location?: string }> {
+    try {
+      const res = await lastValueFrom(
+        this.http.get('/api/auth/intra42', {
+          maxRedirects: 0,
+          validateStatus: () => true,
+        }),
+      );
+      return {
+        status: res.status,
+        location: res.headers?.location as string | undefined,
+      };
+    } catch (err: unknown) {
+      if (isAxiosError(err) && err.response) {
+        return {
+          status: err.response.status,
+          location: err.response.headers?.location as string | undefined,
+        };
+      }
+      throw new HttpException(
+        'Upstream request failed',
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
+  async intra42AuthCallback(
+    code: string,
+    state: string,
+  ): Promise<{ status: number; location?: string; cookies?: string[] }> {
+    const res = await lastValueFrom(
+      this.http.get('/api/auth/intra42/callback', {
+        maxRedirects: 0,
+        validateStatus: () => true,
+        params: { code, state },
+      }),
+    );
+
+    const setCookieHeaders = res.headers['set-cookie'];
+    const cookies = setCookieHeaders
+      ? Array.isArray(setCookieHeaders)
+        ? setCookieHeaders
+        : [setCookieHeaders]
+      : [];
+
+    return {
+      status: res.status,
+      location: res.headers?.location as string | undefined,
+      cookies,
+    };
+  }
+
   private async request<T>(
     method: 'get' | 'post' | 'delete' | 'put',
     path: string,

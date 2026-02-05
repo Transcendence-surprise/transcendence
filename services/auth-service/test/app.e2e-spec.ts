@@ -6,6 +6,11 @@ import {
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 
+import dotenv from 'dotenv';
+import { resolve } from 'path';
+
+dotenv.config({ path: resolve(__dirname, '..', '..', '..', '.env') });
+
 describe('AppController (e2e)', () => {
   let app: NestFastifyApplication;
 
@@ -24,7 +29,9 @@ describe('AppController (e2e)', () => {
   });
 
   afterEach(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   it('auth/health (GET)', async () => {

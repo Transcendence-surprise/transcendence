@@ -2,11 +2,13 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, QueryFailedError } from 'typeorm';
 import { User } from '@transcendence/db-entities';
 import { CreateUserDto } from './dto/create-user.dto';
+import { ValidateCredDto } from './dto/validate-credentials.dto';
 import * as bcrypt from 'bcrypt';
 import { DatabaseError } from 'pg-protocol';
 import { UNIQUE_VIOLATION } from 'pg-error-constants';
@@ -31,22 +33,51 @@ export class UsersService {
     return user;
   }
 
-  async findByUsernameWithPassword(username: string) {
-    return this.userRepo.findOne({
-      where: { username },
-      select: ['id', 'email', 'username', 'password'],
-    });
+  async findOneByEmail(email: string) {
+    const user = await this.userRepo.findOne({ where: { email } });
+    if (!user)
+      throw new NotFoundException(`User with email '${email}' not found`);
+    return user;
   }
 
-  // try find by email or username
+  async findByIdentifierWithPassword(identifier: string) {
+    return this.userRepo
+      .createQueryBuilder('user')
+      .where('user.username = :identifier OR user.email = :identifier', { identifier })
+      .addSelect('user.password')
+      .getOne();
+  }
+
   async findByIdentifier(identifier: string) {
-    return this.userRepo.findOne({
-      where: [
-        { username: identifier }, //
-        { email: identifier },
-      ],
-      select: ['id', 'email', 'username', 'password'],
-    });
+    return this.userRepo
+      .createQueryBuilder('user')
+      .where('user.username = :identifier OR user.email = :identifier', { identifier })
+      .getOne();
+  }
+
+  async validateCredentials(validateCredDto: ValidateCredDto) {
+    const user = await this.findByIdentifierWithPassword(validateCredDto.identifier);
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!user.password) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const passwordCorrect = await bcrypt.compare(
+      validateCredDto.password,
+      user.password,
+    );
+
+    if (!passwordCorrect) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 
   async removeByUsername(username: string) {

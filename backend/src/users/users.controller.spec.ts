@@ -31,6 +31,19 @@ describe('UsersController', () => {
     findOneByUsername: jest.fn(),
     findOneById: jest.fn(),
     findByIdentifier: jest.fn(),
+    validateCredentials: jest.fn(async (validateCredDto: { identifier: string; password: string }) => {
+      const user = await mockUsersService.findByIdentifier(validateCredDto.identifier);
+      if (!user) throw new UnauthorizedException('Invalid credentials');
+      if (!user.password) throw new UnauthorizedException('Invalid credentials');
+      const passwordCorrect = await (bcrypt.compare as jest.Mock)(
+        validateCredDto.password,
+        user.password,
+      );
+      if (!passwordCorrect) throw new UnauthorizedException('Invalid credentials');
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    }),
     removeByUsername: jest.fn(),
     create: jest.fn(),
   };
@@ -56,12 +69,12 @@ describe('UsersController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('findAll', () => {
+  describe('getUsers', () => {
     it('should return an array of users', async () => {
       const users = [mockUser];
       mockUsersService.findAll.mockResolvedValue(users);
 
-      const result = await controller.findAll();
+      const result = await controller.getUsers();
 
       expect(result).toEqual(users);
       expect(service.findAll).toHaveBeenCalledTimes(1);
@@ -104,32 +117,32 @@ describe('UsersController', () => {
     });
   });
 
-  describe('findOneByUsername', () => {
+  describe('getUserByUsername', () => {
     it('should return user by username', async () => {
       mockUsersService.findOneByUsername.mockResolvedValue(mockUser);
 
-      const result = await controller.findOneByUsername('testuser');
+      const result = await controller.getUserByUsername('testuser');
 
       expect(result).toEqual(mockUser);
       expect(service.findOneByUsername).toHaveBeenCalledWith('testuser');
     });
   });
 
-  describe('findOneById', () => {
+  describe('getUserById', () => {
     it('should return user by id when user owns the id', async () => {
       const user = { sub: 1, username: 'testuser' };
       mockUsersService.findOneById.mockResolvedValue(mockUser);
 
-      const result = await controller.findOneById(1, user);
+      const result = await controller.getUserById(1, user);
 
       expect(result).toEqual(mockUser);
       expect(service.findOneById).toHaveBeenCalledWith(1);
     });
 
-    it('should throw UnauthorizedException when user does not own the id', async () => {
+    it('should throw UnauthorizedException when user does not own the id', () => {
       const user = { sub: 1, username: 'testuser' };
 
-      await expect(controller.findOneById(2, user)).rejects.toThrow(
+      expect(() => controller.getUserById(2, user)).toThrow(
         UnauthorizedException,
       );
       expect(service.findOneById).not.toHaveBeenCalled();

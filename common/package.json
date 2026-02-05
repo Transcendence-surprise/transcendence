@@ -1,15 +1,9 @@
 {
-  "name": "@transcendence/common",
+  "name": "transcendence",
   "version": "1.0.0",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
-  "devDependencies": {
-    "@openapitools/openapi-generator-cli": "^2.28.0",
-    "openapi-typescript-codegen": "^0.30.0"
-  },
-  "dependencies": {
-    "swagger-combine": "^1.4.0"
-  }
+  "description": "Generated TypeScript client",
+  "main": "ts-client/index.ts",
+  "types": "ts-client/index.ts",
+  "files": ["ts-client"],
+  "license": "MIT"
 }
