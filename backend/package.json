@@ -18,12 +18,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
-    "migration:show": "NODE_PATH=./node_modules node -r ts-node/register/transpile-only ./node_modules/typeorm/cli.js -d ./database/data-source.ts migration:show",
-    "migration:run": "NODE_PATH=./node_modules node -r ts-node/register/transpile-only ./node_modules/typeorm/cli.js -d ./database/data-source.ts migration:run",
-    "migration:revert": "NODE_PATH=./node_modules node -r ts-node/register/transpile-only ./node_modules/typeorm/cli.js -d ./database/data-source.ts migration:revert"
+    "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@transcendence/db-entities": "file:../common/packages/db-entities",
     "@fastify/static": "^8.3.0",
     "@nestjs/common": "11.1.9",
     "@nestjs/core": "11.1.9",
@@ -83,7 +81,11 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@transcendence/db-entities$": "<rootDir>/../../common/packages/db-entities/src",
+      "^typeorm$": "<rootDir>/../node_modules/typeorm"
+    }
   },
   "overrides": {
     "@fastify/middie": ">=9.1.0"

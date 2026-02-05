@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, QueryFailedError } from 'typeorm';
-import { User } from './user.entity';
+import { User } from '@transcendence/db-entities';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ValidateCredDto } from './dto/validate-credentials.dto';
 import * as bcrypt from 'bcrypt';

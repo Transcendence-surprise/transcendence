@@ -3,7 +3,7 @@
 ## Usage
 **Step 1:** Health check
 ```bash
-curl -i http://localhost/api/health # should retun 200
+curl -i http://localhost:8080/api/health # should retun 200
 ```
 If it was not success - restart backend.
 
@@ -106,4 +106,20 @@ Check the table:
 Notes:
 - Unique (game_id, user_id) ensures no duplicate players per game.
 - Indexes: game_players_pkey, game_players_game_id_idx, game_players_game_user_unique, game_players_user_id_idx.
+
+#### Table "api_keys"
+
+Check the table:
+```bash
+ docker exec -i postgres-dev psql -U transcendence -d transcendence -c "SELECT * FROM api_keys;"
+```
+| Column     | Type         | Constraints                       | Description                     |
+|------------|--------------|-----------------------------------|---------------------------------|
+| id         | UUID         | PRIMARY KEY                       | Api key identifier              |
+| hash       | VARCHAR(255) | UNIQUE, NOT NULL                  | HMAC-SHA256 hex of the token    |
+| created_at | TIMESTAMPTZ  | NOT NULL, DEFAULT now()           | Creation timestamp              |
+| expires_at | TIMESTAMPTZ  | NULLABLE                          | Expiration timestamp            |
+
+Notes:
+- Indexes: api_keys_pkey, api_keys_hash_unique.
 

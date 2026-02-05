@@ -28,11 +28,6 @@ Start the development services (no rebuild):
 make dev
 ```
 
-Insert test users in database (Optional):
-```bash
-make dev-seed
-```
-
 ## Frontend (local)
 
 Start only frontend

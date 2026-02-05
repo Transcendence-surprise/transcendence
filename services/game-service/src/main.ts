@@ -48,9 +48,10 @@ async function bootstrap() {
     },
   });
 
-  const port = process.env.GAME_SERVICE_PORT ?? '3001';
+  const port = process.env.GAME_SERVICE_PORT ?? '3003';
   await app.listen(port, '0.0.0.0');
-  console.log(`Game Service running on ${process.env.GAME_SERVICE_URL}`);
+  const url = process.env.GAME_SERVICE_URL ?? `http://localhost:${port}`;
+  console.log(`Game Service running on ${url}`);
 }
 
 bootstrap().catch((error) => {

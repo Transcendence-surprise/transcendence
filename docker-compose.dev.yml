@@ -20,15 +20,16 @@ services:
     command: npm run dev
 
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: backend-dev
     volumes:
       - ./database:/database:ro
-      - ./backend:/backend:ro
-      - ./backend/src:/app/src:ro
-      - ./backend/package.json:/app/package.json:ro
-      - ./backend/tsconfig.json:/app/tsconfig.json:ro
-      - ./backend/nest-cli.json:/app/nest-cli.json:ro
+      - ./backend/src:/app/backend/src:ro
+      - ./backend/package.json:/app/backend/package.json:ro
+      - ./backend/tsconfig.json:/app/backend/tsconfig.json:ro
+      - ./backend/nest-cli.json:/app/backend/nest-cli.json:ro
     ports:
       - "3000:3000"
     networks:
@@ -96,7 +97,7 @@ services:
       - "5432:5432"
     volumes:
       - db_data_dev:/var/lib/postgresql/data
-      - ./backend/database/init:/docker-entrypoint-initdb.d:ro
+      - ./database/init/schema/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
     networks:
       - transcendence_net
 
@@ -108,6 +109,11 @@ services:
       - "8080:8080"
     networks:
       - transcendence_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8080/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   db_data_dev:
