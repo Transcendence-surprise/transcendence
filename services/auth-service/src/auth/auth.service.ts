@@ -2,6 +2,8 @@ import { Injectable, Inject } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
 import type { ConfigType } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 import { randomUUID } from 'node:crypto';
 
@@ -11,6 +13,7 @@ import { OAuth42ResDto } from './dto/oauth42-res.dto';
 import { Profile42ResDto } from './dto/profile42-res.dto';
 import { GetUserResDto } from './dto/get-user-res.dto';
 import authConfig from '../config/auth.config';
+import { ApiKey } from '@transcendence/db-entities';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +22,8 @@ export class AuthService {
     private config: ConfigType<typeof authConfig>,
     private httpService: HttpService,
     private jwtService: JwtService,
+    @InjectRepository(ApiKey)
+    private apiKeyRepo: Repository<ApiKey>
   ) {}
 
   async login(loginUserDto: LoginUserDto) {
