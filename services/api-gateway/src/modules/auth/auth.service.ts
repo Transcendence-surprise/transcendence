@@ -15,7 +15,6 @@ export class AuthHttpService {
     private readonly http: HttpService
   ) {}
   async login<T = unknown>(body: LoginUserDto): Promise<T> {
-    console.log(this.config.test)
     return this.request<T>('post', '/api/auth/login', body);
   }
 

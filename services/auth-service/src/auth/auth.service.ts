@@ -1,17 +1,8 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  HttpStatus,
-  BadRequestException,
-  ConflictException,
-  InternalServerErrorException,
-  Inject,
-} from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
 import type { ConfigType } from '@nestjs/config';
 
-import axios from 'axios';
 import { randomUUID } from 'node:crypto';
 
 import { LoginUserDto } from './dto/login-user.dto';
@@ -31,35 +22,19 @@ export class AuthService {
   ) {}
 
   async login(loginUserDto: LoginUserDto) {
-    try {
-      const response = await this.httpService.axiosRef.post<GetUserResDto>(
-        `${this.config.backend.url}/api/users/validate-credentials`,
-        loginUserDto,
-      );
-      return this.generateAuthResponse(response.data);
-    } catch {
-      throw new UnauthorizedException('Invalid username or password');
-    }
+    const response = await this.httpService.axiosRef.post<GetUserResDto>(
+      `${this.config.backend.url}/api/users/validate-credentials`,
+      loginUserDto,
+    );
+    return this.generateAuthResponse(response.data);
   }
 
   async signup(signupUserDto: SignupUserDto) {
-    try {
-      const response = await this.httpService.axiosRef.post<GetUserResDto>(
-        `${this.config.backend.url}/api/users`,
-        signupUserDto,
-      );
-      return this.generateAuthResponse(response.data);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const status = error.response?.status;
-        if (status === HttpStatus.CONFLICT) {
-          throw new ConflictException('Username or email already exists');
-        } else if (status === HttpStatus.BAD_REQUEST) {
-          throw new BadRequestException('Validation failed');
-        }
-      }
-      throw new InternalServerErrorException();
-    }
+    const response = await this.httpService.axiosRef.post<GetUserResDto>(
+      `${this.config.backend.url}/api/users`,
+      signupUserDto,
+    );
+    return this.generateAuthResponse(response.data);
   }
 
   getIntraAuthUrl() {
@@ -80,86 +55,75 @@ export class AuthService {
     const { clientId, tokenUrl, redirectUri, secret, userUrl } =
       this.config.intra42;
 
-    try {
-      const aouthParams = new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: clientId,
-        client_secret: secret,
-        code: code,
-        redirect_uri: redirectUri,
-        state: state,
+    const aouthParams = new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: clientId,
+      client_secret: secret,
+      code: code,
+      redirect_uri: redirectUri,
+      state: state,
+    });
+
+    const tokenResponse = await this.httpService.axiosRef.post<OAuth42ResDto>(
+      tokenUrl,
+      aouthParams.toString(),
+      {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      },
+    );
+
+    const data = tokenResponse.data;
+    const token: OAuth42ResDto = {
+      access_token: data.access_token,
+      token_type: data.token_type,
+      expires_in: data.expires_in,
+      refresh_token: data.refresh_token,
+      scope: data.scope,
+      created_at: data.created_at,
+      secret_valid_until: data.secret_valid_until,
+    };
+
+    const profileResponse =
+      await this.httpService.axiosRef.get<Profile42ResDto>(userUrl, {
+        headers: { Authorization: `Bearer ${token.access_token}` },
       });
 
-      const tokenResponse = await this.httpService.axiosRef.post<OAuth42ResDto>(
-        tokenUrl,
-        aouthParams.toString(),
-        {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        },
+    const profile: Profile42ResDto = profileResponse.data;
+
+    let user: GetUserResDto | null = null;
+    try {
+      const response = await this.httpService.axiosRef.get<GetUserResDto>(
+        `${this.config.backend.url}/api/users/by-email/${profile.email}`,
       );
-
-      const data = tokenResponse.data;
-      const token: OAuth42ResDto = {
-        access_token: data.access_token,
-        token_type: data.token_type,
-        expires_in: data.expires_in,
-        refresh_token: data.refresh_token,
-        scope: data.scope,
-        created_at: data.created_at,
-        secret_valid_until: data.secret_valid_until,
-      };
-
-      const profileResponse = await this.httpService.axiosRef.get<Profile42ResDto>(
-        userUrl,
-        {
-          headers: { Authorization: `Bearer ${token.access_token}` },
-        },
-      );
-
-      const profile: Profile42ResDto = profileResponse.data;
-
-      let user: GetUserResDto | null = null;
-      try {
-        const response = await this.httpService.axiosRef.get<GetUserResDto>(
-          `${this.config.backend.url}/api/users/by-email/${profile.email}`,
-        );
-        user = response.data;
-      } catch {
-        /* empty */
-      }
-
-      if (!user) {
-        const timestamp = Math.floor(Date.now() / 1000);
-        const username = `${profile.login}_${timestamp}`;
-
-        const createUserDto: SignupUserDto = {
-          username,
-          email: profile.email,
-          password: '123',
-        };
-
-        const response = await this.httpService.axiosRef.post<GetUserResDto>(
-          `${this.config.backend.url}/api/users`,
-          createUserDto,
-        );
-        user = response.data;
-      }
-
-      const authResponse = await this.generateAuthResponse(user);
-
-      return {
-        access_token: authResponse.access_token,
-        user: authResponse.user,
-        redirect: this.config.frontend.url,
-      };
-    } catch (error) {
-      console.error(
-        'Intra42 OAuth error:',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        error.response?.data || error.message,
-      );
-      throw new UnauthorizedException('Failed to authenticate with 42');
+      user = response.data;
+    } catch {
+      /* User doesn't exist yet, will create below */
     }
+
+    if (!user) {
+      const timestamp = Math.floor(Date.now() / 1000);
+      const username = `${profile.login}_${timestamp}`;
+
+      const createUserDto: SignupUserDto = {
+        username,
+        email: profile.email,
+        password: '123',
+      };
+
+      const response = await this.httpService.axiosRef.post<GetUserResDto>(
+        `${this.config.backend.url}/api/users`,
+        createUserDto,
+      );
+      user = response.data;
+    }
+
+    const authResponse = await this.generateAuthResponse(user);
+
+    return {
+      access_token: authResponse.access_token,
+      user: authResponse.user,
+      redirect: this.config.frontend.url,
+    };
   }
 
   private async generateAuthResponse(user: GetUserResDto) {
