@@ -8,6 +8,8 @@ import {
   Redirect,
   Res,
   Inject,
+  Delete,
+  Param,
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
 import type { ConfigType } from '@nestjs/config';
@@ -21,7 +23,7 @@ import {
   LoginDocs,
   SignupDocs,
 } from './auth.controller.docs';
-import { OAuth42Data } from '../coommon/oauth42-data.decorator';
+import { OAuth42Data } from '../common/decorators/oauth42-data.decorator';
 
 @AuthControllerDocs()
 @Controller('auth')
@@ -78,5 +80,25 @@ export class AuthController {
     );
 
     return reply.redirect(result.redirect, 302);
+  }
+
+  @Get('api-keys')
+  getAllApiKeys() {
+    return this.authService.getAllApiKeys();
+  }
+
+  @Post('api-keys')
+  createApiKey() {
+    return this.authService.createApiKey();
+  }
+
+  @Delete('api-keys')
+  removeApiKeyById(@Param('id') id: string) {
+    return this.authService.removeApiKeyById(id);
+  }
+
+  @Post('api-keys/validate')
+  validateApiKey(@Param('token') token: string) {
+    return this.authService.validateApiKey(token);
   }
 }

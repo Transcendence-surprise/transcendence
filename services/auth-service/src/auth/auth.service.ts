@@ -1,17 +1,18 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
 import type { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { randomUUID } from 'node:crypto';
+import { randomUUID, randomBytes, createHmac } from 'node:crypto';
 
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
 import { OAuth42ResDto } from './dto/oauth42-res.dto';
 import { Profile42ResDto } from './dto/profile42-res.dto';
 import { GetUserResDto } from './dto/get-user-res.dto';
+import { CreateApiKeyResDto } from './dto/create-api-key-res.dto';
 import authConfig from '../config/auth.config';
 import { ApiKey } from '@transcendence/db-entities';
 
@@ -31,7 +32,7 @@ export class AuthService {
       `${this.config.backend.url}/api/users/validate-credentials`,
       loginUserDto,
     );
-    return this.generateAuthResponse(response.data);
+    return this.generateJwtToken(response.data);
   }
 
   async signup(signupUserDto: SignupUserDto) {
@@ -39,7 +40,7 @@ export class AuthService {
       `${this.config.backend.url}/api/users`,
       signupUserDto,
     );
-    return this.generateAuthResponse(response.data);
+    return this.generateJwtToken(response.data);
   }
 
   getIntraAuthUrl() {
@@ -67,7 +68,7 @@ export class AuthService {
       user = await this.createUserFromProfile(profile);
     }
 
-    const authResponse = await this.generateAuthResponse(user);
+    const authResponse = await this.generateJwtToken(user);
 
     return {
       access_token: authResponse.access_token,
@@ -148,7 +149,64 @@ export class AuthService {
     return response.data;
   }
 
-  private async generateAuthResponse(user: GetUserResDto) {
+  async getAllApiKeys() {
+    return await this.apiKeyRepo.find();
+  }
+
+  async createApiKey() {
+    const token = randomBytes(32).toString('hex');
+    const prefixedToken = `tr_${token}`;
+
+    const hash = createHmac('sha256', this.config.apiKey.secret)
+      .update(prefixedToken)
+      .digest('hex');
+
+    const expiresAt = new Date(Date.now() + Number(this.config.apiKey.expiryTime) * 1000);
+
+    const apiKey = this.apiKeyRepo.create({
+      hash,
+      expiresAt,
+    })
+
+    await this.apiKeyRepo.save(apiKey);
+
+    const apiKeyRes : CreateApiKeyResDto = {
+      id: apiKey.id,
+      token: prefixedToken,
+      expiresAt: apiKey.expiresAt,
+      createdAt: apiKey.createdAt,
+    }
+
+    return apiKeyRes;
+  }
+
+  async validateApiKey(token: string): Promise<boolean> {
+    const hash = createHmac('sha256', this.config.apiKey.secret)
+      .update(token)
+      .digest('hex');
+
+    const apiKey = await this.apiKeyRepo.findOne({
+      where: { hash }
+    });
+
+    if (!apiKey)
+      return false;
+
+    if (apiKey.expiresAt && apiKey.expiresAt < new Date()) {
+      return false;
+    }
+
+    return true;
+  }
+
+  async removeApiKeyById(id: string) {
+    const res = await this.apiKeyRepo.delete({ id });
+    if (!res.affected)
+      throw new NotFoundException(`Api-key ${id} not found`);
+    return { deleted: true, id }
+  }
+
+  private async generateJwtToken(user: GetUserResDto) {
     const payload = {
       sub: user.id,
       username: user.username,

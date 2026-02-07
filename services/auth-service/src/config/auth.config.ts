@@ -34,5 +34,9 @@ export default registerAs('auth', () => ({
     databse: requireEnv('POSTGRES_DB', process.env.POSTGRES_DB),
     autoLoadEntities: true,
     synchonize: false,
+  },
+  apiKey: {
+    secret: requireEnv('API_KEY_SECRET', process.env.API_KEY_SECRET),
+    expiryTime: requireEnv('API_KEY_EXPIRY_TIME', process.env.API_KEY_EXPIRY_TIME),
   }
 }));
