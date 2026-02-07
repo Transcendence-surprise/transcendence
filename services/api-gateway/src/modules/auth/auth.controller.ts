@@ -5,6 +5,8 @@ import {
   Get,
   Redirect,
   Res,
+  Delete,
+  Param,
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
 import { AuthHttpService } from './auth.service';
@@ -54,5 +56,20 @@ export class AuthController {
       return reply.redirect(res.location, res.status);
     }
     throw new Error('No redirect from auth-service');
+  }
+
+  @Get('api-keys')
+  async getAllApiKeys() {
+    return this.authClient.getAllApiKeys();
+  }
+
+  @Post('api-keys')
+  async createApiKey() {
+    return this.authClient.createApiKey();
+  }
+
+  @Delete('api-keys')
+  async removeApiKeyById(@Param('id') id: string) {
+    return this.authClient.removeApiKeyById(Number(id));
   }
 }

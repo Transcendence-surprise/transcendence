@@ -61,6 +61,18 @@ export class AuthHttpService {
     };
   }
 
+  async getAllApiKeys<T = unknown>(): Promise<T> {
+    return this.request('get', '/api/auth/api-keys');
+  }
+
+  async createApiKey<T = unknown>(): Promise<T> {
+    return this.request('post', `/api/auth/api-keys`)
+  }
+
+  async removeApiKeyById<T = unknown>(id: number): Promise<T> {
+    return this.request('delete', `/api/auth/api-keys/${id}`)
+  }
+
   private async request<T>(
     method: 'get' | 'post' | 'delete' | 'put',
     path: string,
