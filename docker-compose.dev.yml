@@ -40,17 +40,17 @@ services:
 
   auth-service:
     build:
-      context: ./services/auth-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/auth-service/Dockerfile
       target: development
     container_name: auth-service-dev
     ports:
       - "3001:3001"
     volumes:
-      - ./services/auth-service/src:/app/src:ro
-      - ./services/auth-service/package.json:/app/package.json:ro
-      - ./services/auth-service/tsconfig.json:/app/tsconfig.json:ro
-      - ./services/auth-service/nest-cli.json:/app/nest-cli.json:ro
+      - ./services/auth-service/src:/app/./services/auth-service/src:ro
+      - ./services/auth-service/package.json:/app/./services/auth-service/package.json:ro
+      - ./services/auth-service/tsconfig.json:/app/./services/auth-service/tsconfig.json:ro
+      - ./services/auth-service/nest-cli.json:/app/./services/auth-service/nest-cli.json:ro
     networks:
       - transcendence_net
     command: npm run start:dev
