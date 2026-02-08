@@ -11,7 +11,7 @@ export const OAuth42Data = createParamDecorator(
     const request = ctx.switchToHttp().getRequest<FastifyRequest>();
     const query = request.query as Record<string, string | undefined>;
     if (!query.code || !query.state) {
-      throw new BadRequestException('IWWWWWnvalid code and/or state in query');
+      throw new BadRequestException('Invalid code and/or state in query');
     }
     return {
       code: query.code,
