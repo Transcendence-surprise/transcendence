@@ -73,6 +73,21 @@ export class AuthHttpService {
     return this.request('delete', `/api/auth/api-keys/${id}`)
   }
 
+  async validateApiKey(token: string): Promise<boolean> {
+    console.log('token in params', token);
+
+    const res = await lastValueFrom(
+      this.http.post<boolean>('/api/auth/api-keys/validate',
+        {},
+        {
+          validateStatus: () => true,
+          params: { token },
+      }),
+    );
+
+    return res.data;
+  }
+
   private async request<T>(
     method: 'get' | 'post' | 'delete' | 'put',
     path: string,

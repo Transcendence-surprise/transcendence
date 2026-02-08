@@ -10,6 +10,7 @@ import {
   Inject,
   Delete,
   Param,
+  Query,
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
 import type { ConfigType } from '@nestjs/config';
@@ -98,7 +99,7 @@ export class AuthController {
   }
 
   @Post('api-keys/validate')
-  validateApiKey(@Param('token') token: string) {
+  validateApiKey(@Query('token') token: string) {
     return this.authService.validateApiKey(token);
   }
 }
