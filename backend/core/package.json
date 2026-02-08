@@ -81,11 +81,7 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node",
-    "moduleNameMapper": {
-      "^@transcendence/db-entities$": "<rootDir>/../../common/packages/db-entities/src",
-      "^typeorm$": "<rootDir>/../node_modules/typeorm"
-    }
+    "testEnvironment": "node"
   },
   "overrides": {
     "@fastify/middie": ">=9.1.0"
