@@ -11,11 +11,11 @@ services:
     networks:
       - transcendence_net
 
-  backend:
+  core:
     build:
       context: .
-      dockerfile: backend/Dockerfile
-    container_name: backend
+      dockerfile: backend/core/Dockerfile
+    container_name: core
     env_file:
       - ./.env
     depends_on:
@@ -25,7 +25,7 @@ services:
     networks:
       - transcendence_net
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://backend:3000/api/health || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://core:3000/api/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -57,7 +57,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      backend:
+      core:
         condition: service_healthy
       game-service:
         condition: service_healthy

@@ -9,7 +9,7 @@ services:
       - transcendence_net
     command: ["npm", "run", "build"]
 
-  backend:
+  core:
     expose:
       - "3000"
     volumes:

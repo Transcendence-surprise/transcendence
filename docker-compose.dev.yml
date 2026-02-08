@@ -19,17 +19,17 @@ services:
       - transcendence_net
     command: npm run dev
 
-  backend:
+  core:
     build:
       context: .
-      dockerfile: backend/Dockerfile
-    container_name: backend-dev
+      dockerfile: backend/core/Dockerfile
+    container_name: core-dev
     volumes:
       - ./database:/database:ro
-      - ./backend/src:/app/backend/src:ro
-      - ./backend/package.json:/app/backend/package.json:ro
-      - ./backend/tsconfig.json:/app/backend/tsconfig.json:ro
-      - ./backend/nest-cli.json:/app/backend/nest-cli.json:ro
+      - ./core/src:/app/core/src:ro
+      - ./core/package.json:/app/core/package.json:ro
+      - ./core/tsconfig.json:/app/core/tsconfig.json:ro
+      - ./core/nest-cli.json:/app/core/nest-cli.json:ro
     ports:
       - "3000:3000"
     networks:
