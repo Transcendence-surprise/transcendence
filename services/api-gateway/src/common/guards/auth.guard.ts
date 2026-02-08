@@ -11,7 +11,7 @@ import { FastifyRequest } from 'fastify';
 import type { ConfigType } from '@nestjs/config';
 
 import gatewayConfig from '../config/gateway.config';
-import { AuthHttpService } from 'src/modules/auth/auth.service';
+import { AuthHttpService } from '../../modules/auth/auth.service';
 import { AUTH_TYPE_KEY, AuthType } from '../decorator/auth-type.decorator';
 
 interface JwtPayload {

@@ -11,7 +11,7 @@ import { UsersHttpService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { Auth, AuthType } from 'src/common/decorator/auth-type.decorator';
+import { Auth, AuthType } from '../../common/decorator/auth-type.decorator';
 
 @Controller('users')
 export class UsersController {
