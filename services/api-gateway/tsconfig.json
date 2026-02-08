@@ -23,9 +23,4 @@
     "noFallthroughCasesInSwitch": false,
     "typeRoots": ["node", "jest", "./node_modules/@types"]
   },
-  "include": [
-    "scripts/**/*",
-    "src/**/*",
-    "eslint.config.mjs"
-  ]
 }

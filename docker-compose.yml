@@ -33,7 +33,9 @@ services:
   # === Microservices ===
 
   auth-service:
-    build: ./services/auth-service
+    build:
+      context: .
+      dockerfile: ./services/auth-service/Dockerfile
     container_name: auth-service
     env_file:
       - ./.env

@@ -6,12 +6,10 @@ import {
   Get,
   Param,
   Post,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ValidateCredDto } from './dto/validate-credentials.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { CurrentUser } from '../decorators/current-user.decorator';
 
 import {
   UsersControllerDocs,
@@ -55,14 +53,7 @@ export class UsersController {
   // Auth-test: allows to find user by id only if this user logged in
   @Get('id/:id')
   @FindOneByIdDocs()
-  getUserById(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: { sub: number; username: string },
-  ) {
-    if (user.sub !== id) {
-      throw new UnauthorizedException();
-    }
-
+  getUserById(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOneById(id);
   }
 

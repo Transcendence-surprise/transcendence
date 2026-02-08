@@ -3,26 +3,20 @@
 # ==============================================
 FROM node:20-alpine AS development
 
-# Set working directory inside container
 WORKDIR /app
 
-# Copy package files first (for Docker layer caching)
-# If package.json doesn't change, npm install won't run again
-COPY package*.json ./
+COPY common/packages/db-entities ./common/packages/db-entities
+COPY services/auth-service/package*.json ./services/auth-service/
 
-# Install ALL dependencies (including devDependencies)
-# --legacy-peer-deps: Resolve dependency conflicts
-RUN npm ci --legacy-peer-deps
+RUN cd common/packages/db-entities && npm install && npm run build
+RUN cd services/auth-service && npm ci
 
-# Copy source code
-# This layer is rebuilt when source files change
-COPY . .
+COPY services/auth-service ./services/auth-service
 
-# Expose port 3001 for auth-service
+WORKDIR /app/services/auth-service
+
 EXPOSE 3001
 
-# Default command for development (with hot reload)
-# This can be overridden in docker-compose.yml
 CMD ["npm", "run", "start:dev"]
 
 
@@ -33,17 +27,18 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+COPY common/packages/db-entities ./common/packages/db-entities
+COPY services/auth-service/package*.json ./services/auth-service/
 
-# Install ALL dependencies (needed for build)
-RUN npm ci --legacy-peer-deps
+RUN npm ci --prefix common/packages/db-entities --legacy-peer-deps \
+  && npm --prefix common/packages/db-entities run build
 
-# Copy source code
-COPY . .
+RUN npm ci --prefix services/auth-service --legacy-peer-deps
 
-# Build TypeScript to JavaScript
-# Output goes to dist/ folder
+COPY services/auth-service ./services/auth-service
+
+WORKDIR /app/services/auth-service
+
 RUN npm run build
 
 
@@ -52,26 +47,20 @@ RUN npm run build
 # ==============================================
 FROM node:20-alpine AS production
 
-# Run as non-root user for security
-# node user is built into node:alpine image
-USER node
-
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+COPY common/packages/db-entities ./common/packages/db-entities
+COPY services/auth-service/package*.json ./services/auth-service/
 
-# Install ONLY production dependencies (no devDependencies)
-# --omit=dev: Skip devDependencies like TypeScript, @types, etc.
-RUN npm ci --omit=dev --legacy-peer-deps
+RUN npm ci --prefix common/packages/db-entities --legacy-peer-deps \
+  && npm --prefix common/packages/db-entities run build
 
-# Copy compiled JavaScript from builder stage
-# This is the dist/ folder created by 'npm run build'
-COPY --from=builder --chown=node:node /app/dist ./dist
+RUN npm ci --prefix services/auth-service --omit=dev --legacy-peer-deps
 
-# Expose port
+COPY --from=builder --chown=node:node /app/services/auth-service/dist ./services/auth-service/dist
+
+WORKDIR /app/services/auth-service
+
 EXPOSE 3001
 
-# Run the compiled JavaScript (not TypeScript!)
-# node dist/main.js is much faster than npm/nest start
 CMD ["node", "dist/main.js"]

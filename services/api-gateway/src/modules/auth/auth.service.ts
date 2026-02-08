@@ -1,14 +1,19 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
-import { AxiosError, isAxiosError } from 'axios';
+import type { ConfigType } from '@nestjs/config';
+import gatewayConfig from '../../common/config/gateway.config';
 
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
 
 @Injectable()
 export class AuthHttpService {
-  constructor(private readonly http: HttpService) {}
+  constructor(
+    @Inject(gatewayConfig.KEY)
+    private readonly config: ConfigType<typeof gatewayConfig>,
+    private readonly http: HttpService
+  ) {}
   async login<T = unknown>(body: LoginUserDto): Promise<T> {
     return this.request<T>('post', '/api/auth/login', body);
   }
@@ -18,29 +23,16 @@ export class AuthHttpService {
   }
 
   async intra42AuthRedirect(): Promise<{ status: number; location?: string }> {
-    try {
-      const res = await lastValueFrom(
-        this.http.get('/api/auth/intra42', {
-          maxRedirects: 0,
-          validateStatus: () => true,
-        }),
-      );
-      return {
-        status: res.status,
-        location: res.headers?.location as string | undefined,
-      };
-    } catch (err: unknown) {
-      if (isAxiosError(err) && err.response) {
-        return {
-          status: err.response.status,
-          location: err.response.headers?.location as string | undefined,
-        };
-      }
-      throw new HttpException(
-        'Upstream request failed',
-        HttpStatus.BAD_GATEWAY,
-      );
-    }
+    const res = await lastValueFrom(
+      this.http.get('/api/auth/intra42', {
+        maxRedirects: 0,
+        validateStatus: () => true,
+      }),
+    );
+    return {
+      status: res.status,
+      location: res.headers?.location as string | undefined,
+    };
   }
 
   async intra42AuthCallback(
@@ -69,30 +61,39 @@ export class AuthHttpService {
     };
   }
 
+  async getAllApiKeys<T = unknown>(): Promise<T> {
+    return this.request('get', '/api/auth/api-keys');
+  }
+
+  async createApiKey<T = unknown>(): Promise<T> {
+    return this.request('post', `/api/auth/api-keys`)
+  }
+
+  async removeApiKeyById<T = unknown>(id: number): Promise<T> {
+    return this.request('delete', `/api/auth/api-keys/${id}`)
+  }
+
+  async validateApiKey(token: string): Promise<boolean> {
+    console.log('token in params', token);
+
+    const res = await lastValueFrom(
+      this.http.post<boolean>('/api/auth/api-keys/validate',
+        {},
+        {
+          validateStatus: () => true,
+          params: { token },
+      }),
+    );
+
+    return res.data;
+  }
+
   private async request<T>(
     method: 'get' | 'post' | 'delete' | 'put',
     path: string,
     body?: any,
-  ) {
-    try {
-      const res = await lastValueFrom(this.http[method]<T>(path, body));
-      return res.data;
-    } catch (err: unknown) {
-      if (err instanceof HttpException) {
-        throw err;
-      }
-      if (isAxiosError(err)) {
-        const axiosErr = err as AxiosError;
-        const status = axiosErr.response?.status ?? HttpStatus.BAD_GATEWAY;
-        const data = axiosErr.response?.data ?? {
-          message: 'Upstream request failed',
-        };
-        throw new HttpException(data, status);
-      }
-      throw new HttpException(
-        'Upstream request failed',
-        HttpStatus.BAD_GATEWAY,
-      );
-    }
+  ): Promise<T> {
+    const res = await lastValueFrom(this.http[method]<T>(path, body));
+    return res.data;
   }
 }

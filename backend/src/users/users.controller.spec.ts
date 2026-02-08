@@ -130,22 +130,12 @@ describe('UsersController', () => {
 
   describe('getUserById', () => {
     it('should return user by id when user owns the id', async () => {
-      const user = { sub: 1, username: 'testuser' };
       mockUsersService.findOneById.mockResolvedValue(mockUser);
 
-      const result = await controller.getUserById(1, user);
+      const result = await controller.getUserById(1);
 
       expect(result).toEqual(mockUser);
       expect(service.findOneById).toHaveBeenCalledWith(1);
-    });
-
-    it('should throw UnauthorizedException when user does not own the id', () => {
-      const user = { sub: 1, username: 'testuser' };
-
-      expect(() => controller.getUserById(2, user)).toThrow(
-        UnauthorizedException,
-      );
-      expect(service.findOneById).not.toHaveBeenCalled();
     });
   });
 

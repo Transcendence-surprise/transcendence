@@ -6,9 +6,11 @@ import {
   HttpStatus,
   Get,
   Redirect,
-  BadRequestException,
   Res,
   Inject,
+  Delete,
+  Param,
+  Query,
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
 import type { ConfigType } from '@nestjs/config';
@@ -22,7 +24,7 @@ import {
   LoginDocs,
   SignupDocs,
 } from './auth.controller.docs';
-import { OAuth42Data } from '../coommon/oauth42-data.decorator';
+import { OAuth42Data } from '../common/decorators/oauth42-data.decorator';
 
 @AuthControllerDocs()
 @Controller('auth')
@@ -58,9 +60,6 @@ export class AuthController {
     @OAuth42Data() params: OAuth42Data,
     @Res() reply: FastifyReply,
   ) {
-    if (!params.code || !params.state) {
-      throw new BadRequestException('Invalid code and/or state in query');
-    }
     const result = await this.authService.intra42AuthCallback(
       params.code,
       params.state,
@@ -82,5 +81,25 @@ export class AuthController {
     );
 
     return reply.redirect(result.redirect, 302);
+  }
+
+  @Get('api-keys')
+  getAllApiKeys() {
+    return this.authService.getAllApiKeys();
+  }
+
+  @Post('api-keys')
+  createApiKey() {
+    return this.authService.createApiKey();
+  }
+
+  @Delete('api-keys')
+  removeApiKeyById(@Param('id') id: string) {
+    return this.authService.removeApiKeyById(id);
+  }
+
+  @Post('api-keys/validate')
+  validateApiKey(@Query('token') token: string) {
+    return this.authService.validateApiKey(token);
   }
 }

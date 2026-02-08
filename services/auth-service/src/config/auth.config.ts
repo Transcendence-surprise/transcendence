@@ -26,4 +26,17 @@ export default registerAs('auth', () => ({
     userUrl: requireEnv('INTRA_USER_URL', process.env.INTRA_USER_URL),
     redirectUri: requireEnv('INTRA_REDIRECT_URI', process.env.INTRA_REDIRECT_URI),
   },
+  db: {
+    host: requireEnv('POSTGRES_HOST', process.env.POSTGRES_HOST),
+    port: requireEnv('POSTGRES_PORT', process.env.POSTGRES_PORT),
+    username: requireEnv('POSTGRES_USER', process.env.POSTGRES_USER),
+    password: requireEnv('POSTGRES_PASSWORD', process.env.POSTGRES_PASSWORD),
+    databse: requireEnv('POSTGRES_DB', process.env.POSTGRES_DB),
+    autoLoadEntities: true,
+    synchonize: false,
+  },
+  apiKey: {
+    secret: requireEnv('API_KEY_SECRET', process.env.API_KEY_SECRET),
+    expirySeconds: requireEnv('API_KEY_EXPIRY_SECONDS', process.env.API_KEY_EXPIRY_SECONDS),
+  }
 }));

@@ -17,8 +17,8 @@ import { UNIQUE_VIOLATION } from 'pg-error-constants';
 export class UsersService {
   constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
-  findAll() {
-    return this.userRepo.find();
+  async findAll() {
+    return await this.userRepo.find();
   }
 
   async findOneByUsername(username: string) {
@@ -41,7 +41,7 @@ export class UsersService {
   }
 
   async findByIdentifierWithPassword(identifier: string) {
-    return this.userRepo
+    return await this.userRepo
       .createQueryBuilder('user')
       .where('user.username = :identifier OR user.email = :identifier', { identifier })
       .addSelect('user.password')
@@ -49,7 +49,7 @@ export class UsersService {
   }
 
   async findByIdentifier(identifier: string) {
-    return this.userRepo
+    return await this.userRepo
       .createQueryBuilder('user')
       .where('user.username = :identifier OR user.email = :identifier', { identifier })
       .getOne();

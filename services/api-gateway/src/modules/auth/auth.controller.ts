@@ -4,8 +4,9 @@ import {
   Body,
   Get,
   Redirect,
-  BadRequestException,
   Res,
+  Delete,
+  Param,
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
 import { AuthHttpService } from './auth.service';
@@ -42,9 +43,6 @@ export class AuthController {
     @OAuth42Params() params: OAuth42Params,
     @Res() reply: FastifyReply,
   ) {
-    if (!params.code || !params.state) {
-      throw new BadRequestException('Invalid code and/or state in query');
-    }
     const res = await this.authClient.intra42AuthCallback(
       params.code,
       params.state,
@@ -58,5 +56,20 @@ export class AuthController {
       return reply.redirect(res.location, res.status);
     }
     throw new Error('No redirect from auth-service');
+  }
+
+  @Get('api-keys')
+  async getAllApiKeys() {
+    return this.authClient.getAllApiKeys();
+  }
+
+  @Post('api-keys')
+  async createApiKey() {
+    return this.authClient.createApiKey();
+  }
+
+  @Delete('api-keys')
+  async removeApiKeyById(@Param('id') id: string) {
+    return this.authClient.removeApiKeyById(Number(id));
   }
 }
