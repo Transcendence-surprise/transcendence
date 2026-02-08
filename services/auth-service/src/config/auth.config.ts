@@ -37,6 +37,6 @@ export default registerAs('auth', () => ({
   },
   apiKey: {
     secret: requireEnv('API_KEY_SECRET', process.env.API_KEY_SECRET),
-    expiryTime: requireEnv('API_KEY_EXPIRY_TIME', process.env.API_KEY_EXPIRY_TIME),
+    expirySeconds: requireEnv('API_KEY_EXPIRY_SECONDS', process.env.API_KEY_EXPIRY_SECONDS),
   }
 }));

@@ -161,7 +161,7 @@ export class AuthService {
       .update(prefixedToken)
       .digest('hex');
 
-    const expiresAt = new Date(Date.now() + Number(this.config.apiKey.expiryTime) * 1000);
+    const expiresAt = new Date(Date.now() + Number(this.config.apiKey.expirySeconds) * 1000);
 
     const apiKey = this.apiKeyRepo.create({
       hash,
