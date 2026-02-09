@@ -35,7 +35,7 @@ services:
   auth-service:
     build:
       context: .
-      dockerfile: ./services/auth-service/Dockerfile
+      dockerfile: ./backend/auth-service/Dockerfile
     container_name: auth-service
     env_file:
       - ./.env
@@ -50,7 +50,7 @@ services:
       retries: 5
 
   api-gateway:
-    build: ./services/api-gateway
+    build: ./backend/api-gateway
     container_name: api-gateway
     env_file:
       - ./.env
@@ -67,7 +67,7 @@ services:
       - transcendence_net
 
   game-service:
-    build: ./services/game-service
+    build: ./backend/game-service
     container_name: game-service
     env_file:
       - ./.env

@@ -67,9 +67,9 @@ dev-install:
 	cd database && npm install
 	cd frontend && npm install
 	cd backend/core && npm install
-	cd services/auth-service && npm install
-	cd services/api-gateway && npm install
-	cd services/game-service && npm install
+	cd backend/auth-service && npm install
+	cd backend/api-gateway && npm install
+	cd backend/game-service && npm install
 
 # Clean Install for CI/CD
 dev-ci:
@@ -78,12 +78,12 @@ dev-ci:
 	cd database && npm ci
 	cd frontend && npm ci
 	cd backend/core && npm ci
-	cd services/auth-service && npm ci
-	cd services/api-gateway && npm ci
-	cd services/game-service && npm ci
+	cd backend/auth-service && npm ci
+	cd backend/api-gateway && npm ci
+	cd backend/game-service && npm ci
 
 ts-client:
-	cd services/api-gateway && \
+	cd backend/api-gateway && \
 	npm run generate:ts-client
 
 # =========== Rebuild commands ===========
@@ -111,13 +111,13 @@ test-back:
 	@cd backend/core && npm run test --silent
 
 	@echo "$(MAGENTA)\n== Auth-service tests ==$(RESET)"
-	@cd services/auth-service && npm run test --silent
+	@cd backend/auth-service && npm run test --silent
 
 	@echo "$(MAGENTA)\n== Api-gateway tests ==$(RESET)"
-	@cd services/api-gateway && npm run test --silent
+	@cd backend/api-gateway && npm run test --silent
 
 	@echo "$(MAGENTA)\n== Game-service tests ==$(RESET)"
-	@cd services/game-service && npm run test --silent
+	@cd backend/game-service && npm run test --silent
 
 # Run frontend test
 test-front:
