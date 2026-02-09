@@ -68,16 +68,16 @@ async function bootstrap() {
     },
   });
 
-  if (!process.env.AUTH_SERVICE_PORT) {
-    throw new Error('AUTH_SERVICE_PORT must be valid')
+  if (!process.env.AUTH_PORT) {
+    throw new Error('AUTH_PORT must be valid')
   }
 
-  const port = process.env.AUTH_SERVICE_PORT;
+  const port = process.env.AUTH_PORT;
   await app.listen(port, '0.0.0.0');
-  console.log(`Auth Service running on ${process.env.AUTH_SERVICE_URL}`);
+  console.log(`Auth Service running on ${process.env.AUTH_URL}`);
 }
 
 bootstrap().catch((error) => {
-  console.error('Failed to start auth-service:', error);
+  console.error('Failed to start auth:', error);
   process.exit(1);
 });
