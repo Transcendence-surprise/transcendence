@@ -26,10 +26,10 @@ services:
     container_name: core-dev
     volumes:
       - ./database:/database:ro
-      - ./core/src:/app/core/src:ro
-      - ./core/package.json:/app/core/package.json:ro
-      - ./core/tsconfig.json:/app/core/tsconfig.json:ro
-      - ./core/nest-cli.json:/app/core/nest-cli.json:ro
+      - ./backend/core/src:/app/backend/core/src:ro
+      - ./backend/core/package.json:/app/backend/core/package.json:ro
+      - ./backend/core/tsconfig.json:/app/backend/core/tsconfig.json:ro
+      - ./backend/core/nest-cli.json:/app/backend/core/nest-cli.json:ro
     ports:
       - "3000:3000"
     networks:
