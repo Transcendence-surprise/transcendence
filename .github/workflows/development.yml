@@ -30,15 +30,20 @@ jobs:
         run: cp .env.example .env
       - name: Run db container
         run: make build-db
-      # - name: Run backend for migration
-      #   run: make build-backend
-      # - name: Run db migration
-      #   run: make dev-migrate
       - name: Run backend tests
         run: make test-back
-      - name: Build backend
+      - name: Build gateway
         run: npm run build
-        working-directory: backend
+        working-directory: backend/gateway
+      - name: Build core
+        run: npm run build
+        working-directory: backend/core
+      - name: Build auth
+        run: npm run build
+        working-directory: backend/auth
+      - name: Build game
+        run: npm run build
+        working-directory: backend/game
       - name: Run frontend tests
         run: make test-front
       - name: Build frontend

@@ -41,7 +41,7 @@ dev-build:
 dev-migrate:
 	@echo "$(CYAN)Running migrations...$(RESET)"
 	@i=0; \
-	while ! $(COMPOSE) -f docker-compose.dev.yml exec -T backend npm run migration:run >/dev/null 2>&1; do \
+	while ! $(COMPOSE) -f docker-compose.dev.yml exec -T core npm run migration:run >/dev/null 2>&1; do \
 		i=$$((i+1)); \
 		if [ $$i -ge 10 ]; then \
 			echo "$(RED)Migrations failed after retries.$(RESET)"; \
@@ -66,10 +66,10 @@ dev-install:
 	cd common/packages/db-entities && npm install && npm run build
 	cd database && npm install
 	cd frontend && npm install
-	cd backend && npm install
-	cd services/auth-service && npm install
-	cd services/api-gateway && npm install
-	cd services/game-service && npm install
+	cd backend/core && npm install
+	cd backend/auth && npm install
+	cd backend/gateway && npm install
+	cd backend/game && npm install
 
 # Clean Install for CI/CD
 dev-ci:
@@ -77,13 +77,13 @@ dev-ci:
 	cd common/packages/db-entities && npm ci && npm run build
 	cd database && npm ci
 	cd frontend && npm ci
-	cd backend && npm ci
-	cd services/auth-service && npm ci
-	cd services/api-gateway && npm ci
-	cd services/game-service && npm ci
+	cd backend/core && npm ci
+	cd backend/auth && npm ci
+	cd backend/gateway && npm ci
+	cd backend/game && npm ci
 
 ts-client:
-	cd services/api-gateway && \
+	cd backend/gateway && \
 	npm run generate:ts-client
 
 # =========== Rebuild commands ===========
@@ -95,10 +95,10 @@ build-%:
 # For autocomplete
 build-db:
 build-nginx:
-build-backend:
-build-api-gateway:
-build-game-service:
-build-auth-service:
+build-core:
+build-gateway:
+build-game:
+build-auth:
 
 # =========== Test commands ===========
 
@@ -107,17 +107,17 @@ test: test-back test-front
 
 # Run backend test
 test-back:
-	@echo "$(MAGENTA)\n== Backend tests ==$(RESET)"
-	@cd backend && npm run test --silent
+	@echo "$(MAGENTA)\n== core tests ==$(RESET)"
+	@cd backend/core && npm run test --silent
 
-	@echo "$(MAGENTA)\n== Auth-service tests ==$(RESET)"
-	@cd services/auth-service && npm run test --silent
+	@echo "$(MAGENTA)\n== auth tests ==$(RESET)"
+	@cd backend/auth && npm run test --silent
 
-	@echo "$(MAGENTA)\n== Api-gateway tests ==$(RESET)"
-	@cd services/api-gateway && npm run test --silent
+	@echo "$(MAGENTA)\n== gateway tests ==$(RESET)"
+	@cd backend/gateway && npm run test --silent
 
-	@echo "$(MAGENTA)\n== Game-service tests ==$(RESET)"
-	@cd services/game-service && npm run test --silent
+	@echo "$(MAGENTA)\n== game tests ==$(RESET)"
+	@cd backend/game && npm run test --silent
 
 # Run frontend test
 test-front:
@@ -161,17 +161,17 @@ dev-prune: dev-fclean
 logs:
 	$(COMPOSE) logs -f
 
-# View logs for specific service (e.g., make log-backend, make log-nginx)
+# View logs for specific service (e.g., make log-core, make log-nginx)
 log-%:
 	$(COMPOSE) logs -f $*
 
 # For autocomplete
 log-db:
 log-nginx:
-log-backend:
-log-api-gateway:
-log-game-service:
-log-auth-service:
+log-core:
+log-gateway:
+log-game:
+log-auth:
 
 # Show running containers
 ps:

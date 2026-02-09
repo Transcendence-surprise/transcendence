@@ -19,17 +19,17 @@ services:
       - transcendence_net
     command: npm run dev
 
-  backend:
+  core:
     build:
       context: .
-      dockerfile: backend/Dockerfile
-    container_name: backend-dev
+      dockerfile: backend/core/Dockerfile
+    container_name: core-dev
     volumes:
       - ./database:/database:ro
-      - ./backend/src:/app/backend/src:ro
-      - ./backend/package.json:/app/backend/package.json:ro
-      - ./backend/tsconfig.json:/app/backend/tsconfig.json:ro
-      - ./backend/nest-cli.json:/app/backend/nest-cli.json:ro
+      - ./backend/core/src:/app/backend/core/src:ro
+      - ./backend/core/package.json:/app/backend/core/package.json:ro
+      - ./backend/core/tsconfig.json:/app/backend/core/tsconfig.json:ro
+      - ./backend/core/nest-cli.json:/app/backend/core/nest-cli.json:ro
     ports:
       - "3000:3000"
     networks:
@@ -38,53 +38,53 @@ services:
 
   # === Microservices ===
 
-  auth-service:
+  auth:
     build:
       context: .
-      dockerfile: ./services/auth-service/Dockerfile
+      dockerfile: ./backend/auth/Dockerfile
       target: development
-    container_name: auth-service-dev
+    container_name: auth-dev
     ports:
       - "3001:3001"
     volumes:
-      - ./services/auth-service/src:/app/./services/auth-service/src:ro
-      - ./services/auth-service/package.json:/app/./services/auth-service/package.json:ro
-      - ./services/auth-service/tsconfig.json:/app/./services/auth-service/tsconfig.json:ro
-      - ./services/auth-service/nest-cli.json:/app/./services/auth-service/nest-cli.json:ro
+      - ./backend/auth/src:/app/./backend/auth/src:ro
+      - ./backend/auth/package.json:/app/./backend/auth/package.json:ro
+      - ./backend/auth/tsconfig.json:/app/./backend/auth/tsconfig.json:ro
+      - ./backend/auth/nest-cli.json:/app/./backend/auth/nest-cli.json:ro
     networks:
       - transcendence_net
     command: npm run start:dev
 
-  api-gateway:
+  gateway:
     build:
-      context: ./services/api-gateway
+      context: ./backend/gateway
       dockerfile: Dockerfile
       target: development
-    container_name: api-gateway-dev
+    container_name: gateway-dev
     ports:
       - "3002:3002"
     volumes:
-      - ./services/api-gateway/src:/app/src:ro
-      - ./services/api-gateway/package.json:/app/package.json:ro
-      - ./services/api-gateway/tsconfig.json:/app/tsconfig.json:ro
-      - ./services/api-gateway/nest-cli.json:/app/nest-cli.json:ro
+      - ./backend/gateway/src:/app/src:ro
+      - ./backend/gateway/package.json:/app/package.json:ro
+      - ./backend/gateway/tsconfig.json:/app/tsconfig.json:ro
+      - ./backend/gateway/nest-cli.json:/app/nest-cli.json:ro
     networks:
       - transcendence_net
     command: npm run start:dev
 
-  game-service:
+  game:
     build:
-      context: ./services/game-service
+      context: ./backend/game
       dockerfile: Dockerfile
       target: development
-    container_name: game-service-dev
+    container_name: game-dev
     ports:
       - "3003:3003"
     volumes:
-      - ./services/game-service/src:/app/src:ro
-      - ./services/game-service/package.json:/app/package.json:ro
-      - ./services/game-service/tsconfig.json:/app/tsconfig.json:ro
-      - ./services/game-service/nest-cli.json:/app/nest-cli.json:ro
+      - ./backend/game/src:/app/src:ro
+      - ./backend/game/package.json:/app/package.json:ro
+      - ./backend/game/tsconfig.json:/app/tsconfig.json:ro
+      - ./backend/game/nest-cli.json:/app/nest-cli.json:ro
     networks:
       - transcendence_net
     command: npm run start:dev
