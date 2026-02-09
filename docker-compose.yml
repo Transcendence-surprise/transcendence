@@ -59,16 +59,16 @@ services:
         condition: service_healthy
       core:
         condition: service_healthy
-      game-service:
+      game:
         condition: service_healthy
       auth:
         condition: service_healthy
     networks:
       - transcendence_net
 
-  game-service:
-    build: ./backend/game-service
-    container_name: game-service
+  game:
+    build: ./backend/game
+    container_name: game
     env_file:
       - ./.env
     depends_on:
@@ -76,7 +76,7 @@ services:
     networks:
       - transcendence_net
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://game-service:3003/api/game/health || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://game:3003/api/game/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -107,7 +107,7 @@ services:
     depends_on:
       - frontend
       - gateway
-      - game-service
+      - game
     volumes:
       - frontend_build:/usr/share/nginx/html:ro
     networks:

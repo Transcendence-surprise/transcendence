@@ -69,7 +69,7 @@ dev-install:
 	cd backend/core && npm install
 	cd backend/auth && npm install
 	cd backend/gateway && npm install
-	cd backend/game-service && npm install
+	cd backend/game && npm install
 
 # Clean Install for CI/CD
 dev-ci:
@@ -80,7 +80,7 @@ dev-ci:
 	cd backend/core && npm ci
 	cd backend/auth && npm ci
 	cd backend/gateway && npm ci
-	cd backend/game-service && npm ci
+	cd backend/game && npm ci
 
 ts-client:
 	cd backend/gateway && \
@@ -97,7 +97,7 @@ build-db:
 build-nginx:
 build-core:
 build-gateway:
-build-game-service:
+build-game:
 build-auth:
 
 # =========== Test commands ===========
@@ -107,7 +107,7 @@ test: test-back test-front
 
 # Run backend test
 test-back:
-	@echo "$(MAGENTA)\n== Core tests ==$(RESET)"
+	@echo "$(MAGENTA)\n== core tests ==$(RESET)"
 	@cd backend/core && npm run test --silent
 
 	@echo "$(MAGENTA)\n== auth tests ==$(RESET)"
@@ -116,8 +116,8 @@ test-back:
 	@echo "$(MAGENTA)\n== gateway tests ==$(RESET)"
 	@cd backend/gateway && npm run test --silent
 
-	@echo "$(MAGENTA)\n== Game-service tests ==$(RESET)"
-	@cd backend/game-service && npm run test --silent
+	@echo "$(MAGENTA)\n== game tests ==$(RESET)"
+	@cd backend/game && npm run test --silent
 
 # Run frontend test
 test-front:
@@ -170,7 +170,7 @@ log-db:
 log-nginx:
 log-core:
 log-gateway:
-log-game-service:
+log-game:
 log-auth:
 
 # Show running containers

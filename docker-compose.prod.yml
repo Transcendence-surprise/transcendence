@@ -31,7 +31,7 @@ services:
     networks:
       - transcendence_net
 
-  game-service:
+  game:
     expose:
       - "3003"
     networks:

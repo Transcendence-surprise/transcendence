@@ -18,6 +18,6 @@ export default registerAs('gateway', () => ({
         baseUrl: requireEnv('CORE_URL', process.env.CORE_URL),
     },
     game: {
-        baseUrl: requireEnv('GAME_SERVICE_URL', process.env.GAME_SERVICE_URL),
+        baseUrl: requireEnv('GAME_URL', process.env.GAME_URL),
     }
 }))

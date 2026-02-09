@@ -72,19 +72,19 @@ services:
       - transcendence_net
     command: npm run start:dev
 
-  game-service:
+  game:
     build:
-      context: ./backend/game-service
+      context: ./backend/game
       dockerfile: Dockerfile
       target: development
-    container_name: game-service-dev
+    container_name: game-dev
     ports:
       - "3003:3003"
     volumes:
-      - ./backend/game-service/src:/app/src:ro
-      - ./backend/game-service/package.json:/app/package.json:ro
-      - ./backend/game-service/tsconfig.json:/app/tsconfig.json:ro
-      - ./backend/game-service/nest-cli.json:/app/nest-cli.json:ro
+      - ./backend/game/src:/app/src:ro
+      - ./backend/game/package.json:/app/package.json:ro
+      - ./backend/game/tsconfig.json:/app/tsconfig.json:ro
+      - ./backend/game/nest-cli.json:/app/nest-cli.json:ro
     networks:
       - transcendence_net
     command: npm run start:dev

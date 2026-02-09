@@ -48,13 +48,13 @@ async function bootstrap() {
     },
   });
 
-  const port = process.env.GAME_SERVICE_PORT ?? '3003';
+  const port = process.env.GAME_PORT ?? '3003';
   await app.listen(port, '0.0.0.0');
-  const url = process.env.GAME_SERVICE_URL ?? `http://localhost:${port}`;
+  const url = process.env.GAME_URL ?? `http://localhost:${port}`;
   console.log(`Game Service running on ${url}`);
 }
 
 bootstrap().catch((error) => {
-  console.error('Failed to start game-service:', error);
+  console.error('Failed to start game:', error);
   process.exit(1);
 });
