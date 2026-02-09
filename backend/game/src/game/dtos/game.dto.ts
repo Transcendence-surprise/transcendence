@@ -1,9 +1,12 @@
 // dtos/game.dto.ts
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import type { GameSettings, GameState } from '../models/state';
+import { StartError } from '../models/startResult';
+import { JoinError } from '../models/joinResult';
 import type { BoardAction } from '../models/boardAction';
 // import type { MoveAction } from '../models/moveAction';
 import { LevelDto } from './level.dto';
+import { LeaveError } from '../models/leaveResult';
 import { PlayerStateDto } from './player-state.dto';
 import { SpectatorDto } from './spectator.dto';
 import { GameRulesDto } from './game-rules.dto';
@@ -17,8 +20,16 @@ export class CreateGameDto {
   @ApiProperty()
   hostId: string;
 
-  @ApiProperty({ type: Object }) // could create separate GameSettingsDto if you want
+  @ApiProperty({ type: Object })
   settings: GameSettings;
+}
+
+export class CreateGameResponseDto {
+  @ApiProperty()
+  ok: boolean;
+
+  @ApiProperty()
+  gameId: string;
 }
 
 export class StartGameDto {
@@ -27,6 +38,14 @@ export class StartGameDto {
 
   @ApiProperty()
   hostId: string;
+}
+
+export class StartResponseDto {
+  @ApiProperty()
+  ok: boolean;
+
+  @ApiPropertyOptional({ enum: StartError })
+  error?: StartError;
 }
 
 export class JoinGameDto {
@@ -40,19 +59,13 @@ export class JoinGameDto {
   role: 'PLAYER' | 'SPECTATOR';
 }
 
-// export class MoveDto {
-//   @ApiProperty()
-//   gameId: string;
+export class JoinResponseDto {
+  @ApiProperty()
+  ok: boolean;
 
-//   @ApiProperty()
-//   playerId: string;
-
-//   @ApiProperty({ required: false, type: Object })
-//   boardAction?: BoardAction;
-
-//   @ApiProperty({ required: false, type: Object })
-//   moveAction?: MoveAction;
-// }
+  @ApiPropertyOptional({ enum: JoinError })
+  error?: JoinError;
+}
 
 export class LeaveGameDto {
   @ApiProperty()
@@ -60,6 +73,65 @@ export class LeaveGameDto {
 
   @ApiProperty()
   playerId: string;
+}
+
+export class LeaveResponseDto {
+  @ApiProperty()
+  ok: boolean;
+
+  @ApiPropertyOptional({ enum: LeaveError })
+  error?: LeaveError;
+}
+
+export class SingleLevelDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  description?: string;
+}
+
+export class MultiGameDto {
+  @ApiProperty({ description: 'Unique game ID' })
+  id: string;
+
+  @ApiProperty({ description: 'Host ID (or nickname later)' })
+  hostId: string;
+
+  @ApiProperty({ description: 'Current phase of the game', enum: ['LOBBY', 'PLAY'] })
+  phase: 'LOBBY' | 'PLAY';
+
+  @ApiProperty({ description: 'Maximum number of players allowed' })
+  maxPlayers: number;
+
+  @ApiProperty({ description: 'Number of players currently joined' })
+  joinedPlayers: number;
+
+  @ApiProperty({ description: 'Whether spectators are allowed' })
+  allowSpectators: boolean;
+
+  @ApiProperty({ description: 'Number of collectibles per player' })
+  collectiblesPerPlayer: number;
+
+  @ApiProperty({ description: 'Optional description of the game', required: false })
+  description?: string;
+}
+
+export class CheckPlayerAvailabilityDto {
+  @ApiProperty({
+    example: true,
+    description: "True if player is not participating in any game",
+  })
+  ok: boolean;
+
+  @ApiPropertyOptional({
+    example: "game-uuid-123",
+    description: "Game ID where the player is currently participating",
+  })
+  gameId?: string;
 }
 
 export class GameStateDto {
@@ -114,3 +186,17 @@ export class GameStateDto {
   @ApiProperty({ type: GameResultDto, required: false })
   gameResult?: GameResultDto;
 }
+
+// export class MoveDto {
+//   @ApiProperty()
+//   gameId: string;
+
+//   @ApiProperty()
+//   playerId: string;
+
+//   @ApiProperty({ required: false, type: Object })
+//   boardAction?: BoardAction;
+
+//   @ApiProperty({ required: false, type: Object })
+//   moveAction?: MoveAction;
+// }
