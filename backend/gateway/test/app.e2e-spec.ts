@@ -22,7 +22,7 @@ describe('AppController (e2e)', () => {
     app = moduleFixture.createNestApplication<NestFastifyApplication>(
       new FastifyAdapter(),
     );
-    app.setGlobalPrefix('api-gateway');
+    app.setGlobalPrefix('gateway');
 
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
@@ -32,9 +32,9 @@ describe('AppController (e2e)', () => {
     await app.close();
   });
 
-  it('api-gateway/health (GET)', async () => {
+  it('gateway/health (GET)', async () => {
     return await request(app.getHttpServer())
-      .get('/api-gateway/health')
+      .get('/gateway/health')
       .expect(200)
       .expect({ status: 'ok' });
   });

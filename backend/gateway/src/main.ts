@@ -41,16 +41,16 @@ async function bootstrap() {
 
   await setupMergedSwagger(app);
 
-  if (!process.env.API_GATEWAY_PORT) {
-    throw new Error('API_GATEWAY_PORT must be valid')
+  if (!process.env.GATEWAY_PORT) {
+    throw new Error('GATEWAY_PORT must be valid')
   }
 
-  const port = process.env.API_GATEWAY_PORT;
+  const port = process.env.GATEWAY_PORT;
   await app.listen(port, '0.0.0.0');
-  console.log(`Api-gateway running on ${process.env.API_GATEWAY_URL}`);
+  console.log(`gateway running on ${process.env.GATEWAY_URL}`);
 }
 
 bootstrap().catch((error) => {
-  console.error('Failed to start api-gateway:', error);
+  console.error('Failed to start gateway:', error);
   process.exit(1);
 });

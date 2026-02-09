@@ -19,7 +19,7 @@ services:
 
   # === Microservices ===
 
-  api-gateway:
+  gateway:
     expose:
       - "3002"
     networks:

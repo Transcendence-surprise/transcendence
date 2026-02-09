@@ -55,19 +55,19 @@ services:
       - transcendence_net
     command: npm run start:dev
 
-  api-gateway:
+  gateway:
     build:
-      context: ./backend/api-gateway
+      context: ./backend/gateway
       dockerfile: Dockerfile
       target: development
-    container_name: api-gateway-dev
+    container_name: gateway-dev
     ports:
       - "3002:3002"
     volumes:
-      - ./backend/api-gateway/src:/app/src:ro
-      - ./backend/api-gateway/package.json:/app/package.json:ro
-      - ./backend/api-gateway/tsconfig.json:/app/tsconfig.json:ro
-      - ./backend/api-gateway/nest-cli.json:/app/nest-cli.json:ro
+      - ./backend/gateway/src:/app/src:ro
+      - ./backend/gateway/package.json:/app/package.json:ro
+      - ./backend/gateway/tsconfig.json:/app/tsconfig.json:ro
+      - ./backend/gateway/nest-cli.json:/app/nest-cli.json:ro
     networks:
       - transcendence_net
     command: npm run start:dev

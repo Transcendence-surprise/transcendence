@@ -68,7 +68,7 @@ dev-install:
 	cd frontend && npm install
 	cd backend/core && npm install
 	cd backend/auth && npm install
-	cd backend/api-gateway && npm install
+	cd backend/gateway && npm install
 	cd backend/game-service && npm install
 
 # Clean Install for CI/CD
@@ -79,11 +79,11 @@ dev-ci:
 	cd frontend && npm ci
 	cd backend/core && npm ci
 	cd backend/auth && npm ci
-	cd backend/api-gateway && npm ci
+	cd backend/gateway && npm ci
 	cd backend/game-service && npm ci
 
 ts-client:
-	cd backend/api-gateway && \
+	cd backend/gateway && \
 	npm run generate:ts-client
 
 # =========== Rebuild commands ===========
@@ -96,7 +96,7 @@ build-%:
 build-db:
 build-nginx:
 build-core:
-build-api-gateway:
+build-gateway:
 build-game-service:
 build-auth:
 
@@ -113,8 +113,8 @@ test-back:
 	@echo "$(MAGENTA)\n== auth tests ==$(RESET)"
 	@cd backend/auth && npm run test --silent
 
-	@echo "$(MAGENTA)\n== Api-gateway tests ==$(RESET)"
-	@cd backend/api-gateway && npm run test --silent
+	@echo "$(MAGENTA)\n== gateway tests ==$(RESET)"
+	@cd backend/gateway && npm run test --silent
 
 	@echo "$(MAGENTA)\n== Game-service tests ==$(RESET)"
 	@cd backend/game-service && npm run test --silent
@@ -169,7 +169,7 @@ log-%:
 log-db:
 log-nginx:
 log-core:
-log-api-gateway:
+log-gateway:
 log-game-service:
 log-auth:
 

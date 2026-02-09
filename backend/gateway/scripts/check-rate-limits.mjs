@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Simple rate-limit checker for api-gateway user endpoints
+// Simple rate-limit checker for gateway user endpoints
 // Usage: node scripts/check-rate-limits.mjs [BASE_URL]
 // Defaults to http://localhost:8080/api
 

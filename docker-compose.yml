@@ -49,9 +49,9 @@ services:
       timeout: 5s
       retries: 5
 
-  api-gateway:
-    build: ./backend/api-gateway
-    container_name: api-gateway
+  gateway:
+    build: ./backend/gateway
+    container_name: gateway
     env_file:
       - ./.env
     depends_on:
@@ -106,7 +106,7 @@ services:
       - ./.env
     depends_on:
       - frontend
-      - api-gateway
+      - gateway
       - game-service
     volumes:
       - frontend_build:/usr/share/nginx/html:ro
