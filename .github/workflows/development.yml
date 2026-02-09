@@ -30,10 +30,6 @@ jobs:
         run: cp .env.example .env
       - name: Run db container
         run: make build-db
-      # - name: Run backend for migration
-      #   run: make build-backend
-      # - name: Run db migration
-      #   run: make dev-migrate
       - name: Run backend tests
         run: make test-back
       - name: Build backend
