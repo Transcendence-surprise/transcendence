@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { signup } from '../../api/authentification';
 
 interface SignupFormProps {
   onClose: () => void;
@@ -27,16 +28,23 @@ export default function SignupForm({ onClose, onSwitchToLogin }: SignupFormProps
       return;
     }
     
-    console.log('Signup attempt:', {
-      username: formData.username,
-      email: formData.email,
-      password: formData.password,
-    });
-    
-    // TODO: Add API call to backend signup endpoint
-    // Example: await fetch('/api/auth/signup', { method: 'POST', body: JSON.stringify(formData) })
-    alert('Signup functionality - ready for backend integration');
-  };
+  try {
+    const data = await signup(
+      formData.username,
+      formData.email,
+      formData.password
+    );
+
+    console.log('Signed up user:', data.user);
+
+    // Optionally redirect after signup
+    // e.g., navigate('/dashboard') if using react-router
+    alert(`Welcome, ${data.user.username}!`);
+  } catch (err: any) {
+    console.error('Signup error:', err.message);
+    alert(`Signup failed: ${err.message}`);
+  }
+};
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
