@@ -18,7 +18,7 @@ RUN npm ci --legacy-peer-deps
 # This layer is rebuilt when source files change
 COPY . .
 
-# Expose port 3001 for auth-service
+# Expose port 3001 for auth
 EXPOSE 3003
 
 # Default command for development (with hot reload)

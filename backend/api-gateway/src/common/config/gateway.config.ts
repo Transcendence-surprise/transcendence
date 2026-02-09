@@ -12,7 +12,7 @@ export default registerAs('gateway', () => ({
     auth: {
         isAuthEnabled: requireEnv('IS_AUTH_ENABLED', process.env.IS_AUTH_ENABLED),
         jwtSecret: requireEnv('JWT_SECRET', process.env.JWT_SECRET),
-        baseUrl: requireEnv('AUTH_SERVICE_URL', process.env.AUTH_SERVICE_URL),
+        baseUrl: requireEnv('AUTH_URL', process.env.AUTH_URL),
     },
     core: {
         baseUrl: requireEnv('CORE_URL', process.env.CORE_URL),

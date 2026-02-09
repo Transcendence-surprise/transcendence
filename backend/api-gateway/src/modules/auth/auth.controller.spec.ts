@@ -102,7 +102,7 @@ describe('AuthController', () => {
       });
 
       await expect(controller.intra42Auth()).rejects.toThrow(
-        'No redirect from auth-service',
+        'No redirect from auth',
       );
     });
   });
@@ -152,7 +152,7 @@ describe('AuthController', () => {
 
       await expect(
         controller.intra42AuthCallback(params, mockReply),
-      ).rejects.toThrow('No redirect from auth-service');
+      ).rejects.toThrow('No redirect from auth');
     });
   });
 });

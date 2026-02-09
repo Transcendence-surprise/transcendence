@@ -38,19 +38,19 @@ services:
 
   # === Microservices ===
 
-  auth-service:
+  auth:
     build:
       context: .
-      dockerfile: ./backend/auth-service/Dockerfile
+      dockerfile: ./backend/auth/Dockerfile
       target: development
-    container_name: auth-service-dev
+    container_name: auth-dev
     ports:
       - "3001:3001"
     volumes:
-      - ./backend/auth-service/src:/app/./backend/auth-service/src:ro
-      - ./backend/auth-service/package.json:/app/./backend/auth-service/package.json:ro
-      - ./backend/auth-service/tsconfig.json:/app/./backend/auth-service/tsconfig.json:ro
-      - ./backend/auth-service/nest-cli.json:/app/./backend/auth-service/nest-cli.json:ro
+      - ./backend/auth/src:/app/./backend/auth/src:ro
+      - ./backend/auth/package.json:/app/./backend/auth/package.json:ro
+      - ./backend/auth/tsconfig.json:/app/./backend/auth/tsconfig.json:ro
+      - ./backend/auth/nest-cli.json:/app/./backend/auth/nest-cli.json:ro
     networks:
       - transcendence_net
     command: npm run start:dev

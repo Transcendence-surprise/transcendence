@@ -35,7 +35,7 @@ export class AuthController {
     if (res.location) {
       return { url: res.location, statusCode: res.status };
     }
-    throw new Error('No redirect from auth-service');
+    throw new Error('No redirect from auth');
   }
 
   @Get('intra42/callback')
@@ -55,7 +55,7 @@ export class AuthController {
     if (res.location) {
       return reply.redirect(res.location, res.status);
     }
-    throw new Error('No redirect from auth-service');
+    throw new Error('No redirect from auth');
   }
 
   @Get('api-keys')
