@@ -7,6 +7,8 @@ services:
     build:
       target: development
     container_name: frontend-dev
+    environment:
+      - VITE_API_URL=http://gateway:3002
     volumes:
       - ./frontend/package.json:/app/package.json:ro
       - ./frontend/tsconfig.json:/app/tsconfig.json:ro
