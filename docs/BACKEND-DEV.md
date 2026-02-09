@@ -32,7 +32,7 @@ docker exec -i postgres-dev psql -U transcendence -d transcendence -c "SELECT * 
 
 **ALWAYS** test all endpoits before merging a branch:
 ```bash
-cd backend
+cd backend/core
 npm run test:e2e
 ```
 

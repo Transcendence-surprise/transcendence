@@ -12,7 +12,7 @@ import { AuthHttpModule } from '../auth/auth.module';
     HttpModule.registerAsync({
       inject: [gatewayConfig.KEY],
       useFactory: (config: ConfigType<typeof gatewayConfig>) => ({
-        baseURL: config.backend.baseUrl,
+        baseURL: config.core.baseUrl,
         timeout: 5000,
         maxRedirects: 5,
       }),

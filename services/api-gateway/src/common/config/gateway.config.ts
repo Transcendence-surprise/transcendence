@@ -14,8 +14,8 @@ export default registerAs('gateway', () => ({
         jwtSecret: requireEnv('JWT_SECRET', process.env.JWT_SECRET),
         baseUrl: requireEnv('AUTH_SERVICE_URL', process.env.AUTH_SERVICE_URL),
     },
-    backend: {
-        baseUrl: requireEnv('BACKEND_URL', process.env.BACKEND_URL),
+    core: {
+        baseUrl: requireEnv('CORE_URL', process.env.CORE_URL),
     },
     game: {
         baseUrl: requireEnv('GAME_SERVICE_URL', process.env.GAME_SERVICE_URL),

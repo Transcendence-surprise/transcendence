@@ -12,7 +12,7 @@ export class HealthService {
      * @returns any Service is healthy
      * @throws ApiError
      */
-    public static backendHealth(): CancelablePromise<{
+    public static coreHealth(): CancelablePromise<{
         status?: string;
     }> {
         return __request(OpenAPI, {

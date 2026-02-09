@@ -48,10 +48,10 @@ async function bootstrap() {
     },
   });
 
-  const port = process.env.BACKEND_PORT ?? '3000';
+  const port = process.env.CORE_PORT ?? '3000';
   await app.listen(port, '0.0.0.0');
-  console.log(`Server running on ${process.env.BACKEND_URL}`);
-  console.log(`Swagger docs on ${process.env.BACKEND_URL}/api/docs`);
+  console.log(`Server running on ${process.env.CORE_URL}`);
+  console.log(`Swagger docs on ${process.env.CORE_URL}/api/docs`);
 }
 
 bootstrap().catch((error) => {

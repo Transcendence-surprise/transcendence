@@ -29,7 +29,7 @@ export class AuthService {
 
   async login(loginUserDto: LoginUserDto) {
     const response = await this.httpService.axiosRef.post<GetUserResDto>(
-      `${this.config.backend.url}/api/users/validate-credentials`,
+      `${this.config.core.url}/api/users/validate-credentials`,
       loginUserDto,
     );
     return this.generateJwtToken(response.data);
@@ -37,7 +37,7 @@ export class AuthService {
 
   async signup(signupUserDto: SignupUserDto) {
     const response = await this.httpService.axiosRef.post<GetUserResDto>(
-      `${this.config.backend.url}/api/users`,
+      `${this.config.core.url}/api/users`,
       signupUserDto,
     );
     return this.generateJwtToken(response.data);
@@ -124,7 +124,7 @@ export class AuthService {
   private async findUserByEmail(email: string): Promise<GetUserResDto | null> {
     try {
       const response = await this.httpService.axiosRef.get<GetUserResDto>(
-        `${this.config.backend.url}/api/users/by-email/${email}`,
+        `${this.config.core.url}/api/users/by-email/${email}`,
       );
       return response.data;
     } catch {
@@ -143,7 +143,7 @@ export class AuthService {
     };
 
     const response = await this.httpService.axiosRef.post<GetUserResDto>(
-      `${this.config.backend.url}/api/users`,
+      `${this.config.core.url}/api/users`,
       createUserDto,
     );
     return response.data;

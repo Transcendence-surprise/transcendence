@@ -11,16 +11,16 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 export default async function setupMergedSwagger(app: NestFastifyApplication) {
   try {
-    if (!process.env.BACKEND_URL || !process.env.AUTH_SERVICE_URL) {
+    if (!process.env.CORE_URL || !process.env.AUTH_SERVICE_URL) {
       throw new Error(
-        'BACKEND_URL and AUTH_SERVICE_URL environment variables must be set',
+        'CORE_URL and AUTH_SERVICE_URL environment variables must be set',
       );
     }
 
-    const backendUrl = process.env.BACKEND_URL.replace(/\/$/, '');
+    const coreUrl = process.env.CORE_URL.replace(/\/$/, '');
     const authUrl = process.env.AUTH_SERVICE_URL.replace(/\/$/, '');
 
-    const backendDocsUrl = `${backendUrl}/api/docs-json`;
+    const coreDocsUrl = `${coreUrl}/api/docs-json`;
     const authDocsUrl = `${authUrl}/api/auth/docs-json`;
 
     const axios = await import('axios');
@@ -34,12 +34,12 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
       }
     }
 
-    const [backendDoc, authDoc] = await Promise.all([
-      fetchJson(backendDocsUrl),
+    const [coreDoc, authDoc] = await Promise.all([
+      fetchJson(coreDocsUrl),
       fetchJson(authDocsUrl),
     ]);
 
-    if (!backendDoc && !authDoc) {
+    if (!coreDoc && !authDoc) {
       throw new Error('Could not fetch any upstream docs');
     }
 
@@ -74,7 +74,7 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
       }
     }
 
-    mergeSimple(backendDoc);
+    mergeSimple(coreDoc);
     mergeSimple(authDoc);
 
     const baseConfig = new DocumentBuilder()
