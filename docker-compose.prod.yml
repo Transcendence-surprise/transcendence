@@ -2,23 +2,22 @@ include:
   - docker-compose.yml
 
 services:
-  # === Core Application ===
 
   frontend:
     container_name: frontend-prod
     command: ["npm", "run", "build"]
 
-  core:
-    container_name: core-prod
-    expose:
-      - "3000"
-
-  # === Microservices ===
+  # === Backend Microservices ===
 
   gateway:
     container_name: gateway-prod
     expose:
       - "3002"
+
+  core:
+    container_name: core-prod
+    expose:
+      - "3000"
 
   auth:
     container_name: auth-prod

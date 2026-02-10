@@ -2,7 +2,6 @@ include:
   - docker-compose.yml
 
 services:
-  # === Core Application ===
 
   frontend:
     container_name: frontend-dev
@@ -16,31 +15,7 @@ services:
       - "5173:5173"
     command: npm run dev
 
-  core:
-    container_name: core-dev
-    volumes:
-      - ./backend/core/src:/app/backend/core/src:ro
-      - ./backend/core/package.json:/app/backend/core/package.json:ro
-      - ./backend/core/tsconfig.json:/app/backend/core/tsconfig.json:ro
-      - ./backend/core/nest-cli.json:/app/backend/core/nest-cli.json:ro
-    ports:
-      - "3000:3000"
-    command: npm run start:dev
-
-  # === Microservices ===
-
-  auth:
-    build:
-      target: development
-    container_name: auth-dev
-    ports:
-      - "3001:3001"
-    volumes:
-      - ./backend/auth/src:/app/./backend/auth/src:ro
-      - ./backend/auth/package.json:/app/./backend/auth/package.json:ro
-      - ./backend/auth/tsconfig.json:/app/./backend/auth/tsconfig.json:ro
-      - ./backend/auth/nest-cli.json:/app/./backend/auth/nest-cli.json:ro
-    command: npm run start:dev
+  # === Backend Microservices ===
 
   gateway:
     build:
@@ -53,6 +28,30 @@ services:
       - ./backend/gateway/package.json:/app/package.json:ro
       - ./backend/gateway/tsconfig.json:/app/tsconfig.json:ro
       - ./backend/gateway/nest-cli.json:/app/nest-cli.json:ro
+    command: npm run start:dev
+
+  core:
+    container_name: core-dev
+    volumes:
+      - ./backend/core/src:/app/backend/core/src:ro
+      - ./backend/core/package.json:/app/backend/core/package.json:ro
+      - ./backend/core/tsconfig.json:/app/backend/core/tsconfig.json:ro
+      - ./backend/core/nest-cli.json:/app/backend/core/nest-cli.json:ro
+    ports:
+      - "3000:3000"
+    command: npm run start:dev
+
+  auth:
+    build:
+      target: development
+    container_name: auth-dev
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend/auth/src:/app/./backend/auth/src:ro
+      - ./backend/auth/package.json:/app/./backend/auth/package.json:ro
+      - ./backend/auth/tsconfig.json:/app/./backend/auth/tsconfig.json:ro
+      - ./backend/auth/nest-cli.json:/app/./backend/auth/nest-cli.json:ro
     command: npm run start:dev
 
   game:
