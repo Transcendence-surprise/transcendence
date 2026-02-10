@@ -134,7 +134,7 @@ clean:
 # Stop and remove everything (volumes too)
 fclean:
 	@echo "$(CYAN)Stopping containers and removing volumes...$(RESET)"
-	$(COMPOSE) docker-compose.dev.yml down -v
+	$(COMPOSE) -f docker-compose.dev.yml down -v
 
 prune: fclean
 	@echo "$(CYAN)Pruning dangling images...$(RESET)"
