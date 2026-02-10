@@ -25,7 +25,6 @@ services:
       dockerfile: backend/core/Dockerfile
     container_name: core-dev
     volumes:
-      - ./database:/database:ro
       - ./backend/core/src:/app/backend/core/src:ro
       - ./backend/core/package.json:/app/backend/core/package.json:ro
       - ./backend/core/tsconfig.json:/app/backend/core/tsconfig.json:ro

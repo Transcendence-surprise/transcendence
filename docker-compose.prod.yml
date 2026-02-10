@@ -12,8 +12,6 @@ services:
   core:
     expose:
       - "3000"
-    volumes:
-      - ./database:/database:ro
     networks:
       - transcendence_net
 
