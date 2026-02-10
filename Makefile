@@ -126,7 +126,7 @@ test-front:
 
 # =========== Clean commands ===========
 
-# Stop containers (keep volumes)
+# Stop and remove containers, network (keep volumes)
 clean:
 	@echo "$(CYAN)Stopping containers...$(RESET)"
 	$(COMPOSE) down
@@ -134,26 +134,16 @@ clean:
 # Stop and remove everything (volumes too)
 fclean:
 	@echo "$(CYAN)Stopping containers and removing volumes...$(RESET)"
-	$(COMPOSE) down -v
+	$(COMPOSE) docker-compose.dev.yml down -v
 
 prune: fclean
 	@echo "$(CYAN)Pruning dangling images...$(RESET)"
 	docker system prune -af
 
-# Stop containers (keep volumes)
-dev-clean:
-	@echo "$(CYAN)Stopping containers...$(RESET)"
-	$(COMPOSE) -f docker-compose.dev.yml down
-
-# Stop and remove dev DB volumes (full reset of dev DB)
-dev-fclean:
-	@echo "$(CYAN)Stopping dev containers and removing dev volumes...$(RESET)"
-	$(COMPOSE) -f docker-compose.dev.yml down -v
-
-# Prune dangling images (full reset of dev stack)
-dev-prune: dev-fclean
-	@echo "$(CYAN)Pruning dangling images...$(RESET)"
-	docker system prune -af
+# Stop and remove prod DB volumes (full reset of prod DB)
+prod-fclean:
+	@echo "$(CYAN)Stopping prod containers and removing prod volumes...$(RESET)"
+	$(COMPOSE) -f docker-compose.prod.yml down -v
 
 # =========== Utility commands ===========
 
