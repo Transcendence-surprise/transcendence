@@ -5,7 +5,6 @@ services:
   # === Core Application ===
 
   frontend:
-    build: ./frontend
     container_name: frontend-dev
     volumes:
       - ./frontend/package.json:/app/package.json:ro
@@ -18,9 +17,6 @@ services:
     command: npm run dev
 
   core:
-    build:
-      context: .
-      dockerfile: backend/core/Dockerfile
     container_name: core-dev
     volumes:
       - ./backend/core/src:/app/backend/core/src:ro
@@ -35,8 +31,6 @@ services:
 
   auth:
     build:
-      context: .
-      dockerfile: ./backend/auth/Dockerfile
       target: development
     container_name: auth-dev
     ports:
@@ -50,8 +44,6 @@ services:
 
   gateway:
     build:
-      context: ./backend/gateway
-      dockerfile: Dockerfile
       target: development
     container_name: gateway-dev
     ports:
@@ -65,8 +57,6 @@ services:
 
   game:
     build:
-      context: ./backend/game
-      dockerfile: Dockerfile
       target: development
     container_name: game-dev
     ports:
@@ -89,7 +79,6 @@ services:
       - ./database/init/schema/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
 
   nginx:
-    build: ./nginx
     container_name: nginx-dev
     ports:
       # - "80:80" // comment out port for compatability with hive's computers
