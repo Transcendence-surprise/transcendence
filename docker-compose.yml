@@ -17,7 +17,8 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - transcendence_net
     healthcheck:
@@ -36,7 +37,8 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - transcendence_net
     healthcheck:
@@ -61,6 +63,11 @@ services:
         condition: service_healthy
     networks:
       - transcendence_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://gateway:3002/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   game:
     build: ./backend/game
@@ -68,7 +75,8 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - transcendence_net
     healthcheck:
