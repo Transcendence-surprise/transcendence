@@ -2,17 +2,13 @@ FROM node:25-alpine
 
 WORKDIR /app
 
-COPY common/packages/db-entities ./common/packages/db-entities
-COPY backend/core/package*.json ./backend/core/
+COPY ./transcendence-db-entities-1.0.0.tgz ./
+COPY package*.json ./
 
-RUN cd common/packages/db-entities && npm install && npm run build
-RUN cd backend/core && npm ci
+RUN npm ci
 
-COPY backend/core ./backend/core
-
-WORKDIR /app/backend/core
-RUN npm run build
+COPY . .
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start:prod"]
+CMD ["npm", "run", "start:dev"]

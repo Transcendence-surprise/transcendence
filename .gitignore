@@ -45,3 +45,6 @@ nginx/cert/
 #Maria's ignore
 docker-compose.db.yml
 instructions
+
+# tarball deps
+*.tgz

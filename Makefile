@@ -63,6 +63,7 @@ dev-front:
 # Install dependencies for tests (Legacy for dev: Containers install dependencies)
 dev-install:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
+	make pack-deps
 	cd common/packages/db-entities && npm install && npm run build
 	cd database && npm install
 	cd frontend && npm install
@@ -74,6 +75,7 @@ dev-install:
 # Clean Install for CI/CD
 dev-ci:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
+	make pack-deps
 	cd common/packages/db-entities && npm ci && npm run build
 	cd database && npm ci
 	cd frontend && npm ci
@@ -85,6 +87,10 @@ dev-ci:
 ts-client:
 	cd backend/gateway && \
 	npm run generate:ts-client
+
+# Pack and distribute dependencies
+pack-deps:
+	@./common/pack-transcendence-deps.sh
 
 # =========== Rebuild commands ===========
 
