@@ -4,6 +4,7 @@ import { checkHealth } from '../api/health';
 import LoginForm from './auth/LoginForm';
 import SignupForm from './auth/SignupForm';
 import Header from './UI/Header';
+import Footer from './UI/Footer';
 
 export default function Layout() {
   const [status, setStatus] = useState('loading...');
@@ -56,9 +57,7 @@ export default function Layout() {
       </main>
 
       {/* Footer */}
-      <footer className="p-4 border-t border-blue-600 text-center text-sm text-blue-300">
-        © 2026 Transcendence Game
-      </footer>
+      <Footer />
     </div>
   );
 }

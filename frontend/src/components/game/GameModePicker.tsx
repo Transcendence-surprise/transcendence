@@ -1,4 +1,6 @@
 // src/components/game/GameModePicker.tsx
+import GameModeCard from '../UI/GameModeCard';
+
 type Props = {
   onSelectSingle: () => void;
   onSelectMulti: () => void;
@@ -7,30 +9,24 @@ type Props = {
 
 export default function GameModePicker({ onSelectSingle, onSelectMulti, onBack }: Props) {
   return (
-    <div className="min-h-screen bg-black text-blue-400 font-mono flex flex-col items-center justify-center space-y-6">
-      <h2 className="text-3xl font-bold drop-shadow-lg">Choose Game Mode</h2>
+    <div className="min-h-screen bg-black text-[#00eaff] font-mono flex flex-col items-center justify-center space-y-8">
+      <h2 className="text-4xl font-bold drop-shadow-lg">Choose Game Mode</h2>
 
-      <div className="flex flex-col space-y-4">
-        <button
-          className="px-6 py-3 bg-blue-900 rounded-lg shadow-lg hover:bg-blue-800 transition-all"
+      <div className="flex gap-8  justify-center flex-wrap">
+        <GameModeCard
+          icon="/assets/solo.svg"
+          title="Single Player"
+          description="Classic solo mode"
           onClick={onSelectSingle}
-        >
-          Single Player
-        </button>
+        />
 
-        <button
-          className="px-6 py-3 bg-purple-900 rounded-lg shadow-lg hover:bg-purple-800 transition-all"
+        <GameModeCard
+          icon="/assets/multiplayer.svg"
+          title="Multiplayer"
+          description="Challenge friends"
           onClick={onSelectMulti}
-        >
-          Multiplayer
-        </button>
+        />
       </div>
-
-      {onBack && (
-        <button className="mt-6 text-sm underline text-blue-300" onClick={onBack}>
-          Back
-        </button>
-      )}
     </div>
   );
 }

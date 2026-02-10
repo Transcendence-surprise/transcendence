@@ -1,21 +1,21 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from "react-router-dom";
 
 export default function Sidebar() {
   const location = useLocation();
 
   const navItems = [
-    { path: '/', label: 'Home', icon: '/assets/home_icon.svg' },
-    { path: '/profile', label: 'Profile', icon: '/assets/profile_icon.svg' },
-    { path: '/game', label: 'Game', icon: '/assets/game_icon.svg' },
-    { path: '/friends', label: 'Friends', icon: '/assets/friends_icon.svg' },
-    { path: '/chat', label: 'Chat', icon: '/assets/chat_icon.svg' },
-    { path: '/leaderboard', label: 'Leaderboard', icon: '/assets/tournament_icon.svg' },
-    { path: '/settings', label: 'Settings', icon: '/assets/settings_icon.svg' },
+    { path: "/", label: "Home", icon: "/assets/home_icon.svg" },
+    { path: "/profile", label: "Profile", icon: "/assets/profile_icon.svg" },
+    { path: "/game", label: "Game", icon: "/assets/game_icon.svg" },
+    { path: "/friends", label: "Friends", icon: "/assets/friends_icon.svg" },
+    { path: "/chat", label: "Chat", icon: "/assets/chat_icon.svg" },
+    {path: "/leaderboard", label: "Leaderboard", icon: "/assets/tournament_icon.svg" },
+    { path: "/settings", label: "Settings", icon: "/assets/settings_icon.svg" },
   ];
 
   const isActive = (path: string) => {
-    if (path === '/') {
-      return location.pathname === '/';
+    if (path === "/") {
+      return location.pathname === "/";
     }
     return location.pathname.startsWith(path);
   };
@@ -32,18 +32,18 @@ export default function Sidebar() {
               transition-all duration-200 font-medium
               ${
                 isActive(item.path)
-                  ? 'text-[#00eaff] border border-t border-cyan-200/70 border-t-cyan-200/70 bg-[linear-gradient(90deg,rgba(0,234,255,0.35)_0%,rgba(0,102,255,0.35)_100%)]'
-                  : 'text-gray-400 hover:text-cyan-100 hover:shadow-[0_0_12px_rgba(0,200,255,0.45)]'
+                  ? "text-[#00eaff] border border-t border-cyan-200/70 border-t-cyan-200/70 bg-[linear-gradient(90deg,rgba(0,234,255,0.35)_0%,rgba(0,102,255,0.35)_100%)]"
+                  : "text-gray-400 hover:text-cyan-100 hover:shadow-[0_0_12px_rgba(0,200,255,0.45)]"
               }
             `}
           >
-            <img 
-              src={item.icon} 
+            <img
+              src={item.icon}
               alt={item.label}
               style={{
                 filter: isActive(item.path)
-                  ? 'brightness(0) saturate(100%) invert(74%) sepia(95%) saturate(2876%) hue-rotate(160deg) brightness(101%) contrast(101%)'
-                  : 'brightness(0) invert(1) opacity(0.5)'
+                  ? "brightness(0) saturate(100%) invert(74%) sepia(95%) saturate(2876%) hue-rotate(160deg) brightness(101%) contrast(101%)"
+                  : "brightness(0) invert(1) opacity(0.5)",
               }}
               className="w-6 h-6 transition-all duration-200"
             />
@@ -55,11 +55,6 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="mt-8 pt-4 border-t border-gray-700">
-        <div className="text-xs text-gray-500 text-center">
-          2026 © MAZE IS LAVA
-        </div>
-      </div>
     </aside>
   );
 }
