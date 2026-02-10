@@ -9,7 +9,7 @@ services:
       - transcendence_net
     command: ["npm", "run", "build"]
 
-  backend:
+  core:
     expose:
       - "3000"
     volumes:
@@ -19,19 +19,19 @@ services:
 
   # === Microservices ===
 
-  api-gateway:
+  gateway:
     expose:
       - "3002"
     networks:
       - transcendence_net
 
-  auth-service:
+  auth:
     expose:
       - "3001"
     networks:
       - transcendence_net
 
-  game-service:
+  game:
     expose:
       - "3003"
     networks:
@@ -44,6 +44,7 @@ services:
       - "5432"
     volumes:
       - db_data_prod:/var/lib/postgresql/data
+      - ./database/init/schema/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
     networks:
       - transcendence_net
 
