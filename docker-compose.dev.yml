@@ -15,8 +15,6 @@ services:
       - ./frontend/src:/app/src:rw
     ports:
       - "5173:5173"
-    networks:
-      - transcendence_net
     command: npm run dev
 
   core:
@@ -31,8 +29,6 @@ services:
       - ./backend/core/nest-cli.json:/app/backend/core/nest-cli.json:ro
     ports:
       - "3000:3000"
-    networks:
-      - transcendence_net
     command: npm run start:dev
 
   # === Microservices ===
@@ -50,8 +46,6 @@ services:
       - ./backend/auth/package.json:/app/./backend/auth/package.json:ro
       - ./backend/auth/tsconfig.json:/app/./backend/auth/tsconfig.json:ro
       - ./backend/auth/nest-cli.json:/app/./backend/auth/nest-cli.json:ro
-    networks:
-      - transcendence_net
     command: npm run start:dev
 
   gateway:
@@ -67,8 +61,6 @@ services:
       - ./backend/gateway/package.json:/app/package.json:ro
       - ./backend/gateway/tsconfig.json:/app/tsconfig.json:ro
       - ./backend/gateway/nest-cli.json:/app/nest-cli.json:ro
-    networks:
-      - transcendence_net
     command: npm run start:dev
 
   game:
@@ -84,8 +76,6 @@ services:
       - ./backend/game/package.json:/app/package.json:ro
       - ./backend/game/tsconfig.json:/app/tsconfig.json:ro
       - ./backend/game/nest-cli.json:/app/nest-cli.json:ro
-    networks:
-      - transcendence_net
     command: npm run start:dev
 
   # === Infrastructure ===
@@ -97,8 +87,6 @@ services:
     volumes:
       - db_data_dev:/var/lib/postgresql/data
       - ./database/init/schema/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
-    networks:
-      - transcendence_net
 
   nginx:
     build: ./nginx
@@ -106,8 +94,6 @@ services:
     ports:
       # - "80:80" // comment out port for compatability with hive's computers
       - "8080:8080"
-    networks:
-      - transcendence_net
 
 volumes:
   db_data_dev:

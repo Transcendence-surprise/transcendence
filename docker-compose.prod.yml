@@ -5,35 +5,25 @@ services:
   # === Core Application ===
 
   frontend:
-    networks:
-      - transcendence_net
     command: ["npm", "run", "build"]
 
   core:
     expose:
       - "3000"
-    networks:
-      - transcendence_net
 
   # === Microservices ===
 
   gateway:
     expose:
       - "3002"
-    networks:
-      - transcendence_net
 
   auth:
     expose:
       - "3001"
-    networks:
-      - transcendence_net
 
   game:
     expose:
       - "3003"
-    networks:
-      - transcendence_net
 
   # === Infrastructure ===
 
@@ -43,8 +33,6 @@ services:
     volumes:
       - db_data_prod:/var/lib/postgresql/data
       - ./database/init/schema/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
-    networks:
-      - transcendence_net
 
   nginx:
     ports:
@@ -53,8 +41,6 @@ services:
     volumes:
       - frontend_build:/usr/share/nginx/html:ro
       - ./nginx/cert:/etc/nginx/cert:ro
-    networks:
-      - transcendence_net
 
 volumes:
   db_data_prod:
