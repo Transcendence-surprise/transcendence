@@ -5,29 +5,35 @@ services:
   # === Core Application ===
 
   frontend:
+    container_name: frontend-prod
     command: ["npm", "run", "build"]
 
   core:
+    container_name: core-prod
     expose:
       - "3000"
 
   # === Microservices ===
 
   gateway:
+    container_name: gateway-prod
     expose:
       - "3002"
 
   auth:
+    container_name: auth-prod
     expose:
       - "3001"
 
   game:
+    container_name: game-prod
     expose:
       - "3003"
 
   # === Infrastructure ===
 
   db:
+    container_name: db-prod
     expose:
       - "5432"
     volumes:
@@ -35,6 +41,7 @@ services:
       - ./database/init/schema/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
 
   nginx:
+    container_name: nginx-prod
     ports:
       - "80:80"
       - "443:443"
