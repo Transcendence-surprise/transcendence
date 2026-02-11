@@ -33,7 +33,7 @@ down:
 	$(COMPOSE) down
 
 # Restart containers
-dev-restart: down dev
+restart: down dev
 
 # Build and start dev using base + dev compose files + database migration
 dev-build:
