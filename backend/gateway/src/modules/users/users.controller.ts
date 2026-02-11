@@ -12,8 +12,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Auth, AuthType } from '../../common/decorator/auth-type.decorator';
-import { Roles } from 'src/common/decorator/roles.decorator';
-import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from '../../common/decorator/roles.decorator';
+import { RolesGuard } from '../../common/guards/roles.guard';
 
 @Controller('users')
 export class UsersController {
