@@ -89,7 +89,7 @@ export class AuthController {
       },
     );
 
-    return reply.redirect(result.redirect, 302);
+    return reply.redirect(result.redirect, HttpStatus.FOUND);
   }
 
   @Get('api-keys')
