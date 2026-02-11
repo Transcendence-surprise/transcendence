@@ -18,9 +18,9 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
       throw new Error('ALL URLS environment variables must be set');
     }
 
-    const coreUrl = process.env.CORE_URL.replace(/\/$/, '');
-    const authUrl = process.env.AUTH_URL.replace(/\/$/, '');
-    const gameUrl = process.env.GAME_URL.replace(/\/$/, '');
+    const coreUrl = process.env.CORE_URL;
+    const authUrl = process.env.AUTH_URL;
+    const gameUrl = process.env.GAME_URL;
 
     const coreDocsUrl = `${coreUrl}/api/docs-json`;
     const authDocsUrl = `${authUrl}/api/auth/docs-json`;
@@ -78,10 +78,6 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
       }
     }
 
-    mergeSimple(coreDoc);
-    mergeSimple(authDoc);
-    mergeSimple(gameDoc);
-
     const baseConfig = new DocumentBuilder()
       .setTitle('Transcendence API')
       .setDescription('Server-driven web game with user managment')
@@ -89,6 +85,13 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
       .addBearerAuth()
       .addApiKey()
       .build();
+
+    const gatewayDoc = SwaggerModule.createDocument(app, baseConfig);
+
+    mergeSimple(coreDoc);
+    mergeSimple(authDoc);
+    mergeSimple(gameDoc);
+    mergeSimple(gatewayDoc);
 
     if (
       !baseConfig.info ||
