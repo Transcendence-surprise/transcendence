@@ -10,15 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to Google Cloud VM
+      - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.GCP_VM_HOST }}
-          username: ${{ secrets.GCP_VM_USER }}
-          key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd ~/transcendence
             git pull origin main
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml down
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
-            docker system prune -f
+            make down
+            make prod
+            make prune

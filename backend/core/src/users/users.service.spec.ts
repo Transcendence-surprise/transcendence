@@ -185,7 +185,6 @@ describe('UsersService', () => {
       expect(mockRepository.create).toHaveBeenCalledWith(createUserDto);
       expect(bcrypt.hash).toHaveBeenCalledWith('plainPassword', 10);
       expect(mockRepository.save).toHaveBeenCalled();
-      expect(result.password).toBe('hashedPassword');
     });
   });
 });

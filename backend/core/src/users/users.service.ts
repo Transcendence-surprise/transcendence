@@ -94,12 +94,21 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto) {
+    const { email, username } = createUserDto;
+    const dbUser = await this.userRepo.findOne({ where: [{ email }, { username }]})
+    if (dbUser) {
+      throw new ConflictException('Username or email already exists');
+    }
+
     const user = this.userRepo.create(createUserDto);
     if (user.password !== null) {
       user.password = await bcrypt.hash(user.password, 10);
     }
     try {
-      return await this.userRepo.save(user);
+      const savedUser = await this.userRepo.save(user);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...userWithoutPassword } = savedUser;
+      return userWithoutPassword;
     } catch (error) {
       if (this.isUniqueConstraintError(error)) {
         throw new ConflictException('Username or email already exists');

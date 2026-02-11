@@ -1,9 +1,0 @@
-{
-  "name": "transcendence",
-  "version": "1.0.0",
-  "description": "Generated TypeScript client",
-  "main": "ts-client/index.ts",
-  "types": "ts-client/index.ts",
-  "files": ["ts-client"],
-  "license": "MIT"
-}
