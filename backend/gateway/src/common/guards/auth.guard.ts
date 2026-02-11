@@ -32,8 +32,8 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean>  {
     const authType = this.reflector.getAllAndOverride<AuthType>(AUTH_TYPE_KEY, [
-      context.getClass(),
       context.getHandler(),
+      context.getClass(),
     ]);
 
     if (authType === AuthType.PUBLIC || this.config.auth.isAuthEnabled === 'false') {
@@ -67,6 +67,7 @@ export class AuthGuard implements CanActivate {
     request.headers['x-user-id'] = payload.sub.toString();
     request.headers['x-user-username'] = payload.username;
     request.headers['x-user-email'] = payload.email;
+    // request.headers['x-user-roles'] = payload.roles;
 
     return true;
   }
