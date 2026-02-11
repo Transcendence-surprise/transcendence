@@ -10,21 +10,29 @@ services:
   # === Backend Microservices ===
 
   gateway:
+    build:
+      target: production
     container_name: gateway-prod
     expose:
       - "3002"
 
   core:
+    build:
+      target: production
     container_name: core-prod
     expose:
       - "3000"
 
   auth:
+    build:
+      target: production
     container_name: auth-prod
     expose:
       - "3001"
 
   game:
+    build:
+      target: production
     container_name: game-prod
     expose:
       - "3003"
