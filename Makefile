@@ -32,6 +32,9 @@ dev:
 down:
 	$(COMPOSE) down
 
+# Restart containers
+dev-restart: down dev
+
 # Build and start dev using base + dev compose files + database migration
 dev-build:
 	@echo "$(CYAN)Building dev stack...$(RESET)"
@@ -83,6 +86,7 @@ dev-ci:
 	cd backend/gateway && npm ci
 	cd backend/game && npm ci
 
+# Generate client to communicate Backend
 ts-client:
 	cd backend/gateway && \
 	npm run generate:ts-client

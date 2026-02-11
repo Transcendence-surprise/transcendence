@@ -43,7 +43,7 @@ services:
     networks:
       - transcendence_net
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://core:3000/api/health || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://core:3000/api/core/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
