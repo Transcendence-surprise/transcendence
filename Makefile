@@ -64,7 +64,6 @@ dev-front:
 dev-install:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
 	make pack-deps
-	cd common/packages/db-entities && npm install && npm run build
 	cd database && npm install
 	cd frontend && npm install
 	cd backend/core && npm install
