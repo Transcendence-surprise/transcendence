@@ -82,6 +82,19 @@ const Intra42AuthCallbackDocs = () =>
       type: String,
       description: 'Code was sent in redirection to intra42 and received to ensure, that redirection was not hacked'
     }),
+    ApiFoundResponse({
+      description: 'Redirection to application with auth cookie set',
+      headers: {
+        'Cookie': {
+          description: 'Authentication cookie',
+          schema: {
+            type: 'string',
+            example:
+              'auth_payload=%7B%22access_token%22%3A%22eyJhb...; HttpOnly; Path=/; Secure; SameSite=None',
+          },
+        },
+      },
+    }),
   );
 
   const GetApiKeysDocs = () =>
