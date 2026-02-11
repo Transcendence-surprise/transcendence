@@ -76,7 +76,6 @@ dev-install:
 dev-ci:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
 	make pack-deps
-	cd common/packages/db-entities && npm ci && npm run build
 	cd database && npm ci
 	cd frontend && npm ci
 	cd backend/core && npm ci
