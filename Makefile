@@ -35,6 +35,7 @@ down:
 # Build and start dev using base + dev compose files + database migration
 dev-build:
 	@echo "$(CYAN)Building dev stack...$(RESET)"
+	make pack-deps
 	$(COMPOSE) -f docker-compose.dev.yml up -d --build
 
 # Run migrations (dev DB must be up)
