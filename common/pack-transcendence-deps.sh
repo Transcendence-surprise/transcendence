@@ -6,6 +6,7 @@ DB_ENTITIES_DIR="$REPO_ROOT/common/db-entities"
 
 echo "Building db-entities..."
 cd "$DB_ENTITIES_DIR"
+npm install
 npm run build
 
 echo "Copying dist to backend services..."
