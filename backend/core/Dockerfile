@@ -5,7 +5,7 @@ FROM node:25-alpine AS development
 
 WORKDIR /app
 
-COPY ./transcendence-db-entities-1.0.0.tgz ./
+# COPY ./transcendence-db-entities-1.0.0.tgz ./
 COPY ./package*.json ./
 
 RUN npm ci
@@ -24,7 +24,7 @@ FROM node:25-alpine AS production
 
 WORKDIR /app
 
-COPY ./transcendence-db-entities-1.0.0.tgz ./
+# COPY ./transcendence-db-entities-1.0.0.tgz ./
 COPY ./package*.json ./
 
 RUN npm ci

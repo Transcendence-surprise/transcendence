@@ -31,12 +31,15 @@ services:
     command: npm run start:dev
 
   core:
+    build:
+      target: development
     container_name: core-dev
     volumes:
-      - ./backend/core/src:/app/backend/core/src:ro
-      - ./backend/core/package.json:/app/backend/core/package.json:ro
-      - ./backend/core/tsconfig.json:/app/backend/core/tsconfig.json:ro
-      - ./backend/core/nest-cli.json:/app/backend/core/nest-cli.json:ro
+      - ./backend/core/src:/app/src:ro
+      - ./backend/core/package.json:/app/package.json:ro
+      - ./backend/core/tsconfig.json:/app/tsconfig.json:ro
+      - ./backend/core/nest-cli.json:/app/nest-cli.json:ro
+      - ./common/db-entities/dist:/app/db-entities-dist:ro
     ports:
       - "3000:3000"
     command: npm run start:dev
@@ -48,10 +51,11 @@ services:
     ports:
       - "3001:3001"
     volumes:
-      - ./backend/auth/src:/app/./backend/auth/src:ro
-      - ./backend/auth/package.json:/app/./backend/auth/package.json:ro
-      - ./backend/auth/tsconfig.json:/app/./backend/auth/tsconfig.json:ro
-      - ./backend/auth/nest-cli.json:/app/./backend/auth/nest-cli.json:ro
+      - ./backend/auth/src:/app/src:ro
+      - ./backend/auth/package.json:/app/package.json:ro
+      - ./backend/auth/tsconfig.json:/app/tsconfig.json:ro
+      - ./backend/auth/nest-cli.json:/app/nest-cli.json:ro
+      - ./common/db-entities/dist:/app/db-entities-dist:ro
     command: npm run start:dev
 
   game:

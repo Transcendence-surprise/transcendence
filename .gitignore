@@ -14,6 +14,10 @@ dist/
 build/
 coverage/
 
+# --- Copied db-entities dist (generated, not source) ---
+backend/*/db-entities-dist/
+database/db-entities-dist/
+
 # --- Logs ---
 logs/
 *.log

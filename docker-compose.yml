@@ -49,9 +49,7 @@ services:
       retries: 5
 
   auth:
-    build:
-      context: .
-      dockerfile: ./backend/auth/Dockerfile
+    build: ./backend/auth
     container_name: auth
     env_file:
       - ./.env

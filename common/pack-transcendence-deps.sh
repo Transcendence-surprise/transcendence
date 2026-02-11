@@ -1,18 +1,31 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-echo "🔨 Building and packing db-entities..."
-cd common/db-entities
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
+DB_ENTITIES_DIR="$REPO_ROOT/common/db-entities"
+
+echo "Building db-entities..."
+cd "$DB_ENTITIES_DIR"
 npm run build
-npm pack
 
-TARBALL=$(ls transcendence-db-entities-*.tgz)
+echo "Copying dist to backend services..."
 
-echo "📦 Distributing $TARBALL to backend services..."
-cp "$TARBALL" ../../backend/core/
-cp "$TARBALL" ../../backend/auth/
-# cp "$TARBALL" ../backend/game/
-# cp "$TARBALL" ../backend/gateway/
-# cp "$TARBALL" ../database/
+# list of services that should receive the packaged db-entities
+services=("backend/core" "backend/auth")
 
-echo "✅ Done! Tarball distributed to all services."
+# tolerate empty dist/ (avoid cp errors)
+shopt -s nullglob
+for svc in "${services[@]}"; do
+	echo "  → $svc"
+	dest="$REPO_ROOT/$svc/db-entities-dist"
+	rm -rf "$dest"
+	mkdir -p "$dest"
+	files=(dist/*)
+	if (( ${#files[@]} )); then
+		cp -r "${files[@]}" "$dest/"
+	fi
+	cp package.json "$dest/"
+done
+shopt -u nullglob
+
+echo "✅ db-entities dist copied to core and auth."

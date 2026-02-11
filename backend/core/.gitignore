@@ -3,6 +3,9 @@
 /node_modules
 /build
 
+# Copied db-entities dist (generated, not source)
+/db-entities-dist
+
 # Logs
 logs
 *.log
