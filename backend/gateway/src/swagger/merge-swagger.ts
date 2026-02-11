@@ -11,17 +11,20 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 export default async function setupMergedSwagger(app: NestFastifyApplication) {
   try {
-    if (!process.env.CORE_URL || !process.env.AUTH_URL) {
-      throw new Error(
-        'CORE_URL and AUTH_URL environment variables must be set',
-      );
+    if (!process.env.CORE_URL ||
+        !process.env.AUTH_URL ||
+        !process.env.GAME_URL)
+    {
+      throw new Error('ALL URLS environment variables must be set');
     }
 
     const coreUrl = process.env.CORE_URL.replace(/\/$/, '');
     const authUrl = process.env.AUTH_URL.replace(/\/$/, '');
+    const gameUrl = process.env.GAME_URL.replace(/\/$/, '');
 
     const coreDocsUrl = `${coreUrl}/api/docs-json`;
     const authDocsUrl = `${authUrl}/api/auth/docs-json`;
+    const gameDocsUrl = `${gameUrl}/api/game/docs-json`;
 
     const axios = await import('axios');
 
@@ -34,12 +37,13 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
       }
     }
 
-    const [coreDoc, authDoc] = await Promise.all([
+    const [coreDoc, authDoc, gameDoc] = await Promise.all([
       fetchJson(coreDocsUrl),
       fetchJson(authDocsUrl),
+      fetchJson(gameDocsUrl),
     ]);
 
-    if (!coreDoc && !authDoc) {
+    if (!coreDoc && !authDoc && !gameDoc) {
       throw new Error('Could not fetch any upstream docs');
     }
 
@@ -76,6 +80,7 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
 
     mergeSimple(coreDoc);
     mergeSimple(authDoc);
+    mergeSimple(gameDoc);
 
     const baseConfig = new DocumentBuilder()
       .setTitle('Transcendence API')
@@ -105,6 +110,7 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
       customSiteTitle: 'Transcendence Merged API Docs',
       swaggerOptions: {
         persistAuthorization: true,
+        docExpansion: 'none',
       },
     });
 
