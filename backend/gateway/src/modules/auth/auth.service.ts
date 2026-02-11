@@ -77,8 +77,7 @@ export class AuthHttpService {
     console.log('token in params', token);
 
     const res = await lastValueFrom(
-      this.http.post<boolean>('/api/auth/api-keys/validate',
-        {},
+      this.http.get<boolean>('/api/auth/api-keys/validate',
         {
           validateStatus: () => true,
           params: { token },
