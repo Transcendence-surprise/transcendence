@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { SinglePlayerSettings } from "../../game/models/gameSettings";
 import { SingleLevel } from "../../game/models/singleLevel";
 import { getSingleLevels } from "../../api/game";
+import SimpleButton from "../UI/SimpleButton";
 
 type Props = {
   settings: SinglePlayerSettings;
@@ -32,15 +33,15 @@ export default function SinglePlayerSettingsForm({
   if (loading) return <div>Loading levels...</div>;
 
   return (
-    <div className="min-h-screen bg-black text-blue-400 font-mono flex flex-col items-center justify-center space-y-4">
-      <h2 className="text-2xl font-bold">Single Player Settings</h2>
+    <div className="min-h-screen bg-black text-[#00eaff] font-mono flex flex-col items-center justify-center space-y-10">
+      <h2 className="text-4xl font-bold drop-shadow-lg">Single Player Settings</h2>
 
       {error && <p className="text-red-500">{error}</p>}
 
-      <label>
+      <label className="text-lg">
         Level:
         <select
-          className="ml-2 px-2 py-1 bg-gray-800 rounded"
+          className="ml-2 px-4 py-2 text-lg bg-gray-800 rounded"
           value={settings.levelId || ""}
           onChange={(e) => onChange({ ...settings, levelId: e.target.value })}
         >
@@ -52,15 +53,7 @@ export default function SinglePlayerSettingsForm({
           ))}
         </select>
       </label>
-
-      <button
-        className="px-6 py-3 bg-green-600 rounded-lg shadow-lg hover:bg-green-500 transition-all"
-        onClick={onCreate}
-        disabled={!settings.levelId || loading} // cannot create without selection
-      >
-        Create Game
-      </button>
-
+		  <SimpleButton title="Create Game" onClick={onCreate} />
       <button
         className="mt-2 text-sm underline text-blue-300"
         onClick={onBack}

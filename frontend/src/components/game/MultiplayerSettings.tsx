@@ -19,11 +19,11 @@ export default function MultiplayerSettingsForm({
 }: Props) {
 
   return (
-    <div className="min-h-screen bg-black text-blue-400 font-mono flex flex-col items-center justify-center space-y-4">
+    <div className="min-h-screen bg-black text-[#00eaff] font-mono flex flex-col items-center justify-center space-y-4">
       <h2 className="text-2xl font-bold">Multiplayer Settings</h2>
       
       {/* Max Players */}
-      <label>
+      <label className="text-lg">
         Max Players:
         <select
           className="ml-2 px-2 py-1 bg-gray-800 rounded"
