@@ -2,10 +2,8 @@ include:
   - docker-compose.yml
 
 services:
-  # === Core Application ===
 
   frontend:
-    build: ./frontend
     container_name: frontend-dev
     volumes:
       - ./frontend/package.json:/app/package.json:ro
@@ -15,50 +13,12 @@ services:
       - ./frontend/src:/app/src:rw
     ports:
       - "5173:5173"
-    networks:
-      - transcendence_net
     command: npm run dev
 
-  core:
-    build:
-      context: .
-      dockerfile: backend/core/Dockerfile
-    container_name: core-dev
-    volumes:
-      - ./database:/database:ro
-      - ./backend/core/src:/app/backend/core/src:ro
-      - ./backend/core/package.json:/app/backend/core/package.json:ro
-      - ./backend/core/tsconfig.json:/app/backend/core/tsconfig.json:ro
-      - ./backend/core/nest-cli.json:/app/backend/core/nest-cli.json:ro
-    ports:
-      - "3000:3000"
-    networks:
-      - transcendence_net
-    command: npm run start:dev
-
-  # === Microservices ===
-
-  auth:
-    build:
-      context: .
-      dockerfile: ./backend/auth/Dockerfile
-      target: development
-    container_name: auth-dev
-    ports:
-      - "3001:3001"
-    volumes:
-      - ./backend/auth/src:/app/./backend/auth/src:ro
-      - ./backend/auth/package.json:/app/./backend/auth/package.json:ro
-      - ./backend/auth/tsconfig.json:/app/./backend/auth/tsconfig.json:ro
-      - ./backend/auth/nest-cli.json:/app/./backend/auth/nest-cli.json:ro
-    networks:
-      - transcendence_net
-    command: npm run start:dev
+  # === Backend Microservices ===
 
   gateway:
     build:
-      context: ./backend/gateway
-      dockerfile: Dockerfile
       target: development
     container_name: gateway-dev
     ports:
@@ -68,14 +28,35 @@ services:
       - ./backend/gateway/package.json:/app/package.json:ro
       - ./backend/gateway/tsconfig.json:/app/tsconfig.json:ro
       - ./backend/gateway/nest-cli.json:/app/nest-cli.json:ro
-    networks:
-      - transcendence_net
-    command: npm run start:dev
+
+  core:
+    build:
+      target: development
+    container_name: core-dev
+    volumes:
+      - ./backend/core/src:/app/src:ro
+      - ./backend/core/package.json:/app/package.json:ro
+      - ./backend/core/tsconfig.json:/app/tsconfig.json:ro
+      - ./backend/core/nest-cli.json:/app/nest-cli.json:ro
+      - ./common/db-entities/dist:/app/db-entities-dist:ro
+    ports:
+      - "3000:3000"
+
+  auth:
+    build:
+      target: development
+    container_name: auth-dev
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend/auth/src:/app/src:ro
+      - ./backend/auth/package.json:/app/package.json:ro
+      - ./backend/auth/tsconfig.json:/app/tsconfig.json:ro
+      - ./backend/auth/nest-cli.json:/app/nest-cli.json:ro
+      - ./common/db-entities/dist:/app/db-entities-dist:ro
 
   game:
     build:
-      context: ./backend/game
-      dockerfile: Dockerfile
       target: development
     container_name: game-dev
     ports:
@@ -85,9 +66,6 @@ services:
       - ./backend/game/package.json:/app/package.json:ro
       - ./backend/game/tsconfig.json:/app/tsconfig.json:ro
       - ./backend/game/nest-cli.json:/app/nest-cli.json:ro
-    networks:
-      - transcendence_net
-    command: npm run start:dev
 
   # === Infrastructure ===
 
@@ -98,22 +76,12 @@ services:
     volumes:
       - db_data_dev:/var/lib/postgresql/data
       - ./database/init/schema/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
-    networks:
-      - transcendence_net
 
   nginx:
-    build: ./nginx
     container_name: nginx-dev
     ports:
       # - "80:80" // comment out port for compatability with hive's computers
       - "8080:8080"
-    networks:
-      - transcendence_net
-    healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8080/api/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
 volumes:
   db_data_dev:

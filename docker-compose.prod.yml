@@ -2,61 +2,59 @@ include:
   - docker-compose.yml
 
 services:
-  # === Core Application ===
 
   frontend:
-    networks:
-      - transcendence_net
+    container_name: frontend-prod
     command: ["npm", "run", "build"]
 
-  core:
-    expose:
-      - "3000"
-    volumes:
-      - ./database:/database:ro
-    networks:
-      - transcendence_net
-
-  # === Microservices ===
+  # === Backend Microservices ===
 
   gateway:
+    build:
+      target: production
+    container_name: gateway-prod
     expose:
       - "3002"
-    networks:
-      - transcendence_net
+
+  core:
+    build:
+      target: production
+    container_name: core-prod
+    expose:
+      - "3000"
 
   auth:
+    build:
+      target: production
+    container_name: auth-prod
     expose:
       - "3001"
-    networks:
-      - transcendence_net
 
   game:
+    build:
+      target: production
+    container_name: game-prod
     expose:
       - "3003"
-    networks:
-      - transcendence_net
 
   # === Infrastructure ===
 
   db:
+    container_name: db-prod
     expose:
       - "5432"
     volumes:
       - db_data_prod:/var/lib/postgresql/data
       - ./database/init/schema/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
-    networks:
-      - transcendence_net
 
   nginx:
+    container_name: nginx-prod
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - frontend_build:/usr/share/nginx/html:ro
       - ./nginx/cert:/etc/nginx/cert:ro
-    networks:
-      - transcendence_net
 
 volumes:
   db_data_prod:
