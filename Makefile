@@ -95,6 +95,15 @@ ts-client:
 pack-deps:
 	@./common/pack-transcendence-deps.sh
 
+
+# Build backend and frontend code to dist
+compile-src:
+	cd frontend && npm run build
+	cd backend/core && npm run build
+	cd backend/auth && npm run build
+	cd backend/gateway && npm run build
+	cd backend/game && npm run build
+
 # =========== Rebuild commands ===========
 
 # Build specific service
