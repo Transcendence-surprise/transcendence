@@ -28,7 +28,7 @@ services:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://gateway:3002/api/health || exit 1"]
       interval: 5s
       timeout: 2s
-      start_period: 60s
+      start_period: 120s
       retries: 1
 
   core:
@@ -45,7 +45,7 @@ services:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://core:3000/api/core/health || exit 1"]
       interval: 5s
       timeout: 2s
-      start_period: 60s
+      start_period: 120s
       retries: 1
 
   auth:
@@ -62,7 +62,7 @@ services:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://auth:3001/api/auth/health || exit 1"]
       interval: 5s
       timeout: 2s
-      start_period: 60s
+      start_period: 120s
       retries: 1
 
   game:
@@ -79,7 +79,7 @@ services:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://game:3003/api/game/health || exit 1"]
       interval: 5s
       timeout: 2s
-      start_period: 60s
+      start_period: 120s
       retries: 1
 
   # === Infrastructure ===
@@ -97,7 +97,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB || exit 1"]
       interval: 5s
       timeout: 2s
-      start_period: 60s
+      start_period: 120s
       retries: 1
 
   nginx:
@@ -113,7 +113,7 @@ services:
       test: ["CMD-SHELL", "wget -O /dev/null http://127.0.0.1 || exit 1"]
       interval: 5s
       timeout: 2s
-      start_period: 60s
+      start_period: 120s
       retries: 1
 
   healthchecker:
