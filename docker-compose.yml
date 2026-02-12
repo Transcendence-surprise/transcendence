@@ -105,6 +105,8 @@ services:
     container_name: nginx
     env_file:
       - ./.env
+    depends_on:
+      - frontend
     networks:
       - transcendence_net
     healthcheck:

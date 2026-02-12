@@ -4,8 +4,9 @@ include:
 services:
 
   frontend:
+    build:
+      target: production
     container_name: frontend-prod
-    command: ["npm", "run", "build"]
 
   # === Backend Microservices ===
 
