@@ -25,9 +25,6 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true, select: false })
   password: string | null;
 
-  @Column({ name: 'user_type', length: 16, default: 'registered' })
-  userType: 'registered' | 'visitor';
-
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

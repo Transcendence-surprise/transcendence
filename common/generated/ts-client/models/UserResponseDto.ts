@@ -6,7 +6,6 @@ export type UserResponseDto = {
     id: number;
     username: string;
     email: string;
-    userType: string;
     createdAt: string;
     updatedAt: string;
 };

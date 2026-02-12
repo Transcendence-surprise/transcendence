@@ -10,9 +10,6 @@ export class UserResDto {
   @ApiProperty({ example: 'john@example.com' })
   email: string;
 
-  @ApiProperty({ example: 'registered' })
-  userType: string;
-
   @ApiProperty({ example: '2023-01-01T00:00:00.000Z' })
   createdAt: string;
 
