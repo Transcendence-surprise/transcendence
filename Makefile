@@ -68,7 +68,6 @@ dev-front:
 dev-install:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
 	make pack-deps
-	cd database && npm install
 	cd frontend && npm install
 	cd backend/core && npm install
 	cd backend/auth && npm install
@@ -79,7 +78,6 @@ dev-install:
 dev-ci:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
 	make pack-deps
-	cd database && npm ci
 	cd frontend && npm ci
 	cd backend/core && npm ci
 	cd backend/auth && npm ci
