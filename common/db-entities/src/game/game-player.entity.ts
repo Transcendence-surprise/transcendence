@@ -10,7 +10,7 @@ import {
 import { Game } from './game.entity';
 
 @Entity({ name: 'game_players' })
-@Index('game_players_game_user_unique', ['game', 'user'], { unique: true })
+@Index('game_players_game_user_unique', ['game', 'userId'], { unique: true })
 export class GamePlayer {
   @PrimaryGeneratedColumn()
   id: number;
