@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS "users" (
   "username" VARCHAR(32) UNIQUE,
   "email" VARCHAR(254),
   "password" VARCHAR(255),
+  "roles" text[] NOT NULL DEFAULT ARRAY['user']::text[],
   "created_at" timestamptz NOT NULL DEFAULT now(),
   "updated_at" timestamptz NOT NULL DEFAULT now()
 );
