@@ -18,6 +18,7 @@ interface JwtPayload {
   sub: number;
   username: string;
   email: string;
+  roles: string[];
 }
 
 @Injectable()
@@ -67,7 +68,7 @@ export class AuthGuard implements CanActivate {
     request.headers['x-user-id'] = payload.sub.toString();
     request.headers['x-user-username'] = payload.username;
     request.headers['x-user-email'] = payload.email;
-    // request.headers['x-user-roles'] = payload.roles;
+    request.headers['x-user-roles'] = payload.roles;
 
     return true;
   }
