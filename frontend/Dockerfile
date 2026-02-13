@@ -25,11 +25,13 @@ WORKDIR /app
 
 COPY ./package*.json ./
 
-RUN npm ci
+RUN npm ci --include=dev
 
 COPY . .
 
 EXPOSE 5173
 
-CMD ["npm", "run", "build"]
+RUN npm run build
+
+CMD ["sh", "-c", "cp -r dist/* /usr/share/nginx/html"]
 
