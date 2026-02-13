@@ -75,7 +75,6 @@ async function bootstrap() {
   const port = process.env.AUTH_PORT;
   await app.listen(port, '0.0.0.0');
   console.log(`Auth Service running on ${process.env.AUTH_URL}`);
-  process.exit(1);
 }
 
 bootstrap().catch((error) => {
