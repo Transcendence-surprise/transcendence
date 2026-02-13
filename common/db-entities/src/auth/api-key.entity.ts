@@ -13,7 +13,7 @@ export class ApiKey {
 
   @Index({ unique: true })
   @Column()
-  hash: string; // HMAC-SHA256 hex of the token
+  hash: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

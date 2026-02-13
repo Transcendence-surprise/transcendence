@@ -69,20 +69,15 @@ Stop containers and remove volumes (full reset).
 make fclean
 ```
 
-### 🔹 reb, ref, rng, rdb
+### 🔹 make build-[image-name]
 
 Rebuild of separate service:
 
-- `reb` - backend
-- `ref` - frontend
-- `rng` - nginx
-- `rdb` - PostgreSQL
-
 ```bash
-make reb  # rebuild backend
-make ref  # rebuild frontend
-make rng  # rebuild nginx
-make rdb  # rebuild PostgreSQL
+make build-core  # rebuild core
+make build-frontend  # rebuild frontend
+make build-nginx  # rebuild nginx
+make build-db  # rebuild PostgreSQL
 ```
 
 ### 🔹 prune
@@ -100,20 +95,6 @@ Start production stack (build + detached).
 ```bash
 make prod
 ```
-
-## Architecture (Development)
-
-- Frontend: React (Vite)
-- Backend: NestJS (Express)
-- Database: PostgreSQL (planned)
-- Communication: REST API under `/api`
-
-The frontend communicates with the backend via `/api/*` endpoints.
-During development, the frontend runs on port 5173 and the backend on port 3000.
-
-A health check endpoint is available at:
-GET /api/health
-
 
 ## Frontend ↔ Backend Communication
 
@@ -141,4 +122,4 @@ GET /api/health
 - Nginx
 - PostgreSQL
 - Docker & Docker Compose
-- Google Cloud
+- Hetzner VPS

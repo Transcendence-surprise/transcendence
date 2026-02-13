@@ -25,8 +25,8 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true, select: false })
   password: string | null;
 
-  @Column({ name: 'user_type', length: 16, default: 'registered' })
-  userType: 'registered' | 'visitor';
+  @Column({ name: 'roles', type: 'text', array: true, default: () => "ARRAY['user']::text[]"  })
+  roles: string[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

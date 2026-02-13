@@ -28,7 +28,7 @@ describe('Users (e2e)', () => {
 
   it('/health (GET)', async () => {
     await request(app.getHttpServer())
-      .get('/health')
+      .get('/core/health')
       .expect(200)
       .expect({ status: 'ok' });
   });

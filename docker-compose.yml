@@ -16,8 +16,6 @@ services:
     env_file:
       - ./.env
     depends_on:
-      db:
-        condition: service_healthy
       core:
         condition: service_healthy
       game:
@@ -28,9 +26,10 @@ services:
       - transcendence_net
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://gateway:3002/api/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 5s
+      timeout: 2s
+      start_period: 120s
+      retries: 1
 
   core:
     build: ./backend/core
@@ -43,10 +42,11 @@ services:
     networks:
       - transcendence_net
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://core:3000/api/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://core:3000/api/core/health || exit 1"]
+      interval: 5s
+      timeout: 2s
+      start_period: 120s
+      retries: 1
 
   auth:
     build: ./backend/auth
@@ -60,9 +60,10 @@ services:
       - transcendence_net
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://auth:3001/api/auth/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 5s
+      timeout: 2s
+      start_period: 120s
+      retries: 1
 
   game:
     build: ./backend/game
@@ -76,9 +77,10 @@ services:
       - transcendence_net
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://game:3003/api/game/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 5s
+      timeout: 2s
+      start_period: 120s
+      retries: 1
 
   # === Infrastructure ===
 
@@ -93,9 +95,10 @@ services:
       - transcendence_net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 6
+      interval: 5s
+      timeout: 2s
+      start_period: 120s
+      retries: 1
 
   nginx:
     build: ./nginx
@@ -103,6 +106,21 @@ services:
     env_file:
       - ./.env
     depends_on:
+      - frontend
+    networks:
+      - transcendence_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O /dev/null http://127.0.0.1 || exit 1"]
+      interval: 5s
+      timeout: 2s
+      start_period: 120s
+      retries: 1
+
+  healthchecker:
+    image: alpine:3.23.3
+    depends_on:
+      nginx:
+        condition: service_healthy
       gateway:
         condition: service_healthy
     networks:

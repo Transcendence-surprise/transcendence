@@ -62,7 +62,6 @@ describe('UsersController', () => {
         id: 1,
         username: 'test',
         email: 'test@example.com',
-        userType: 'registered',
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
       };
@@ -83,7 +82,6 @@ describe('UsersController', () => {
         id: 1,
         username: 'test',
         email: 'test@example.com',
-        userType: 'registered',
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
       };
@@ -134,7 +132,6 @@ describe('UsersController', () => {
         id: 1,
         username: 'test',
         email: 'test@example.com',
-        userType: 'registered',
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
       };

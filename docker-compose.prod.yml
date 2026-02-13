@@ -4,8 +4,9 @@ include:
 services:
 
   frontend:
+    build:
+      target: production
     container_name: frontend-prod
-    command: ["npm", "run", "build"]
 
   # === Backend Microservices ===
 
@@ -45,7 +46,6 @@ services:
       - "5432"
     volumes:
       - db_data_prod:/var/lib/postgresql/data
-      - ./database/init/schema/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
 
   nginx:
     container_name: nginx-prod

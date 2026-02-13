@@ -10,7 +10,7 @@
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "@transcendence/db-entities": ["../common/packages/db-entities/src"],
+      "@transcendence/db-entities": ["../common/db-entities/src"],
       "typeorm": ["./node_modules/typeorm"]
     }
   },

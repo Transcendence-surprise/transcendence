@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@transcendence/db-entities": "file:../common/packages/db-entities",
+    "@transcendence/db-entities": "file:../common/db-entities",
     "dotenv": "^17.2.3",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.28"

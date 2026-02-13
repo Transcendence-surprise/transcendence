@@ -23,6 +23,12 @@ import {
   AuthControllerDocs,
   LoginDocs,
   SignupDocs,
+  Intra42AuthDocs,
+  Intra42AuthCallbackDocs,
+  GetApiKeysDocs,
+  CreateApiKeyDocs,
+  RemoveApiKeyDocs,
+  ValidateApiKeyDocs,
 } from './auth.controller.docs';
 import { OAuth42Data } from '../common/decorators/oauth42-data.decorator';
 
@@ -36,8 +42,8 @@ export class AuthController {
   ) {}
 
   @Post('login')
-  @HttpCode(HttpStatus.OK)
   @LoginDocs()
+  @HttpCode(HttpStatus.OK)
   login(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
   }
@@ -49,6 +55,8 @@ export class AuthController {
   }
 
   @Get('intra42')
+  @HttpCode(HttpStatus.FOUND)
+  @Intra42AuthDocs()
   @Redirect()
   intra42Auth() {
     const location = this.authService.getIntraAuthUrl();
@@ -56,6 +64,7 @@ export class AuthController {
   }
 
   @Get('intra42/callback')
+  @Intra42AuthCallbackDocs()
   async intra42AuthCallback(
     @OAuth42Data() params: OAuth42Data,
     @Res() reply: FastifyReply,
@@ -80,25 +89,29 @@ export class AuthController {
       },
     );
 
-    return reply.redirect(result.redirect, 302);
+    return reply.redirect(result.redirect, HttpStatus.FOUND);
   }
 
   @Get('api-keys')
+  @GetApiKeysDocs()
   getAllApiKeys() {
     return this.authService.getAllApiKeys();
   }
 
   @Post('api-keys')
+  @CreateApiKeyDocs()
   createApiKey() {
     return this.authService.createApiKey();
   }
 
   @Delete('api-keys')
+  @RemoveApiKeyDocs()
   removeApiKeyById(@Param('id') id: string) {
     return this.authService.removeApiKeyById(id);
   }
 
-  @Post('api-keys/validate')
+  @Get('api-keys/validate')
+  @ValidateApiKeyDocs()
   validateApiKey(@Query('token') token: string) {
     return this.authService.validateApiKey(token);
   }

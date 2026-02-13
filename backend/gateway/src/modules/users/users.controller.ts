@@ -12,6 +12,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { Auth, AuthType } from '../../common/decorator/auth-type.decorator';
+import { Roles } from '../../common/decorator/roles.decorator';
+import { RolesGuard } from '../../common/guards/roles.guard';
 
 @Controller('users')
 export class UsersController {
@@ -33,8 +35,9 @@ export class UsersController {
   }
 
   @Get('id/:id')
-  @UseGuards(AuthGuard)
   @Auth(AuthType.JWT)
+  @Roles(['user'])
+  @UseGuards(AuthGuard, RolesGuard)
   @ApiBearerAuth()
   findOneById(@Param('id') id: string) {
     return this.usersClient.findOneById(Number(id));

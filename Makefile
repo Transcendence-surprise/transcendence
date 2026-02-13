@@ -32,9 +32,13 @@ dev:
 down:
 	$(COMPOSE) down
 
+# Restart containers
+restart: down dev
+
 # Build and start dev using base + dev compose files + database migration
 dev-build:
 	@echo "$(CYAN)Building dev stack...$(RESET)"
+	make pack-deps
 	$(COMPOSE) -f docker-compose.dev.yml up -d --build
 
 # Run migrations (dev DB must be up)
@@ -64,7 +68,6 @@ dev-front:
 dev-install:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
 	make pack-deps
-	cd database && npm install
 	cd frontend && npm install
 	cd backend/core && npm install
 	cd backend/auth && npm install
@@ -75,13 +78,13 @@ dev-install:
 dev-ci:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
 	make pack-deps
-	cd database && npm ci
 	cd frontend && npm ci
 	cd backend/core && npm ci
 	cd backend/auth && npm ci
 	cd backend/gateway && npm ci
 	cd backend/game && npm ci
 
+# Generate client to communicate Backend
 ts-client:
 	cd backend/gateway && \
 	npm run generate:ts-client
@@ -89,6 +92,15 @@ ts-client:
 # Pack and distribute dependencies
 pack-deps:
 	@./common/pack-transcendence-deps.sh
+
+
+# Build backend and frontend code to dist
+compile-src:
+	cd frontend && npm run build
+	cd backend/core && npm run build
+	cd backend/auth && npm run build
+	cd backend/gateway && npm run build
+	cd backend/game && npm run build
 
 # =========== Rebuild commands ===========
 

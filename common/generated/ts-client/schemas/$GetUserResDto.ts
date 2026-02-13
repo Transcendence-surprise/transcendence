@@ -16,10 +16,6 @@ export const $GetUserResDto = {
             type: 'string',
             isRequired: true,
         },
-        userType: {
-            type: 'string',
-            isRequired: true,
-        },
         createdAt: {
             type: 'string',
             isRequired: true,
