@@ -21,6 +21,10 @@ interface JwtPayload {
   roles: string[];
 }
 
+interface RequestWithUser extends FastifyRequest {
+  user?: JwtPayload;
+}
+
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
@@ -65,10 +69,8 @@ export class AuthGuard implements CanActivate {
     }
 
     const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
-    request.headers['x-user-id'] = payload.sub.toString();
-    request.headers['x-user-username'] = payload.username;
-    request.headers['x-user-email'] = payload.email;
-    request.headers['x-user-roles'] = payload.roles;
+    
+    (request as RequestWithUser).user = payload;
 
     return true;
   }

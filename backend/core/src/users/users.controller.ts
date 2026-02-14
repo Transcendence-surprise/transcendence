@@ -15,12 +15,15 @@ import {
   UsersControllerDocs,
   FindAllDocs,
   ValidateCredentialsDocs,
-  FindOneByUsernameDocs,
+  // FindOneByUsernameDocs,
   FindOneByIdDocs,
-  RemoveByUsernameDocs,
+  // RemoveByUsernameDocs,
   RemoveByIdDocs,
   CreateDocs,
 } from './users.controller.docs';
+import { CurrentUser } from 'src/decorators/current-user.decorator';
+import type { JwtPayload } from 'src/decorators/current-user.decorator';
+
 
 @UsersControllerDocs()
 @Controller('users')
@@ -44,11 +47,16 @@ export class UsersController {
     return this.usersService.findOneByEmail(email);
   }
 
-  @Get(':username')
-  @FindOneByUsernameDocs()
-  getUserByUsername(@Param('username') username: string) {
-    return this.usersService.findOneByUsername(username);
+  @Get('me')
+  getUserByHisToken(@CurrentUser() user : JwtPayload) {
+    return this.usersService.findOneById(user.sub);
   }
+
+  // @Get(':username')
+  // @FindOneByUsernameDocs()
+  // getUserByUsername(@Param('username') username: string) {
+  //   return this.usersService.findOneByUsername(username);
+  // }
 
   // Auth-test: allows to find user by id only if this user logged in
   @Get('id/:id')
@@ -57,11 +65,11 @@ export class UsersController {
     return this.usersService.findOneById(id);
   }
 
-  @Delete(':username')
-  @RemoveByUsernameDocs()
-  removeByUsername(@Param('username') username: string) {
-    return this.usersService.removeByUsername(username);
-  }
+  // @Delete(':username')
+  // @RemoveByUsernameDocs()
+  // removeByUsername(@Param('username') username: string) {
+  //   return this.usersService.removeByUsername(username);
+  // }
 
   @Delete('id/:id')
   @RemoveByIdDocs()
