@@ -66,7 +66,7 @@ describe('AuthHttpService', () => {
       const result = await service.login(dto);
 
       expect(httpService.post).toHaveBeenCalledWith('/api/auth/login', dto);
-      expect(result).toEqual(response);
+      expect(result).toEqual({ data: response, cookies: [] });
     });
 
     it('should throw HttpException on axios error', async () => {
@@ -112,7 +112,7 @@ describe('AuthHttpService', () => {
       const result = await service.signup(dto);
 
       expect(httpService.post).toHaveBeenCalledWith('/api/auth/signup', dto);
-      expect(result).toEqual(response);
+      expect(result).toEqual({ data: response, cookies: [] });
     });
   });
 
