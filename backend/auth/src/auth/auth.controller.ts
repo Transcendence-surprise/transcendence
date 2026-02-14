@@ -44,14 +44,33 @@ export class AuthController {
   @Post('login')
   @LoginDocs()
   @HttpCode(HttpStatus.OK)
-  login(@Body() loginUserDto: LoginUserDto) {
-    return this.authService.login(loginUserDto);
+  async login(
+    @Body() loginUserDto: LoginUserDto,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const result = await this.authService.login(loginUserDto);
+    const { access_token, ...response } = result;
+    this.setAccessTokenCookie(reply, access_token);
+    return response;
   }
 
   @Post('signup')
   @SignupDocs()
-  signup(@Body() signupUserDto: SignupUserDto) {
-    return this.authService.signup(signupUserDto);
+  async signup(
+    @Body() signupUserDto: SignupUserDto,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const result = await this.authService.signup(signupUserDto);
+    const { access_token, ...response } = result;
+    this.setAccessTokenCookie(reply, access_token);
+    return response;
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(@Res({ passthrough: true }) reply: FastifyReply) {
+    reply.clearCookie('access_token');
+    return { ok: true };
   }
 
   @Get('intra42')
@@ -74,20 +93,7 @@ export class AuthController {
       params.state,
     );
 
-    reply.setCookie(
-      'auth_payload',
-      JSON.stringify({
-        access_token: result.access_token,
-        user: result.user,
-      }),
-      {
-        httpOnly: true,
-        secure: this.config.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 24 * 60 * 60,
-      },
-    );
+    this.setAccessTokenCookie(reply, result.access_token);
 
     return reply.redirect(result.redirect, HttpStatus.FOUND);
   }
@@ -114,5 +120,15 @@ export class AuthController {
   @ValidateApiKeyDocs()
   validateApiKey(@Query('token') token: string) {
     return this.authService.validateApiKey(token);
+  }
+
+  private setAccessTokenCookie(reply: FastifyReply, token: string) {
+    reply.setCookie('access_token', token, {
+      httpOnly: true,
+      secure: this.config.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 24 * 60 * 60,
+    });
   }
 }

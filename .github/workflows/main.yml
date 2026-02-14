@@ -8,17 +8,25 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Deploy to VPS
+      - name: Connect to VPS via ssh
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd ~/transcendence
-            git pull origin main
-            make down
-            make prod
-            make prune
+      - name: CD to working directory
+        run: |
+          cd ~/transcendence
+      - name: Pull changes from main
+        run: |
+          git pull origin main
+      - name: Remove existing containers
+        run: |
+          make down
+      - name: Build and start containers in prod mod
+        run: |
+          make prod
+      - name: Remove dangling images and anonymous volumes
+        run: |
+          make prod-prune

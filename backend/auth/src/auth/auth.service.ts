@@ -72,7 +72,6 @@ export class AuthService {
 
     return {
       access_token: authResponse.access_token,
-      user: authResponse.user,
       redirect: this.config.frontend.url,
     };
   }

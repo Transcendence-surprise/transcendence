@@ -7,6 +7,8 @@ services:
     build:
       target: production
     container_name: frontend-prod
+    volumes:
+      - frontend_build:/usr/share/nginx/html
 
   # === Backend Microservices ===
 
@@ -52,6 +54,9 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    depends_on:
+      frontend:
+        condition: service_completed_successfully
     volumes:
       - frontend_build:/usr/share/nginx/html:ro
       - ./nginx/cert:/etc/nginx/cert:ro

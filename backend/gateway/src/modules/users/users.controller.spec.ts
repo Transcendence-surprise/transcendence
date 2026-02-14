@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersHttpService } from './users.service';
+import type { FastifyRequest } from 'fastify';
 import { AuthGuard } from '../../common/guards/auth.guard';
 
 /* eslint-disable @typescript-eslint/unbound-method */
@@ -19,6 +20,7 @@ describe('UsersController', () => {
       removeByUsername: jest.fn(),
       removeById: jest.fn(),
       create: jest.fn(),
+      findUserByHisToken: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -55,25 +57,7 @@ describe('UsersController', () => {
     });
   });
 
-  describe('findOneByUsername', () => {
-    it('should call service.findOneByUsername', async () => {
-      const username = 'test';
-      const response: any = {
-        id: 1,
-        username: 'test',
-        email: 'test@example.com',
-        createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-01T00:00:00.000Z',
-      };
-
-      service.findOneByUsername.mockResolvedValue(response);
-
-      const result = controller.findOneByUsername(username);
-
-      expect(service.findOneByUsername).toHaveBeenCalledWith(username);
-      await expect(result).resolves.toEqual(response);
-    });
-  });
+  // username-based endpoints removed from controller; tests omitted
 
   describe('findOneById', () => {
     it('should call service.findOneById', async () => {
@@ -88,25 +72,15 @@ describe('UsersController', () => {
 
       service.findOneById.mockResolvedValue(response);
 
-      const result = controller.findOneById(id);
+      const mockReq = {} as unknown as FastifyRequest;
+      const result = controller.findOneById(id, mockReq);
 
-      expect(service.findOneById).toHaveBeenCalledWith(1);
+      expect(service.findOneById).toHaveBeenCalledWith(1, mockReq);
       await expect(result).resolves.toEqual(response);
     });
   });
 
-  describe('removeByUsername', () => {
-    it('should call service.removeByUsername', async () => {
-      const username = 'test';
-
-      service.removeByUsername.mockResolvedValue(undefined);
-
-      const result = controller.removeByUsername(username);
-
-      expect(service.removeByUsername).toHaveBeenCalledWith(username);
-      await expect(result).resolves.toBeUndefined();
-    });
-  });
+  // username-based endpoints removed from controller; tests omitted
 
   describe('removeById', () => {
     it('should call service.removeById', async () => {

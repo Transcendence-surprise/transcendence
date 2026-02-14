@@ -110,7 +110,7 @@ services:
     networks:
       - transcendence_net
     healthcheck:
-      test: ["CMD-SHELL", "wget -O /dev/null http://127.0.0.1 || exit 1"]
+      test: ["CMD-SHELL", "wget -O /dev/null ${FRONTEND_URL} || exit 1"]
       interval: 5s
       timeout: 2s
       start_period: 120s

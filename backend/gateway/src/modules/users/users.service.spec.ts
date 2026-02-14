@@ -189,7 +189,7 @@ describe('UsersHttpService', () => {
 
       const result = await service.create(dto);
 
-      expect(httpService.post).toHaveBeenCalledWith('/api/users', dto);
+      expect(httpService.post).toHaveBeenCalledWith('/api/users', dto, undefined);
       expect(result).toEqual(response);
     });
   });
