@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
+import type { AxiosResponse } from 'axios';
 import type { ConfigType } from '@nestjs/config';
 import gatewayConfig from '../../common/config/gateway.config';
 
@@ -14,12 +15,12 @@ export class AuthHttpService {
     private readonly config: ConfigType<typeof gatewayConfig>,
     private readonly http: HttpService
   ) {}
-  async login<T = unknown>(body: LoginUserDto): Promise<T> {
-    return this.request<T>('post', '/api/auth/login', body);
+  async login<T = unknown>(body: LoginUserDto) {
+    return this.requestWithCookies<T>('post', '/api/auth/login', body);
   }
 
-  async signup<T = unknown>(body: SignupUserDto): Promise<T> {
-    return this.request<T>('post', '/api/auth/signup', body);
+  async signup<T = unknown>(body: SignupUserDto) {
+    return this.requestWithCookies<T>('post', '/api/auth/signup', body);
   }
 
   async intra42AuthRedirect(): Promise<{ status: number; location?: string }> {
@@ -47,17 +48,10 @@ export class AuthHttpService {
       }),
     );
 
-    const setCookieHeaders = res.headers['set-cookie'];
-    const cookies = setCookieHeaders
-      ? Array.isArray(setCookieHeaders)
-        ? setCookieHeaders
-        : [setCookieHeaders]
-      : [];
-
     return {
       status: res.status,
       location: res.headers?.location as string | undefined,
-      cookies,
+      cookies: this.extractCookies(res),
     };
   }
 
@@ -85,6 +79,20 @@ export class AuthHttpService {
     );
 
     return res.data;
+  }
+
+  private extractCookies(res: AxiosResponse): string[] {
+    const h = res.headers['set-cookie'];
+    return h ? (Array.isArray(h) ? h : [h]) : [];
+  }
+
+  private async requestWithCookies<T>(
+    method: 'get' | 'post' | 'delete' | 'put',
+    path: string,
+    body?: any,
+  ): Promise<{ data: T; cookies: string[] }> {
+    const res = await lastValueFrom(this.http[method]<T>(path, body));
+    return { data: res.data, cookies: this.extractCookies(res) };
   }
 
   private async request<T>(

@@ -105,11 +105,8 @@ export class AuthGuard implements CanActivate {
 
 
   private extractJwtToken(request: FastifyRequest): string | undefined {
-    const authHeader = request.headers.authorization;
-    if (!authHeader)
-      return undefined;
-    const [type, token] = authHeader.split(' ');
-    return type === 'Bearer' ? token : undefined;
+    const authCookie = request.cookies.access_token;
+    return authCookie;
   }
 
   private extractApiKey(request: FastifyRequest): string | undefined {
