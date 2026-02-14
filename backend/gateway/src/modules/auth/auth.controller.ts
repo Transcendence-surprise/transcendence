@@ -38,6 +38,13 @@ export class AuthController {
     return res.data;
   }
 
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) reply: FastifyReply) {
+    const res = await this.authClient.logout();
+    this.forwardCookies(reply, res.cookies);
+    return res.data;
+  }
+
   @Get('intra42')
   @Redirect()
   async intra42Auth() {

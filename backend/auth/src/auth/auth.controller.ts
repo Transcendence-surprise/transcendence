@@ -66,6 +66,13 @@ export class AuthController {
     return response;
   }
 
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(@Res({ passthrough: true }) reply: FastifyReply) {
+    reply.clearCookie('access_token');
+    return { ok: true };
+  }
+
   @Get('intra42')
   @HttpCode(HttpStatus.FOUND)
   @Intra42AuthDocs()

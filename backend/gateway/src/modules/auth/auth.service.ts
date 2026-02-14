@@ -55,6 +55,10 @@ export class AuthHttpService {
     };
   }
 
+  async logout() {
+    return this.requestWithCookies('post', '/api/auth/logout');
+  }
+
   async getAllApiKeys<T = unknown>(): Promise<T> {
     return this.request('get', '/api/auth/api-keys');
   }
