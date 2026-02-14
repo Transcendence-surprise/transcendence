@@ -75,11 +75,8 @@ export class AuthController {
     );
 
     reply.setCookie(
-      'auth_payload',
-      JSON.stringify({
-        access_token: result.access_token,
-        user: result.user,
-      }),
+      'access_token',
+      result.access_token,
       {
         httpOnly: true,
         secure: this.config.NODE_ENV === 'production',
