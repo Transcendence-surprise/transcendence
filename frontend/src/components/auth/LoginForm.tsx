@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import { login } from '../../api/authentification';
 
 interface LoginFormProps {
@@ -13,6 +14,8 @@ export default function LoginForm({ onClose, onSwitchToSignup }: LoginFormProps)
     rememberMe: false,
   });
 
+  const navigate = useNavigate();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Login attempt:', formData);
@@ -21,9 +24,8 @@ export default function LoginForm({ onClose, onSwitchToSignup }: LoginFormProps)
       const data = await login(formData.email, formData.password); // call your login function
       console.log('Logged in user:', data.user);
 
-      // Optionally redirect user after login
-      // e.g., navigate('/dashboard') if using react-router
       alert(`Welcome, ${data.user.username}!`);
+      navigate(`/`);
     } catch (err: any) {
         console.error('Login error:', err.message);
         alert(`Login failed: ${err.message}`);
