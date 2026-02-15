@@ -90,7 +90,7 @@ services:
     env_file:
       - ./.env
     volumes:
-      - ./database/init/schema/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
+      - ./backend/migration/init/schema/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
     networks:
       - transcendence_net
     healthcheck:
