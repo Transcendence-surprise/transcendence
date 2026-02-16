@@ -71,7 +71,7 @@ services:
   # === Infrastructure ===
 
   db:
-    container_name: postgres-dev
+    container_name: db-dev
     ports:
       - "5432:5432"
     volumes:
