@@ -89,12 +89,10 @@ services:
     container_name: db
     env_file:
       - ./.env
-    volumes:
-      - ./backend/migration/init/schema/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
     networks:
       - transcendence_net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB || exit 1"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} || exit 1"]
       interval: 5s
       timeout: 2s
       start_period: 120s

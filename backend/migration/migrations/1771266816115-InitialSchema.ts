@@ -1,11 +1,13 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class InitialSchema1771262275143 implements MigrationInterface {
-    name = 'InitialSchema1771262275143'
+export class InitialSchema1771266816115 implements MigrationInterface {
+    name = 'InitialSchema1771266816115'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "api_keys" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "hash" character varying NOT NULL, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "expires_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "PK_5c8a79801b44bd27b79228e1dad" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE UNIQUE INDEX "IDX_598a14447f592c12d1fe22ba91" ON "api_keys" ("hash") `);
+        await queryRunner.query(`CREATE TYPE "public"."game_type" AS ENUM('SINGLE', 'MULTI')`);
+        await queryRunner.query(`CREATE TYPE "public"."game_phase" AS ENUM('LOBBY', 'PLAY', 'END')`);
         await queryRunner.query(`CREATE TABLE "games" ("id" SERIAL NOT NULL, "type" "public"."game_type" NOT NULL, "num_collectables" integer NOT NULL, "num_players" integer NOT NULL, "level" smallint NOT NULL, "phase" "public"."game_phase" NOT NULL, "board_size" integer NOT NULL, "host_user_id" integer NOT NULL, "winner_user_id" integer, "started_at" TIMESTAMP WITH TIME ZONE, "ended_at" TIMESTAMP WITH TIME ZONE, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_c9b16b62917b5595af982d66337" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "games_ended_at_idx" ON "games" ("ended_at") `);
         await queryRunner.query(`CREATE INDEX "games_host_user_idx" ON "games" ("host_user_id") `);
@@ -29,6 +31,8 @@ export class InitialSchema1771262275143 implements MigrationInterface {
         await queryRunner.query(`DROP INDEX "public"."games_host_user_idx"`);
         await queryRunner.query(`DROP INDEX "public"."games_ended_at_idx"`);
         await queryRunner.query(`DROP TABLE "games"`);
+        await queryRunner.query(`DROP TYPE "public"."game_phase"`);
+        await queryRunner.query(`DROP TYPE "public"."game_type"`);
         await queryRunner.query(`DROP INDEX "public"."IDX_598a14447f592c12d1fe22ba91"`);
         await queryRunner.query(`DROP TABLE "api_keys"`);
     }
