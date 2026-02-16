@@ -35,25 +35,11 @@ down:
 # Restart containers
 restart: down dev
 
-# Build and start dev using base + dev compose files + database migration
+# Build and start project in dev mode
 dev-build:
 	@echo "$(CYAN)Building dev stack...$(RESET)"
 	make pack-deps
 	$(COMPOSE) -f docker-compose.dev.yml up -d --build
-
-# Run migrations (dev DB must be up)
-dev-migrate:
-	@echo "$(CYAN)Running migrations...$(RESET)"
-	@i=0; \
-	while ! $(COMPOSE) -f docker-compose.dev.yml exec -T core npm run migration:run >/dev/null 2>&1; do \
-		i=$$((i+1)); \
-		if [ $$i -ge 10 ]; then \
-			echo "$(RED)Migrations failed after retries.$(RESET)"; \
-			exit 1; \
-		fi; \
-		sleep 2; \
-	done
-	@echo "$(GREEN)Migrations successful.$(RESET)";
 
 # Start dev DB only
 dev-db:

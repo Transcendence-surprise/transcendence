@@ -12,4 +12,7 @@ export default new DataSource({
   password: process.env.POSTGRES_PASSWORD ?? 'transcendence',
   database: process.env.POSTGRES_DB ?? 'transcendence',
   entities: [ApiKey, User, Game, GamePlayer],
+  migrations: ['migrations/*.ts'],
+  migrationsTableName: 'migrations',
+  synchronize: false,
 });

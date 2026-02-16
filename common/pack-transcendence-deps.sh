@@ -12,7 +12,7 @@ npm run build
 echo "Copying dist to backend services..."
 
 # list of services that should receive the packaged db-entities
-services=("backend/core" "backend/auth")
+services=("backend/core" "backend/auth" "backend/migration")
 
 # tolerate empty dist/ (avoid cp errors)
 shopt -s nullglob
@@ -29,4 +29,4 @@ for svc in "${services[@]}"; do
 done
 shopt -u nullglob
 
-echo "✅ db-entities dist copied to core and auth."
+echo "✅ db-entities dist copied to core, auth, and migration."

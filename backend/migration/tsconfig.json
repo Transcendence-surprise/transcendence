@@ -9,10 +9,12 @@
     "skipLibCheck": true,
     "types": ["node"],
     "baseUrl": ".",
+    "outDir": "./dist",
+    "rootDir": ".",
     "paths": {
-      "@transcendence/db-entities": ["../common/db-entities/src"],
-      "typeorm": ["./node_modules/typeorm"]
+      "@transcendence/db-entities": ["./db-entities-dist"]
     }
   },
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }

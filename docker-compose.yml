@@ -37,8 +37,8 @@ services:
     env_file:
       - ./.env
     depends_on:
-      db:
-        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
     networks:
       - transcendence_net
     healthcheck:
@@ -54,8 +54,8 @@ services:
     env_file:
       - ./.env
     depends_on:
-      db:
-        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
     networks:
       - transcendence_net
     healthcheck:
@@ -71,8 +71,8 @@ services:
     env_file:
       - ./.env
     depends_on:
-      db:
-        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
     networks:
       - transcendence_net
     healthcheck:
@@ -99,6 +99,17 @@ services:
       timeout: 2s
       start_period: 120s
       retries: 1
+
+  migration:
+    build: ./backend/migration
+    container_name: migration
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - transcendence_net
 
   nginx:
     build: ./nginx

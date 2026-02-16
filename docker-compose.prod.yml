@@ -49,6 +49,9 @@ services:
     volumes:
       - db_data_prod:/var/lib/postgresql/data
 
+  migration:
+    container_name: migration-prod
+
   nginx:
     container_name: nginx-prod
     ports:
