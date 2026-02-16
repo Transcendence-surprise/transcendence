@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class InitialSchema1771266816115 implements MigrationInterface {
-    name = 'InitialSchema1771266816115'
+export class InitialSchema1771269423311 implements MigrationInterface {
+    name = 'InitialSchema1771269423311'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "api_keys" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "hash" character varying NOT NULL, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "expires_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "PK_5c8a79801b44bd27b79228e1dad" PRIMARY KEY ("id"))`);
@@ -15,7 +15,7 @@ export class InitialSchema1771266816115 implements MigrationInterface {
         await queryRunner.query(`CREATE INDEX "games_phase_idx" ON "games" ("phase") `);
         await queryRunner.query(`CREATE TABLE "game_players" ("id" SERIAL NOT NULL, "user_id" integer NOT NULL, "joined_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "game_id" integer NOT NULL, CONSTRAINT "PK_a99af25a1c97122f04ba778197c" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE UNIQUE INDEX "game_players_game_user_unique" ON "game_players" ("game_id", "user_id") `);
-        await queryRunner.query(`CREATE TABLE "users" ("id" SERIAL NOT NULL, "username" character varying(32), "email" character varying(254), "password" character varying(255), "roles" text array NOT NULL DEFAULT ARRAY['user']::text[], "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "UQ_fe0bb3f6520ee0469504521e710" UNIQUE ("username"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "users" ("id" SERIAL NOT NULL, "username" character varying(32), "email" character varying(254), "password" character varying(255), "roles" text array NOT NULL DEFAULT '{user}', "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "UQ_fe0bb3f6520ee0469504521e710" UNIQUE ("username"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE UNIQUE INDEX "users_email_unique_not_null" ON "users" ("email") WHERE "email" IS NOT NULL`);
         await queryRunner.query(`ALTER TABLE "game_players" ADD CONSTRAINT "FK_67b26bf4c76bd09a206d504824b" FOREIGN KEY ("game_id") REFERENCES "games"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
     }
