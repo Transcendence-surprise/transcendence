@@ -2,9 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { UserResponseDto } from './UserResponseDto';
-export type SignupUserResponseDto = {
+import type { GetUserResDto } from './GetUserResDto';
+export type LoginUserResDto = {
     access_token: string;
-    user: UserResponseDto;
+    user: GetUserResDto;
 };
 

@@ -5,22 +5,19 @@
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-export class AuthHealthService {
+export class GameHealthService {
     /**
-     * Auth service health check
-     * Check if the auth service is running and healthy
-     * @returns any Auth service is healthy
+     * Game service health check
+     * Check if the game service is running and healthy
+     * @returns any Game service is healthy
      * @throws ApiError
      */
-    public static authHealth(): CancelablePromise<{
+    public static healthControllerHealth(): CancelablePromise<{
         status?: string;
     }> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/auth/health',
-            errors: {
-                500: `Internal server error`,
-            },
+            url: '/api/game/health',
         });
     }
 }

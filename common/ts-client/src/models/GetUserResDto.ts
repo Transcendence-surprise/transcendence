@@ -6,11 +6,8 @@ export type GetUserResDto = {
     id: number;
     username: string;
     email: string;
+    roles: any[];
     createdAt: string;
     updatedAt: string;
-    /**
-     * HTTP status code
-     */
-    status: number;
 };
 

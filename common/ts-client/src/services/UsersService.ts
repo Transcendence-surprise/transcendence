@@ -7,14 +7,14 @@ import type { GetUserResDto } from '../models/GetUserResDto';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-export class PublicService {
+export class UsersService {
     /**
      * Get all users
      * Retrieve a list of all users
      * @returns GetUserResDto List of users
      * @throws ApiError
      */
-    public static usersControllerFindAll(): CancelablePromise<Array<GetUserResDto>> {
+    public static getUsers(): CancelablePromise<Array<GetUserResDto>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/users',
@@ -23,17 +23,13 @@ export class PublicService {
     /**
      * Create a new user
      * Create a new user with the provided data
+     * @param requestBody User data to create
      * @returns GetUserResDto User created
      * @throws ApiError
      */
-    public static usersControllerCreate({
-        requestBody,
-    }: {
-        /**
-         * User data to create
-         */
+    public static createUser(
         requestBody: CreateUserDto,
-    }): CancelablePromise<GetUserResDto> {
+    ): CancelablePromise<GetUserResDto> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/users',
@@ -46,69 +42,41 @@ export class PublicService {
         });
     }
     /**
-     * Get user by username
-     * Retrieve a user by their username
-     * @returns GetUserResDto User data
+     * @param email
+     * @returns any
      * @throws ApiError
      */
-    public static usersControllerFindOneByUsername({
-        username,
-    }: {
-        /**
-         * Username of the user
-         */
-        username: string,
-    }): CancelablePromise<GetUserResDto> {
+    public static usersControllerGetUserByEmail(
+        email: string,
+    ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/users/{username}',
+            url: '/api/users/by-email/{email}',
             path: {
-                'username': username,
-            },
-            errors: {
-                404: `User not found`,
+                'email': email,
             },
         });
     }
     /**
-     * Delete user by username
-     * Delete a user by their username
-     * @returns any User deleted
+     * @returns any
      * @throws ApiError
      */
-    public static usersControllerRemoveByUsername({
-        username,
-    }: {
-        /**
-         * Username of the user to delete
-         */
-        username: string,
-    }): CancelablePromise<any> {
+    public static usersControllerGetUserByHisToken(): CancelablePromise<any> {
         return __request(OpenAPI, {
-            method: 'DELETE',
-            url: '/api/users/{username}',
-            path: {
-                'username': username,
-            },
-            errors: {
-                404: `User not found`,
-            },
+            method: 'GET',
+            url: '/api/users/me',
         });
     }
     /**
      * Get user by ID
      * Retrieve a user by their ID (authenticated user only)
+     * @param id ID of the user
      * @returns GetUserResDto User data
      * @throws ApiError
      */
-    public static usersControllerFindOneById({
-        id,
-    }: {
-        /**
-         * ID of the user
-         */
+    public static getUserById(
         id: number,
-    }): CancelablePromise<GetUserResDto> {
+    ): CancelablePromise<GetUserResDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/users/id/{id}',
@@ -124,17 +92,13 @@ export class PublicService {
     /**
      * Delete user by ID
      * Delete a user by their ID
+     * @param id ID of the user to delete
      * @returns any User deleted
      * @throws ApiError
      */
-    public static usersControllerRemoveById({
-        id,
-    }: {
-        /**
-         * ID of the user to delete
-         */
+    public static deleteUserById(
         id: number,
-    }): CancelablePromise<any> {
+    ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'DELETE',
             url: '/api/users/id/{id}',

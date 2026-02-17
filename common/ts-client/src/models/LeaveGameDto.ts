@@ -2,11 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type UserResponseDto = {
-    id: number;
-    username: string;
-    email: string;
-    createdAt: string;
-    updatedAt: string;
+export type LeaveGameDto = {
+    gameId: string;
+    playerId: string;
 };
 
