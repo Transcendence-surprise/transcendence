@@ -12,7 +12,6 @@ import type { FastifyRequest } from 'fastify';
 import { UsersHttpService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
 import { Auth, AuthType } from '../../common/decorator/auth-type.decorator';
 import { Roles } from '../../common/decorator/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -47,7 +46,6 @@ export class UsersController {
   @Auth(AuthType.JWT)
   @Roles(['user'])
   @UseGuards(AuthGuard, RolesGuard)
-  @ApiBearerAuth()
   findOneById(@Param('id') id: string, @Req() req: FastifyRequest) {
     return this.usersClient.findOneById(Number(id), req);
   }

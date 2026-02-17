@@ -7,6 +7,8 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
+import { ApiCookieAuth} from '@nestjs/swagger';
+
 import { UsersService } from './users.service';
 import { ValidateCredDto } from './dto/validate-credentials.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -48,6 +50,7 @@ export class UsersController {
   }
 
   @Get('me')
+  @ApiCookieAuth('JWT')
   getUserByHisToken(@CurrentUser() user : JwtPayload) {
     return this.usersService.findOneById(user.sub);
   }

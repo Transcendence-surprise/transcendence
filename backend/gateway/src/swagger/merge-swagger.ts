@@ -82,8 +82,16 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
       .setTitle('Transcendence API')
       .setDescription('Server-driven web game with user managment')
       .setVersion('1.0.0')
-      .addBearerAuth()
-      .addApiKey()
+      .addCookieAuth('access_token', {
+        type: 'apiKey',
+        name: 'access_token',
+        in: 'cookie',
+      }, 'JWT')
+      .addApiKey({
+        type: 'apiKey',
+        name: 'x-api-key',
+        in: 'header'
+      }, 'Api Key')
       .build();
 
     const gatewayDoc = SwaggerModule.createDocument(app, baseConfig);
