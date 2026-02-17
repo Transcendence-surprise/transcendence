@@ -1,32 +1,28 @@
 import { Controller, Get, Post, Body, Param, Req } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import { GameHttpService } from './game.service';
-import { CreateGameDto } from './dto/create-game.dto';
-import { StartGameDto } from './dto/start-game.dto';
-import { JoinGameDto } from './dto/join-game.dto';
-import { LeaveGameDto } from './dto/leave-game.dto';
 
 @Controller('game')
 export class GameController {
   constructor(private readonly gameClient: GameHttpService) {}
 
   @Post('create')
-  createGame(@Body() body: CreateGameDto, @Req() req: FastifyRequest) {
+  createGame(@Body() body: unknown, @Req() req: FastifyRequest) {
     return this.gameClient.createGame(body, req);
   }
 
   @Post('start')
-  startGame(@Body() body: StartGameDto, @Req() req: FastifyRequest) {
+  startGame(@Body() body: unknown, @Req() req: FastifyRequest) {
     return this.gameClient.startGame(body, req);
   }
 
   @Post('join')
-  join(@Body() body: JoinGameDto, @Req() req: FastifyRequest) {
+  join(@Body() body: unknown, @Req() req: FastifyRequest) {
     return this.gameClient.joinGame(body, req);
   }
 
   @Post('leave')
-  leaveGame(@Body() body: LeaveGameDto, @Req() req: FastifyRequest) {
+  leaveGame(@Body() body: unknown, @Req() req: FastifyRequest) {
     return this.gameClient.leaveGame(body, req);
   }
 

@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import { UsersHttpService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { Auth, AuthType } from '../../common/decorator/auth-type.decorator';
 import { Roles } from '../../common/decorator/roles.decorator';
@@ -61,7 +60,7 @@ export class UsersController {
   }
 
   @Post()
-  create(@Body() dto: CreateUserDto) {
-    return this.usersClient.create(dto);
+  create(@Body() body: unknown) {
+    return this.usersClient.create(body);
   }
 }
