@@ -3,11 +3,13 @@ import { Outlet } from 'react-router-dom';
 import { checkHealth } from '../api/health';
 import LoginForm from './auth/LoginForm';
 import SignupForm from './auth/SignupForm';
+import { useAuth } from '../hooks/useAuth';
 
 export default function Layout() {
   const [status, setStatus] = useState('loading...');
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
+  const { user, login, signup, logout } = useAuth();
 
   useEffect(() => {
     checkHealth()
@@ -39,18 +41,36 @@ export default function Layout() {
             </p>
           </div>
           <div className="flex items-center gap-3 bg-gray-900/50 rounded-full p-1 border border-gray-700">
-            <button
-              onClick={() => setShowLogin(true)}
-              className="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-full transition-all border border-gray-600"
-            >
-              Login
-            </button>
-            <button
-              onClick={() => setShowSignup(true)}
-              className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-medium rounded-full transition-all shadow-lg shadow-cyan-500/30"
-            >
-              Sign Up
-            </button>
+            {user ? (
+              <>
+                <span className="px-4 text-sm text-cyan-400">
+                  👋 {user.username}
+                </span>
+
+                <button
+                  onClick={logout}
+                  className="px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white font-medium rounded-full transition-all"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setShowLogin(true)}
+                  className="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-full transition-all border border-gray-600"
+                >
+                  Login
+                </button>
+
+                <button
+                  onClick={() => setShowSignup(true)}
+                  className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-medium rounded-full transition-all shadow-lg shadow-cyan-500/30"
+                >
+                  Sign Up
+                </button>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -60,6 +80,7 @@ export default function Layout() {
         <LoginForm 
           onClose={() => setShowLogin(false)} 
           onSwitchToSignup={handleSwitchToSignup}
+          login={login}
         />
       )}
       
@@ -68,6 +89,7 @@ export default function Layout() {
         <SignupForm 
           onClose={() => setShowSignup(false)}
           onSwitchToLogin={handleSwitchToLogin}
+          signup={signup}
         />
       )}
 
