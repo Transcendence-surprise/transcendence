@@ -5,9 +5,6 @@ import type { AxiosResponse } from 'axios';
 import type { ConfigType } from '@nestjs/config';
 import gatewayConfig from '../../common/config/gateway.config';
 
-import { LoginUserDto } from './dto/login-user.dto';
-import { SignupUserDto } from './dto/signup-user.dto';
-
 @Injectable()
 export class AuthHttpService {
   constructor(
@@ -15,11 +12,11 @@ export class AuthHttpService {
     private readonly config: ConfigType<typeof gatewayConfig>,
     private readonly http: HttpService
   ) {}
-  async login<T = unknown>(body: LoginUserDto) {
+  async login<T = unknown>(body: unknown) {
     return this.requestWithCookies<T>('post', '/api/auth/login', body);
   }
 
-  async signup<T = unknown>(body: SignupUserDto) {
+  async signup<T = unknown>(body: unknown) {
     return this.requestWithCookies<T>('post', '/api/auth/signup', body);
   }
 

@@ -68,10 +68,19 @@ services:
       - ./backend/game/tsconfig.json:/app/tsconfig.json:ro
       - ./backend/game/nest-cli.json:/app/nest-cli.json:ro
 
+  migration:
+    container_name: migration-dev
+    volumes:
+      - ./backend/migration/data-source.ts:/app/data-source.ts:ro
+      - ./backend/migration/migrations:/app/migrations:ro
+      - ./backend/migration/package.json:/app/package.json:ro
+      - ./backend/migration/tsconfig.json:/app/tsconfig.json:ro
+      - ./common/db-entities/dist:/app/db-entities-dist:ro
+
   # === Infrastructure ===
 
   db:
-    container_name: postgres-dev
+    container_name: db-dev
     ports:
       - "5432:5432"
     volumes:

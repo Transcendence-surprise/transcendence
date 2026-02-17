@@ -37,6 +37,11 @@ async function bootstrap() {
     .setTitle('Transcendence API')
     .setDescription('Game engine endpoints')
     .setVersion('1.0')
+    .addCookieAuth('access_token', {
+      type: 'apiKey',
+      name: 'access_token',
+      in: 'cookie',
+    }, 'JWT')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

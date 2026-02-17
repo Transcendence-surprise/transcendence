@@ -10,8 +10,6 @@ import {
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
 import { AuthHttpService } from './auth.service';
-import { LoginUserDto } from './dto/login-user.dto';
-import { SignupUserDto } from './dto/signup-user.dto';
 import { OAuth42Params } from '../../common/decorator/oauth42-params.decorator';
 
 @Controller('auth')
@@ -20,20 +18,20 @@ export class AuthController {
 
   @Post('login')
   async login(
-    @Body() dto: LoginUserDto,
+    @Body() body: unknown,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    const res = await this.authClient.login(dto);
+    const res = await this.authClient.login(body);
     this.forwardCookies(reply, res.cookies);
     return res.data;
   }
 
   @Post('signup')
   async signup(
-    @Body() dto: SignupUserDto,
+    @Body() body: unknown,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    const res = await this.authClient.signup(dto);
+    const res = await this.authClient.signup(body);
     this.forwardCookies(reply, res.cookies);
     return res.data;
   }

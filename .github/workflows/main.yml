@@ -9,24 +9,18 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Connect to VPS via ssh
+      - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-      - name: CD to working directory
-        run: |
-          cd ~/transcendence
-      - name: Pull changes from main
-        run: |
-          git pull origin main
-      - name: Remove existing containers
-        run: |
-          make down
-      - name: Build and start containers in prod mod
-        run: |
-          make prod
-      - name: Remove dangling images and anonymous volumes
-        run: |
-          make prod-prune
+          script: |
+            set -euo pipefail
+            trap 'echo "Deployment failed at line ${LINENO} (exit $?)"; exit 1' ERR
+
+            cd ~/transcendence
+            git pull origin main
+            make down
+            make prod
+            make prod-prune

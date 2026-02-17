@@ -3,8 +3,6 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import type { FastifyRequest } from 'fastify';
 
-import { CreateUserDto } from './dto/create-user.dto';
-
 interface JwtPayload {
   sub: number;
   username: string;
@@ -54,8 +52,8 @@ export class UsersHttpService {
     return this.request<void>('delete', `/api/users/id/${id}`, undefined, req);
   }
 
-  async create<T = unknown>(dto: CreateUserDto, req?: FastifyRequest): Promise<T> {
-    return this.request<T>('post', '/api/users', dto, req);
+  async create<T = unknown>(body: unknown, req?: FastifyRequest): Promise<T> {
+    return this.request<T>('post', '/api/users', body, req);
   }
 
   async findUserByHisToken<T = unknown>(req?: FastifyRequest): Promise<T> {

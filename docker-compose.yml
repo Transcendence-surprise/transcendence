@@ -37,8 +37,8 @@ services:
     env_file:
       - ./.env
     depends_on:
-      db:
-        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
     networks:
       - transcendence_net
     healthcheck:
@@ -54,8 +54,8 @@ services:
     env_file:
       - ./.env
     depends_on:
-      db:
-        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
     networks:
       - transcendence_net
     healthcheck:
@@ -71,8 +71,8 @@ services:
     env_file:
       - ./.env
     depends_on:
-      db:
-        condition: service_healthy
+      migration:
+        condition: service_completed_successfully
     networks:
       - transcendence_net
     healthcheck:
@@ -86,19 +86,28 @@ services:
 
   db:
     image: postgres:17-alpine
-    container_name: postgres
+    container_name: db
     env_file:
       - ./.env
-    volumes:
-      - ./database/init/schema/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
     networks:
       - transcendence_net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB || exit 1"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} || exit 1"]
       interval: 5s
       timeout: 2s
       start_period: 120s
       retries: 1
+
+  migration:
+    build: ./backend/migration
+    container_name: migration
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - transcendence_net
 
   nginx:
     build: ./nginx

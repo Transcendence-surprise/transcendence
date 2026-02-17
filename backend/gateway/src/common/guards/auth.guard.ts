@@ -68,11 +68,13 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('JWT token required in Authorization header');
     }
 
-    const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
-    
-    (request as RequestWithUser).user = payload;
-
-    return true;
+    try {
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
+      (request as RequestWithUser).user = payload;
+      return true;
+    } catch {
+      throw new UnauthorizedException('Invalid JWT token');
+    }
   }
 
   private async validateApiKey(request: FastifyRequest): Promise<boolean> {

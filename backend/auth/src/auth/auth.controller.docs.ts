@@ -12,6 +12,7 @@ import {
   ApiCreatedResponse,
   ApiParam,
   ApiNotFoundResponse,
+  ApiExcludeEndpoint,
 } from '@nestjs/swagger';
 import { LoginUserDto } from './dto/login-user.dto';
 import { LoginUserResDto } from './dto/login-user-res.dto';
@@ -140,6 +141,7 @@ const Intra42AuthCallbackDocs = () =>
 
   const ValidateApiKeyDocs = () =>
     applyDecorators(
+      ApiExcludeEndpoint(),
       ApiOperation({
         summary: 'Validate API key',
         description: 'Validate an API key token and return boolean result',

@@ -49,6 +49,11 @@ async function bootstrap() {
     )
     .setVersion('1.0.0')
     .addTag('Authentication', 'User login and token management')
+    .addSecurity('API Key', {
+      type: 'apiKey',
+      in: 'header',
+      name: 'x-api-key',
+    })
     .addGlobalResponse({
       status: 500,
       description: 'Internal server error',

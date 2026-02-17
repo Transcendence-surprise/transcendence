@@ -10,6 +10,7 @@ import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
   ApiConflictResponse,
+  ApiExcludeEndpoint,
 } from '@nestjs/swagger';
 import { ValidateCredDto } from './dto/validate-credentials.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,7 +20,6 @@ const UsersControllerDocs = () => ApiTags('Users');
 
 const FindAllDocs = () =>
   applyDecorators(
-    ApiTags('Public'),
     ApiOperation({
       summary: 'Get all users',
       description: 'Retrieve a list of all users',
@@ -34,7 +34,7 @@ const FindAllDocs = () =>
 
 const ValidateCredentialsDocs = () =>
   applyDecorators(
-    ApiTags('Internal'),
+    ApiExcludeEndpoint(),
     ApiOperation({
       summary: 'Validate user credentials',
       description: 'Validate user credentials for authentication',
@@ -54,7 +54,6 @@ const ValidateCredentialsDocs = () =>
 
 const FindOneByUsernameDocs = () =>
   applyDecorators(
-    ApiTags('Public'),
     ApiOperation({
       summary: 'Get user by username',
       description: 'Retrieve a user by their username',
@@ -75,7 +74,6 @@ const FindOneByUsernameDocs = () =>
 
 const FindOneByIdDocs = () =>
   applyDecorators(
-    ApiTags('Public'),
     ApiOperation({
       summary: 'Get user by ID',
       description: 'Retrieve a user by their ID (authenticated user only)',
@@ -97,7 +95,6 @@ const FindOneByIdDocs = () =>
 
 const RemoveByUsernameDocs = () =>
   applyDecorators(
-    ApiTags('Public'),
     ApiOperation({
       summary: 'Delete user by username',
       description: 'Delete a user by their username',
@@ -115,7 +112,6 @@ const RemoveByUsernameDocs = () =>
 
 const RemoveByIdDocs = () =>
   applyDecorators(
-    ApiTags('Public'),
     ApiOperation({
       summary: 'Delete user by ID',
       description: 'Delete a user by their ID',
@@ -133,7 +129,6 @@ const RemoveByIdDocs = () =>
 
 const CreateDocs = () =>
   applyDecorators(
-    ApiTags('Public'),
     ApiOperation({
       summary: 'Create a new user',
       description: 'Create a new user with the provided data',
