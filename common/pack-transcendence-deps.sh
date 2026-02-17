@@ -16,10 +16,10 @@ npm run build
 
 for svc in "${services[@]}"; do
 	dest="$REPO_ROOT/$svc/db-entities-dist"
-	tmp="$dest.XXX"
+	tmp="$dest.tmp.$$"
 
 	rm -rf "$tmp"
-	mktemp -dp "$tmp"
+	mkdir -p "$tmp"
 
 	cp -a dist/. "$tmp/"
 	cp -a package.json "$tmp/"
