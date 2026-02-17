@@ -38,11 +38,17 @@ export class AxiosExceptionFilter implements ExceptionFilter {
       });
     }
 
-    // Fallback for any other unexpected errors
+    console.error('[AxiosExceptionFilter] Unexpected error:', exception);
+
+    // Fallback for any other unexpected errors - preserve error details
+    const errorMessage = exception instanceof Error ? exception.message : 'Unknown error';
+    const errorStack = exception instanceof Error ? exception.stack : undefined;
+
     return reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      message: 'Internal server error',
+      message: errorMessage,
       error: 'Internal Server Error',
+      ...(process.env.NODE_ENV !== 'production' && { stack: errorStack }),
     });
   }
 }
