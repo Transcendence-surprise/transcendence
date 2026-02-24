@@ -50,7 +50,6 @@ export default function Layout() {
           onSwitchToLogin={handleSwitchToLogin}
         />
       )}
-
       {/* Main content - this is where child routes will render */}
       <main className="p-4">
         <Outlet />
