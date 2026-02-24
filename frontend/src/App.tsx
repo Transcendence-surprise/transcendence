@@ -9,7 +9,6 @@ import MultiplayerCreateRoute from "./game/routes/MultiplayerCreateRoute";
 import MultiplayerJoinRoute from "./game/routes/JoinRoute";
 import LobbyRoute from "./game/routes/LobbyRoute";
 import GameRoute from "./game/routes/GameRoute";
-import { useAuth } from "./hooks/useAuth";
 import ProtectedRoute from "./game/routes/ProtectedRoute";
 import Profile from "./pages/Profile";
 import Leaderboard from "./pages/Leaderboard";
