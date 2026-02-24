@@ -10,8 +10,8 @@ export class GetUserResDto {
   @ApiProperty({ type: 'string', example: 'tmp@example.com' })
   email: string;
 
-  @ApiProperty({ type: 'string', example: 'registered' })
-  userType: string;
+  @ApiProperty({ type: 'array', example: 'user, admin' })
+  roles: string[];
 
   @ApiProperty({ type: 'string', example: '2026-01-31T20:22:42.819Z' })
   createdAt: string;

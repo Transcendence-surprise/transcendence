@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserResDto } from './user-res.dto';
+import { GetUserResDto } from './get-user-res.dto';
 
 export class LoginUserResDto {
   @ApiProperty({ example: 'eyJhbGciOi...' })
   access_token: string;
 
-  @ApiProperty({ type: () => UserResDto })
-  user: UserResDto;
+  @ApiProperty({ type: () => GetUserResDto })
+  user: GetUserResDto;
 }

@@ -32,24 +32,14 @@ dev:
 down:
 	$(COMPOSE) down
 
-# Build and start dev using base + dev compose files + database migration
+# Restart containers
+restart: down dev
+
+# Build and start project in dev mode
 dev-build:
 	@echo "$(CYAN)Building dev stack...$(RESET)"
+	make pack-deps
 	$(COMPOSE) -f docker-compose.dev.yml up -d --build
-
-# Run migrations (dev DB must be up)
-dev-migrate:
-	@echo "$(CYAN)Running migrations...$(RESET)"
-	@i=0; \
-	while ! $(COMPOSE) -f docker-compose.dev.yml exec -T core npm run migration:run >/dev/null 2>&1; do \
-		i=$$((i+1)); \
-		if [ $$i -ge 10 ]; then \
-			echo "$(RED)Migrations failed after retries.$(RESET)"; \
-			exit 1; \
-		fi; \
-		sleep 2; \
-	done
-	@echo "$(GREEN)Migrations successful.$(RESET)";
 
 # Start dev DB only
 dev-db:
@@ -63,8 +53,7 @@ dev-front:
 # Install dependencies for tests (Legacy for dev: Containers install dependencies)
 dev-install:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
-	cd common/packages/db-entities && npm install && npm run build
-	cd database && npm install
+	make pack-deps
 	cd frontend && npm install
 	cd backend/core && npm install
 	cd backend/auth && npm install
@@ -74,17 +63,30 @@ dev-install:
 # Clean Install for CI/CD
 dev-ci:
 	@echo "$(CYAN)Installing dependencies...$(RESET)"
-	cd common/packages/db-entities && npm ci && npm run build
-	cd database && npm ci
+	make pack-deps
 	cd frontend && npm ci
 	cd backend/core && npm ci
 	cd backend/auth && npm ci
 	cd backend/gateway && npm ci
 	cd backend/game && npm ci
 
+# Generate client to communicate Backend
 ts-client:
 	cd backend/gateway && \
 	npm run generate:ts-client
+
+# Pack and distribute dependencies
+pack-deps:
+	@./common/pack-transcendence-deps.sh
+
+
+# Build backend and frontend code to dist
+compile-src:
+	cd frontend && npm run build
+	cd backend/core && npm run build
+	cd backend/auth && npm run build
+	cd backend/gateway && npm run build
+	cd backend/game && npm run build
 
 # =========== Rebuild commands ===========
 
@@ -126,7 +128,7 @@ test-front:
 
 # =========== Clean commands ===========
 
-# Stop containers (keep volumes)
+# Stop and remove containers, network (keep volumes)
 clean:
 	@echo "$(CYAN)Stopping containers...$(RESET)"
 	$(COMPOSE) down
@@ -134,26 +136,20 @@ clean:
 # Stop and remove everything (volumes too)
 fclean:
 	@echo "$(CYAN)Stopping containers and removing volumes...$(RESET)"
-	$(COMPOSE) down -v
+	$(COMPOSE) -f docker-compose.dev.yml down -v
 
 prune: fclean
 	@echo "$(CYAN)Pruning dangling images...$(RESET)"
 	docker system prune -af
 
-# Stop containers (keep volumes)
-dev-clean:
-	@echo "$(CYAN)Stopping containers...$(RESET)"
-	$(COMPOSE) -f docker-compose.dev.yml down
+# Stop and remove prod DB volumes (full reset of prod DB)
+prod-fclean:
+	@echo "$(CYAN)Stopping prod containers and removing prod volumes...$(RESET)"
+	$(COMPOSE) -f docker-compose.prod.yml down -v
 
-# Stop and remove dev DB volumes (full reset of dev DB)
-dev-fclean:
-	@echo "$(CYAN)Stopping dev containers and removing dev volumes...$(RESET)"
-	$(COMPOSE) -f docker-compose.dev.yml down -v
-
-# Prune dangling images (full reset of dev stack)
-dev-prune: dev-fclean
-	@echo "$(CYAN)Pruning dangling images...$(RESET)"
-	docker system prune -af
+prune-prod:
+	@echo "$(CYAN)Pruning dangling images and anonymous volumes...$(RESET)"
+	docker system prune --volumes
 
 # =========== Utility commands ===========
 

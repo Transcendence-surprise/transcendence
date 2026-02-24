@@ -43,9 +43,11 @@ describe('AuthController', () => {
       const dto: LoginUserDto = { identifier: 'test', password: 'pass' };
       const response: any = { access_token: 'jwt' };
 
-      service.login.mockResolvedValue(response);
+      service.login.mockResolvedValue({ data: response, cookies: [] });
 
-      const result = await controller.login(dto);
+      const mockReply: any = { header: jest.fn().mockReturnThis() };
+
+      const result = await controller.login(dto, mockReply);
 
       expect(service.login).toHaveBeenCalledWith(dto);
       expect(result).toEqual(response);
@@ -68,9 +70,11 @@ describe('AuthController', () => {
         },
       };
 
-      service.signup.mockResolvedValue(response);
+      service.signup.mockResolvedValue({ data: response, cookies: [] });
 
-      const result = await controller.signup(dto);
+      const mockReply: any = { header: jest.fn().mockReturnThis() };
+
+      const result = await controller.signup(dto, mockReply);
 
       expect(service.signup).toHaveBeenCalledWith(dto);
       expect(result).toEqual(response);

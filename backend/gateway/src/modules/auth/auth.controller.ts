@@ -10,8 +10,6 @@ import {
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
 import { AuthHttpService } from './auth.service';
-import { LoginUserDto } from './dto/login-user.dto';
-import { SignupUserDto } from './dto/signup-user.dto';
 import { OAuth42Params } from '../../common/decorator/oauth42-params.decorator';
 
 @Controller('auth')
@@ -19,13 +17,30 @@ export class AuthController {
   constructor(private readonly authClient: AuthHttpService) {}
 
   @Post('login')
-  login(@Body() dto: LoginUserDto) {
-    return this.authClient.login(dto);
+  async login(
+    @Body() body: unknown,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const res = await this.authClient.login(body);
+    this.forwardCookies(reply, res.cookies);
+    return res.data;
   }
 
   @Post('signup')
-  signup(@Body() dto: SignupUserDto) {
-    return this.authClient.signup(dto);
+  async signup(
+    @Body() body: unknown,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const res = await this.authClient.signup(body);
+    this.forwardCookies(reply, res.cookies);
+    return res.data;
+  }
+
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) reply: FastifyReply) {
+    const res = await this.authClient.logout();
+    this.forwardCookies(reply, res.cookies);
+    return res.data;
   }
 
   @Get('intra42')
@@ -48,9 +63,7 @@ export class AuthController {
       params.state,
     );
 
-    if (res.cookies) {
-      reply.header('set-cookie', res.cookies);
-    }
+    this.forwardCookies(reply, res.cookies);
 
     if (res.location) {
       return reply.redirect(res.location, res.status);
@@ -71,5 +84,11 @@ export class AuthController {
   @Delete('api-keys')
   async removeApiKeyById(@Param('id') id: string) {
     return this.authClient.removeApiKeyById(Number(id));
+  }
+
+  private forwardCookies(reply: FastifyReply, cookies?: string[]) {
+    if (cookies?.length) {
+      reply.header('set-cookie', cookies);
+    }
   }
 }

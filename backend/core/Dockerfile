@@ -1,16 +1,34 @@
-FROM node:25-alpine
+# ==============================================
+# Stage 1: Development (for hot reload)
+# ==============================================
+FROM node:25-alpine AS development
 
 WORKDIR /app
 
-COPY common/packages/db-entities ./common/packages/db-entities
-COPY backend/core/package*.json ./backend/core/
+COPY ./package*.json ./
 
-RUN cd common/packages/db-entities && npm install && npm run build
-RUN cd backend/core && npm ci
+RUN npm ci
 
-COPY backend/core ./backend/core
+COPY . .
 
-WORKDIR /app/backend/core
+EXPOSE 3000
+
+CMD ["npm", "run", "start:dev"]
+
+
+# ==============================================
+# Stage 2: Production (optimized, minimal)
+# ==============================================
+FROM node:25-alpine AS production
+
+WORKDIR /app
+
+COPY ./package*.json ./
+
+RUN npm ci
+
+COPY . .
+
 RUN npm run build
 
 EXPOSE 3000

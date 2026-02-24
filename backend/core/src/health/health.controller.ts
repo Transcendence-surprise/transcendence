@@ -1,8 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
 import { HealthControllerDocs, HealthDocs } from './health.controller.docs';
+import { ApiExcludeController } from '@nestjs/swagger';
 
 @HealthControllerDocs()
-@Controller('health')
+@ApiExcludeController()
+@Controller('core/health')
 export class HealthController {
   @Get()
   @HealthDocs()

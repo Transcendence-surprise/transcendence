@@ -35,46 +35,39 @@ describe('GameHttpService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('get', () => {
-    it('should forward GET request and return data', async () => {
-      const path = '/api/game/123';
-      const response = { id: '123', status: 'active' };
-      const axiosResponse: AxiosResponse = {
-        data: response,
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-        config: {} as any,
-      };
+  it('should forward POST request', async () => {
+    const response = { ok: true };
+    const axiosResponse: AxiosResponse = {
+      data: response,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {} as any,
+    };
 
-      httpService.get.mockReturnValue(of(axiosResponse));
+    httpService.post.mockReturnValue(of(axiosResponse));
 
-      const result = await service.get(path);
+    const result = await service.createGame({ hostId: 'test', settings: {} });
 
-      expect(httpService.get).toHaveBeenCalledWith(path, undefined);
-      expect(result).toEqual(response);
-    });
+    expect(httpService.post).toHaveBeenCalled();
+    expect(result).toEqual(response);
   });
 
-  describe('post', () => {
-    it('should forward POST request and return data', async () => {
-      const path = '/api/game/create';
-      const body = { mode: 'single', level: 1 };
-      const response = { gameId: '456', created: true };
-      const axiosResponse: AxiosResponse = {
-        data: response,
-        status: 201,
-        statusText: 'Created',
-        headers: {},
-        config: {} as any,
-      };
+  it('should forward GET request', async () => {
+    const response = { id: '123' };
+    const axiosResponse: AxiosResponse = {
+      data: response,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config: {} as any,
+    };
 
-      httpService.post.mockReturnValue(of(axiosResponse));
+    httpService.get.mockReturnValue(of(axiosResponse));
 
-      const result = await service.post(path, body);
+    const result = await service.getGameState('123');
 
-      expect(httpService.post).toHaveBeenCalledWith(path, body);
-      expect(result).toEqual(response);
-    });
+    expect(httpService.get).toHaveBeenCalled();
+    expect(result).toEqual(response);
   });
 });

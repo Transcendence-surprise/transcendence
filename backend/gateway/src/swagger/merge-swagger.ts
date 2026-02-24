@@ -11,17 +11,20 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 export default async function setupMergedSwagger(app: NestFastifyApplication) {
   try {
-    if (!process.env.CORE_URL || !process.env.AUTH_URL) {
-      throw new Error(
-        'CORE_URL and AUTH_URL environment variables must be set',
-      );
+    if (!process.env.CORE_URL ||
+        !process.env.AUTH_URL ||
+        !process.env.GAME_URL)
+    {
+      throw new Error('ALL URLS environment variables must be set');
     }
 
-    const coreUrl = process.env.CORE_URL.replace(/\/$/, '');
-    const authUrl = process.env.AUTH_URL.replace(/\/$/, '');
+    const coreUrl = process.env.CORE_URL;
+    const authUrl = process.env.AUTH_URL;
+    const gameUrl = process.env.GAME_URL;
 
     const coreDocsUrl = `${coreUrl}/api/docs-json`;
     const authDocsUrl = `${authUrl}/api/auth/docs-json`;
+    const gameDocsUrl = `${gameUrl}/api/game/docs-json`;
 
     const axios = await import('axios');
 
@@ -34,12 +37,13 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
       }
     }
 
-    const [coreDoc, authDoc] = await Promise.all([
+    const [coreDoc, authDoc, gameDoc] = await Promise.all([
       fetchJson(coreDocsUrl),
       fetchJson(authDocsUrl),
+      fetchJson(gameDocsUrl),
     ]);
 
-    if (!coreDoc && !authDoc) {
+    if (!coreDoc && !authDoc && !gameDoc) {
       throw new Error('Could not fetch any upstream docs');
     }
 
@@ -74,16 +78,28 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
       }
     }
 
-    mergeSimple(coreDoc);
-    mergeSimple(authDoc);
-
     const baseConfig = new DocumentBuilder()
       .setTitle('Transcendence API')
       .setDescription('Server-driven web game with user managment')
       .setVersion('1.0.0')
-      .addBearerAuth()
-      .addApiKey()
+      .addCookieAuth('access_token', {
+        type: 'apiKey',
+        name: 'access_token',
+        in: 'cookie',
+      }, 'JWT')
+      .addApiKey({
+        type: 'apiKey',
+        name: 'x-api-key',
+        in: 'header'
+      }, 'Api Key')
       .build();
+
+    const gatewayDoc = SwaggerModule.createDocument(app, baseConfig);
+
+    mergeSimple(coreDoc);
+    mergeSimple(authDoc);
+    mergeSimple(gameDoc);
+    mergeSimple(gatewayDoc);
 
     if (
       !baseConfig.info ||
@@ -105,6 +121,7 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
       customSiteTitle: 'Transcendence Merged API Docs',
       swaggerOptions: {
         persistAuthorization: true,
+        docExpansion: 'none',
       },
     });
 

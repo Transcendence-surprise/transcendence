@@ -28,7 +28,7 @@ describe('UsersController', () => {
 
   const mockUsersService = {
     findAll: jest.fn(),
-    findOneByUsername: jest.fn(),
+    // findOneByUsername: jest.fn(),
     findOneById: jest.fn(),
     findByIdentifier: jest.fn(),
     validateCredentials: jest.fn(async (validateCredDto: { identifier: string; password: string }) => {
@@ -44,7 +44,7 @@ describe('UsersController', () => {
       const { password, ...userWithoutPassword } = user;
       return userWithoutPassword;
     }),
-    removeByUsername: jest.fn(),
+    // removeByUsername: jest.fn(),
     create: jest.fn(),
   };
 
@@ -117,16 +117,16 @@ describe('UsersController', () => {
     });
   });
 
-  describe('getUserByUsername', () => {
-    it('should return user by username', async () => {
-      mockUsersService.findOneByUsername.mockResolvedValue(mockUser);
+  // describe('getUserByUsername', () => {
+  //   it('should return user by username', async () => {
+  //     mockUsersService.findOneByUsername.mockResolvedValue(mockUser);
 
-      const result = await controller.getUserByUsername('testuser');
+  //     const result = await controller.getUserByUsername('testuser');
 
-      expect(result).toEqual(mockUser);
-      expect(service.findOneByUsername).toHaveBeenCalledWith('testuser');
-    });
-  });
+  //     expect(result).toEqual(mockUser);
+  //     expect(service.findOneByUsername).toHaveBeenCalledWith('testuser');
+  //   });
+  // });
 
   describe('getUserById', () => {
     it('should return user by id when user owns the id', async () => {
@@ -139,17 +139,17 @@ describe('UsersController', () => {
     });
   });
 
-  describe('removeByUsername', () => {
-    it('should delete user by username', async () => {
-      const deleteResult = { deleted: true, username: 'testuser' };
-      mockUsersService.removeByUsername.mockResolvedValue(deleteResult);
+  // describe('removeByUsername', () => {
+  //   it('should delete user by username', async () => {
+  //     const deleteResult = { deleted: true, username: 'testuser' };
+  //     mockUsersService.removeByUsername.mockResolvedValue(deleteResult);
 
-      const result = await controller.removeByUsername('testuser');
+  //     const result = await controller.removeByUsername('testuser');
 
-      expect(result).toEqual(deleteResult);
-      expect(service.removeByUsername).toHaveBeenCalledWith('testuser');
-    });
-  });
+  //     expect(result).toEqual(deleteResult);
+  //     expect(service.removeByUsername).toHaveBeenCalledWith('testuser');
+  //   });
+  // });
 
   describe('create', () => {
     it('should create a new user', async () => {

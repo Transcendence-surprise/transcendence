@@ -1,53 +1,14 @@
 services:
-  # === Core Application ===
 
   frontend:
     build: ./frontend
     container_name: frontend
     env_file:
       - ./.env
-    volumes:
-      - frontend_build:/app/dist
     networks:
       - transcendence_net
 
-  core:
-    build:
-      context: .
-      dockerfile: backend/core/Dockerfile
-    container_name: core
-    env_file:
-      - ./.env
-    depends_on:
-      - db
-    volumes:
-      - ./database:/database:ro
-    networks:
-      - transcendence_net
-    healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://core:3000/api/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # === Microservices ===
-
-  auth:
-    build:
-      context: .
-      dockerfile: ./backend/auth/Dockerfile
-    container_name: auth
-    env_file:
-      - ./.env
-    depends_on:
-      - db
-    networks:
-      - transcendence_net
-    healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://auth:3001/api/auth/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+  # === Backend Microservices ===
 
   gateway:
     build: ./backend/gateway
@@ -55,8 +16,6 @@ services:
     env_file:
       - ./.env
     depends_on:
-      db:
-        condition: service_healthy
       core:
         condition: service_healthy
       game:
@@ -65,6 +24,46 @@ services:
         condition: service_healthy
     networks:
       - transcendence_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://gateway:3002/api/health || exit 1"]
+      interval: 5s
+      timeout: 2s
+      start_period: 120s
+      retries: 1
+
+  core:
+    build: ./backend/core
+    container_name: core
+    env_file:
+      - ./.env
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+    networks:
+      - transcendence_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://core:3000/api/core/health || exit 1"]
+      interval: 5s
+      timeout: 2s
+      start_period: 120s
+      retries: 1
+
+  auth:
+    build: ./backend/auth
+    container_name: auth
+    env_file:
+      - ./.env
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+    networks:
+      - transcendence_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://auth:3001/api/auth/health || exit 1"]
+      interval: 5s
+      timeout: 2s
+      start_period: 120s
+      retries: 1
 
   game:
     build: ./backend/game
@@ -72,32 +71,43 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - db
+      migration:
+        condition: service_completed_successfully
     networks:
       - transcendence_net
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://game:3003/api/game/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 5s
+      timeout: 2s
+      start_period: 120s
+      retries: 1
 
   # === Infrastructure ===
 
   db:
     image: postgres:17-alpine
-    container_name: postgres
+    container_name: db
     env_file:
       - ./.env
-    volumes:
-      - db_data:/var/lib/postgresql/data
-      - ./database/init/schema/00-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
     networks:
       - transcendence_net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 6
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} || exit 1"]
+      interval: 5s
+      timeout: 2s
+      start_period: 120s
+      retries: 1
+
+  migration:
+    build: ./backend/migration
+    container_name: migration
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - transcendence_net
 
   nginx:
     build: ./nginx
@@ -106,21 +116,24 @@ services:
       - ./.env
     depends_on:
       - frontend
-      - gateway
-      - game
-    volumes:
-      - frontend_build:/usr/share/nginx/html:ro
     networks:
       - transcendence_net
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:80/api/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test: ["CMD-SHELL", "wget -O /dev/null ${FRONTEND_URL} || exit 1"]
+      interval: 5s
+      timeout: 2s
+      start_period: 120s
+      retries: 1
 
-volumes:
-  db_data:
-  frontend_build:
+  healthchecker:
+    image: alpine:3.23.3
+    depends_on:
+      nginx:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+    networks:
+      - transcendence_net
 
 networks:
   transcendence_net:

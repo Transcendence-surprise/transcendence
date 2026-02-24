@@ -72,7 +72,6 @@ export class AuthService {
 
     return {
       access_token: authResponse.access_token,
-      user: authResponse.user,
       redirect: this.config.frontend.url,
     };
   }
@@ -211,6 +210,7 @@ export class AuthService {
       sub: user.id,
       username: user.username,
       email: user.email,
+      roles: user.roles,
     };
 
     const access_token = await this.jwtService.signAsync(payload);

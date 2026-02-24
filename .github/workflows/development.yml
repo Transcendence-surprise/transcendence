@@ -25,27 +25,20 @@ jobs:
         with:
           version: v5.0.0
       - name: Install dependencies for backend and frontend
-        run: make dev-ci
+        run: |
+          make dev-ci
       - name: Prepare env file
-        run: cp .env.example .env
-      - name: Run db container
-        run: make build-db
+        run: |
+          cp .env.example .env
+      - name: Build and run all containers
+        run: |
+          make dev-build
+      - name: Build backend and frontend code to dist
+        run: |
+          make compile-src
       - name: Run backend tests
-        run: make test-back
-      - name: Build gateway
-        run: npm run build
-        working-directory: backend/gateway
-      - name: Build core
-        run: npm run build
-        working-directory: backend/core
-      - name: Build auth
-        run: npm run build
-        working-directory: backend/auth
-      - name: Build game
-        run: npm run build
-        working-directory: backend/game
+        run: |
+          make test-back
       - name: Run frontend tests
-        run: make test-front
-      - name: Build frontend
-        run: npm run build
-        working-directory: frontend
+        run: |
+          make test-front

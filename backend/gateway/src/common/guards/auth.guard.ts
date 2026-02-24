@@ -18,6 +18,11 @@ interface JwtPayload {
   sub: number;
   username: string;
   email: string;
+  roles: string[];
+}
+
+interface RequestWithUser extends FastifyRequest {
+  user?: JwtPayload;
 }
 
 @Injectable()
@@ -32,8 +37,8 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean>  {
     const authType = this.reflector.getAllAndOverride<AuthType>(AUTH_TYPE_KEY, [
-      context.getClass(),
       context.getHandler(),
+      context.getClass(),
     ]);
 
     if (authType === AuthType.PUBLIC || this.config.auth.isAuthEnabled === 'false') {
@@ -63,12 +68,13 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('JWT token required in Authorization header');
     }
 
-    const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
-    request.headers['x-user-id'] = payload.sub.toString();
-    request.headers['x-user-username'] = payload.username;
-    request.headers['x-user-email'] = payload.email;
-
-    return true;
+    try {
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
+      (request as RequestWithUser).user = payload;
+      return true;
+    } catch {
+      throw new UnauthorizedException('Invalid JWT token');
+    }
   }
 
   private async validateApiKey(request: FastifyRequest): Promise<boolean> {
@@ -103,11 +109,8 @@ export class AuthGuard implements CanActivate {
 
 
   private extractJwtToken(request: FastifyRequest): string | undefined {
-    const authHeader = request.headers.authorization;
-    if (!authHeader)
-      return undefined;
-    const [type, token] = authHeader.split(' ');
-    return type === 'Bearer' ? token : undefined;
+    const authCookie = request.cookies.access_token;
+    return authCookie;
   }
 
   private extractApiKey(request: FastifyRequest): string | undefined {

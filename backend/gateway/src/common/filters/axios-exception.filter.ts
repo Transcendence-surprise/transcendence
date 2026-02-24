@@ -38,6 +38,8 @@ export class AxiosExceptionFilter implements ExceptionFilter {
       });
     }
 
+    // console.error('[AxiosExceptionFilter] Unexpected error:', exception);
+
     // Fallback for any other unexpected errors
     return reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,

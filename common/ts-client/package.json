@@ -1,0 +1,25 @@
+{
+  "name": "@transcendence/ts-client",
+  "version": "1.0.0",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:watch": "tsc -p tsconfig.json --watch",
+    "clean": "rm -rf dist",
+    "pack": "npm run build && npm pack",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "typeorm": "^0.3.28"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  },
+  "dependencies": {
+    "axios": "^1.13.5",
+    "form-data": "^4.0.5"
+  }
+}

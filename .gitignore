@@ -14,6 +14,9 @@ dist/
 build/
 coverage/
 
+# --- Copied db-entities dist (generated, not source) ---
+backend/*/db-entities-dist/
+
 # --- Logs ---
 logs/
 *.log
@@ -45,3 +48,6 @@ nginx/cert/
 #Maria's ignore
 docker-compose.db.yml
 instructions
+
+# tarball deps
+*.tgz
