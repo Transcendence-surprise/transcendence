@@ -11,7 +11,7 @@ export default function Layout() {
   const [status, setStatus] = useState('loading...');
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
-  const { user, login, signup, logout } = useAuth();
+  const { login, signup } = useAuth();
 
   useEffect(() => {
     checkHealth()
