@@ -1,7 +1,21 @@
-import { useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import * as authApi from "../api/authentification";
 
-export function useAuth() {
+export interface AuthContextType {
+  user: authApi.User | null;
+  loading: boolean;
+  login: (username: string, password: string) => Promise<authApi.User>;
+  signup: (
+    username: string,
+    email: string,
+    password: string
+  ) => Promise<authApi.User>;
+  logout: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<authApi.User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -19,8 +33,10 @@ export function useAuth() {
       const u = await authApi.login(username, password);
       setUser(u);
       alert(`Welcome, ${u.username}!`);
+      return u;
     } catch (err: any) {
       alert(err.message || "Login failed");
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -36,7 +52,7 @@ export function useAuth() {
         const u = await authApi.signup(username, email, password);
         setUser(u);
         alert(`Welcome, ${u.username}!`);
-        return u; // ← optional but good
+        return u;
     } catch (err: any) {
         alert(err.message || "Signup failed");
         throw err;
@@ -57,5 +73,16 @@ export function useAuth() {
     }
   };
 
-  return { user, loading, login, signup, logout };
+
+  return (
+    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+  return ctx;
 }
