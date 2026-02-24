@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from './components/Layout';
 import Home from './pages/Home';
+import LayoutWithSidebar from './components/LayoutWithSidebar';
 import GameEntryRoute from './game/routes/GameEntryRote';
 import SinglePlayerSetupRoute from "./game/routes/SingleSetupRoute";
 import MultiplayerSetupRoute from "./game/routes/MultiplayerSetupRoute";
@@ -9,6 +10,12 @@ import MultiplayerJoinRoute from "./game/routes/JoinRoute";
 import LobbyRoute from "./game/routes/LobbyRoute";
 import GameRoute from "./game/routes/GameRoute";
 import ProtectedRoute from "./game/routes/ProtectedRoute";
+import Profile from "./pages/Profile";
+import Leaderboard from "./pages/Leaderboard";
+import Settings from "./pages/Settings";
+import Chat from "./pages/Chat";
+import Friends from "./pages/Friends";
+
 
 
 export default function App() {
@@ -19,7 +26,7 @@ export default function App() {
         <Route path="/" element={<Layout />}>
           {/* Home page */}
           <Route index element={<Home />} />
-          
+          <Route element={<LayoutWithSidebar />}>
           {/* Game routes */}
             {/* Game entry: select Single or Multiplayer */}
             <Route path="game" element={<GameEntryRoute />} />
@@ -66,13 +73,16 @@ export default function App() {
           {/* Other XD routes */}
 
           {/* Future routes - uncomment when ready */}
-          {/* <Route path="profile" element={<Profile />} /> */}
-          {/* <Route path="leaderboard" element={<Leaderboard />} /> */}
-          {/* <Route path="settings" element={<Settings />} /> */}
+          {<Route path="profile" element={<Profile />} />}
+          {<Route path="leaderboard" element={<Leaderboard />} />}
+          {<Route path="settings" element={<Settings />} />}
+		  {<Route path="chat" element={<Chat />} />}
+		  {<Route path="friends" element={<Friends />} />}
           
           {/* 404 Not Found */}
           {/* <Route path="*" element={<NotFound />} /> */}
-        </Route> 
+        </Route>
+      </Route> 
       </Routes>
     </BrowserRouter>
   );

@@ -1,5 +1,4 @@
 // src/components/game/JoinOrCreateTable.tsx
-import React from "react";
 import { MultiGame } from "../../game/models/multiGames";
 
 type Props = {
@@ -9,70 +8,124 @@ type Props = {
   onBack: () => void;
 };
 
-export default function JoinTable({ games, onJoin, onSpectate, onBack }: Props) {
-  if (games.length === 0) return <p>No active games found</p>;
+export default function JoinTable({
+  games,
+  onJoin,
+  onSpectate,
+  onBack,
+}: Props) {
+  const actionButtonClass =
+    "px-4 py-1 rounded border border-cyan-300/30 bg-[#0B2A30] text-cyan-100 hover:bg-[#11414A] transition-colors";
+  const tableHeadClass = "p-3 border-b border-[#FFFFFF1A] text-[#7BE9FF]";
+  const tableCellClass = "p-3 border-b border-[#FFFFFF1A]";
+
+  if (games.length === 0) {
+    return (
+      <div className="min-h-screen bg-black text-[#00eaff] font-mono flex items-center justify-center px-4 py-10">
+        <div className="relative w-full max-w-2xl">
+          <div className="absolute -inset-1 rounded-2xl bg-[radial-gradient(circle_at_top,rgba(0,234,255,0.25),transparent_55%)] blur-2xl" />
+          <div className="relative rounded-2xl border border-[#FFFFFF1A] bg-[#0B0B0F] px-8 py-10 text-center shadow-[0_16px_50px_rgba(0,0,0,0.6)]">
+            <p className="text-xs uppercase tracking-[0.4em] text-[#7BE9FF]">
+              Lobby Browser
+            </p>
+            <h2 className="mt-2 text-3xl font-bold text-white">
+              No Active Games
+            </h2>
+            <p className="mt-2 text-sm text-[#B7F6FF]">
+              Start a new lobby or try again later.
+            </p>
+            <button
+              className="mt-6 text-sm underline text-blue-300"
+              onClick={onBack}
+            >
+              Back
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4 flex flex-col space-y-4">
-      <h2 className="text-2xl font-bold mb-4">Join Multiplayer Game</h2>
+    <div className="min-h-screen bg-black text-[#00eaff] font-mono flex items-start justify-center px-4 py-10">
+      <div className="relative w-full max-w-5xl">
+        <div className="absolute -inset-1 rounded-2xl bg-[radial-gradient(circle_at_top,rgba(0,234,255,0.25),transparent_55%)] blur-2xl" />
 
-      <table className="w-full text-left border border-gray-700">
-        <thead>
-          <tr>
-            <th className="p-2 border-b border-gray-700">Host</th>
-            <th className="p-2 border-b border-gray-700">Players</th>
-            <th className="p-2 border-b border-gray-700">Max</th>
-            <th className="p-2 border-b border-gray-700">Phase</th>
-            <th className="p-2 border-b border-gray-700">Spectators</th>
-            <th className="p-2 border-b border-gray-700">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {games.map((game) => (
-            <tr key={game.id}>
-              <td className="p-2 border-b border-gray-700">{game.hostId}</td>
-              <td className="p-2 border-b border-gray-700">{game.joinedPlayers}</td>
-              <td className="p-2 border-b border-gray-700">{game.maxPlayers}</td>
-              <td className="p-2 border-b border-gray-700">{game.phase}</td>
-              <td className="p-2 border-b border-gray-700">{game.allowSpectators ? "Yes" : "No"}</td>
-              <td className="p-2 border-b border-gray-700">
-                {/* Join as player if in lobby and space */}
-                {game.phase === "LOBBY" && game.joinedPlayers < game.maxPlayers && (
-                  <button
-                    className="px-4 py-1 bg-green-600 rounded hover:bg-green-500 mr-2"
-                    onClick={() => onJoin(game.id)}
-                  >
-                    Join
-                  </button>
-                )}
+        <div className="relative rounded-2xl border border-[#FFFFFF1A] bg-[#0B0B0F] px-6 py-8 shadow-[0_16px_50px_rgba(0,0,0,0.6)]">
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-xs uppercase tracking-[0.4em] text-[#7BE9FF]">
+              Lobby Browser
+            </p>
+            <h2 className="text-4xl font-bold drop-shadow-lg text-white">
+              Join Multiplayer Game
+            </h2>
+            <p className="text-sm text-[#B7F6FF] text-center max-w-md">
+              Pick a lobby to join or spectate.
+            </p>
+          </div>
 
-                {/* Spectate in lobby or play if allowed */}
-                {(game.phase === "PLAY" && game.allowSpectators) && (
-                  <button
-                    className="px-4 py-1 bg-blue-600 rounded hover:bg-blue-500"
-                    onClick={() => onSpectate(game.id)}
-                  >
-                    Spectate
-                  </button>
-                )}
+          <div className="mt-8 overflow-x-auto">
+            <table className="w-full text-left border border-[#FFFFFF1A] rounded-lg overflow-hidden">
+              <thead className="bg-[#101019]">
+                <tr>
+                  <th className={tableHeadClass}>Host</th>
+                  <th className={tableHeadClass}>Players</th>
+                  <th className={tableHeadClass}>Max</th>
+                  <th className={tableHeadClass}>Phase</th>
+                  <th className={tableHeadClass}>Spectators</th>
+                  <th className={tableHeadClass}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {games.map((game) => (
+                  <tr key={game.id} className="odd:bg-[#0E0E14]">
+                    <td className={tableCellClass}>{game.hostId}</td>
+                    <td className={tableCellClass}>{game.joinedPlayers}</td>
+                    <td className={tableCellClass}>{game.maxPlayers}</td>
+                    <td className={tableCellClass}>{game.phase}</td>
+                    <td className={tableCellClass}>
+                      {game.allowSpectators ? "Yes" : "No"}
+                    </td>
+                    <td className={tableCellClass}>
+                      {game.phase === "LOBBY" &&
+                        game.joinedPlayers < game.maxPlayers && (
+                          <button
+                            className={`${actionButtonClass} mr-2`}
+                            onClick={() => onJoin(game.id)}
+                          >
+                            Join
+                          </button>
+                        )}
 
-                {/* Full games */}
-                {game.phase === "PLAY" && !game.allowSpectators && (
-                  <span className="text-gray-500">Full</span>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                      {game.phase === "PLAY" && game.allowSpectators && (
+                        <button
+                          className={actionButtonClass}
+                          onClick={() => onSpectate(game.id)}
+                        >
+                          Spectate
+                        </button>
+                      )}
 
-      {/* Back button */}
-      <button
-        className="mt-4 px-6 py-2 bg-gray-600 rounded hover:bg-gray-500 self-start"
-        onClick={onBack}
-      >
-        Back
-      </button>
+                      {game.phase === "PLAY" && !game.allowSpectators && (
+                        <span className="text-gray-400">Full</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-6 flex justify-center">
+            <button
+              className="text-sm underline text-blue-300"
+              onClick={onBack}
+            >
+              Back
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

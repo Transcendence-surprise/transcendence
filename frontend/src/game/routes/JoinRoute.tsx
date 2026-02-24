@@ -81,13 +81,10 @@ export default function MultiplayerJoinRoute() {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4">
-      <h2 className="text-2xl font-bold mb-4">Join Multiplayer Game</h2>
       <JoinTable
         games={games}
         onJoin={handleJoin}
         onSpectate={handleSpectate}
         onBack={() => navigate("/multiplayer/setup")}/>
-    </div>
   );
 }

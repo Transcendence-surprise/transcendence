@@ -1,6 +1,7 @@
 // src/game/components/Lobby.tsx
-import React from "react";
 import LobbyChat from "./LobbyChat";
+import PlayerList from "../UI/PlayerList";
+import LobbyActionButton from "../UI/LobbyActionButton";
 import { LobbyMessage } from "../../game/models/lobbyMessage";
 
 export type LobbyProps = {
@@ -30,65 +31,88 @@ export default function Lobby({
   setInput,
   sendMessage,
 }: LobbyProps) {
-
   const isHost = game.hostId === currentUserId;
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center space-y-4 p-4">
-      <h2 className="text-2xl font-bold">Lobby for Game {game.id}</h2>
-      <p>Host: {game.hostId}</p>
-      <p>
-        Players joined: {game.players.length} / {game.rules.maxPlayers}
-      </p>
-      {game.rules.allowSpectators && <p>Spectators allowed</p>}
+    <div className="min-h-screen bg-black text-[#00eaff] font-mono flex items-start justify-center px-4 py-10">
+      <div className="relative w-full max-w-5xl">
+        <div className="absolute -inset-1 rounded-2xl bg-[radial-gradient(circle_at_top,rgba(0,234,255,0.25),transparent_55%)] blur-2xl" />
 
-      <div className="flex flex-col items-start space-y-1 mt-4">
-        <h3 className="font-semibold">Players:</h3>
-        {game.players.map((player: any) => (
-          <p key={player.id}>
-            {player.id} {player.id === currentUserId && "(You)"}
-          </p>
-        ))}
+        <div className="relative rounded-2xl border border-[#FFFFFF1A] bg-[#0B0B0F] px-8 py-10 shadow-[0_16px_50px_rgba(0,0,0,0.6)]">
+          {/* Header */}
+          <div className="flex flex-col items-center gap-2 mb-8">
+            <p className="text-xs uppercase tracking-[0.4em] text-[#7BE9FF]">
+              Game Lobby
+            </p>
+            <h2 className="text-4xl font-bold drop-shadow-lg text-white">
+              Waiting for players
+            </h2>
+            <p className="text-sm text-[#B7F6FF] text-center max-w-md">
+              Game ID: {game.id} • Host: {game.hostId}
+            </p>
+          </div>
+
+          {/* Spectators badge */}
+          {game.rules.allowSpectators && (
+            <div className="mb-4 flex justify-center">
+              <span className="text-xs px-3 py-1 rounded-full bg-[#0B2A30]/60 border border-cyan-300/30 text-cyan-200">
+                Spectators Allowed
+              </span>
+            </div>
+          )}
+
+          {/* Main content: Players + Chat */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Players column */}
+            <div className="lg:col-span-1">
+              <PlayerList
+                players={game.players}
+                currentUserId={currentUserId}
+                maxPlayers={game.rules.maxPlayers}
+              />
+            </div>
+
+            {/* Chat column */}
+            <div className="lg:col-span-2">
+              <LobbyChat
+                messages={messages}
+                input={input}
+                setInput={setInput}
+                onSend={sendMessage}
+              />
+            </div>
+          </div>
+
+          {/* Errors */}
+          {error && (
+            <p className="mb-4 text-red-400 text-center text-sm">{error}</p>
+          )}
+          {leaveError && (
+            <p className="mb-4 text-red-400 text-center text-sm">
+              {leaveError}
+            </p>
+          )}
+
+          {/* Actions */}
+          <div className="flex flex-col items-center gap-3">
+            <div className="flex gap-4">
+              {isHost && game.phase === "LOBBY" && (
+                <LobbyActionButton
+                  onClick={onGameStarted}
+                  disabled={starting}
+                  variant="primary"
+                >
+                  {starting ? "Starting..." : "Start Game"}
+                </LobbyActionButton>
+              )}
+
+              <LobbyActionButton onClick={onGameLeave} variant="leave">
+                Leave Lobby
+              </LobbyActionButton>
+            </div>
+          </div>
+        </div>
       </div>
-
-      {error && (
-        <p className="text-red-400 text-sm mt-2">
-          {error}
-        </p>
-      )}
-
-      {isHost && game.phase === "LOBBY" && (
-        <button
-          disabled={starting}
-          className="px-6 py-3 bg-green-600 rounded-lg shadow-lg hover:bg-green-500 disabled:opacity-50 mt-4"
-          onClick={onGameStarted}
-        >
-          {starting ? "Starting..." : "Start Game"}
-        </button>
-      )}
-
-      <button
-        className="px-6 py-3 bg-red-600 rounded-lg shadow-lg hover:bg-red-500 mt-4"
-        onClick={onGameLeave}
-      >
-        Leave Lobby
-      </button>
-
-      {leaveError && (
-        <p className="text-red-400 text-sm mt-2">
-          {leaveError}
-        </p>
-      )}
-
-      <div className="flex flex-col items-start space-y-1 mt-4">
-        <LobbyChat
-          messages={messages}
-          input={input}
-          setInput={setInput}
-          onSend={sendMessage}
-        />
-      </div>
-
     </div>
   );
 }
