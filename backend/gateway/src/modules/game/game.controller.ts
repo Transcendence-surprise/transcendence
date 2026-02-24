@@ -1,12 +1,16 @@
-import { Controller, Get, Post, Body, Param, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req, UseGuards } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import { GameHttpService } from './game.service';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import { Auth, AuthType } from '../../common/decorator/auth-type.decorator';
 
 @Controller('game')
 export class GameController {
   constructor(private readonly gameClient: GameHttpService) {}
 
   @Post('create')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
   createGame(@Body() body: unknown, @Req() req: FastifyRequest) {
     return this.gameClient.createGame(body, req);
   }

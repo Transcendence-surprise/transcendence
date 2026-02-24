@@ -4,13 +4,17 @@ import { GameState, GameSettings } from '../models/state';
 import { WsGateway } from '../../ws/ws.gateway';
 // import { BoardAction } from '../models/boardAction';
 // import { MoveAction } from '../models/moveAction';
-import { ApiBody, ApiOkResponse, ApiParam } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiParam, ApiResponse } from '@nestjs/swagger';
 import {
   CreateGameDto,
+  CreateGameResponseDto,
   StartGameDto,
+  StartResponseDto,
   JoinGameDto,
+  JoinResponseDto,
 //   MoveDto,
   LeaveGameDto,
+  LeaveResponseDto,
   GameStateDto,
 } from '../dtos/game.dto';
 import { SingleLevelDto } from '../dtos/level-registry.dto';
@@ -22,35 +26,27 @@ import { CheckPlayerAvailabilityDto } from '../dtos/checkPlayer.dto';
 @Controller('game')
 export class GameController {
   constructor(
-    private readonly engine: EngineService,
+  private readonly engine: EngineService,
   private readonly wsGateway: WsGateway,
 ) {}
 
   // Create Game
   @Post('create')
   @ApiBody({ type: CreateGameDto })
-  createGame(
-    @Body() body: {
-      hostId: string;
-      settings: GameSettings;
-    }
-  ) {
-    const { gameId } = this.engine.createGame(
-      body.hostId,
-      body.settings
-    );
+  @ApiResponse({ status: 201, type: CreateGameResponseDto })
+  createGame(@Body() body: CreateGameDto) : CreateGameResponseDto {
+    const { gameId } = this.engine.createGame(body.hostId, body.settings);
 
     this.wsGateway.sendMultiplayerListUpdate();
-    console.log("Game was created", gameId );
+    // console.log("Game was created", gameId );
     return { ok: true, gameId };
   }
 
   // Start game
   @Post('start')
   @ApiBody({ type: StartGameDto })
-  startGame(
-    @Body() body: { gameId: string; hostId: string }
-  ) {
+  @ApiResponse({ status: 201, type: StartResponseDto })
+  startGame(@Body() body: StartGameDto) : StartResponseDto {
     const result = this.engine.startGame(body.gameId, body.hostId);
 
     if (result.ok) {
@@ -63,15 +59,14 @@ export class GameController {
   // Join game
   @Post('join')
   @ApiBody({ type: JoinGameDto })
-  join(@Body() body: { gameId: string; playerId: string; role: "PLAYER" | "SPECTATOR" }) {
+  @ApiResponse({ status: 201, type: JoinResponseDto })
+  join(@Body() body: JoinGameDto) : JoinResponseDto {
     const result = this.engine.joinGame(body.gameId, body.playerId, body.role);
 
     if (result.ok) {
       this.wsGateway.sendMultiplayerListUpdate();
     }
-
-    console.log("User Joined: ", body.playerId );
-
+    // console.log("User Joined: ", body.playerId );
     return result;
   }
 
@@ -101,9 +96,8 @@ export class GameController {
 
   @Post('leave')
   @ApiBody({ type: LeaveGameDto })
-  leaveGame(
-    @Body() body: { gameId: string; playerId: string }
-  ) {
+  @ApiResponse({ status: 201, type: LeaveResponseDto })
+  leaveGame(@Body() body: LeaveGameDto) : LeaveResponseDto {
     const result = this.engine.leaveGame(body.gameId, body.playerId);
 
     if (result.ok) {
@@ -113,7 +107,7 @@ export class GameController {
     return result.ok ? { ok: true } : { ok: false, error: result.error };
   }
 
-  @Get(':gameId')
+  @Get(':gameId') // Need define fields thats I return
   @ApiParam({ name: 'gameId', type: 'string' })
   @ApiOkResponse({ type: GameStateDto })
   getGameState(@Param('gameId') gameId: string) {
