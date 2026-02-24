@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { AuthProvider } from './hooks/useAuth'
 import './index.css'
 import App from './App'
 
@@ -8,6 +9,8 @@ if (!container) throw new Error('Root element not found');
 
 createRoot(container).render(
   <StrictMode>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </StrictMode>
 );

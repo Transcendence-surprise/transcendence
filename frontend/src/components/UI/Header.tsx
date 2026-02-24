@@ -1,3 +1,5 @@
+import { useAuth } from "../../hooks/useAuth";
+
 interface HeaderProps {
   status: string;
   onLoginClick: () => void;
@@ -9,6 +11,9 @@ export default function Header({
   onLoginClick,
   onSignupClick,
 }: HeaderProps) {
+
+  const { user, logout } = useAuth();
+
   return (
     <header className="p-4 border-b border-blue-600">
       <div className="flex justify-between items-center">
@@ -29,19 +34,39 @@ export default function Header({
           </div>
           <p className="text-sm text-blue-300">Backend status: {status}</p>
         </div>
+
+        {/* ✅ ONLY THIS PART CHANGED */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={onLoginClick}
-            className="px-4 py-1.5 text-sm bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-lg transition-all border border-gray-600"
-          >
-            Login
-          </button>
-          <button
-            onClick={onSignupClick}
-            className="px-4 py-1.5 text-sm bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-medium rounded-lg transition-all shadow-lg shadow-cyan-500/30"
-          >
-            Sign Up
-          </button>
+          {user ? (
+            <>
+              <span className="px-3 py-1.5 text-sm text-cyan-400 font-semibold">
+                👻 {user.username}
+              </span>
+
+              <button
+                onClick={logout}
+                className="px-4 py-1.5 text-sm bg-red-600 hover:bg-red-500 text-white font-medium rounded-lg transition-all"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={onLoginClick}
+                className="px-4 py-1.5 text-sm bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-lg transition-all border border-gray-600"
+              >
+                Login
+              </button>
+
+              <button
+                onClick={onSignupClick}
+                className="px-4 py-1.5 text-sm bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-medium rounded-lg transition-all shadow-lg shadow-cyan-500/30"
+              >
+                Sign Up
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>

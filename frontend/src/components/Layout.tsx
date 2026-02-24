@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { checkHealth } from '../api/health';
 import LoginForm from './auth/LoginForm';
 import SignupForm from './auth/SignupForm';
+import { useAuth } from '../hooks/useAuth';
 import Header from './UI/Header';
 import Footer from './UI/Footer';
 
@@ -10,6 +11,7 @@ export default function Layout() {
   const [status, setStatus] = useState('loading...');
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
+  const { login, signup } = useAuth();
 
   useEffect(() => {
     checkHealth()
@@ -40,6 +42,7 @@ export default function Layout() {
         <LoginForm 
           onClose={() => setShowLogin(false)} 
           onSwitchToSignup={handleSwitchToSignup}
+          login={login}
         />
       )}
       
@@ -48,6 +51,7 @@ export default function Layout() {
         <SignupForm 
           onClose={() => setShowSignup(false)}
           onSwitchToLogin={handleSwitchToLogin}
+          signup={signup}
         />
       )}
       {/* Main content - this is where child routes will render */}

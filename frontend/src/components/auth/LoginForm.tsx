@@ -1,8 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
+import { useAuth } from '../../hooks/useAuth';
+import { User } from '../../api/authentification';
 
 interface LoginFormProps {
   onClose: () => void;
   onSwitchToSignup: () => void;
+  login: (username: string, password: string) => Promise<User>;
 }
 
 export default function LoginForm({ onClose, onSwitchToSignup }: LoginFormProps) {
@@ -12,14 +16,21 @@ export default function LoginForm({ onClose, onSwitchToSignup }: LoginFormProps)
     rememberMe: false,
   });
 
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Login attempt:', formData);
-    
-    // TODO: Add API call to backend login endpoint
-    // Example: await fetch('/api/auth/login', { method: 'POST', body: JSON.stringify(formData) })
-    
-    alert('Login functionality - ready for backend integration');
+
+    try {
+      await login(formData.email, formData.password);
+      onClose();
+      navigate(`/`);
+    } catch (err: any) {
+        console.error('Login error:', err.message);
+        alert(`Login failed: ${err.message}`);
+      }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,6 +43,10 @@ export default function LoginForm({ onClose, onSwitchToSignup }: LoginFormProps)
 
   const handleGoogleSignIn = () => {
     alert('Google Sign In - ready for OAuth integration');
+  };
+
+  const handle42SignIn = () => {
+    window.location.href = '/api/auth/intra42';
   };
 
   return (
@@ -142,6 +157,14 @@ export default function LoginForm({ onClose, onSwitchToSignup }: LoginFormProps)
               <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
             Sign in with Google
+          </button>
+          <button
+            type="button"
+            onClick={handle42SignIn}
+            className="mt-6 w-full flex items-center justify-center gap-3 bg-gray-800 hover:bg-gray-750 text-white font-medium py-3.5 rounded-xl border border-gray-700 transition-all"
+          >
+            <span className="font-bold text-cyan-400">42</span>
+            Sign in with Intra
           </button>
         </div>
 

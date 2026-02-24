@@ -19,6 +19,7 @@ import Friends from "./pages/Friends";
 
 
 export default function App() {
+  
   return (
     <BrowserRouter>
       <Routes>
