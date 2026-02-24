@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import Layout from '../Layout'
+import { AuthProvider } from '../../hooks/useAuth'
 
 vi.mock('../../api/health', () => ({
   checkHealth: vi.fn(() => Promise.resolve({ status: 'ok' })),
@@ -7,7 +8,11 @@ vi.mock('../../api/health', () => ({
 
 describe('Layout', () => {
   it('renders header and backend status', async () => {
-    render(<Layout />)
+    render(
+      <AuthProvider>
+        <Layout />
+      </AuthProvider>
+    )
 
     expect(screen.getAllByText(/Transcendence Game/i).length).toBeGreaterThan(0)
 

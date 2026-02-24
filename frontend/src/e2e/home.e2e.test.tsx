@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import Layout from '../components/Layout'
+import { AuthProvider } from '../hooks/useAuth'
 
 // simple "e2e"-like smoke test that renders the app root
 vi.mock('../api/health', () => ({
@@ -8,7 +9,11 @@ vi.mock('../api/health', () => ({
 
 describe('Home e2e (smoke)', () => {
   it('renders main layout', async () => {
-    render(<Layout />)
+    render(
+      <AuthProvider>
+        <Layout />
+      </AuthProvider>
+    )
 
     // wait for the health check effect to finish to avoid `act` warnings
     await screen.findByText(/Backend status: ok/i)
