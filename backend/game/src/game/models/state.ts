@@ -6,7 +6,8 @@ import { BoardAction } from "./boardAction";
 export type GamePhase = "LOBBY" | "PLAY" | "END";
 
 export interface PlayerState {
-  id: string;                     // unique player identifier
+  id: number;                     // unique player identifier
+  name: string;                   // nickname
   x: number;                      // current X position
   y: number;                      // current Y position
   hasMoved: boolean;              // did the player already move this turn?
@@ -20,7 +21,7 @@ export interface PlayerProgress {
 }
 
 export interface Spectator {
-  id: string;
+  id: number;
 }
 
 export interface SinglePlayerSettings {
@@ -55,7 +56,8 @@ export interface GameState {
   level: Level;                       // level created for current game
   phase: GamePhase;                   // tracks current turn phase
 
-  hostId?: string;                    // game owner (first player)
+  hostId: number;                    // game owner (first player)
+  hostName: string;
   players: PlayerState[];             // all players
   spectators: Spectator[];            // all spectators
 
@@ -63,7 +65,7 @@ export interface GameState {
 
   board: Board;                       // board tiles
   currentPlayerIndex: number;         // whose turn in players[]
-  currentPlayerId: string | null;     // convenience field
+  currentPlayerId: number | null;     // convenience field
   lastBoardAction?: BoardAction;      // last action performed
   turnActions: {                      // per-turn counters
     rotateCount: Record<string, number>;

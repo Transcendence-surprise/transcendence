@@ -3,7 +3,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import type { GameSettings, GameState } from '../models/state';
 import { StartError } from '../models/startResult';
 import { JoinError } from '../models/joinResult';
-import type { BoardAction } from '../models/boardAction';
+// import type { BoardAction } from '../models/boardAction';
 // import type { MoveAction } from '../models/moveAction';
 import { LevelDto } from './level.dto';
 import { LeaveError } from '../models/leaveResult';
@@ -32,9 +32,6 @@ export class CreateGameResponseDto {
 export class StartGameDto {
   @ApiProperty()
   gameId: string;
-
-  @ApiProperty()
-  hostId: string;
 }
 
 export class StartResponseDto {
@@ -49,9 +46,6 @@ export class JoinGameDto {
   @ApiProperty()
   gameId: string;
 
-  @ApiProperty()
-  playerId: string;
-
   @ApiProperty({ enum: ['PLAYER', 'SPECTATOR'] })
   role: 'PLAYER' | 'SPECTATOR';
 }
@@ -62,6 +56,20 @@ export class JoinResponseDto {
 
   @ApiPropertyOptional({ enum: JoinError })
   error?: JoinError;
+}
+
+export class LeaveGameDto {
+  @ApiProperty()
+  gameId: string;
+}
+
+
+export class LeaveResponseDto {
+  @ApiProperty()
+  ok: boolean;
+
+  @ApiPropertyOptional({ enum: LeaveError })
+  error?: LeaveError;
 }
 
 // export class MoveDto {
@@ -77,23 +85,6 @@ export class JoinResponseDto {
 //   @ApiProperty({ required: false, type: Object })
 //   moveAction?: MoveAction;
 // }
-
-export class LeaveGameDto {
-  @ApiProperty()
-  gameId: string;
-
-  @ApiProperty()
-  playerId: string;
-}
-
-
-export class LeaveResponseDto {
-  @ApiProperty()
-  ok: boolean;
-
-  @ApiPropertyOptional({ enum: LeaveError })
-  error?: LeaveError;
-}
 
 
 export class GameStateDto {

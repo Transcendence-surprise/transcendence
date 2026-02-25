@@ -3,7 +3,8 @@ import { JoinResult, JoinError } from "../models/joinResult";
 
 export function joinGameEngine(
   state: GameState,
-  playerId: string,
+  playerId: number,
+  nickname: string,
   role: "PLAYER" | "SPECTATOR"
 ): JoinResult {
 
@@ -37,6 +38,7 @@ export function joinGameEngine(
 
     state.players.push({
       id: playerId,
+      name: nickname,
       x: spawn.x,
       y: spawn.y,
       hasMoved: false,

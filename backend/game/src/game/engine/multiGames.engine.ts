@@ -12,7 +12,8 @@ export function getMultiplayerGames(gamesMap: Map<string, GameState>): MultiGame
 
 multiGames.push({
   id: gameId,
-  hostId: state.hostId || "unknown",                     // default if undefined
+  hostId: state.hostId,
+  hostName: state.hostName,        
   phase: state.phase as "LOBBY" | "PLAY",
   maxPlayers: state.rules.maxPlayers || 2,              // default to 2 if undefined
   joinedPlayers: state.players.length,

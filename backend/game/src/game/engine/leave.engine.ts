@@ -3,8 +3,8 @@ import { GameState } from "../models/state";
 
 export function leaveGameEngine(
   state: GameState,
-  playerId: string
-): LeaveResult {
+  playerId: number 
+  ): LeaveResult {
   if (!state) return { ok: false, error: LeaveError.GAME_NOT_FOUND };
 
   // Prevent host from leaving

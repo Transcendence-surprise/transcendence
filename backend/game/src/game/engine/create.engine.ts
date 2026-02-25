@@ -4,7 +4,7 @@ import { getSingleplayerLevelById } from '../factories/singleLevel.factory';
 import { createMultiplayerLevel } from '../factories/multiLevel.factory';
 import { compileRules } from "./compileRules.engine";
 
-export function createGame(hostId: string, settings: GameSettings): GameState {
+export function createGame(hostId: number, nickname:string, settings: GameSettings): GameState {
 
   // Create the level
   const level =
@@ -19,6 +19,7 @@ export function createGame(hostId: string, settings: GameSettings): GameState {
 
   // Set host info
   state.hostId = hostId;
+  state.hostName = nickname;
   state.currentPlayerIndex = 0;
   state.currentPlayerId = hostId;
 
@@ -26,6 +27,7 @@ export function createGame(hostId: string, settings: GameSettings): GameState {
 if (settings.mode === "SINGLE") {
   const sp: PlayerState = {
     id: hostId,
+    name: nickname,
     x: level.startingPoints[0]?.x ?? 0,
     y: level.startingPoints[0]?.y ?? 0,
     hasMoved: false,
@@ -47,6 +49,7 @@ if (settings.mode === "SINGLE") {
   state.players = [
     {
       id: hostId,
+      name: nickname,
       x: start.x,
       y: start.y,
       hasMoved: false,
