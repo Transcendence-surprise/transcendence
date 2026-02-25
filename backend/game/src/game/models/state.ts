@@ -7,6 +7,7 @@ export type GamePhase = "LOBBY" | "PLAY" | "END";
 
 export interface PlayerState {
   id: number;                     // unique player identifier
+  slotId: string;                 // "P1"
   name: string;                   // nickname
   x: number;                      // current X position
   y: number;                      // current Y position

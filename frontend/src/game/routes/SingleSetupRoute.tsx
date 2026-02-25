@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser } from "../utils/fakeUser";
+// import { getCurrentUser } from "../utils/fakeUser";
 import { createGame } from "../../api/game";
 import { GameSettings, SinglePlayerSettings } from "../models/gameSettings";
 import SinglePlayerSettingsForm from "../../components/game/SinglePlayerSettings";
@@ -22,8 +22,8 @@ export default function SingleSetupRoute() {
       setError(null);
       setLoading(true);
 
-      const hostId = getCurrentUser()?.id || "unknown";     // FAKE USER
-      const game: { ok: boolean; gameId: string } = await createGame(hostId, {
+      // const hostId = getCurrentUser()?.id || "unknown";     // FAKE USER
+      const game: { ok: boolean; gameId: string } = await createGame({
         mode: "SINGLE",
         ...settings,
       } as GameSettings);

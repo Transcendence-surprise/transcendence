@@ -13,11 +13,11 @@ export type PlayerInfo = {
   y?: number;
 };
 
-export async function createGame(hostId: string, settings: GameSettings) {
+export async function createGame(settings: GameSettings) {
   const res = await fetch('/api/game/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ hostId, settings }),
+    body: JSON.stringify({ settings }),
   });
   const data = await res.json();
 
@@ -30,22 +30,21 @@ export async function createGame(hostId: string, settings: GameSettings) {
 
 export async function joinGame(
   gameId: string,
-  playerId: string,
   role: "PLAYER" | "SPECTATOR" = "PLAYER"
 ) {
   const res = await fetch('/api/game/join', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ gameId, playerId, role }),
+    body: JSON.stringify({ gameId, role }),
   });
   return res.json();
 }
 
-export async function startGame(gameId: string, hostId: string) {
+export async function startGame(gameId: string) {
   const res = await fetch('/api/game/start', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ gameId, hostId }),
+    body: JSON.stringify({ gameId }),
   });
   return res.json();
 }
@@ -75,11 +74,11 @@ export async function getGameState(gameId: string) {
 //   return res.json();
 // }
 
-export async function leaveGame(gameId: string, playerId: string) {
+export async function leaveGame(gameId: string ) {
   const res = await fetch('/api/game/leave', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ gameId, playerId }),
+    body: JSON.stringify({ gameId }),
   });
   return res.json();
 }
@@ -107,13 +106,13 @@ export async function getMultiplayerGames(): Promise<MultiGame[]> {
   return data;
 }
 
-export async function checkPlayerAvailability(playerId: string): Promise<{
+export async function checkPlayerAvailability(): Promise<{
   ok: boolean;
   gameId?: string;
   phase: string;
 }> {
 
-  const res = await fetch("/api/game/check-player/:playerId");
+  const res = await fetch("/api/game/check-player");
 
   if (!res.ok) {
     throw new Error("Failed to check player availability");

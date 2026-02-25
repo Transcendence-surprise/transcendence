@@ -11,7 +11,7 @@ export interface Level {
   board: Board;
 
   startingPoints: {
-    playerId: string;
+    slotId: string;
     x: number;
     y: number;
   }[];

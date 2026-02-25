@@ -10,9 +10,10 @@ describe("createGameEngine", () => {
       boardSize: 7,
       collectiblesPerPlayer: 2,
     };
-    const hostId = "HOST1";
+    const hostId = 123;
+    const nickname = "HOST1";
 
-    const state = createGame(hostId, settings);
+    const state = createGame(hostId, nickname, settings);
 
     expect(state.hostId).toBe(hostId);
     expect(state.players[0].id).toBe(hostId);
@@ -24,9 +25,10 @@ describe("createGameEngine", () => {
       mode: "SINGLE",
       levelId: "puzzle-01"
     };
-    const hostId = "HOST1";
+    const hostId = 123;
+    const nickname = "HOST1";
 
-    const state = createGame(hostId, settings);
+    const state = createGame(hostId, nickname, settings);
 
     expect(state.phase).toBe("PLAY");
     expect(state.rules.mode).toBe("SINGLE");

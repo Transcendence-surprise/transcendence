@@ -33,19 +33,23 @@ export function joinGameEngine(
   // Apply join
   if (role === "PLAYER") {
 
-    const spawnIndex = state.players.length;
-    const spawn = state.level.startingPoints[spawnIndex] ?? { x: 0, y: 0 };
+    const availableSlot = state.level.startingPoints.find(
+      sp => !state.players.some(p => p.slotId === sp.slotId)
+    ) ?? { slotId: `P${state.players.length + 1}`, x: 0, y: 0 };
 
     state.players.push({
       id: playerId,
+      slotId: availableSlot.slotId,
       name: nickname,
-      x: spawn.x,
-      y: spawn.y,
+      x: availableSlot.x,
+      y: availableSlot.y,
       hasMoved: false,
     });
 
     // Initialize player progress
-    const firstCollectible = state.level.collectibles?.find(c => c.ownerId === playerId);
+    const firstCollectible = state.level.collectibles?.find(
+      c => c.ownerSlotId === availableSlot.slotId
+    );
     state.playerProgress[playerId] = {
       collectedItems: [],
       currentCollectibleId: firstCollectible?.id, 

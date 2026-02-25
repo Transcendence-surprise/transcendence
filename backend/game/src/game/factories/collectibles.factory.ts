@@ -1,11 +1,11 @@
 import { COLLECTIBLE_IDS, Collectible } from "../models/collectible";
 
 export function generateMultiplayerCollectibles(
-  players: string[],
+  slotIds: string[],
   collectiblesPerPlayer: number,
   boardSize: number
 ): Collectible[] {
-  const totalNeeded = players.length * collectiblesPerPlayer;
+  const totalNeeded = slotIds.length * collectiblesPerPlayer;
   if (totalNeeded > COLLECTIBLE_IDS.length) {
     throw new Error("Not enough predefined collectible IDs for this game.");
   }
@@ -15,11 +15,11 @@ export function generateMultiplayerCollectibles(
   const result: Collectible[] = [];
   let idIndex = 0;
 
-  for (const playerId of players) {
+  for (const slotId of slotIds) {
     for (let i = 0; i < collectiblesPerPlayer; i++) {
       result.push({
         id: shuffledIds[idIndex++],
-        ownerId: playerId,
+        ownerSlotId: slotId,
         x: Math.floor(Math.random() * boardSize),
         y: Math.floor(Math.random() * boardSize),
       });

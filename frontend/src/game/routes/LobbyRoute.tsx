@@ -71,7 +71,7 @@ export default function LobbyRoute() {
       setStarting(true);
       setError(null);
 
-      const res = await startGame(gameId!, currentUserId);
+      const res = await startGame(gameId!);
 
       if (!res.ok) {
         console.warn("Cannot start game:", res.error);
@@ -104,7 +104,7 @@ export default function LobbyRoute() {
 
     setLeaveError(null);
 
-    const res = await leaveGame(gameId, currentUserId);
+    const res = await leaveGame(gameId);
 
     if (res.ok) {
       navigate("/multiplayer/join");

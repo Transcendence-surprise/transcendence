@@ -48,7 +48,7 @@ export function validateSingleLevelMeta(meta: LevelMeta): void {
     if (
       typeof sp.x !== "number" ||
       typeof sp.y !== "number" ||
-      !sp.playerId
+      !sp.slotId
     ) {
       throw new Error(
         `Level ${meta.id}: invalid starting point`

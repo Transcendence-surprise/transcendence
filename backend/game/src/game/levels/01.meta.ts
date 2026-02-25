@@ -10,7 +10,7 @@ export const Puzzle01Meta: LevelMeta = {
 
   constraints: { maxMoves: 8 },
 
-  startingPoints: [{ playerId: "P1", x: 0, y: 0 }],
+  startingPoints: [{ slotId: "P1", x: 0, y: 0 }],
 
   collectibles: [
     { id: "C01", x: 1, y: 1 },

@@ -20,7 +20,7 @@ export function createSingleplayerLevel(
 
   const collectibles = meta.collectibles ?? [];
 
-  console.log("collectibles:", meta.collectibles);
+  // console.log("collectibles:", meta.collectibles);
 
   for (const c of collectibles) {
     if (typeof c.x !== "number" || typeof c.y !== "number") continue;
@@ -28,8 +28,6 @@ export function createSingleplayerLevel(
     const tile = tiles[c.y][c.x];
     if (tile) tile.collectableId = c.id;
   }
-
-
 
   const board: Board = {
     width: tiles[0].length,
@@ -41,7 +39,11 @@ export function createSingleplayerLevel(
     id: meta.id,
     name: meta.name,
     board,
-    startingPoints: meta.startingPoints ?? [],
+    startingPoints: (meta.startingPoints ?? []).map((sp, index) => ({
+      slotId: `P${index + 1}`,
+      x: sp.x,
+      y: sp.y,
+    })),
     exitPoints: meta.exitPoints ?? [],
     objectives: meta.objectives ?? [],
     constraints: meta.constraints,
@@ -49,9 +51,8 @@ export function createSingleplayerLevel(
   };
 }
 
-/**
- * Look up a single-player level by ID and return a Level.
- */
+//  Look up a single-player level by ID and return a Level.
+
 export function getSingleplayerLevelById(levelId: string) {
   const entry = singlePlayerLevels[levelId];
   if (!entry) {

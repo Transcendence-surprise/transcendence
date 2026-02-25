@@ -109,7 +109,7 @@ export class WsGateway {
   @SubscribeMessage("lobbyMessage")
   handleLobbyMessage(
     @MessageBody()
-    payload: { gameId: string; userId: string; message: string },
+    payload: { gameId: string; userId: number; message: string },
   ) {
     const state = this.engine.getGameState(payload.gameId);
 
