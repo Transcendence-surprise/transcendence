@@ -101,9 +101,13 @@ export class UsersService {
     }
 
     const user = this.userRepo.create(createUserDto);
-    if (user.password !== null) {
-      user.password = await bcrypt.hash(user.password, 10);
+
+    if (createUserDto.password && createUserDto.password.trim().length > 0) {
+      user.password = await bcrypt.hash(createUserDto.password, 10);
+    } else {
+      user.password = null;
     }
+
     try {
       const savedUser = await this.userRepo.save(user);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

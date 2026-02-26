@@ -13,8 +13,10 @@ import { OAuth42ResDto } from './dto/oauth42-res.dto';
 import { Profile42ResDto } from './dto/profile42-res.dto';
 import { GetUserResDto } from './dto/get-user-res.dto';
 import { CreateApiKeyResDto } from './dto/create-api-key-res.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import authConfig from '../config/auth.config';
 import { ApiKey } from '@transcendence/db-entities';
+import { AxiosError } from 'axios';
 
 @Injectable()
 export class AuthService {
@@ -132,20 +134,39 @@ export class AuthService {
   }
 
   private async createUserFromProfile(profile: Profile42ResDto): Promise<GetUserResDto> {
-    const timestamp = Math.floor(Date.now() / 1000);
-    const username = `${profile.login}_${timestamp}`;
+    const baseUsername = profile.login;
+    let username = baseUsername;
+    const maxAttempts = 10;
 
-    const createUserDto: SignupUserDto = {
-      username,
-      email: profile.email,
-      password: '123',
-    };
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        const createUserDto: CreateUserDto = {
+          username,
+          email: profile.email,
+        };
 
-    const response = await this.httpService.axiosRef.post<GetUserResDto>(
-      `${this.config.core.url}/api/users`,
-      createUserDto,
+        const response = await this.httpService.axiosRef.post<GetUserResDto>(
+          `${this.config.core.url}/api/users`,
+          createUserDto,
+        );
+
+        return response.data;
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 409 && attempt < maxAttempts - 1) {
+            const suffix = randomBytes(4).toString('hex');
+            username = `${baseUsername}_${suffix}`;
+            continue;
+          }
+        }
+
+        throw error;
+      }
+    }
+
+    throw new Error(
+      `Failed to create user after ${maxAttempts} attempts due to username conflicts`
     );
-    return response.data;
   }
 
   async getAllApiKeys() {
