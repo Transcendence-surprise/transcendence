@@ -1,11 +1,13 @@
 import 'reflect-metadata';
-import 'dotenv/config';
+import { config } from 'dotenv';
+import { resolve } from 'path';
 import { DataSource } from 'typeorm';
 
 import { ApiKey, Game, GamePlayer, User } from '@transcendence/db-entities';
 
-if (!(process.env.POSTGRES_HOST &&
-    Number(process.env.POSTGRES_PORT) &&
+config({ path: resolve(__dirname, '../../.env') });
+
+if (!(Number(process.env.POSTGRES_PORT) &&
     process.env.POSTGRES_USER &&
     process.env.POSTGRES_PASSWORD &&
     process.env.POSTGRES_DB))
