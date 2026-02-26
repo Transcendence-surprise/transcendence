@@ -65,7 +65,7 @@ export class AuthGuard implements CanActivate {
     const token = this.extractJwtToken(request);
 
     if (!token) {
-      throw new UnauthorizedException('JWT token required in Authorization header');
+      throw new UnauthorizedException('JWT token required in Cookie header');
     }
 
     try {
