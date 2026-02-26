@@ -36,11 +36,6 @@ export class UsersController {
     return this.usersClient.findUserByHisToken(req);
   }
 
-  // @Get(':username')
-  // findOneByUsername(@Param('username') username: string) {
-  //   return this.usersClient.findOneByUsername(username);
-  // }
-
   @Get('id/:id')
   @Auth(AuthType.JWT)
   @Roles(['user'])
@@ -48,11 +43,6 @@ export class UsersController {
   findOneById(@Param('id') id: string, @Req() req: FastifyRequest) {
     return this.usersClient.findOneById(Number(id), req);
   }
-
-  // @Delete(':username')
-  // removeByUsername(@Param('username') username: string) {
-  //   return this.usersClient.removeByUsername(username);
-  // }
 
   @Delete('id/:id')
   removeById(@Param('id') id: string) {

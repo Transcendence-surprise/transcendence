@@ -55,24 +55,12 @@ export class UsersController {
     return this.usersService.findOneById(user.sub);
   }
 
-  // @Get(':username')
-  // @FindOneByUsernameDocs()
-  // getUserByUsername(@Param('username') username: string) {
-  //   return this.usersService.findOneByUsername(username);
-  // }
-
   // Auth-test: allows to find user by id only if this user logged in
   @Get('id/:id')
   @FindOneByIdDocs()
   getUserById(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOneById(id);
   }
-
-  // @Delete(':username')
-  // @RemoveByUsernameDocs()
-  // removeByUsername(@Param('username') username: string) {
-  //   return this.usersService.removeByUsername(username);
-  // }
 
   @Delete('id/:id')
   @RemoveByIdDocs()
