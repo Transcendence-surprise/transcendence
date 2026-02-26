@@ -12,8 +12,6 @@ export const CurrentUser = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): JwtPayload => {
     const request = ctx.switchToHttp().getRequest<FastifyRequest>();
 
-    console.log(request.headers);
-
     const sub = Number(request.headers['x-user-id']);
     const username = request.headers['x-user-username']?.toString();
     const email = request.headers['x-user-email']?.toString();

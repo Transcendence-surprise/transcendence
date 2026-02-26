@@ -6,20 +6,20 @@ import {
   Get,
   Param,
   Post,
+  Patch,
 } from '@nestjs/common';
 import { ApiCookieAuth} from '@nestjs/swagger';
 
 import { UsersService } from './users.service';
 import { ValidateCredDto } from './dto/validate-credentials.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateMeDto } from './dto/update-me.dto';
 
 import {
   UsersControllerDocs,
   FindAllDocs,
   ValidateCredentialsDocs,
-  // FindOneByUsernameDocs,
   FindOneByIdDocs,
-  // RemoveByUsernameDocs,
   RemoveByIdDocs,
   CreateDocs,
 } from './users.controller.docs';
@@ -53,6 +53,15 @@ export class UsersController {
   @ApiCookieAuth('JWT')
   getUserByHisToken(@CurrentUser() user : JwtPayload) {
     return this.usersService.findOneById(user.sub);
+  }
+
+  @Patch('me')
+  @ApiCookieAuth('JWT')
+  updateMe(
+    @CurrentUser() user: JwtPayload,
+    @Body() updateMeDto: UpdateMeDto,
+  ) {
+    return this.usersService.updateMe(user.sub, updateMeDto);
   }
 
   // Auth-test: allows to find user by id only if this user logged in

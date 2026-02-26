@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Delete,
+  Patch,
   Param,
   Body,
   UseGuards,
@@ -34,6 +35,13 @@ export class UsersController {
   @UseGuards(AuthGuard)
   getUserByHisToken(@Req() req: FastifyRequest) {
     return this.usersClient.findUserByHisToken(req);
+  }
+
+  @Patch('me')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
+  updateMe(@Body() body: unknown, @Req() req: FastifyRequest) {
+    return this.usersClient.updateMe(body, req);
   }
 
   @Get('id/:id')
