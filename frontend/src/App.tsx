@@ -15,11 +15,13 @@ import Leaderboard from "./pages/Leaderboard";
 import Settings from "./pages/Settings";
 import Chat from "./pages/Chat";
 import Friends from "./pages/Friends";
+import AdminPanel from "./pages/AdminPanel";
 
 
 
 export default function App() {
-  
+
+
   return (
     <BrowserRouter>
       <Routes>
@@ -28,6 +30,7 @@ export default function App() {
           {/* Home page */}
           <Route index element={<Home />} />
           <Route element={<LayoutWithSidebar />}>
+        
           {/* Game routes */}
             {/* Game entry: select Single or Multiplayer */}
             <Route path="game" element={<GameEntryRoute />} />
@@ -77,6 +80,7 @@ export default function App() {
           {<Route path="profile" element={<Profile />} />}
           {<Route path="leaderboard" element={<Leaderboard />} />}
           {<Route path="settings" element={<Settings />} />}
+          {<Route path="/admin" element={<AdminPanel />} />}
 		  {<Route path="chat" element={<Chat />} />}
 		  {<Route path="friends" element={<Friends />} />}
           
@@ -84,6 +88,7 @@ export default function App() {
           {/* <Route path="*" element={<NotFound />} /> */}
         </Route>
       </Route> 
+      
       </Routes>
     </BrowserRouter>
   );

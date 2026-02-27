@@ -1,7 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function Sidebar() {
   const location = useLocation();
+  const { isAdmin } = useAuth();
 
   const navItems = [
     { path: "/", label: "Home", icon: "/assets/home_icon.svg" },
@@ -11,6 +13,9 @@ export default function Sidebar() {
     { path: "/chat", label: "Chat", icon: "/assets/chat_icon.svg" },
     {path: "/leaderboard", label: "Leaderboard", icon: "/assets/tournament_icon.svg" },
     { path: "/settings", label: "Settings", icon: "/assets/settings_icon.svg" },
+      ...(isAdmin
+    ? [{ path: "/admin", label: "Admin Panel", icon: "/assets/admin_icon.svg" }]
+    : []),
   ];
 
   const isActive = (path: string) => {
