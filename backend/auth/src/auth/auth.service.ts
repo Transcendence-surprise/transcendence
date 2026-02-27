@@ -1,11 +1,11 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
 import type { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { randomUUID, randomBytes, createHmac } from 'node:crypto';
+import { randomUUID, randomBytes, createHmac, randomInt } from 'node:crypto';
 
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
@@ -18,15 +18,24 @@ import authConfig from '../config/auth.config';
 import { ApiKey } from '@transcendence/db-entities';
 import { AxiosError } from 'axios';
 
+interface TwoFactorCode {
+  code: string;
+  expiresAt: Date;
+  userId: number;
+}
+
 @Injectable()
 export class AuthService {
+  private codeStore = new Map<string, TwoFactorCode>();
+  private readonly CODE_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
+
   constructor(
     @Inject(authConfig.KEY)
     private config: ConfigType<typeof authConfig>,
     private httpService: HttpService,
     private jwtService: JwtService,
     @InjectRepository(ApiKey)
-    private apiKeyRepo: Repository<ApiKey>
+    private apiKeyRepo: Repository<ApiKey>,
   ) {}
 
   async login(loginUserDto: LoginUserDto) {
@@ -34,7 +43,40 @@ export class AuthService {
       `${this.config.core.url}/api/users/validate-credentials`,
       loginUserDto,
     );
-    return this.generateJwtToken(response.data);
+
+    const user = response.data;
+
+    // Check if user has 2FA enabled
+    if (user.twoFactorEnabled) {
+      // Send 2FA code
+      await this.sendTwoFactorCode(user.email, user.id);
+
+      // Return 2FA required response (don't generate JWT yet)
+      return {
+        twoFactorRequired: true,
+        email: user.email,
+        message: 'A verification code has been sent to your email',
+      };
+    }
+
+    return this.generateJwtToken(user);
+  }
+
+  async loginWith2FA(email: string, code: string) {
+    // Verify the 2FA code
+    const valid = this.verifyTwoFactorCode(email, code);
+
+    if (!valid) {
+      throw new UnauthorizedException('Invalid or expired verification code');
+    }
+
+    // Get user by email
+    const user = await this.findUserByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return this.generateJwtToken(user);
   }
 
   async signup(signupUserDto: SignupUserDto) {
@@ -240,5 +282,53 @@ export class AuthService {
       access_token,
       user,
     };
+  }
+
+
+  private async sendTwoFactorCode(email: string, userId: number): Promise<void> {
+    const code = randomInt(100000, 999999).toString();
+    const expiresAt = new Date(Date.now() + this.CODE_EXPIRY_MS);
+
+    this.codeStore.set(email, { code, expiresAt, userId });
+
+    const subject = 'Your Two-Factor Authentication Code';
+    const text = `Your verification code is: ${code}\n\nThis code expires in 10 minutes.`;
+    const html = `<p>Your verification code is: <strong>${code}</strong></p><p>This code expires in 10 minutes.</p>`;
+
+    await this.httpService.axiosRef.post(
+      `${this.config.core.url}/api/mail`,
+      { to: email, subject, text, html }
+    );
+
+    this.cleanupExpiredCodes();
+  }
+
+  private verifyTwoFactorCode(email: string, code: string): boolean {
+    const stored = this.codeStore.get(email);
+
+    if (!stored) {
+      return false;
+    }
+
+    if (stored.expiresAt < new Date()) {
+      this.codeStore.delete(email);
+      return false;
+    }
+
+    if (stored.code !== code) {
+      return false;
+    }
+
+    this.codeStore.delete(email);
+    return true;
+  }
+
+  private cleanupExpiredCodes(): void {
+    const now = new Date();
+    for (const [email, data] of this.codeStore.entries()) {
+      if (data.expiresAt < now) {
+        this.codeStore.delete(email);
+      }
+    }
   }
 }

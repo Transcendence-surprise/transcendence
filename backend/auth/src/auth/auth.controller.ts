@@ -18,7 +18,9 @@ import type { ConfigType } from '@nestjs/config';
 import authConfig from '../config/auth.config';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
+import { LoginUserResDto } from './dto/login-user-res.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
+import { LoginWith2FADto } from './dto/login-with-2fa.dto';
 import {
   AuthControllerDocs,
   LoginDocs,
@@ -49,6 +51,26 @@ export class AuthController {
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
     const result = await this.authService.login(loginUserDto);
+
+    if ('twoFactorRequired' in result && result.twoFactorRequired) {
+      return result;
+    }
+
+    const { access_token, ...response } = result as LoginUserResDto;
+    this.setAccessTokenCookie(reply, access_token);
+    return response;
+  }
+
+  @Post('login/2fa')
+  @HttpCode(HttpStatus.OK)
+  async loginWith2FA(
+    @Body() loginWith2FADto: LoginWith2FADto,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const result = await this.authService.loginWith2FA(
+      loginWith2FADto.email,
+      loginWith2FADto.code,
+    );
     const { access_token, ...response } = result;
     this.setAccessTokenCookie(reply, access_token);
     return response;

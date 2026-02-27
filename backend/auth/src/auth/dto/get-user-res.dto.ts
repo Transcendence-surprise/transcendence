@@ -13,6 +13,9 @@ export class GetUserResDto {
   @ApiProperty({ type: 'array', example: 'user, admin' })
   roles: string[];
 
+  @ApiProperty({ type: 'boolean', example: false })
+  twoFactorEnabled: boolean;
+
   @ApiProperty({ type: 'string', example: '2026-01-31T20:22:42.819Z' })
   createdAt: string;
 
