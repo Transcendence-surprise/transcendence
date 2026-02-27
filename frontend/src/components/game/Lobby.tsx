@@ -47,9 +47,9 @@ export default function Lobby({
             <h2 className="text-4xl font-bold drop-shadow-lg text-white">
               Waiting for players
             </h2>
-            <p className="text-sm text-[#B7F6FF] text-center max-w-md">
+            {/* <p className="text-sm text-[#B7F6FF] text-center max-w-md">
               Game ID: {game.id} • Host: {game.hostId}
-            </p>
+            </p> */}
           </div>
 
           {/* Spectators badge */}

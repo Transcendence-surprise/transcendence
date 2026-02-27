@@ -18,15 +18,20 @@ export default function SingleSetupRoute() {
   const [loading, setLoading] = useState(false);
 
   const handleCreate = async (settings: SinglePlayerSettings) => {
+    if (!settings.levelId) {
+      setError("Please choose a level");
+      return;
+    }
+
     try {
       setError(null);
       setLoading(true);
 
       // const hostId = getCurrentUser()?.id || "unknown";     // FAKE USER
-      const game: { ok: boolean; gameId: string } = await createGame({
+      const game = await createGame({
         mode: "SINGLE",
         ...settings,
-      } as GameSettings);
+      });
 
       navigate(`/game/${game.gameId}`);
     } catch (err: any) {

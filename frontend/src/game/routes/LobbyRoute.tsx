@@ -7,16 +7,21 @@ import { socket } from "../../services/socket";
 import { getGameState, startGame, leaveGame } from "../../api/game";
 import Lobby from "../../components/game/Lobby";
 import { LobbyMessage } from "../models/lobbyMessage";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function LobbyRoute() {
   const navigate = useNavigate();
   const { gameId } = useParams();
   const location = useLocation();
 
+  const { user } = useAuth();
+  const currentUser =
+    (location.state as { currentUser?: any } | null)?.currentUser ||
+    user;
+  const currentUserId = currentUser?.id;
+
   const [messages, setMessages] = useState<LobbyMessage[]>([]);
   const [input, setInput] = useState("");
-
-  const { currentUserId } = location.state as { currentUserId: string; };
 
   const [game, setGame] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +32,11 @@ export default function LobbyRoute() {
 
   // Websocket for update game state
   useEffect(() => {
-    if (!gameId || !currentUserId) return;
+    if (!gameId || !currentUserId) {
+      // redirect if we can't determine user
+      navigate("/game");
+      return;
+    }
 
     socket.emit("joinLobby", { gameId, userId: currentUserId });
 
@@ -132,7 +141,7 @@ export default function LobbyRoute() {
   return (
     <Lobby
       game={game}
-      currentUserId={currentUserId}
+      currentUserId={currentUserId!}
       onGameStarted={handleStart}
       onGameLeave={handleLeave}
       error={startError}

@@ -37,26 +37,31 @@ export default function MultiplayerCreateRoute() {
     try {
       // if (!currentUser) throw new Error("No fake user available");
 
-      console.log("🚀 Creating game with settings:", settings);
-
       const availability = await checkPlayerAvailability();
+
+      console.log("🚀 Creating game with settings:", settings);
 
       if (!availability.ok) {
         if (!availability.gameId) {
           setError("Player is busy but no game found.");
           return;
         }
-        if (availability.phase === "PLAY") {
-          navigate(`/game/${availability.gameId}`);
-        } else {
-          navigate(`/multiplayer/lobby/${availability.gameId}`);
-        }
+        navigate(
+          availability.phase === "PLAY"
+            ? `/game/${availability.gameId}`
+            : `/multiplayer/lobby/${availability.gameId}`
+        );
         return;
       }
 
+      console.log("Player is available", settings);
+
       // const hostId = currentUser.id;
 
-      const game = await createGame(settings as GameSettings);
+      const game = await createGame({
+        mode: 'MULTI',
+        ...settings,
+      });
 
       // Multiplayer always goes to lobby first
       navigate(`/multiplayer/lobby/${game.gameId}`);

@@ -1,6 +1,14 @@
 // dtos/game.dto.ts
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import type { GameSettings, GameState } from '../models/state';
+import {
+  IsUUID,
+  IsEnum,
+  IsOptional,
+  IsBoolean,
+  IsString,
+  IsIn,
+  IsNumber,
+} from 'class-validator';
 import { StartError } from '../models/startResult';
 import { JoinError } from '../models/joinResult';
 // import type { BoardAction } from '../models/boardAction';
@@ -16,9 +24,42 @@ import { PlayerProgressDto } from './player-progress.dto';
 import { TurnActionsDto } from './turn-action.dto';
 import { GameResultDto } from './game-result.dto';
 
+export enum PlayerRole {
+  PLAYER = 'PLAYER',
+  SPECTATOR = 'SPECTATOR',
+}
+
 export class CreateGameDto {
-  @ApiProperty({ type: Object })
-  settings: GameSettings;
+  @ApiProperty({ enum: ['SINGLE', 'MULTI'] })
+  @IsEnum(['SINGLE', 'MULTI'])
+  mode: 'SINGLE' | 'MULTI';
+
+  // SINGLE
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  levelId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  allowSpectators?: boolean;
+
+  // MULTI
+  @ApiPropertyOptional({ enum: [2, 3, 4] })
+  @IsOptional()
+  @IsIn([2, 3, 4])
+  maxPlayers?: 2 | 3 | 4;
+
+  @ApiPropertyOptional({ enum: [6, 7, 8, 9] })
+  @IsOptional()
+  @IsIn([6, 7, 8, 9])
+  boardSize?: 6 | 7 | 8 | 9;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  collectiblesPerPlayer?: number;
 }
 
 export class CreateGameResponseDto {
@@ -44,10 +85,12 @@ export class StartResponseDto {
 
 export class JoinGameDto {
   @ApiProperty()
+  @IsUUID()
   gameId: string;
 
-  @ApiProperty({ enum: ['PLAYER', 'SPECTATOR'] })
-  role: 'PLAYER' | 'SPECTATOR';
+  @ApiProperty({ enum: PlayerRole })
+  @IsEnum(PlayerRole)
+  role: PlayerRole;
 }
 
 export class JoinResponseDto {
@@ -59,7 +102,8 @@ export class JoinResponseDto {
 }
 
 export class LeaveGameDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'ID of the game to leave' })
+  @IsUUID()
   gameId: string;
 }
 
@@ -85,7 +129,6 @@ export class LeaveResponseDto {
 //   @ApiProperty({ required: false, type: Object })
 //   moveAction?: MoveAction;
 // }
-
 
 export class GameStateDto {
   @ApiProperty()

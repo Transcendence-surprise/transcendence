@@ -16,21 +16,29 @@ export class GameController {
   }
 
   @Post('start')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
   startGame(@Body() body: unknown, @Req() req: FastifyRequest) {
     return this.gameClient.startGame(body, req);
   }
 
   @Post('join')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
   join(@Body() body: unknown, @Req() req: FastifyRequest) {
     return this.gameClient.joinGame(body, req);
   }
 
   @Post('leave')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
   leaveGame(@Body() body: unknown, @Req() req: FastifyRequest) {
     return this.gameClient.leaveGame(body, req);
   }
 
   @Get(':gameId')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
   getGameState(@Param('gameId') gameId: string, @Req() req: FastifyRequest) {
     return this.gameClient.getGameState(gameId, req);
   }
@@ -45,8 +53,10 @@ export class GameController {
     return this.gameClient.getMultiplayerGames(req);
   }
 
-  @Get('check-player/:playerId')
-  checkPlayer(@Param('playerId') playerId: string, @Req() req: FastifyRequest) {
-    return this.gameClient.checkPlayerAvailability(playerId, req);
+  @Get('check-player')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
+  checkPlayer(@Req() req: FastifyRequest) {
+    return this.gameClient.checkPlayerAvailability(req);
   }
 }

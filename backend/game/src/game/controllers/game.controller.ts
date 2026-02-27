@@ -55,8 +55,16 @@ export class GameController {
       throw new UnauthorizedException('User id missing');
     }
 
-    const { gameId } = this.engine.createGame( user.id, user.username, body.settings);
+    const settings = body as GameSettings;
+
+    const { gameId } = this.engine.createGame(
+      user.id,
+      user.username,
+      settings
+    );
+  
     this.wsGateway.sendMultiplayerListUpdate();
+  
     return { ok: true, gameId };
   }
 
@@ -147,19 +155,38 @@ export class GameController {
     return this.engine.getSinglePlayerLevels();
   }
 
-  @Get("multi/games")
+  @Get('multi/games')
   @ApiOkResponse({ type: MultiGameDto, isArray: true })
   getMultiplayerGames(): MultiGame[] {
     return this.engine.getMultiGames();
   }
 
-  @Get("check-player")
+  @Get('check-player')
   @ApiOkResponse({
     description: "Player availability result",
     type: CheckPlayerAvailabilityDto,
   })
   checkPlayer(@CurrentUser() user: PlayerContext) {
-    return this.engine.checkPlayerAvailability(user.id);
+    if (!user || !user.id) {
+      throw new UnauthorizedException("User not authenticated");
+    }
+
+    try {
+      const result = this.engine.checkPlayerAvailability(user.id);
+
+      return {
+        ok: result.ok,
+        gameId: result.gameId,
+        phase: result.phase || "LOBBY", // default phase
+      };
+    } catch (err) {
+      console.error("Check player availability failed:", err);
+
+      return {
+        ok: false,
+        phase: "LOBBY",
+      };
+    }
   }
 
 }

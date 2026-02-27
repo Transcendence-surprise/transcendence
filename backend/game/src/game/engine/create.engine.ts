@@ -30,6 +30,7 @@ export function createGame(
 
     state.hostId = hostId;
     state.hostName = nickname;
+    console.log(`${state.hostName} created new game!`);
     state.currentPlayerIndex = 0;
     state.currentPlayerId = hostId;
 
@@ -61,6 +62,7 @@ export function createGame(
 
   state.hostId = hostId;
   state.hostName = nickname;
+  console.log(`${state.hostName} created new game!`);
   state.currentPlayerIndex = 0;
   state.currentPlayerId = hostId;
 

@@ -17,15 +17,17 @@ export async function createGame(settings: GameSettings) {
   const res = await fetch('/api/game/create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ settings }),
+    credentials: 'include',
+    body: JSON.stringify(settings),
   });
+
   const data = await res.json();
 
   if (!res.ok || !data.ok) {
     throw new Error(data?.message || 'Failed to create game');
   }
 
-  return data; // { ok: true, gameId: string }
+  return data;
 }
 
 export async function joinGame(
@@ -35,6 +37,7 @@ export async function joinGame(
   const res = await fetch('/api/game/join', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ gameId, role }),
   });
   return res.json();
@@ -112,7 +115,10 @@ export async function checkPlayerAvailability(): Promise<{
   phase: string;
 }> {
 
-  const res = await fetch("/api/game/check-player");
+  const res = await fetch("/api/game/check-player", {
+    method: "GET",
+    credentials: "include",
+  });
 
   if (!res.ok) {
     throw new Error("Failed to check player availability");
