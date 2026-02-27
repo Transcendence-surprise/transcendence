@@ -127,6 +127,7 @@ services:
 
   healthchecker:
     image: alpine:3.23.3
+    container_name: healthchecker
     depends_on:
       nginx:
         condition: service_healthy
