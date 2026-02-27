@@ -46,12 +46,9 @@ export class AuthService {
 
     const user = response.data;
 
-    // Check if user has 2FA enabled
     if (user.twoFactorEnabled) {
-      // Send 2FA code
       await this.sendTwoFactorCode(user.email, user.id);
 
-      // Return 2FA required response (don't generate JWT yet)
       return {
         twoFactorRequired: true,
         email: user.email,
