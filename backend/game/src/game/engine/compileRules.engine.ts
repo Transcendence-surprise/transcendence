@@ -22,5 +22,6 @@ export function compileRules(settings: GameSettings): GameRules {
 
     requiresBoardActionPerTurn: true,
     fixedCorners: true,
+    boardSize: settings.boardSize,
   };
 }

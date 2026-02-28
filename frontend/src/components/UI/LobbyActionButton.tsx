@@ -16,7 +16,7 @@ export default function LobbyActionButton({
 
   const variantClass =
     variant === "leave"
-      ? "bg-red-600/80 hover:bg-red-500 text-white border border-red-400/30"
+      ? "bg-pink-500/90 hover:bg-pink-400 text-white border border-pink-300/40"
       : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:shadow-[0_8px_20px_rgba(0,234,255,0.4)] text-white border border-cyan-400/30";
 
   return (

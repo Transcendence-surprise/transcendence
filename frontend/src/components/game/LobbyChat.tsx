@@ -26,7 +26,7 @@ export default function LobbyChat({
         ) : (
           messages.map((msg, i) => (
             <div key={i} className="text-sm">
-              <span className="text-cyan-400 font-semibold">{msg.userId}</span>
+              <span className="text-cyan-400 font-semibold">{msg.userName}</span>
               <span className="text-[#B7F6FF]">: {msg.message}</span>
             </div>
           ))

@@ -1,5 +1,5 @@
 export type LobbyMessage = {
-  userId: string;
+  userName: string;
   message: string;
   timestamp: number;
 };

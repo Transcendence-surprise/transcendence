@@ -12,13 +12,8 @@ import { useAuth } from "../../hooks/useAuth";
 export default function LobbyRoute() {
   const navigate = useNavigate();
   const { gameId } = useParams();
-  const location = useLocation();
 
   const { user } = useAuth();
-  const currentUser =
-    (location.state as { currentUser?: any } | null)?.currentUser ||
-    user;
-  const currentUserId = currentUser?.id;
 
   const [messages, setMessages] = useState<LobbyMessage[]>([]);
   const [input, setInput] = useState("");
@@ -32,24 +27,31 @@ export default function LobbyRoute() {
 
   // Websocket for update game state
   useEffect(() => {
-    if (!gameId || !currentUserId) {
+    if (!gameId || !user?.id) {
       // redirect if we can't determine user
       navigate("/game");
       return;
     }
 
-    socket.emit("joinLobby", { gameId, userId: currentUserId });
+    if (socket.connected) {
+      socket.emit("joinLobby", { gameId });
+    } else {
+      socket.on("connect", () => {
+        console.log("Socket connected -> now joining lobby");
+        socket.emit("joinLobby", { gameId });
+      })
+    }
 
     socket.on("lobbyUpdate", (data) => {
       console.log("LOBBY UPDATE RECEIVED", data);
       setGame({
         id: data.gameId,
-        hostId: data.host,
+        hostName: data.host,
         players: data.players,
-        rules: { maxPlayers: data.maxPlayers },
+        rules: data.rules,
         phase: data.phase,
       });
-      console.log(data.players);
+    console.log("Game after set:", game);
     });
 
     socket.on("lobbyMessage", (msg) => {
@@ -63,11 +65,12 @@ export default function LobbyRoute() {
     });
 
     return () => {
+      socket.off("connect");
       socket.off("lobbyUpdate");
       socket.off("lobbyMessage");
       socket.off("error"); 
     };
-  }, [gameId, currentUserId]);
+  }, [gameId]);
 
   // Start game (host only)
   const handleStart = async () => {
@@ -128,7 +131,6 @@ export default function LobbyRoute() {
 
     socket.emit("lobbyMessage", {
       gameId,
-      userId: currentUserId,
       message: input,
     });
 
@@ -141,7 +143,6 @@ export default function LobbyRoute() {
   return (
     <Lobby
       game={game}
-      currentUserId={currentUserId!}
       onGameStarted={handleStart}
       onGameLeave={handleLeave}
       error={startError}

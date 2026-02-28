@@ -78,6 +78,8 @@ export function createGame(
     })),
   };
 
+  console.log("CREATE GAME SPECTATORS:", state.rules.allowSpectators);
+
   // Final state setup
   state.spectators = [];
   state.phase = "LOBBY";

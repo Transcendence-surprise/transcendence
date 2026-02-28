@@ -41,8 +41,7 @@ export default function SignupForm({ onClose, onSwitchToLogin }: SignupFormProps
       formData.password
     );
     onClose();
-    navigate('/'); 
-    alert('Welcome, ${data.user.username}!');
+    navigate('/');                                  // maybe current path?
   } catch (err: any) {
     console.error('Signup error:', err.message);
     alert(`Signup failed: ${err.message}`);

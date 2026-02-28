@@ -50,6 +50,7 @@ export interface GameRules {
 
   requiresBoardActionPerTurn: boolean;
   fixedCorners: boolean;
+  boardSize?: number;
 }
 
 export interface GameState {

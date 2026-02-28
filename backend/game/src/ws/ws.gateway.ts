@@ -7,6 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { EngineService } from '../game/services/engine.service.nest';
+import jwt from 'jsonwebtoken';
 
 type LobbyMessage = {
   userId: string;
@@ -15,7 +16,12 @@ type LobbyMessage = {
 };
 
 
-@WebSocketGateway({ cors: { origin: '*' } })
+@WebSocketGateway({
+    cors: {
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  },
+})
 export class WsGateway {
   @WebSocketServer()
   server: Server;
@@ -23,6 +29,29 @@ export class WsGateway {
 // Dont touch!!!
 
   constructor(private engine: EngineService) {}
+
+  // JWT stored in 'access_token' cookie
+  async handleConnection(client: Socket) {
+    try {
+      const token = client.handshake.headers.cookie
+        ?.split(';')
+        .map(c => c.trim())
+        .find(c => c.startsWith('access_token='))
+        ?.split('=')[1];
+
+      if (!token) {
+        client.disconnect(true);
+        return;
+      }
+
+      const user = jwt.verify(token, process.env.JWT_SECRET!);
+      (client as any).user = user;
+      console.log('WS connected for user', user);
+    } catch (err) {
+      console.log('WS auth failed', err);
+      client.disconnect(true);
+    }
+  }
 
   // --------------------
   // Generic room control
@@ -57,12 +86,18 @@ export class WsGateway {
 
   @SubscribeMessage('joinLobby')
   handleJoinLobby(
-      @MessageBody() data: { gameId: string; userId: string },
+      @MessageBody() data: { gameId: string },
       @ConnectedSocket() client: Socket,
   ) {
+    // Validate user
+    const user = (client as any).user;
+      if (!user) return client.disconnect(true);
+
       const state = this.engine.getGameState(data.gameId);
 
       console.log("LOBBY_UPDATE_START");
+      console.log("LOBBY_USER: ", user.username);
+      // console.log("Game state:", JSON.stringify(state, null, 2));
 
       if (!state) {
         console.log("GAME_NOT_FOUND");
@@ -76,14 +111,21 @@ export class WsGateway {
       const room = `lobby:${data.gameId}`;
       client.join(room);
 
+        const playersWithNames = state.players.map(p => ({
+        id: p.id,
+        displayName: p.name, // or username
+      }));
+
+      const host = playersWithNames.find(p => p.id === state.hostId);
+
+      console.log("Players: ", playersWithNames);
       console.log("Spectators: ", state.rules.allowSpectators);
 
       this.server.to(room).emit('lobbyUpdate', {
       gameId: data.gameId,
-      host: state.hostId,
-      players: state.players,
-      maxPlayers: state.rules.maxPlayers,
-      allowSpectators: state.rules.allowSpectators,
+      host: host?.displayName ?? "Unknown",
+      players: playersWithNames,
+      rules: state.rules,
       phase: state.phase,
       });
   }
@@ -105,25 +147,30 @@ export class WsGateway {
     });
   }
 
-
   @SubscribeMessage("lobbyMessage")
   handleLobbyMessage(
     @MessageBody()
-    payload: { gameId: string; userId: number; message: string },
+    payload: { gameId: string; message: string },
+    @ConnectedSocket() client: Socket,
   ) {
+    const user = (client as any).user;
+    if (!user) return client.disconnect(true);
+
+    console.log("CHAT_USER: ", user.username);
+
     const state = this.engine.getGameState(payload.gameId);
 
     if (!state) {
-      return; // or emit error
+      return client.emit("error", { error: "GAME_NOT_FOUND" });
     }
 
     const isInLobby =
-      state.players.some(p => p.id === payload.userId) ||
-      state.spectators.some(s => s.id === payload.userId);
+      state.players.some(p => p.id === user.sub) ||
+      state.spectators.some(s => s.id === user.sub);
 
     if (!isInLobby) {
       return this.server
-        .to(`lobby:${payload.gameId}`)
+        .to(`lobby:${user.gameId}`)
         .emit("error", { error: "NOT_IN_LOBBY" });
     }
 
@@ -134,7 +181,7 @@ export class WsGateway {
     }
 
     const chatMessage = {
-      userId: payload.userId,
+      userName: user.username,
       message: payload.message,
       timestamp: Date.now(),
     };
