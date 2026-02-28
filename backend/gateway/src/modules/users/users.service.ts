@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { lastValueFrom } from 'rxjs';
 import type { FastifyRequest } from 'fastify';
 
 interface JwtPayload {
@@ -71,12 +72,21 @@ export class UsersHttpService {
     requireUser = false,
   ): Promise<T> {
     const headers = this.buildForwardHeaders(req, requireUser);
-    const res = await this.http.axiosRef.request<T>({
-      method,
-      url: path,
-      headers,
-      ...(method === 'get' || method === 'delete' ? {} : { data: body ?? {} }),
-    });
+    const hasBody = method !== 'get' && method !== 'delete';
+
+    if (req?.headers?.['content-type']) {
+      headers['content-type'] = req.headers['content-type'];
+    }
+
+    if (hasBody && !headers['content-type']) {
+      headers['content-type'] = 'application/json';
+    }
+
+    const config = { headers };
+
+    const res = hasBody
+      ? await lastValueFrom(this.http[method]<T>(path, body ?? {}, config))
+      : await lastValueFrom(this.http[method]<T>(path, config));
 
     return res.data;
   }
