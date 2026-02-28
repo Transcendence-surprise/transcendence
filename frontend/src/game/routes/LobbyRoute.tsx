@@ -2,21 +2,21 @@
 
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
-import { socket } from "../../services/socket";
+import { useParams } from "react-router-dom";
+import { connectSocket, getSocket } from "../../services/socket";
 import { getGameState, startGame, leaveGame } from "../../api/game";
 import Lobby from "../../components/game/Lobby";
 import { LobbyMessage } from "../models/lobbyMessage";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function LobbyRoute() {
   const navigate = useNavigate();
   const { gameId } = useParams();
-  const location = useLocation();
+
+  const { user } = useAuth();
 
   const [messages, setMessages] = useState<LobbyMessage[]>([]);
   const [input, setInput] = useState("");
-
-  const { currentUserId } = location.state as { currentUserId: string; };
 
   const [game, setGame] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -27,20 +27,33 @@ export default function LobbyRoute() {
 
   // Websocket for update game state
   useEffect(() => {
-    if (!gameId || !currentUserId) return;
+    if (!gameId || !user?.id) {
+      // redirect if we can't determine user
+      navigate("/game");
+      return;
+    }
 
-    socket.emit("joinLobby", { gameId, userId: currentUserId });
+    const socket = connectSocket();
+
+    if (socket.connected) {
+      socket.emit("joinLobby", { gameId });
+    } else {
+      socket.on("connect", () => {
+        console.log("Socket connected -> now joining lobby");
+        socket.emit("joinLobby", { gameId });
+      })
+    }
 
     socket.on("lobbyUpdate", (data) => {
       console.log("LOBBY UPDATE RECEIVED", data);
       setGame({
         id: data.gameId,
-        hostId: data.host,
+        hostName: data.host,
         players: data.players,
-        rules: { maxPlayers: data.maxPlayers },
+        rules: data.rules,
         phase: data.phase,
       });
-      console.log(data.players);
+    console.log("Game after set:", game);
     });
 
     socket.on("lobbyMessage", (msg) => {
@@ -54,11 +67,12 @@ export default function LobbyRoute() {
     });
 
     return () => {
+      socket.off("connect");
       socket.off("lobbyUpdate");
       socket.off("lobbyMessage");
       socket.off("error"); 
     };
-  }, [gameId, currentUserId]);
+  }, [gameId]);
 
   // Start game (host only)
   const handleStart = async () => {
@@ -71,7 +85,7 @@ export default function LobbyRoute() {
       setStarting(true);
       setError(null);
 
-      const res = await startGame(gameId!, currentUserId);
+      const res = await startGame(gameId!);
 
       if (!res.ok) {
         console.warn("Cannot start game:", res.error);
@@ -104,7 +118,7 @@ export default function LobbyRoute() {
 
     setLeaveError(null);
 
-    const res = await leaveGame(gameId, currentUserId);
+    const res = await leaveGame(gameId);
 
     if (res.ok) {
       navigate("/multiplayer/join");
@@ -117,9 +131,11 @@ export default function LobbyRoute() {
   const sendMessage = () => {
     if (!input.trim() || !gameId) return;
 
+    const socket = getSocket(); // get the existing socket instance
+    if (!socket || !input.trim() || !gameId) return;
+
     socket.emit("lobbyMessage", {
       gameId,
-      userId: currentUserId,
       message: input,
     });
 
@@ -132,7 +148,6 @@ export default function LobbyRoute() {
   return (
     <Lobby
       game={game}
-      currentUserId={currentUserId}
       onGameStarted={handleStart}
       onGameLeave={handleLeave}
       error={startError}

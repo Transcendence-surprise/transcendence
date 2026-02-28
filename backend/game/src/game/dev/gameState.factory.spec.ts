@@ -12,7 +12,8 @@ const multiSettings = (overrides?: Partial<MultiplayerSettings>): GameSettings =
 });
 
 describe('Game Engine', () => {
-  const hostId = 'host1';
+    const hostId = 123;
+    const nickname = "HOST1";
 
   it('should create a single-player game in PLAY phase', () => {
     const settings: GameSettings = {
@@ -20,7 +21,7 @@ describe('Game Engine', () => {
       allowSpectators: false,
     };
 
-    const state = createGame(hostId, settings);
+    const state = createGame(hostId, nickname, settings);
 
     expect(state.phase).toBe('PLAY');
     expect(state.rules.mode).toBe('SINGLE');
@@ -36,7 +37,7 @@ describe('Game Engine', () => {
       allowSpectators: false,
     };
 
-    const state = createGame(hostId, settings);
+    const state = createGame(hostId, nickname, settings);
 
     expect(state.phase).toBe('PLAY');
     expect(state.currentPlayerId).toBe(hostId);
@@ -49,11 +50,13 @@ describe('Game Engine', () => {
       collectiblesPerPlayer: 3,
     });
 
-    const state = createGame("HOST1", settings);
+    const state = createGame(123, "HOST1", settings);
 
     expect(state.phase).toBe('LOBBY');      // multiplayer still starts in lobby
     expect(state.rules.mode).toBe('MULTI');
-    expect(state.hostId).toBe("HOST1");
+    expect(state.hostId).toBe(123);
+    expect(state.hostName).toBe("HOST1");
+    console.log("collectibles:", state.players);
     expect(state.players.length).toBe(1);
   });
 });

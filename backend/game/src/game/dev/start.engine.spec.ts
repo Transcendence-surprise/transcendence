@@ -15,10 +15,11 @@ const multiSettings = (overrides?: Partial<MultiplayerSettings>): GameSettings =
 });
 
 describe("startGameEngine", () => {
-  const hostId = "HOST1";
+  const hostId = 1;
+  const nickname = "HOST1";
 
   it("auto-starts single-player game", () => {
-    const state = createGame(hostId, {
+    const state = createGame(hostId, nickname, {
       mode: "SINGLE",
       allowSpectators: false,
     });
@@ -31,10 +32,10 @@ describe("startGameEngine", () => {
   });
 
   it("starts multiplayer game if host and enough players", () => {
-    const state = createGame(hostId, multiSettings());
+    const state = createGame(hostId, nickname, multiSettings());
 
     // Add second player to satisfy minimum
-    joinGameEngine(state, "P2", "PLAYER");
+    joinGameEngine(state, 2, "P2", "PLAYER");
 
     const result = startGameEngine(state, hostId);
 
@@ -44,18 +45,18 @@ describe("startGameEngine", () => {
   });
 
   it("fails if non-host tries to start multiplayer game", () => {
-    const state = createGame(hostId, multiSettings());
+    const state = createGame(hostId, nickname, multiSettings());
 
-    joinGameEngine(state, "P2", "PLAYER");
+    joinGameEngine(state, 2, "P2", "PLAYER");
 
-    const result = startGameEngine(state, "P2"); // non-host
+    const result = startGameEngine(state, 2); // non-host
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toBe(StartError.NOT_HOST);
   });
 
   it("fails if not enough players", () => {
-    const state = createGame(hostId, multiSettings({ maxPlayers: 4 }));
+    const state = createGame(hostId, nickname, multiSettings({ maxPlayers: 4 }));
 
     // Only host is present, not enough
     const result = startGameEngine(state, hostId);
@@ -65,8 +66,8 @@ describe("startGameEngine", () => {
   });
 
   it("fails if game already started", () => {
-    const state = createGame(hostId, multiSettings());
-    joinGameEngine(state, "P2", "PLAYER");
+    const state = createGame(hostId, nickname, multiSettings());
+    joinGameEngine(state, 2, "P2", "PLAYER");
 
     // Start first time
     const first = startGameEngine(state, hostId);

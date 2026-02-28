@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser } from "../utils/fakeUser";
+// import { getCurrentUser } from "../utils/fakeUser";
 import { createGame } from "../../api/game";
 import { GameSettings, SinglePlayerSettings } from "../models/gameSettings";
 import SinglePlayerSettingsForm from "../../components/game/SinglePlayerSettings";
@@ -18,15 +18,20 @@ export default function SingleSetupRoute() {
   const [loading, setLoading] = useState(false);
 
   const handleCreate = async (settings: SinglePlayerSettings) => {
+    if (!settings.levelId) {
+      setError("Please choose a level");
+      return;
+    }
+
     try {
       setError(null);
       setLoading(true);
 
-      const hostId = getCurrentUser()?.id || "unknown";     // FAKE USER
-      const game: { ok: boolean; gameId: string } = await createGame(hostId, {
+      // const hostId = getCurrentUser()?.id || "unknown";     // FAKE USER
+      const game = await createGame({
         mode: "SINGLE",
         ...settings,
-      } as GameSettings);
+      });
 
       navigate(`/game/${game.gameId}`);
     } catch (err: any) {

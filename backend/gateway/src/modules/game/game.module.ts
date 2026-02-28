@@ -5,6 +5,7 @@ import { ConfigType } from '@nestjs/config';
 import gatewayConfig from '../../common/config/gateway.config';
 import { GameController } from './game.controller';
 import { GameHttpService } from './game.service';
+import { AuthHttpModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { GameHttpService } from './game.service';
         maxRedirects: 5,
       }),
     }),
+    AuthHttpModule,
   ],
   controllers: [GameController],
   providers: [GameHttpService],

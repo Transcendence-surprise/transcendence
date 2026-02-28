@@ -9,7 +9,7 @@ import { StartResult, StartError } from "../models/startResult";
  */
 export function startGameEngine(
   state: GameState,
-  playerId: string
+  playerId: number
 ): StartResult {
   // Already started?
   if (state.phase !== "LOBBY") {

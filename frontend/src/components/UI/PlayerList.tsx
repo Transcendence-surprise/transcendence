@@ -1,14 +1,15 @@
 type PlayerListProps = {
-  players: Array<{ id: string }>;
-  currentUserId: string;
+  players: { id: number; displayName: string }[];
+  hostId: number;
   maxPlayers: number;
 };
 
 export default function PlayerList({
   players,
-  currentUserId,
+  hostId,
   maxPlayers,
 }: PlayerListProps) {
+  console.log("PlayerList received:", players);
   return (
     <div className="rounded-lg border border-[#FFFFFF1A] bg-[#101019] px-6 py-4">
       <h3 className="text-lg font-bold text-[#00eaff] mb-3">Players</h3>
@@ -22,10 +23,7 @@ export default function PlayerList({
             className="flex items-center gap-2 text-sm text-[#B7F6FF]"
           >
             <span className="h-2 w-2 rounded-full bg-cyan-400" />
-            {player.id}
-            {player.id === currentUserId && (
-              <span className="text-xs text-cyan-300 ml-auto">(You)</span>
-            )}
+            {player.displayName} {player.id === hostId ? "(Host)" : ""}
           </div>
         ))}
       </div>

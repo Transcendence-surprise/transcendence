@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GameController } from './game.controller';
 import { GameHttpService } from './game.service';
 import type { FastifyRequest } from 'fastify';
+import { AuthGuard } from '../../common/guards/auth.guard';
 
 /* eslint-disable @typescript-eslint/unbound-method */
 
@@ -29,7 +30,10 @@ describe('GameController', () => {
           useValue: mockService,
         },
       ],
-    }).compile();
+    })
+    .overrideGuard(AuthGuard)
+    .useValue({ canActivate: () => true })
+    .compile();
 
     controller = module.get<GameController>(GameController);
     service = module.get(GameHttpService);

@@ -12,13 +12,13 @@ export function createMultiplayerLevel(
   const board: Board = createMultiplayerBoard(settings.boardSize);
 
   const startingPoints = [
-    { playerId: "P1", x: 0, y: 0 },
-    { playerId: "P2", x: board.width - 1, y: board.height - 1 },
+    { slotId: "P1", x: 0, y: 0 },
+    { slotId: "P2", x: board.width - 1, y: board.height - 1 },
     ...(settings.maxPlayers >= 3
-      ? [{ playerId: "P3", x: board.width - 1, y: 0 }]
+      ? [{ slotId: "P3", x: board.width - 1, y: 0 }]
       : []),
     ...(settings.maxPlayers === 4
-      ? [{ playerId: "P4", x: 0, y: board.height - 1 }]
+      ? [{ slotId: "P4", x: 0, y: board.height - 1 }]
       : []),
   ];
 
@@ -27,7 +27,7 @@ export function createMultiplayerLevel(
     { type: "RETURN_HOME" },
   ];
 
-  const playerIds = startingPoints.map(p => p.playerId);
+  const playerIds = startingPoints.map(p => p.slotId);
 
   const collectiblesBase = generateMultiplayerCollectibles(
     playerIds,

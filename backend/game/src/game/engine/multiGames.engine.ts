@@ -10,15 +10,16 @@ export function getMultiplayerGames(gamesMap: Map<string, GameState>): MultiGame
     if (state.rules.mode !== "MULTI") continue;
     if (state.phase === "END") continue;
 
-multiGames.push({
-  id: gameId,
-  hostId: state.hostId || "unknown",                     // default if undefined
-  phase: state.phase as "LOBBY" | "PLAY",
-  maxPlayers: state.rules.maxPlayers || 2,              // default to 2 if undefined
-  joinedPlayers: state.players.length,
-  allowSpectators: state.rules.allowSpectators ?? false, // default false
-  collectiblesPerPlayer: state.rules.collectiblesPerPlayer || 1, // default 1
-});
+    multiGames.push({
+      id: gameId,
+      hostId: state.hostId,
+      hostName: state.hostName,        
+      phase: state.phase as "LOBBY" | "PLAY",
+      maxPlayers: state.rules.maxPlayers || 2,              // default to 2 if undefined
+      joinedPlayers: state.players.length,
+      allowSpectators: state.rules.allowSpectators ?? false, // default false
+      collectiblesPerPlayer: state.rules.collectiblesPerPlayer || 1, // default 1
+    });
   }
 
   return multiGames;

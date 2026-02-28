@@ -1,47 +1,34 @@
 import { Level } from "../models/level";
-import { GameState, PlayerState, PlayerProgress } from "../models/state";
-import { LevelObjective } from "../models/objective";
+import { GameState, PlayerState } from "../models/state";
 
 export function createGameState(level: Level): GameState {
-  const players: PlayerState[] =
-    level.startingPoints.length > 0
-      ? level.startingPoints.map(p => ({
-          id: p.playerId,
+  const initialPlayers: PlayerState[] =
+    level.startingPoints.length === 1
+      ? level.startingPoints.map((p, index) => ({
+          id: 0, // placeholder, will be filled by host
+          slotId: p.slotId ?? `P${index + 1}`, // assign slot if missing
+          name: "Player 1",
           x: p.x,
           y: p.y,
           hasMoved: false,
         }))
-      : [
-          {
-            id: "P1",
-            x: 0,
-            y: 0,
-            hasMoved: false,
-          },
-        ]; // fallback
-
-  // Initialize per-player progress
-  const playerProgress: Record<string, PlayerProgress> = {};
-  for (const p of players) {
-    playerProgress[p.id] = {
-      collectedItems: [],
-      currentCollectibleId: level.collectibles?.[0]?.id,
-      objectives: (level.objectives ?? []).map((obj: LevelObjective) => ({
-        type: obj.type,
-        done: false,
-        progress: obj.type === "COLLECT_N" || obj.type === "COLLECT_ALL" ? 0 : undefined,
-      })),
-    };
-  }
+      : [];  // multiplayer starts empty, host will join later
 
   return {
     levelId: level.id,
-    level, // full level stored here
-    phase: "PLAY",
+    level,
+
+    phase: "LOBBY",       // default
+
+    hostId: 0,            // temporary placeholder
+    hostName: "",
+
+    players: initialPlayers,
+    spectators: [],
 
     rules: {
-      mode: "SINGLE",
-      maxPlayers: 1,
+      mode: level.startingPoints.length === 1 ? "SINGLE" : "MULTI",
+      maxPlayers: level.startingPoints.length === 1 ? 1 : level.startingPoints.length,
       allowSpectators: false,
       requiresBoardActionPerTurn: false,
       fixedCorners: false,
@@ -49,11 +36,8 @@ export function createGameState(level: Level): GameState {
 
     board: structuredClone(level.board),
 
-    players,
-    spectators: [],
-
     currentPlayerIndex: 0,
-    currentPlayerId: players[0]?.id ?? null,
+    currentPlayerId: null,
 
     lastBoardAction: undefined,
 
@@ -63,12 +47,15 @@ export function createGameState(level: Level): GameState {
       swapDone: false,
     },
 
-    playerProgress,          // <-- objectives now live here
+    playerProgress: {},   // EMPTY
+
     gameEnded: false,
     boardActionsPending: true,
 
     collected: Object.fromEntries(
       (level.collectibles ?? []).map(c => [c.id, false])
     ),
+
+    gameResult: undefined,
   };
 }

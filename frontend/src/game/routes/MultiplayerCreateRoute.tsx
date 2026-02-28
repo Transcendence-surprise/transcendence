@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser, getSecondUser } from "../utils/fakeUser";
+// import { getCurrentUser, getSecondUser } from "../utils/fakeUser";
 import { createGame, checkPlayerAvailability } from "../../api/game";
 import { GameSettings, MultiplayerSettings } from "../models/gameSettings";
 import MultiplayerSettingsForm from "../../components/game/MultiplayerSettings";
@@ -25,43 +25,46 @@ export default function MultiplayerCreateRoute() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const currentUser = getCurrentUser(); // host                     FAKE
-  const secondUser = getSecondUser();   // optional second player   FAKE
+  // const currentUser = getCurrentUser(); // host                     FAKE
+  // const secondUser = getSecondUser();   // optional second player   FAKE
 
-  console.log("currentUserId:", currentUser);
+  // console.log("currentUserId:", currentUser);
 
   const handleCreate = async () => {
     setError(null);
     setLoading(true);
 
     try {
-      if (!currentUser) throw new Error("No fake user available");
+      // if (!currentUser) throw new Error("No fake user available");
+
+      const availability = await checkPlayerAvailability();
 
       console.log("🚀 Creating game with settings:", settings);
-
-      const availability = await checkPlayerAvailability(currentUser.id);
 
       if (!availability.ok) {
         if (!availability.gameId) {
           setError("Player is busy but no game found.");
           return;
         }
-        if (availability.phase === "PLAY") {
-          navigate(`/game/${availability.gameId}`);
-        } else {
-          navigate(`/multiplayer/lobby/${availability.gameId}`);
-        }
+        navigate(
+          availability.phase === "PLAY"
+            ? `/game/${availability.gameId}`
+            : `/multiplayer/lobby/${availability.gameId}`
+        );
         return;
       }
 
-      const hostId = currentUser.id;
+      console.log("Player is available", settings);
 
-      const game = await createGame(hostId, settings as GameSettings);
+      // const hostId = currentUser.id;
+
+      const game = await createGame({
+        mode: 'MULTI',
+        ...settings,
+      });
 
       // Multiplayer always goes to lobby first
-      navigate(`/multiplayer/lobby/${game.gameId}`, {
-        state: { currentUserId: currentUser.id },         // Can check with different FAKE users
-      });
+      navigate(`/multiplayer/lobby/${game.gameId}`);
 
     } catch (err: any) {
       setError(err.message || "Failed to create game");

@@ -46,8 +46,8 @@ export class GameHttpService {
     return this.request<T>('get', '/api/game/multi/games', undefined, req);
   }
 
-  async checkPlayerAvailability<T = unknown>(playerId: string, req?: FastifyRequest): Promise<T> {
-    return this.request<T>('get', `/api/game/check-player/${playerId}`, undefined, req);
+  async checkPlayerAvailability<T = unknown>(req?: FastifyRequest): Promise<T> {
+    return this.request<T>('get', `/api/game/check-player`, undefined, req);
   }
 
   private async request<T>(

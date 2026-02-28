@@ -11,7 +11,7 @@ interface LoginFormProps {
 
 export default function LoginForm({ onClose, onSwitchToSignup }: LoginFormProps) {
   const [formData, setFormData] = useState({
-    email: '',
+    identifier: '',
     password: '',
     rememberMe: false,
   });
@@ -24,7 +24,7 @@ export default function LoginForm({ onClose, onSwitchToSignup }: LoginFormProps)
     console.log('Login attempt:', formData);
 
     try {
-      await login(formData.email, formData.password);
+      await login(formData.identifier, formData.password);
       onClose();
       navigate(`/`);
     } catch (err: any) {
@@ -65,25 +65,24 @@ export default function LoginForm({ onClose, onSwitchToSignup }: LoginFormProps)
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+
           <div>
             <label htmlFor="login-email" className="block text-sm font-medium text-white mb-2">
-              Email
+              Username or Email
             </label>
-            <div className="relative">
+           <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </span>
               <input
-                id="login-email"
-                type="email"
-                name="email"
-                value={formData.email}
+                type="text"
+                name="identifier"
+                className="w-full pl-12 pr-4 py-3.5 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
                 onChange={handleChange}
                 required
-                className="w-full pl-12 pr-4 py-3.5 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
-                placeholder="player@example.com"
+                placeholder="username or email"
               />
             </div>
           </div>
@@ -131,7 +130,7 @@ export default function LoginForm({ onClose, onSwitchToSignup }: LoginFormProps)
             type="submit"
             className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50"
           >
-            Sign In
+            Login
           </button>
         </form>
 

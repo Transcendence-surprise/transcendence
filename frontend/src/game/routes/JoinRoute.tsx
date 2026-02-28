@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getMultiplayerGames, joinGame, checkPlayerAvailability } from "../../api/game";
 import { MultiGame } from "../models/multiGames";
 import JoinTable from "../../components/game/Join";
-import { socket } from "../../services/socket";
+import { connectSocket } from "../../services/socket";
 
 export default function MultiplayerJoinRoute() {
   const navigate = useNavigate();
@@ -12,9 +12,9 @@ export default function MultiplayerJoinRoute() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const secondUser = "user-3yaosz";   // optional second player   FAKE
+  // const secondUser = "user-3yaosz";   // optional second player   FAKE
 
-  console.log("currentUserId from join:", secondUser);
+  // console.log("currentUserId from join:", secondUser);
 
   useEffect(() => {
     setLoading(true);
@@ -22,6 +22,8 @@ export default function MultiplayerJoinRoute() {
       .then((data) => setGames(data))
       .catch((err) => setError(err.message || "Failed to load games"))
       .finally(() => setLoading(false));
+
+      const socket = connectSocket();
 
       socket.emit("joinMultiplayerList");
 
@@ -39,7 +41,7 @@ export default function MultiplayerJoinRoute() {
     try {
       setLoading(true);
 
-      const availability = await checkPlayerAvailability(secondUser);
+      const availability = await checkPlayerAvailability();
 
       if (!availability.ok) {
         if (!availability.gameId) {
@@ -54,16 +56,14 @@ export default function MultiplayerJoinRoute() {
           return;
         }
 
-        const result = await joinGame(gameId, secondUser, "PLAYER");
+        const result = await joinGame(gameId, "PLAYER");
 
         if (!result.ok) {
           setError(result.error || "Failed to join game");
           return;
         }
 
-        navigate(`/multiplayer/lobby/${gameId}`, {
-          state: { currentUserId: secondUser },
-        });
+        navigate(`/multiplayer/lobby/${gameId}`);
 
       } catch (err: any) {
         setError(err.message || "Failed to join game");

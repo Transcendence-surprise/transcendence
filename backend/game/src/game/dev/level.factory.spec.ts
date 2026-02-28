@@ -30,7 +30,7 @@ describe('createSingleplayerLevel', () => {
 
     level.startingPoints.forEach((sp, index) => {
       const metaSP = Puzzle01Meta.startingPoints[index];
-      expect(sp.playerId).toBe(metaSP.playerId);
+      expect(sp.slotId).toBe(metaSP.slotId);
       expect(sp.x).toBe(metaSP.x);
       expect(sp.y).toBe(metaSP.y);
     });

@@ -23,22 +23,26 @@ import * as crypto from 'crypto';
 export class EngineService {
   private games = new Map<string, GameState>();
 
-  createGame(hostId: string, settings: GameSettings) {
-    const state = createGameEngine(hostId, settings); // from create.engine.ts
+  createGame(hostId: number, nickname:string, settings: GameSettings) {
+    const state = createGameEngine(hostId, nickname, settings); // from create.engine.ts
     const gameId = crypto.randomUUID();
     this.games.set(gameId, state);
     return { gameId };
   }
 
-  getGameState(gameId: string): GameState {
+  getGameState(gameId: string): GameState | null {
     const state = this.games.get(gameId);
-    if (!state) throw new Error('Game not found');
-    return state;
+    return state ?? null;
   }
 
-  startGame(gameId: string, hostId: string) {
+  startGame(gameId: string, hostId: number) {
     try {
       const state = this.getGameState(gameId);
+
+      if (!state) {
+        return { ok: false, error: StartError.GAME_NOT_FOUND };
+  }
+
       return startGameEngine(state, hostId);
     } catch (err) {
       return { ok: false, error: StartError.GAME_NOT_FOUND };
@@ -47,14 +51,15 @@ export class EngineService {
 
   joinGame(
     gameId: string,
-    playerId: string,
+    playerId: number,
+    name: string,
     role: "PLAYER" | "SPECTATOR"
   ) {
     const state = this.getGameState(gameId);
     if (!state) {
       return { ok: false, error: JoinError.GAME_NOT_FOUND };
     }
-    return joinGameEngine(state, playerId, role);
+    return joinGameEngine(state, playerId, name, role);
   }
 
 //   processTurn(
@@ -65,8 +70,12 @@ export class EngineService {
 //     return processTurnFn(state, boardAction, moveAction);
 //   }
 
-  leaveGame(gameId: string, playerId: string): LeaveResult {
+  leaveGame(gameId: string, playerId: number): LeaveResult {
     const state = this.getGameState(gameId);
+
+    if (!state) {
+      return { ok: false, error: LeaveError.GAME_NOT_FOUND };
+    }
     const result = leaveGameEngine(state, playerId);
     if (!result.ok) return result;
 
@@ -85,7 +94,7 @@ export class EngineService {
     return getMultiplayerGames(this.games);
   }
 
-  checkPlayerAvailability(playerId: string): PlayerCheckResult {
+  checkPlayerAvailability(playerId: number): PlayerCheckResult {
     for (const [gameId, state] of this.games.entries()) {
       const isPlayer = state.players.some(p => p.id === playerId);
       const isSpectator = state.spectators.some(s => s.id === playerId);

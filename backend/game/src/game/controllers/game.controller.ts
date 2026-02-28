@@ -1,57 +1,82 @@
 import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { EngineService } from '../services/engine.service.nest';
-import { GameState, GameSettings } from '../models/state';
+import { UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { GameSettings } from '../models/state';
 import { WsGateway } from '../../ws/ws.gateway';
 // import { BoardAction } from '../models/boardAction';
 // import { MoveAction } from '../models/moveAction';
-import { ApiBody, ApiOkResponse, ApiParam } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiParam, ApiResponse } from '@nestjs/swagger';
 import {
   CreateGameDto,
+  CreateGameResponseDto,
   StartGameDto,
+  StartResponseDto,
   JoinGameDto,
+  JoinResponseDto,
 //   MoveDto,
   LeaveGameDto,
+  LeaveResponseDto,
   GameStateDto,
 } from '../dtos/game.dto';
 import { SingleLevelDto } from '../dtos/level-registry.dto';
 import { MultiGameDto } from '../dtos/game-lobby-list.dto';
 import { MultiGame } from '../models/gameInfo';
 import { CheckPlayerAvailabilityDto } from '../dtos/checkPlayer.dto';
-
+import { CurrentUser } from '../dtos/playerContext.dto';
+import type { PlayerContext } from '../dtos/playerContext.dto';
 
 @Controller('game')
 export class GameController {
   constructor(
-    private readonly engine: EngineService,
+  private readonly engine: EngineService,
   private readonly wsGateway: WsGateway,
 ) {}
 
   // Create Game
+  // @Post('create')
+  // @ApiBody({ type: CreateGameDto })
+  // @ApiResponse({ status: 201, type: CreateGameResponseDto })
+  // createGame(@Body() body: CreateGameDto) : CreateGameResponseDto {
+  //   const { gameId } = this.engine.createGame(body.hostId, body.settings);
+
+  //   this.wsGateway.sendMultiplayerListUpdate();
+  //   // console.log("Game was created", gameId );
+  //   return { ok: true, gameId };
+  // }
   @Post('create')
   @ApiBody({ type: CreateGameDto })
+  @ApiResponse({ status: 201, type: CreateGameResponseDto })
   createGame(
-    @Body() body: {
-      hostId: string;
-      settings: GameSettings;
-    }
-  ) {
-    const { gameId } = this.engine.createGame(
-      body.hostId,
-      body.settings
-    );
+    @Body() body: CreateGameDto,
+    @CurrentUser() user: PlayerContext,
+  ): CreateGameResponseDto {
 
+    if (!user.id) {
+      throw new UnauthorizedException('User id missing');
+    }
+
+    const settings = body as GameSettings;
+
+    const { gameId } = this.engine.createGame(
+      user.id,
+      user.username,
+      settings
+    );
+  
     this.wsGateway.sendMultiplayerListUpdate();
-    console.log("Game was created", gameId );
+  
     return { ok: true, gameId };
   }
 
   // Start game
   @Post('start')
   @ApiBody({ type: StartGameDto })
+  @ApiResponse({ status: 201, type: StartResponseDto })
   startGame(
-    @Body() body: { gameId: string; hostId: string }
-  ) {
-    const result = this.engine.startGame(body.gameId, body.hostId);
+    @Body() body: StartGameDto,
+    @CurrentUser() user: PlayerContext
+   ): StartResponseDto {
+    const result = this.engine.startGame(body.gameId, user.id);
 
     if (result.ok) {
       this.wsGateway.sendMultiplayerListUpdate();
@@ -63,15 +88,17 @@ export class GameController {
   // Join game
   @Post('join')
   @ApiBody({ type: JoinGameDto })
-  join(@Body() body: { gameId: string; playerId: string; role: "PLAYER" | "SPECTATOR" }) {
-    const result = this.engine.joinGame(body.gameId, body.playerId, body.role);
+  @ApiResponse({ status: 201, type: JoinResponseDto })
+  join(
+    @Body() body: JoinGameDto,
+    @CurrentUser() user: PlayerContext
+  ) : JoinResponseDto {
+    const result = this.engine.joinGame(body.gameId, user.id, user.username, body.role);
 
     if (result.ok) {
       this.wsGateway.sendMultiplayerListUpdate();
     }
-
-    console.log("User Joined: ", body.playerId );
-
+    // console.log("User Joined: ", body.playerId );
     return result;
   }
 
@@ -101,10 +128,12 @@ export class GameController {
 
   @Post('leave')
   @ApiBody({ type: LeaveGameDto })
+  @ApiResponse({ status: 201, type: LeaveResponseDto })
   leaveGame(
-    @Body() body: { gameId: string; playerId: string }
-  ) {
-    const result = this.engine.leaveGame(body.gameId, body.playerId);
+    @Body() body: LeaveGameDto,
+    @CurrentUser() user: PlayerContext
+  ) : LeaveResponseDto {
+    const result = this.engine.leaveGame(body.gameId, user.id);
 
     if (result.ok) {
       this.wsGateway.sendMultiplayerListUpdate();
@@ -113,11 +142,17 @@ export class GameController {
     return result.ok ? { ok: true } : { ok: false, error: result.error };
   }
 
-  @Get(':gameId')
+  @Get(':gameId') // Need define fields thats I return
   @ApiParam({ name: 'gameId', type: 'string' })
   @ApiOkResponse({ type: GameStateDto })
   getGameState(@Param('gameId') gameId: string) {
-    return this.engine.getGameState(gameId);
+    const state = this.engine.getGameState(gameId);
+
+    if (!state) {
+      throw new NotFoundException(`Game not found`);
+    }
+
+    return state;
   }
 
   @Get('single/levels')
@@ -126,24 +161,38 @@ export class GameController {
     return this.engine.getSinglePlayerLevels();
   }
 
-  @Get("multi/games")
+  @Get('multi/games')
   @ApiOkResponse({ type: MultiGameDto, isArray: true })
   getMultiplayerGames(): MultiGame[] {
     return this.engine.getMultiGames();
   }
 
-  @Get("check-player/:playerId")
-  @ApiParam({
-    name: "playerId",
-    type: String,
-    description: "Player ID to check availability across multiplayer games",
-  })
+  @Get('check-player')
   @ApiOkResponse({
     description: "Player availability result",
     type: CheckPlayerAvailabilityDto,
   })
-  checkPlayer(@Param("playerId") playerId: string) {
-    return this.engine.checkPlayerAvailability(playerId);
+  checkPlayer(@CurrentUser() user: PlayerContext) {
+    if (!user || !user.id) {
+      throw new UnauthorizedException("User not authenticated");
+    }
+
+    try {
+      const result = this.engine.checkPlayerAvailability(user.id);
+
+      return {
+        ok: result.ok,
+        gameId: result.gameId,
+        phase: result.phase || "LOBBY", // default phase
+      };
+    } catch (err) {
+      console.error("Check player availability failed:", err);
+
+      return {
+        ok: false,
+        phase: "LOBBY",
+      };
+    }
   }
 
 }

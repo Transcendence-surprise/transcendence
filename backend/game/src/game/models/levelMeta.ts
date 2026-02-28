@@ -12,7 +12,7 @@ export interface LevelMeta {
   };
 
   startingPoints: {
-    playerId: string;
+    slotId: string;
     x: number;
     y: number;
   }[];
