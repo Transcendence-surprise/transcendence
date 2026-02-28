@@ -29,11 +29,11 @@ export async function signup(
   return getCurrentUser();
 }
 
-export async function login(username: string, password: string): Promise<User> {
+export async function login(identifier: string, password: string): Promise<User> {
   const res = await fetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ identifier, password }),
     credentials: "include",
   });
 
