@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d data-source.ts",
-    "migration:create": "typeorm-ts-node-commonjs migration:create",
+    "migration:generate": "POSTGRES_HOST=localhost typeorm-ts-node-commonjs migration:generate -d data-source.ts",
+    "migration:create": "POSTGRES_HOST=localhost typeorm-ts-node-commonjs migration:create",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d data-source.ts",
-    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d data-source.ts",
-    "migration:show": "typeorm-ts-node-commonjs migration:show -d data-source.ts"
+    "migration:revert": "POSTGRES_HOST=localhost typeorm-ts-node-commonjs migration:revert -d data-source.ts",
+    "migration:show": "POSTGRES_HOST=localhost typeorm-ts-node-commonjs migration:show -d data-source.ts"
   },
   "dependencies": {
     "@transcendence/db-entities": "file:./db-entities-dist",

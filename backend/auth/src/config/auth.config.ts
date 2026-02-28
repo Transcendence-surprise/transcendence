@@ -26,6 +26,11 @@ export default registerAs('auth', () => ({
     userUrl: requireEnv('INTRA_USER_URL', process.env.INTRA_USER_URL),
     redirectUri: requireEnv('INTRA_REDIRECT_URI', process.env.INTRA_REDIRECT_URI),
   },
+  google: {
+    clientId: requireEnv('GOOGLE_UID', process.env.GOOGLE_UID),
+    secret: requireEnv('GOOGLE_SECRET', process.env.GOOGLE_SECRET),
+    redirectUri: requireEnv('GOOGLE_REDIRECT_URI', process.env.GOOGLE_REDIRECT_URI),
+  },
   db: {
     host: requireEnv('POSTGRES_HOST', process.env.POSTGRES_HOST),
     port: requireEnv('POSTGRES_PORT', process.env.POSTGRES_PORT),

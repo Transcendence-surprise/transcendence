@@ -6,20 +6,20 @@ import {
   Get,
   Param,
   Post,
+  Patch,
 } from '@nestjs/common';
 import { ApiCookieAuth} from '@nestjs/swagger';
 
 import { UsersService } from './users.service';
 import { ValidateCredDto } from './dto/validate-credentials.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateMeDto } from './dto/update-me.dto';
 
 import {
   UsersControllerDocs,
   FindAllDocs,
   ValidateCredentialsDocs,
-  // FindOneByUsernameDocs,
   FindOneByIdDocs,
-  // RemoveByUsernameDocs,
   RemoveByIdDocs,
   CreateDocs,
 } from './users.controller.docs';
@@ -55,11 +55,14 @@ export class UsersController {
     return this.usersService.findOneById(user.sub);
   }
 
-  // @Get(':username')
-  // @FindOneByUsernameDocs()
-  // getUserByUsername(@Param('username') username: string) {
-  //   return this.usersService.findOneByUsername(username);
-  // }
+  @Patch('me')
+  @ApiCookieAuth('JWT')
+  updateMe(
+    @CurrentUser() user: JwtPayload,
+    @Body() updateMeDto: UpdateMeDto,
+  ) {
+    return this.usersService.updateMe(user.sub, updateMeDto);
+  }
 
   // Auth-test: allows to find user by id only if this user logged in
   @Get('id/:id')
@@ -67,12 +70,6 @@ export class UsersController {
   getUserById(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOneById(id);
   }
-
-  // @Delete(':username')
-  // @RemoveByUsernameDocs()
-  // removeByUsername(@Param('username') username: string) {
-  //   return this.usersService.removeByUsername(username);
-  // }
 
   @Delete('id/:id')
   @RemoveByIdDocs()

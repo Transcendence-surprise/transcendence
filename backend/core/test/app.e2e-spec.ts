@@ -10,6 +10,14 @@ describe('AppController (e2e)', () => {
   let app: NestFastifyApplication;
 
   beforeEach(async () => {
+    // Set required mail env vars for testing
+    process.env.MAIL_HOST = 'localhost';
+    process.env.MAIL_PORT = '1025';
+    process.env.MAIL_SECURE = 'false';
+    process.env.MAIL_USER = 'test';
+    process.env.MAIL_PASSWORD = 'test';
+    process.env.MAIL_FROM_ADDRESS = 'test@example.com';
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();

@@ -1,10 +1,15 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthController } from './health/health.controller';
 import { UsersModule } from './users/users.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_HOST ?? 'localhost',
@@ -13,9 +18,10 @@ import { UsersModule } from './users/users.module';
       password: process.env.POSTGRES_PASSWORD ?? 'transcendence',
       database: process.env.POSTGRES_DB ?? 'transcendence',
       autoLoadEntities: true,
-      synchronize: false, // DB bootstrapped by init SQL
+      synchronize: false,
     }),
     UsersModule,
+    MailModule,
   ],
   controllers: [HealthController],
   providers: [],

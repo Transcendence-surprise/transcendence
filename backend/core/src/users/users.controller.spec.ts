@@ -117,17 +117,6 @@ describe('UsersController', () => {
     });
   });
 
-  // describe('getUserByUsername', () => {
-  //   it('should return user by username', async () => {
-  //     mockUsersService.findOneByUsername.mockResolvedValue(mockUser);
-
-  //     const result = await controller.getUserByUsername('testuser');
-
-  //     expect(result).toEqual(mockUser);
-  //     expect(service.findOneByUsername).toHaveBeenCalledWith('testuser');
-  //   });
-  // });
-
   describe('getUserById', () => {
     it('should return user by id when user owns the id', async () => {
       mockUsersService.findOneById.mockResolvedValue(mockUser);
@@ -138,18 +127,6 @@ describe('UsersController', () => {
       expect(service.findOneById).toHaveBeenCalledWith(1);
     });
   });
-
-  // describe('removeByUsername', () => {
-  //   it('should delete user by username', async () => {
-  //     const deleteResult = { deleted: true, username: 'testuser' };
-  //     mockUsersService.removeByUsername.mockResolvedValue(deleteResult);
-
-  //     const result = await controller.removeByUsername('testuser');
-
-  //     expect(result).toEqual(deleteResult);
-  //     expect(service.removeByUsername).toHaveBeenCalledWith('testuser');
-  //   });
-  // });
 
   describe('create', () => {
     it('should create a new user', async () => {

@@ -20,6 +20,37 @@ export class AuthHttpService {
     return this.requestWithCookies<T>('post', '/api/auth/signup', body);
   }
 
+  async googleAuthRedirect(): Promise<{ status: number; location?: string }> {
+    const res = await lastValueFrom(
+      this.http.get('/api/auth/google', {
+        maxRedirects: 0,
+        validateStatus: () => true,
+      }),
+    );
+    return {
+      status: res.status,
+      location: res.headers?.location as string | undefined,
+    };
+  }
+
+  async googleAuthCallback(
+    code: string,
+  ): Promise<{ status: number; location?: string; cookies?: string[] }> {
+    const res = await lastValueFrom(
+      this.http.get('/api/auth/google/callback', {
+        maxRedirects: 0,
+        validateStatus: () => true,
+        params: { code },
+      }),
+    );
+
+    return {
+      status: res.status,
+      location: res.headers?.location as string | undefined,
+      cookies: this.extractCookies(res),
+    };
+  }
+
   async intra42AuthRedirect(): Promise<{ status: number; location?: string }> {
     const res = await lastValueFrom(
       this.http.get('/api/auth/intra42', {

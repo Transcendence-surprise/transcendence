@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, QueryFailedError } from 'typeorm';
 import { User } from '@transcendence/db-entities';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateMeDto } from './dto/update-me.dto';
 import { ValidateCredDto } from './dto/validate-credentials.dto';
 import * as bcrypt from 'bcrypt';
 import { DatabaseError } from 'pg-protocol';
@@ -101,9 +102,13 @@ export class UsersService {
     }
 
     const user = this.userRepo.create(createUserDto);
-    if (user.password !== null) {
-      user.password = await bcrypt.hash(user.password, 10);
+
+    if (createUserDto.password && createUserDto.password.trim().length > 0) {
+      user.password = await bcrypt.hash(createUserDto.password, 10);
+    } else {
+      user.password = null;
     }
+
     try {
       const savedUser = await this.userRepo.save(user);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -115,6 +120,22 @@ export class UsersService {
       }
       throw error;
     }
+  }
+
+  async updateMe(userId: number, updateMeDto: UpdateMeDto) {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    if (updateMeDto.twoFactorEnabled !== undefined) {
+      user.twoFactorEnabled = updateMeDto.twoFactorEnabled;
+    }
+
+    const updatedUser = await this.userRepo.save(user);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = updatedUser;
+    return userWithoutPassword;
   }
 
   private isUniqueConstraintError(error: unknown): error is QueryFailedError {

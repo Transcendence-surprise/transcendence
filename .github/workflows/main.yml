@@ -22,5 +22,6 @@ jobs:
             cd ~/transcendence
             git pull origin main
             make down
+            make pack-deps
             make prod
             make prod-prune

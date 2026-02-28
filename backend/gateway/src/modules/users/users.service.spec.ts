@@ -15,6 +15,7 @@ describe('UsersHttpService', () => {
       get: jest.fn(),
       post: jest.fn(),
       delete: jest.fn(),
+      patch: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -43,7 +44,6 @@ describe('UsersHttpService', () => {
         status: 200,
         statusText: 'OK',
         headers: {},
-
         config: {} as any,
       };
 
@@ -51,7 +51,7 @@ describe('UsersHttpService', () => {
 
       const result = await service.findAll();
 
-      expect(httpService.get).toHaveBeenCalledWith('/api/users', undefined);
+      expect(httpService.get).toHaveBeenCalledWith('/api/users', { headers: {} });
       expect(result).toEqual(response);
     });
   });
@@ -71,7 +71,6 @@ describe('UsersHttpService', () => {
         status: 200,
         statusText: 'OK',
         headers: {},
-
         config: {} as any,
       };
 
@@ -81,7 +80,7 @@ describe('UsersHttpService', () => {
 
       expect(httpService.get).toHaveBeenCalledWith(
         '/api/users/test',
-        undefined,
+        { headers: {} },
       );
       expect(result).toEqual(response);
     });
@@ -102,7 +101,6 @@ describe('UsersHttpService', () => {
         status: 200,
         statusText: 'OK',
         headers: {},
-
         config: {} as any,
       };
 
@@ -112,7 +110,7 @@ describe('UsersHttpService', () => {
 
       expect(httpService.get).toHaveBeenCalledWith(
         '/api/users/id/1',
-        undefined,
+        { headers: {} },
       );
       expect(result).toEqual(response);
     });
@@ -126,7 +124,6 @@ describe('UsersHttpService', () => {
         status: 200,
         statusText: 'OK',
         headers: {},
-
         config: {} as any,
       };
 
@@ -136,7 +133,7 @@ describe('UsersHttpService', () => {
 
       expect(httpService.delete).toHaveBeenCalledWith(
         '/api/users/test',
-        undefined,
+        { headers: {} },
       );
       expect(result).toBeUndefined();
     });
@@ -152,13 +149,14 @@ describe('UsersHttpService', () => {
         headers: {},
         config: {} as any,
       };
+
       httpService.delete.mockReturnValue(of(axiosResponse));
 
       const result = await service.removeById(id);
 
       expect(httpService.delete).toHaveBeenCalledWith(
         '/api/users/id/1',
-        undefined,
+        { headers: {} },
       );
       expect(result).toBeUndefined();
     });
@@ -185,11 +183,12 @@ describe('UsersHttpService', () => {
         headers: {},
         config: {} as any,
       };
+
       httpService.post.mockReturnValue(of(axiosResponse));
 
       const result = await service.create(dto);
 
-      expect(httpService.post).toHaveBeenCalledWith('/api/users', dto, undefined);
+      expect(httpService.post).toHaveBeenCalledWith('/api/users', dto, { headers: { 'content-type': 'application/json' } });
       expect(result).toEqual(response);
     });
   });
@@ -200,9 +199,10 @@ describe('UsersHttpService', () => {
         status: 500,
         data: { message: 'error' },
       } as AxiosResponse<any, any>);
+
       httpService.get.mockReturnValue(throwError(() => axiosError));
 
-      await expect(service.findAll()).rejects.toThrow('error');
+      await expect(service.findAll()).rejects.toThrow(axiosError);
     });
   });
 });

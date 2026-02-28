@@ -1,11 +1,12 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
 import type { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
-import { randomUUID, randomBytes, createHmac } from 'node:crypto';
+import { google } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
+import { randomUUID, randomBytes, createHmac, randomInt } from 'node:crypto';
 
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
@@ -13,18 +14,29 @@ import { OAuth42ResDto } from './dto/oauth42-res.dto';
 import { Profile42ResDto } from './dto/profile42-res.dto';
 import { GetUserResDto } from './dto/get-user-res.dto';
 import { CreateApiKeyResDto } from './dto/create-api-key-res.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import authConfig from '../config/auth.config';
 import { ApiKey } from '@transcendence/db-entities';
+import { AxiosError } from 'axios';
+
+interface TwoFactorCode {
+  code: string;
+  expiresAt: Date;
+  userId: number;
+}
 
 @Injectable()
 export class AuthService {
+  private codeStore = new Map<string, TwoFactorCode>();
+  private readonly CODE_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
+
   constructor(
     @Inject(authConfig.KEY)
     private config: ConfigType<typeof authConfig>,
     private httpService: HttpService,
     private jwtService: JwtService,
     @InjectRepository(ApiKey)
-    private apiKeyRepo: Repository<ApiKey>
+    private apiKeyRepo: Repository<ApiKey>,
   ) {}
 
   async login(loginUserDto: LoginUserDto) {
@@ -32,7 +44,35 @@ export class AuthService {
       `${this.config.core.url}/api/users/validate-credentials`,
       loginUserDto,
     );
-    return this.generateJwtToken(response.data);
+
+    const user = response.data;
+
+    if (user.twoFactorEnabled) {
+      await this.sendTwoFactorCode(user.email, user.id);
+
+      return {
+        twoFactorRequired: true,
+        email: user.email,
+        message: 'A verification code has been sent to your email',
+      };
+    }
+
+    return this.generateJwtToken(user);
+  }
+
+  async loginWith2FA(email: string, code: string) {
+    const valid = this.verifyTwoFactorCode(email, code);
+
+    if (!valid) {
+      throw new UnauthorizedException('Invalid or expired verification code');
+    }
+
+    const user = await this.findUserByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return this.generateJwtToken(user);
   }
 
   async signup(signupUserDto: SignupUserDto) {
@@ -41,6 +81,63 @@ export class AuthService {
       signupUserDto,
     );
     return this.generateJwtToken(response.data);
+  }
+
+  private getAuthClient(): OAuth2Client {
+    const authClient = new OAuth2Client(
+      this.config.google.clientId,
+      this.config.google.secret,
+      this.config.google.redirectUri,
+    );
+
+    return authClient;
+  }
+
+  getGoogleAuthUrl() {
+    const authClient = this.getAuthClient();
+
+    const authorizeUrl = authClient.generateAuthUrl({
+      access_type: 'offline',
+      scope: [
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://www.googleapis.com/auth/userinfo.email',
+      ],
+      prompt: 'consent',
+    })
+
+    return authorizeUrl;
+  }
+
+  async googleAuthCallback(code: string) {
+    const authClient = this.getAuthClient();
+    const tokenData = await authClient.getToken(code);
+    const tokens = tokenData.tokens;
+
+    authClient.setCredentials(tokens);
+
+    const googleAuth = google.oauth2({
+      version: 'v2',
+      auth: authClient
+    });
+
+    const userInfo = await googleAuth.userinfo.get();
+    const { email, given_name } = userInfo.data;
+
+    if (!email || !given_name) {
+      throw new BadRequestException('google did not provide required email and/or name');
+    }
+
+    let user = await this.findUserByEmail(email);
+    if (!user) {
+      user = await this.createUserFromInfo(given_name, email);
+    }
+
+    const authResponse = await this.generateJwtToken(user);
+
+    return {
+      access_token: authResponse.access_token,
+      redirect: this.config.frontend.url,
+    };
   }
 
   getIntraAuthUrl() {
@@ -65,7 +162,7 @@ export class AuthService {
 
     let user = await this.findUserByEmail(profile.email);
     if (!user) {
-      user = await this.createUserFromProfile(profile);
+      user = await this.createUserFromInfo(profile.login, profile.email);
     }
 
     const authResponse = await this.generateJwtToken(user);
@@ -131,21 +228,40 @@ export class AuthService {
     }
   }
 
-  private async createUserFromProfile(profile: Profile42ResDto): Promise<GetUserResDto> {
-    const timestamp = Math.floor(Date.now() / 1000);
-    const username = `${profile.login}_${timestamp}`;
+  private async createUserFromInfo(name: string, email: string): Promise<GetUserResDto> {
+    const baseUsername = name;
+    let username = baseUsername;
+    const maxAttempts = 10;
 
-    const createUserDto: SignupUserDto = {
-      username,
-      email: profile.email,
-      password: '123',
-    };
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        const createUserDto: CreateUserDto = {
+          username,
+          email: email,
+        };
 
-    const response = await this.httpService.axiosRef.post<GetUserResDto>(
-      `${this.config.core.url}/api/users`,
-      createUserDto,
+        const response = await this.httpService.axiosRef.post<GetUserResDto>(
+          `${this.config.core.url}/api/users`,
+          createUserDto,
+        );
+
+        return response.data;
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 409 && attempt < maxAttempts - 1) {
+            const suffix = randomBytes(6).toString('hex');
+            username = `${baseUsername}_${suffix}`;
+            continue;
+          }
+        }
+
+        throw error;
+      }
+    }
+
+    throw new Error(
+      `Failed to create user after ${maxAttempts} attempts due to username conflicts`
     );
-    return response.data;
   }
 
   async getAllApiKeys() {
@@ -219,5 +335,53 @@ export class AuthService {
       access_token,
       user,
     };
+  }
+
+
+  private async sendTwoFactorCode(email: string, userId: number): Promise<void> {
+    const code = randomInt(100000, 999999).toString();
+    const expiresAt = new Date(Date.now() + this.CODE_EXPIRY_MS);
+
+    this.codeStore.set(email, { code, expiresAt, userId });
+
+    const subject = 'Your Two-Factor Authentication Code';
+    const text = `Your verification code is: ${code}\n\nThis code expires in 10 minutes.`;
+    const html = `<p>Your verification code is: <strong>${code}</strong></p><p>This code expires in 10 minutes.</p>`;
+
+    await this.httpService.axiosRef.post(
+      `${this.config.core.url}/api/mail`,
+      { to: email, subject, text, html }
+    );
+
+    this.cleanupExpiredCodes();
+  }
+
+  private verifyTwoFactorCode(email: string, code: string): boolean {
+    const stored = this.codeStore.get(email);
+
+    if (!stored) {
+      return false;
+    }
+
+    if (stored.expiresAt < new Date()) {
+      this.codeStore.delete(email);
+      return false;
+    }
+
+    if (stored.code !== code) {
+      return false;
+    }
+
+    this.codeStore.delete(email);
+    return true;
+  }
+
+  private cleanupExpiredCodes(): void {
+    const now = new Date();
+    for (const [email, data] of this.codeStore.entries()) {
+      if (data.expiresAt < now) {
+        this.codeStore.delete(email);
+      }
+    }
   }
 }
