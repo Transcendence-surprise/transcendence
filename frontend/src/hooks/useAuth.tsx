@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import * as authApi from "../api/authentification";
+import { connectSocket, disconnectSocket } from "../services/socket";
 
 export interface AuthContextType {
   user: authApi.User | null;
@@ -24,6 +25,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Fetch current user on mount
   useEffect(() => {
+    const hasToken = document.cookie.includes("access_token=");
+    if (!hasToken) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     authApi.getCurrentUser()
       .then(u => setUser(u))
       .catch(() => setUser(null))
@@ -35,6 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       const u = await authApi.login(username, password);
       setUser(u);
+      connectSocket();
       alert(`Welcome, ${u.username}!`);
       return u;
     } catch (err: any) {
@@ -54,6 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(true);
         const u = await authApi.signup(username, email, password);
         setUser(u);
+        connectSocket();
         alert(`Welcome, ${u.username}!`);
         return u;
     } catch (err: any) {
@@ -69,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       await authApi.logout();
       setUser(null);
+      disconnectSocket();
     } catch (err: any) {
       alert(err.message || "Logout failed");
     } finally {
