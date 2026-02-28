@@ -1,10 +1,11 @@
-import { Injectable, Inject, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
 import type { ConfigType } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
+import { google } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
 import { randomUUID, randomBytes, createHmac, randomInt } from 'node:crypto';
 
 import { LoginUserDto } from './dto/login-user.dto';
@@ -60,14 +61,12 @@ export class AuthService {
   }
 
   async loginWith2FA(email: string, code: string) {
-    // Verify the 2FA code
     const valid = this.verifyTwoFactorCode(email, code);
 
     if (!valid) {
       throw new UnauthorizedException('Invalid or expired verification code');
     }
 
-    // Get user by email
     const user = await this.findUserByEmail(email);
     if (!user) {
       throw new UnauthorizedException('User not found');
@@ -82,6 +81,63 @@ export class AuthService {
       signupUserDto,
     );
     return this.generateJwtToken(response.data);
+  }
+
+  private getAuthClient(): OAuth2Client {
+    const authClient = new OAuth2Client(
+      this.config.google.clientId,
+      this.config.google.secret,
+      this.config.google.redirectUri,
+    );
+
+    return authClient;
+  }
+
+  getGoogleAuthUrl() {
+    const authClient = this.getAuthClient();
+
+    const authorizeUrl = authClient.generateAuthUrl({
+      access_type: 'offline',
+      scope: [
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://www.googleapis.com/auth/userinfo.email',
+      ],
+      prompt: 'consent',
+    })
+
+    return authorizeUrl;
+  }
+
+  async googleAuthCallback(code: string) {
+    const authClient = this.getAuthClient();
+    const tokenData = await authClient.getToken(code);
+    const tokens = tokenData.tokens;
+
+    authClient.setCredentials(tokens);
+
+    const googleAuth = google.oauth2({
+      version: 'v2',
+      auth: authClient
+    });
+
+    const userInfo = await googleAuth.userinfo.get();
+    const { email, given_name } = userInfo.data;
+
+    if (!email || !given_name) {
+      throw new BadRequestException('google did not provide required email and/or name');
+    }
+
+    let user = await this.findUserByEmail(email);
+    if (!user) {
+      user = await this.createUserFromInfo(given_name, email);
+    }
+
+    const authResponse = await this.generateJwtToken(user);
+
+    return {
+      access_token: authResponse.access_token,
+      redirect: this.config.frontend.url,
+    };
   }
 
   getIntraAuthUrl() {
@@ -106,7 +162,7 @@ export class AuthService {
 
     let user = await this.findUserByEmail(profile.email);
     if (!user) {
-      user = await this.createUserFromProfile(profile);
+      user = await this.createUserFromInfo(profile.login, profile.email);
     }
 
     const authResponse = await this.generateJwtToken(user);
@@ -172,8 +228,8 @@ export class AuthService {
     }
   }
 
-  private async createUserFromProfile(profile: Profile42ResDto): Promise<GetUserResDto> {
-    const baseUsername = profile.login;
+  private async createUserFromInfo(name: string, email: string): Promise<GetUserResDto> {
+    const baseUsername = name;
     let username = baseUsername;
     const maxAttempts = 10;
 
@@ -181,7 +237,7 @@ export class AuthService {
       try {
         const createUserDto: CreateUserDto = {
           username,
-          email: profile.email,
+          email: email,
         };
 
         const response = await this.httpService.axiosRef.post<GetUserResDto>(
@@ -193,7 +249,7 @@ export class AuthService {
       } catch (error) {
         if (error instanceof AxiosError) {
           if (error.response?.status === 409 && attempt < maxAttempts - 1) {
-            const suffix = randomBytes(4).toString('hex');
+            const suffix = randomBytes(6).toString('hex');
             username = `${baseUsername}_${suffix}`;
             continue;
           }

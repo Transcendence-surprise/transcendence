@@ -95,6 +95,26 @@ export class AuthController {
     return { ok: true };
   }
 
+  @Get('google')
+  @HttpCode(HttpStatus.FOUND)
+  @Redirect()
+  GoogleAuth() {
+    const location = this.authService.getGoogleAuthUrl();
+    return { url: location };
+  }
+
+  @Get('google/callback')
+  async googleAuthCallback(
+    @Query('code') code: string,
+    @Res() reply: FastifyReply,
+  ) {
+    const result = await this.authService.googleAuthCallback(code);
+
+    this.setAccessTokenCookie(reply, result.access_token);
+
+    return reply.redirect(result.redirect, HttpStatus.FOUND);
+  }
+
   @Get('intra42')
   @HttpCode(HttpStatus.FOUND)
   @Intra42AuthDocs()

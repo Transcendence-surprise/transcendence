@@ -7,6 +7,7 @@ import {
   Res,
   Delete,
   Param,
+  Query,
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
 import { AuthHttpService } from './auth.service';
@@ -41,6 +42,33 @@ export class AuthController {
     const res = await this.authClient.logout();
     this.forwardCookies(reply, res.cookies);
     return res.data;
+  }
+
+  @Get('google')
+  @Redirect()
+  async googleAuth() {
+    const res = await this.authClient.googleAuthRedirect();
+    if (res.location) {
+      return { url: res.location, statusCode: res.status };
+    }
+    throw new Error('No redirect from auth');
+  }
+
+  @Get('google/callback')
+  async googleAuthCallback(
+    @Query('code') code: string,
+    @Res() reply: FastifyReply,
+  ) {
+    console.log('gateway before res, code', code);
+    const res = await this.authClient.googleAuthCallback(code);
+    console.log('gateway after res');
+
+    this.forwardCookies(reply, res.cookies);
+
+    if (res.location) {
+      return reply.redirect(res.location, res.status);
+    }
+    throw new Error('No redirect from auth');
   }
 
   @Get('intra42')
