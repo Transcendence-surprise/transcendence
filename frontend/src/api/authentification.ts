@@ -1,6 +1,13 @@
 // src/api/authentication.ts
 
-export interface User { id: string; username: string; }
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  roles: string[];
+  createdAt: string;
+  updatedAt: string;
+}
 
 export async function signup(
   username: string,
@@ -22,11 +29,11 @@ export async function signup(
   return getCurrentUser();
 }
 
-export async function login(username: string, password: string): Promise<User> {
+export async function login(identifier: string, password: string): Promise<User> {
   const res = await fetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ identifier, password }),
     credentials: "include",
   });
 
@@ -41,7 +48,13 @@ export async function login(username: string, password: string): Promise<User> {
 export async function getCurrentUser(): Promise<User> {
   const res = await fetch("/api/users/me", { credentials: "include" });
   if (!res.ok) throw new Error("Not logged in");
-  return res.json();
+  const user = await res.json();
+  console.log("user", user);
+  // Temperary DELETE LATER
+  user.roles = [...(user.roles || []), "admin"];
+  console.log("user!", user);
+  ////////////////////////////
+  return user;
 }
 
 export async function logout(): Promise<void> {
@@ -51,4 +64,17 @@ export async function logout(): Promise<void> {
   });
 
   if (!res.ok) throw new Error("Logout failed");
+}
+
+// Role-based helper functions
+export function isAdmin(user: User | null): boolean {
+  return user?.roles?.includes('admin') ?? false;
+}
+
+export function isUser(user: User | null): boolean {
+  return user?.roles?.includes('user') ?? false;
+}
+
+export function hasRole(user: User | null, role: string): boolean {
+  return user?.roles?.includes(role) ?? false;
 }

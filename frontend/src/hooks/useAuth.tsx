@@ -11,6 +11,9 @@ export interface AuthContextType {
     password: string
   ) => Promise<authApi.User>;
   logout: () => Promise<void>;
+  isAdmin: boolean;
+  isUser: boolean;
+  hasRole: (role: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -73,9 +76,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Role-based computed values
+  const isAdmin = authApi.isAdmin(user);
+  const isUser = authApi.isUser(user);
+  const hasRole = (role: string) => authApi.hasRole(user, role);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      login, 
+      signup, 
+      logout,
+      isAdmin,
+      isUser,
+      hasRole 
+    }}>
       {children}
     </AuthContext.Provider>
   );
