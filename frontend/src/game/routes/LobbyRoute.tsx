@@ -2,8 +2,8 @@
 
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
-import { socket } from "../../services/socket";
+import { useParams } from "react-router-dom";
+import { connectSocket, getSocket } from "../../services/socket";
 import { getGameState, startGame, leaveGame } from "../../api/game";
 import Lobby from "../../components/game/Lobby";
 import { LobbyMessage } from "../models/lobbyMessage";
@@ -32,6 +32,8 @@ export default function LobbyRoute() {
       navigate("/game");
       return;
     }
+
+    const socket = connectSocket();
 
     if (socket.connected) {
       socket.emit("joinLobby", { gameId });
@@ -128,6 +130,9 @@ export default function LobbyRoute() {
 
   const sendMessage = () => {
     if (!input.trim() || !gameId) return;
+
+    const socket = getSocket(); // get the existing socket instance
+    if (!socket || !input.trim() || !gameId) return;
 
     socket.emit("lobbyMessage", {
       gameId,

@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getGameState } from "../../api/game";
 import BoardView from "../../components/game/Board";
-import { socket } from "../../services/socket";
+import { connectSocket } from "../../services/socket";
 
 export default function GameRoute() {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +16,8 @@ export default function GameRoute() {
 
   useEffect(() => {
     if (!id) return;
+
+    const socket = connectSocket();
 
     setLoading(true);
     getGameState(id)
