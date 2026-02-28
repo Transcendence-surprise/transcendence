@@ -37,8 +37,6 @@ make dev-front
 
 ## Backend
 
-NOTE: (from Ilia) I moved all documentation related to backend and API endpoints to `docs/` dir. Find all there.
-
 1. If you need to run backend, read:
 ```bash
 /docs/BACKEND-DEV.md
@@ -51,7 +49,6 @@ NOTE: (from Ilia) I moved all documentation related to backend and API endpoints
 ```bash
 /docs/DATABESE-DEV.md
 ```
-
 
 ### 🔹 clean
 
