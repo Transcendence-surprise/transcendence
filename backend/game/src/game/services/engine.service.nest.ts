@@ -30,15 +30,19 @@ export class EngineService {
     return { gameId };
   }
 
-  getGameState(gameId: string): GameState {
+  getGameState(gameId: string): GameState | null {
     const state = this.games.get(gameId);
-    if (!state) throw new Error('Game not found');
-    return state;
+    return state ?? null;
   }
 
   startGame(gameId: string, hostId: number) {
     try {
       const state = this.getGameState(gameId);
+
+      if (!state) {
+        return { ok: false, error: StartError.GAME_NOT_FOUND };
+  }
+
       return startGameEngine(state, hostId);
     } catch (err) {
       return { ok: false, error: StartError.GAME_NOT_FOUND };
@@ -68,6 +72,10 @@ export class EngineService {
 
   leaveGame(gameId: string, playerId: number): LeaveResult {
     const state = this.getGameState(gameId);
+
+    if (!state) {
+      return { ok: false, error: LeaveError.GAME_NOT_FOUND };
+    }
     const result = leaveGameEngine(state, playerId);
     if (!result.ok) return result;
 

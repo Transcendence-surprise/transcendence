@@ -193,7 +193,7 @@ export class WsGateway {
 
   @SubscribeMessage('joinPlay')
   handleJoinPlay(
-    @MessageBody() data: { gameId: string; userId: string },
+    @MessageBody() data: { gameId: string },
     @ConnectedSocket() client: Socket,
   ) {
     const state = this.engine.getGameState(data.gameId);

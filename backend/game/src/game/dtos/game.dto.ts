@@ -72,6 +72,7 @@ export class CreateGameResponseDto {
 
 export class StartGameDto {
   @ApiProperty()
+  @IsString()
   gameId: string;
 }
 
