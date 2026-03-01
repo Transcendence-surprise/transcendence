@@ -147,7 +147,7 @@ prod-fclean:
 	@echo "$(CYAN)Stopping prod containers and removing prod volumes...$(RESET)"
 	$(COMPOSE) -f docker-compose.prod.yml down -v
 
-prune-prod:
+prod-prune:
 	@echo "$(CYAN)Pruning dangling images and anonymous volumes...$(RESET)"
 	docker system prune --volumes
 
