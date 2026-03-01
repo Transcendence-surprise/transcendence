@@ -76,8 +76,7 @@ export class UsersService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...userWithoutPassword } = user;
+    const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
 
@@ -110,8 +109,7 @@ export class UsersService {
     }
 
     const savedUser = await this.userRepo.save(user);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...userWithoutPassword } = savedUser;
+    const { password: _, ...userWithoutPassword } = savedUser;
     return userWithoutPassword;
   }
 
@@ -126,8 +124,7 @@ export class UsersService {
     }
 
     const updatedUser = await this.userRepo.save(user);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...userWithoutPassword } = updatedUser;
+    const { password: _, ...userWithoutPassword } = updatedUser;
     return userWithoutPassword;
   }
 
