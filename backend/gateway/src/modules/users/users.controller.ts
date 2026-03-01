@@ -4,12 +4,14 @@ import {
   Post,
   Delete,
   Patch,
+  Put,
   Param,
   Body,
   UseGuards,
   Req,
+  Res,
 } from '@nestjs/common';
-import type { FastifyRequest } from 'fastify';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { UsersHttpService } from './users.service';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { Auth, AuthType } from '../../common/decorator/auth-type.decorator';
@@ -21,44 +23,73 @@ export class UsersController {
   constructor(private readonly usersClient: UsersHttpService) {}
 
   @Get()
-  findAll() {
-    return this.usersClient.findAll();
+  async findAll(@Res() res: FastifyReply) {
+    const result = await this.usersClient.findAll();
+    return res.status(result.statusCode).send(result.data);
   }
 
   @Get('by-email/:email')
-  findOneByEmail(@Param('email') email: string) {
-    return this.usersClient.findOneByEmail(email);
+  async findOneByEmail(@Param('email') email: string, @Res() res: FastifyReply) {
+    const result = await this.usersClient.findOneByEmail(email);
+    return res.status(result.statusCode).send(result.data);
   }
 
   @Get('me')
   @Auth(AuthType.JWT)
   @UseGuards(AuthGuard)
-  getUserByHisToken(@Req() req: FastifyRequest) {
-    return this.usersClient.findUserByHisToken(req);
+  async getUserByHisToken(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    const result = await this.usersClient.findUserByHisToken(req);
+    return res.status(result.statusCode).send(result.data);
   }
 
   @Patch('me')
   @Auth(AuthType.JWT)
   @UseGuards(AuthGuard)
-  updateMe(@Body() body: unknown, @Req() req: FastifyRequest) {
-    return this.usersClient.updateMe(body, req);
+  async updateMe(@Body() body: unknown, @Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    const result = await this.usersClient.updateMe(body, req);
+    return res.status(result.statusCode).send(result.data);
   }
 
   @Get('id/:id')
   @Auth(AuthType.JWT)
   @Roles(['user'])
   @UseGuards(AuthGuard, RolesGuard)
-  findOneById(@Param('id') id: string, @Req() req: FastifyRequest) {
-    return this.usersClient.findOneById(Number(id), req);
+  async findOneById(@Param('id') id: string, @Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    const result = await this.usersClient.findOneById(Number(id), req);
+    return res.status(result.statusCode).send(result.data);
+  }
+
+  @Put('id/:id')
+  async updateUser(
+    @Param('id') id: string,
+    @Body() body: unknown,
+    @Req() req: FastifyRequest,
+    @Res() res: FastifyReply,
+  ) {
+    const result = await this.usersClient.updateUser(Number(id), body, req);
+    return res.status(result.statusCode).send(result.data);
+  }
+
+  @Patch('id/:id')
+  async updateUserPartial(
+    @Param('id') id: string,
+    @Body() body: unknown,
+    @Req() req: FastifyRequest,
+    @Res() res: FastifyReply,
+  ) {
+    const result = await this.usersClient.updateUserPartial(Number(id), body, req);
+    return res.status(result.statusCode).send(result.data);
   }
 
   @Delete('id/:id')
-  removeById(@Param('id') id: string) {
-    return this.usersClient.removeById(Number(id));
+  async removeById(@Param('id') id: string, @Res() res: FastifyReply) {
+    const result = await this.usersClient.removeById(Number(id));
+    return res.status(result.statusCode).send(result.data);
   }
 
   @Post()
-  create(@Body() body: unknown) {
-    return this.usersClient.create(body);
+  async create(@Body() body: unknown, @Res() res: FastifyReply) {
+    const result = await this.usersClient.create(body);
+    return res.status(result.statusCode).send(result.data);
   }
 }

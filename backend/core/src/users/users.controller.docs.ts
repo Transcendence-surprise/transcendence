@@ -17,6 +17,8 @@ import { ValidateCredDto } from './dto/validate-credentials.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUserResDto } from './dto/get-user-res.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserPartialDto } from './dto/update-user-partial.dto';
 
 const UsersControllerDocs = () => ApiTags('Users');
 
@@ -200,6 +202,61 @@ const FindOneByEmailDocs = () =>
     ApiNotFoundResponse({ description: 'User not found' }),
   );
 
+const UpdateUserDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Create or replace user (PUT)',
+      description: 'Create user with specified ID if not exists (201), or replace all user data (200). Implements idempotent upsert behavior.',
+      operationId: 'updateUser',
+    }),
+    ApiParam({
+      name: 'id',
+      type: 'number',
+      description: 'ID of the user to create or update',
+      example: 1,
+    }),
+    ApiBody({
+      description: 'Complete user data',
+      type: UpdateUserDto,
+    }),
+    ApiOkResponse({
+      description: 'User updated successfully (existing user)',
+      type: GetUserResDto,
+    }),
+    ApiCreatedResponse({
+      description: 'User created successfully (new user)',
+      type: GetUserResDto,
+    }),
+    ApiBadRequestResponse({ description: 'Bad request - Invalid data' }),
+    ApiConflictResponse({ description: 'Username or email already exists' }),
+  );
+
+const UpdateUserPartialDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Update user fields (PATCH)',
+      description: 'Update specific user fields (partial update)',
+      operationId: 'updateUserPartial',
+    }),
+    ApiParam({
+      name: 'id',
+      type: 'number',
+      description: 'ID of the user to update',
+      example: 1,
+    }),
+    ApiBody({
+      description: 'Fields to update',
+      type: UpdateUserPartialDto,
+    }),
+    ApiOkResponse({
+      description: 'User updated successfully',
+      type: GetUserResDto,
+    }),
+    ApiNotFoundResponse({ description: 'User not found' }),
+    ApiBadRequestResponse({ description: 'Bad request - Invalid data' }),
+    ApiConflictResponse({ description: 'Username or email already exists' }),
+  );
+
 export {
   UsersControllerDocs,
   FindAllDocs,
@@ -212,4 +269,6 @@ export {
   GetMeDocs,
   UpdateMeDocs,
   FindOneByEmailDocs,
+  UpdateUserDocs,
+  UpdateUserPartialDocs,
 };
