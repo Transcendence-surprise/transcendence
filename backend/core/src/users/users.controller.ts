@@ -7,13 +7,19 @@ import {
   Param,
   Post,
   Patch,
+  Put,
+  HttpStatus,
+  Res,
+  HttpCode,
 } from '@nestjs/common';
-import { ApiCookieAuth} from '@nestjs/swagger';
+import type { FastifyReply } from 'fastify';
 
 import { UsersService } from './users.service';
 import { ValidateCredDto } from './dto/validate-credentials.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserPartialDto } from './dto/update-user-partial.dto';
 
 import {
   UsersControllerDocs,
@@ -22,6 +28,11 @@ import {
   FindOneByIdDocs,
   RemoveByIdDocs,
   CreateDocs,
+  GetMeDocs,
+  UpdateMeDocs,
+  FindOneByEmailDocs,
+  UpdateUserDocs,
+  UpdateUserPartialDocs,
 } from './users.controller.docs';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import type { JwtPayload } from '../decorators/current-user.decorator';
@@ -45,18 +56,19 @@ export class UsersController {
   }
 
   @Get('by-email/:email')
+  @FindOneByEmailDocs()
   getUserByEmail(@Param('email') email: string) {
     return this.usersService.findOneByEmail(email);
   }
 
   @Get('me')
-  @ApiCookieAuth('JWT')
+  @GetMeDocs()
   getUserByHisToken(@CurrentUser() user : JwtPayload) {
     return this.usersService.findOneById(user.sub);
   }
 
   @Patch('me')
-  @ApiCookieAuth('JWT')
+  @UpdateMeDocs()
   updateMe(
     @CurrentUser() user: JwtPayload,
     @Body() updateMeDto: UpdateMeDto,
@@ -69,6 +81,28 @@ export class UsersController {
   @FindOneByIdDocs()
   getUserById(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOneById(id);
+  }
+
+  @Put('id/:id')
+  @UpdateUserDocs()
+  async updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+    @Res() res: FastifyReply,
+  ) {
+    const result = await this.usersService.createOrUpdate(id, updateUserDto);
+    const statusCode = result.created ? HttpStatus.CREATED : HttpStatus.OK;
+    return res.status(statusCode).send(result.user);
+  }
+
+  @Patch('id/:id')
+  @UpdateUserPartialDocs()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  updateUserPartial(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserPartialDto: UpdateUserPartialDto,
+  ) {
+    return this.usersService.updateUserPartial(id, updateUserPartialDto);
   }
 
   @Delete('id/:id')

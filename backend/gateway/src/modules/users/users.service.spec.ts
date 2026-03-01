@@ -52,7 +52,7 @@ describe('UsersHttpService', () => {
       const result = await service.findAll();
 
       expect(httpService.get).toHaveBeenCalledWith('/api/users', { headers: {} });
-      expect(result).toEqual(response);
+      expect(result).toEqual({ statusCode: 200, data: response });
     });
   });
 
@@ -82,7 +82,7 @@ describe('UsersHttpService', () => {
         '/api/users/test',
         { headers: {} },
       );
-      expect(result).toEqual(response);
+      expect(result).toEqual({ statusCode: 200, data: response });
     });
   });
 
@@ -112,7 +112,7 @@ describe('UsersHttpService', () => {
         '/api/users/id/1',
         { headers: {} },
       );
-      expect(result).toEqual(response);
+      expect(result).toEqual({ statusCode: 200, data: response });
     });
   });
 
@@ -135,7 +135,7 @@ describe('UsersHttpService', () => {
         '/api/users/test',
         { headers: {} },
       );
-      expect(result).toBeUndefined();
+      expect(result).toEqual({ statusCode: 200, data: undefined });
     });
   });
 
@@ -158,7 +158,7 @@ describe('UsersHttpService', () => {
         '/api/users/id/1',
         { headers: {} },
       );
-      expect(result).toBeUndefined();
+      expect(result).toEqual({ statusCode: 200, data: undefined });
     });
   });
 
@@ -189,7 +189,7 @@ describe('UsersHttpService', () => {
       const result = await service.create(dto);
 
       expect(httpService.post).toHaveBeenCalledWith('/api/users', dto, { headers: { 'content-type': 'application/json' } });
-      expect(result).toEqual(response);
+      expect(result).toEqual({ statusCode: 200, data: response });
     });
   });
 

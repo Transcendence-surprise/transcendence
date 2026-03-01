@@ -18,13 +18,17 @@ import type { ConfigType } from '@nestjs/config';
 import authConfig from '../config/auth.config';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
-import { LoginUserResDto } from './dto/login-user-res.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
 import { LoginWith2FADto } from './dto/login-with-2fa.dto';
+import { AuthTokenResponseDto } from './dto/auth-token-response.dto';
 import {
   AuthControllerDocs,
   LoginDocs,
+  LoginWith2FADocs,
   SignupDocs,
+  LogoutDocs,
+  GoogleAuthDocs,
+  GoogleAuthCallbackDocs,
   Intra42AuthDocs,
   Intra42AuthCallbackDocs,
   GetApiKeysDocs,
@@ -56,12 +60,13 @@ export class AuthController {
       return result;
     }
 
-    const { access_token, ...response } = result as LoginUserResDto;
+    const { access_token, ...response } = result as AuthTokenResponseDto;
     this.setAccessTokenCookie(reply, access_token);
     return response;
   }
 
   @Post('login/2fa')
+  @LoginWith2FADocs()
   @HttpCode(HttpStatus.OK)
   async loginWith2FA(
     @Body() loginWith2FADto: LoginWith2FADto,
@@ -70,7 +75,7 @@ export class AuthController {
     const result = await this.authService.loginWith2FA(
       loginWith2FADto.email,
       loginWith2FADto.code,
-    );
+    ) as AuthTokenResponseDto;
     const { access_token, ...response } = result;
     this.setAccessTokenCookie(reply, access_token);
     return response;
@@ -82,13 +87,14 @@ export class AuthController {
     @Body() signupUserDto: SignupUserDto,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    const result = await this.authService.signup(signupUserDto);
+    const result = await this.authService.signup(signupUserDto) as AuthTokenResponseDto;
     const { access_token, ...response } = result;
     this.setAccessTokenCookie(reply, access_token);
     return response;
   }
 
   @Post('logout')
+  @LogoutDocs()
   @HttpCode(HttpStatus.OK)
   logout(@Res({ passthrough: true }) reply: FastifyReply) {
     reply.clearCookie('access_token');
@@ -96,6 +102,7 @@ export class AuthController {
   }
 
   @Get('google')
+  @GoogleAuthDocs()
   @HttpCode(HttpStatus.FOUND)
   @Redirect()
   GoogleAuth() {
@@ -104,6 +111,7 @@ export class AuthController {
   }
 
   @Get('google/callback')
+  @GoogleAuthCallbackDocs()
   async googleAuthCallback(
     @Query('code') code: string,
     @Res() reply: FastifyReply,

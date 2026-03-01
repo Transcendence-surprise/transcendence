@@ -40,8 +40,7 @@ describe('UsersController', () => {
         user.password,
       );
       if (!passwordCorrect) throw new UnauthorizedException('Invalid credentials');
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...userWithoutPassword } = user;
+      const { password: _, ...userWithoutPassword } = user;
       return userWithoutPassword;
     }),
     // removeByUsername: jest.fn(),

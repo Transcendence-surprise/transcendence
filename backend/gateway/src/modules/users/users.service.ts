@@ -18,59 +18,67 @@ interface RequestWithUser extends FastifyRequest {
 export class UsersHttpService {
   constructor(private readonly http: HttpService) {}
 
-  async findAll<T = unknown>(): Promise<T> {
-    return this.request<T>('get', '/api/users');
+  async findAll<T = unknown>(): Promise<{ statusCode: number; data: T }> {
+    return this.request<T>('/api/users', 'get');
   }
 
-  async findOneByUsername<T = unknown>(username: string, req?: FastifyRequest): Promise<T> {
-    return this.request<T>('get', `/api/users/${encodeURIComponent(username)}`, undefined, req);
+  async findOneByUsername<T = unknown>(username: string, req?: FastifyRequest): Promise<{ statusCode: number; data: T }> {
+    return this.request<T>(`/api/users/${encodeURIComponent(username)}`, 'get', undefined, req);
   }
 
-  async findOneById<T = unknown>(id: number, req?: FastifyRequest): Promise<T> {
-    return this.request<T>('get', `/api/users/id/${id}`, undefined, req);
+  async findOneById<T = unknown>(id: number, req?: FastifyRequest): Promise<{ statusCode: number; data: T }> {
+    return this.request<T>(`/api/users/id/${id}`, 'get', undefined, req);
   }
 
-  async findOneByEmail<T = unknown>(email: string, req?: FastifyRequest): Promise<T> {
+  async findOneByEmail<T = unknown>(email: string, req?: FastifyRequest): Promise<{ statusCode: number; data: T }> {
     return this.request<T>(
-      'get',
       `/api/users/by-email/${encodeURIComponent(email)}`,
+      'get',
       undefined,
       req,
     );
   }
 
-  async removeByUsername(username: string, req?: FastifyRequest): Promise<void> {
+  async removeByUsername(username: string, req?: FastifyRequest): Promise<{ statusCode: number; data: void }> {
     return this.request<void>(
-      'delete',
       `/api/users/${encodeURIComponent(username)}`,
+      'delete',
       undefined,
       req,
     );
   }
 
-  async removeById(id: number, req?: FastifyRequest): Promise<void> {
-    return this.request<void>('delete', `/api/users/id/${id}`, undefined, req);
+  async removeById(id: number, req?: FastifyRequest): Promise<{ statusCode: number; data: void }> {
+    return this.request<void>(`/api/users/id/${id}`, 'delete', undefined, req);
   }
 
-  async create<T = unknown>(body: unknown, req?: FastifyRequest): Promise<T> {
-    return this.request<T>('post', '/api/users', body, req);
+  async create<T = unknown>(body: unknown, req?: FastifyRequest): Promise<{ statusCode: number; data: T }> {
+    return this.request<T>('/api/users', 'post', body, req);
   }
 
-  async findUserByHisToken<T = unknown>(req?: FastifyRequest): Promise<T> {
-    return this.request<T>('get', '/api/users/me', undefined, req, true);
+  async findUserByHisToken<T = unknown>(req?: FastifyRequest): Promise<{ statusCode: number; data: T }> {
+    return this.request<T>('/api/users/me', 'get', undefined, req, true);
   }
 
-  async updateMe<T = unknown>(body: unknown, req?: FastifyRequest): Promise<T> {
-    return this.request<T>('patch', '/api/users/me', body, req, true);
+  async updateMe<T = unknown>(body: unknown, req?: FastifyRequest): Promise<{ statusCode: number; data: T }> {
+    return this.request<T>('/api/users/me', 'patch', body, req, true);
+  }
+
+  async updateUser<T = unknown>(id: number, body: unknown, req?: FastifyRequest): Promise<{ statusCode: number; data: T }> {
+    return this.request<T>(`/api/users/id/${id}`, 'put', body, req);
+  }
+
+  async updateUserPartial<T = unknown>(id: number, body: unknown, req?: FastifyRequest): Promise<{ statusCode: number; data: T }> {
+    return this.request<T>(`/api/users/id/${id}`, 'patch', body, req);
   }
 
   private async request<T>(
-    method: 'get' | 'post' | 'delete' | 'put' | 'patch',
     path: string,
+    method: 'get' | 'post' | 'delete' | 'put' | 'patch' = 'get',
     body?: unknown,
     req?: FastifyRequest,
     requireUser = false,
-  ): Promise<T> {
+  ): Promise<{ statusCode: number; data: T }> {
     const headers = this.buildForwardHeaders(req, requireUser);
     const hasBody = method !== 'get' && method !== 'delete';
 
@@ -88,7 +96,10 @@ export class UsersHttpService {
       ? await lastValueFrom(this.http[method]<T>(path, body ?? {}, config))
       : await lastValueFrom(this.http[method]<T>(path, config));
 
-    return res.data;
+    return {
+      statusCode: res.status,
+      data: res.data,
+    };
   }
 
   private buildForwardHeaders(

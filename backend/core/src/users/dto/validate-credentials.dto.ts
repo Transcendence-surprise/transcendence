@@ -1,4 +1,4 @@
-import { IsString, MaxLength, MinLength } from 'class-validator';
+import { IsString, MaxLength, MinLength, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ValidateCredDto {
@@ -18,5 +18,6 @@ export class ValidateCredDto {
   @IsString()
   @MinLength(1)
   @MaxLength(72)
+  @Matches(/\S/, { message: 'password must contain a non-whitespace character' })
   password: string;
 }
