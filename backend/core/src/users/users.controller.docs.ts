@@ -11,10 +11,12 @@ import {
   ApiNotFoundResponse,
   ApiConflictResponse,
   ApiExcludeEndpoint,
+  ApiCookieAuth,
 } from '@nestjs/swagger';
 import { ValidateCredDto } from './dto/validate-credentials.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUserResDto } from './dto/get-user-res.dto';
+import { UpdateMeDto } from './dto/update-me.dto';
 
 const UsersControllerDocs = () => ApiTags('Users');
 
@@ -143,6 +145,61 @@ const CreateDocs = () =>
     ApiConflictResponse({ description: 'User already exists' }),
   );
 
+const GetMeDocs = () =>
+  applyDecorators(
+    ApiCookieAuth('JWT'),
+    ApiOperation({
+      summary: 'Get current user',
+      description: 'Retrieve the currently authenticated user profile',
+      operationId: 'getCurrentUser',
+    }),
+    ApiOkResponse({
+      description: 'Current user data',
+      type: GetUserResDto,
+    }),
+    ApiUnauthorizedResponse({ description: 'Unauthorized - JWT token required' }),
+  );
+
+const UpdateMeDocs = () =>
+  applyDecorators(
+    ApiCookieAuth('JWT'),
+    ApiOperation({
+      summary: 'Update current user',
+      description: 'Update the currently authenticated user profile',
+      operationId: 'updateCurrentUser',
+    }),
+    ApiBody({
+      description: 'User data to update',
+      type: UpdateMeDto,
+    }),
+    ApiOkResponse({
+      description: 'User updated successfully',
+      type: GetUserResDto,
+    }),
+    ApiUnauthorizedResponse({ description: 'Unauthorized - JWT token required' }),
+    ApiBadRequestResponse({ description: 'Bad request - Invalid data' }),
+  );
+
+const FindOneByEmailDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Get user by email',
+      description: 'Retrieve a user by their email address',
+      operationId: 'getUserByEmail',
+    }),
+    ApiParam({
+      name: 'email',
+      type: 'string',
+      description: 'Email address of the user',
+      example: 'john@example.com',
+    }),
+    ApiOkResponse({
+      description: 'User data',
+      type: GetUserResDto,
+    }),
+    ApiNotFoundResponse({ description: 'User not found' }),
+  );
+
 export {
   UsersControllerDocs,
   FindAllDocs,
@@ -152,4 +209,7 @@ export {
   RemoveByUsernameDocs,
   RemoveByIdDocs,
   CreateDocs,
+  GetMeDocs,
+  UpdateMeDocs,
+  FindOneByEmailDocs,
 };

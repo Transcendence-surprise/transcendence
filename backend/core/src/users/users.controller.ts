@@ -22,6 +22,9 @@ import {
   FindOneByIdDocs,
   RemoveByIdDocs,
   CreateDocs,
+  GetMeDocs,
+  UpdateMeDocs,
+  FindOneByEmailDocs,
 } from './users.controller.docs';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import type { JwtPayload } from '../decorators/current-user.decorator';
@@ -45,18 +48,19 @@ export class UsersController {
   }
 
   @Get('by-email/:email')
+  @FindOneByEmailDocs()
   getUserByEmail(@Param('email') email: string) {
     return this.usersService.findOneByEmail(email);
   }
 
   @Get('me')
-  @ApiCookieAuth('JWT')
+  @GetMeDocs()
   getUserByHisToken(@CurrentUser() user : JwtPayload) {
     return this.usersService.findOneById(user.sub);
   }
 
   @Patch('me')
-  @ApiCookieAuth('JWT')
+  @UpdateMeDocs()
   updateMe(
     @CurrentUser() user: JwtPayload,
     @Body() updateMeDto: UpdateMeDto,
