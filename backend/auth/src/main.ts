@@ -68,8 +68,9 @@ async function bootstrap() {
   SwaggerModule.setup('api/auth/docs', app, document, {
     customSiteTitle: 'Auth API Docs',
     swaggerOptions: {
-      defaultModelsExpandDepth: -1,
       persistAuthorization: true,
+      defaultModelsExpandDepth: 1,
+      docExpansion: 'list',
     },
   });
 
