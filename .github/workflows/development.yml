@@ -1,9 +1,6 @@
 name: Backend and Frontend Tests
 
 on:
-  push:
-    branches:
-      - development
   pull_request:
     branches:
       - development
