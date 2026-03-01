@@ -109,17 +109,10 @@ export class UsersService {
       user.password = null;
     }
 
-    try {
-      const savedUser = await this.userRepo.save(user);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...userWithoutPassword } = savedUser;
-      return userWithoutPassword;
-    } catch (error) {
-      if (this.isUniqueConstraintError(error)) {
-        throw new ConflictException('Username or email already exists');
-      }
-      throw error;
-    }
+    const savedUser = await this.userRepo.save(user);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = savedUser;
+    return userWithoutPassword;
   }
 
   async updateMe(userId: number, updateMeDto: UpdateMeDto) {
@@ -136,13 +129,5 @@ export class UsersService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userWithoutPassword } = updatedUser;
     return userWithoutPassword;
-  }
-
-  private isUniqueConstraintError(error: unknown): error is QueryFailedError {
-    if (!(error instanceof QueryFailedError)) {
-      return false;
-    }
-    const dbError = error.driverError as DatabaseError;
-    return dbError?.code === UNIQUE_VIOLATION;
   }
 }
