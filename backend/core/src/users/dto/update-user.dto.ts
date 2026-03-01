@@ -6,6 +6,7 @@ import {
   IsArray,
   MinLength,
   MaxLength,
+  Matches,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -32,13 +33,14 @@ export class UpdateUserDto {
     description: 'Password (optional, will be hashed if provided)',
     example: 'SecurePass123!',
     required: false,
-    minLength: 8,
+    minLength: 1,
     maxLength: 255,
   })
   @IsOptional()
   @IsString()
-  @MinLength(8)
+  @MinLength(1)
   @MaxLength(255)
+  @Matches(/\S/, { message: 'password must contain a non-whitespace character' })
   password?: string;
 
   @ApiProperty({

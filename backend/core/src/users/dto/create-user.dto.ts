@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MaxLength, MinLength, IsOptional } from 'class-validator';
+import { IsEmail, IsString, MaxLength, MinLength, IsOptional, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
@@ -28,5 +28,6 @@ export class CreateUserDto {
   @IsString()
   @MinLength(1)
   @MaxLength(72)
+  @Matches(/\S/, { message: 'password must contain a non-whitespace character' })
   password?: string;
 }
