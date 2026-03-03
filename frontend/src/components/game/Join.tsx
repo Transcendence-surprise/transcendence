@@ -21,7 +21,7 @@ export default function JoinTable({
 
   if (games.length === 0) {
     return (
-      <div className="min-h-screen bg-black text-[#ffffff] font-mono flex items-center justify-center px-4 py-10">
+      <div className="min-h-screen bg-black text-[#00eaff] font-mono flex items-center justify-center px-4 py-10">
         <div className="relative w-full max-w-2xl">
           <div className="absolute -inset-1 rounded-2xl bg-[radial-gradient(circle_at_top,rgba(0,234,255,0.25),transparent_55%)] blur-2xl" />
           <div className="relative rounded-2xl border border-[#FFFFFF1A] bg-[#0B0B0F] px-8 py-10 text-center shadow-[0_16px_50px_rgba(0,0,0,0.6)]">
