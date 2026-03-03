@@ -16,7 +16,7 @@ export interface PlayerProfile {
   avatar: string;
   rank: string;
   winstreak: number;
-  winrate: number; // percentage 0-100
+  winrate: number;
   totalMatches: number;
   totalWins: number;
   totalLosses: number;

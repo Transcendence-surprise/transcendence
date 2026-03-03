@@ -1,19 +1,21 @@
 import { mockPlayerProfile } from "../types/player";
 import StatCard from "../components/UI/StatCard";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Profile() {
+  const { user } = useAuth();
+  const displayName = user?.username ?? mockPlayerProfile.name;
+
   return (
     <div className="flex flex-col items-right min-h-[60vh]">
       <div className="flex items-center gap-4 mb-8">
         <img
           src={mockPlayerProfile.avatar}
-          alt={mockPlayerProfile.name}
+          alt={displayName}
           className="w-24 h-24 rounded-full object-cover border-2 border-blue-400"
         />
         <div>
-          <h2 className="text-4xl font-bold text-[#ffffff]">
-            {mockPlayerProfile.name}
-          </h2>
+          <h2 className="text-4xl font-bold text-[#ffffff]">{displayName}</h2>
           <p className="text-m text-gray-400 mt-1">
             Rank {mockPlayerProfile.rank} • {mockPlayerProfile.winstreak} wins
             streak
