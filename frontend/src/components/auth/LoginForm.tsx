@@ -42,7 +42,7 @@ export default function LoginForm({ onClose, onSwitchToSignup }: LoginFormProps)
   };
 
   const handleGoogleSignIn = () => {
-    alert('Google Sign In - ready for OAuth integration');
+    window.location.href = '/api/auth/google';
   };
 
   const handle42SignIn = () => {
