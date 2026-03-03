@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createGame } from "../../api/game";
-import { GameSettings, SinglePlayerSettings } from "../models/gameSettings";
+import { SinglePlayerSettings } from "../models/gameSettings";
 import SinglePlayerSettingsForm from "../../components/game/SinglePlayerSettings";
 
 export default function SingleSetupRoute() {
@@ -26,7 +26,7 @@ export default function SingleSetupRoute() {
       setError(null);
       setLoading(true);
 
-       const game = await createGame({
+      const game = await createGame({
         mode: "SINGLE",
         ...settings,
       });

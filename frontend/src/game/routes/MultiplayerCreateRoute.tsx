@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createGame, checkPlayerAvailability } from "../../api/game";
-import { GameSettings, MultiplayerSettings } from "../models/gameSettings";
+import { MultiplayerSettings } from "../models/gameSettings";
 import MultiplayerSettingsForm from "../../components/game/MultiplayerSettings";
 
 
