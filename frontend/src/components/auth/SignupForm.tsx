@@ -57,8 +57,11 @@ export default function SignupForm({ onClose, onSwitchToLogin }: SignupFormProps
   };
 
   const handleGoogleSignUp = () => {
-    // TODO: Implement Google OAuth
-    alert('Google Sign Up - ready for OAuth integration');
+    window.location.href = '/api/auth/google';
+  };
+
+  const handle42SignIn = () => {
+    window.location.href = '/api/auth/intra42';
   };
 
   return (
@@ -70,12 +73,6 @@ export default function SignupForm({ onClose, onSwitchToLogin }: SignupFormProps
         >
           ×
         </button>
-
-        {/* Progress indicator */}
-        {/* <div className="flex justify-center gap-2 mb-6">
-          <div className="w-16 h-1 bg-cyan-500 rounded-full"></div>
-          <div className="w-16 h-1 bg-gray-600 rounded-full"></div>
-        </div> */}
 
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-white mb-3">Create Account</h1>
@@ -219,6 +216,14 @@ export default function SignupForm({ onClose, onSwitchToLogin }: SignupFormProps
               <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
             Sign up with Google
+          </button>
+                    <button
+            type="button"
+            onClick={handle42SignIn}
+            className="mt-6 w-full flex items-center justify-center gap-3 bg-gray-800 hover:bg-gray-750 text-white font-medium py-3.5 rounded-xl border border-gray-700 transition-all"
+          >
+            <span className="font-bold text-cyan-400">42</span>
+            Sign in with Intra
           </button>
         </div>
 
