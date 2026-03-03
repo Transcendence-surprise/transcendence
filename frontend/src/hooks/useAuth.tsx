@@ -12,6 +12,7 @@ export interface AuthContextType {
     password: string
   ) => Promise<authApi.User>;
   logout: () => Promise<void>;
+  continueAsGuest: (nickname: string) => void;
   isAdmin: boolean;
   isUser: boolean;
   hasRole: (role: string) => boolean;
@@ -31,12 +32,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
+
+  useEffect(() => {
+    if (user) connectSocket();
+    else disconnectSocket();
+  }, [user]);
+
   const login = async (username: string, password: string) => {
     try {
       setLoading(true);
       const u = await authApi.login(username, password);
       setUser(u);
-      connectSocket();
       alert(`Welcome, ${u.username}!`);
       return u;
     } catch (err: any) {
@@ -56,7 +62,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(true);
         const u = await authApi.signup(username, email, password);
         setUser(u);
-        connectSocket();
         alert(`Welcome, ${u.username}!`);
         return u;
     } catch (err: any) {
@@ -72,7 +77,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       await authApi.logout();
       setUser(null);
-      disconnectSocket();
     } catch (err: any) {
       alert(err.message || "Logout failed");
     } finally {
@@ -80,10 +84,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const continueAsGuest = (nickname: string) => {
+    const guestUser: authApi.User = {
+      id: Math.floor(Math.random() * 1000000),
+      username: nickname,
+      email: "",
+      roles: ["guest"],
+    };
+
+    setUser(guestUser);
+  };
+
   // Role-based computed values
-  const isAdmin = authApi.isAdmin(user);
-  const isUser = authApi.isUser(user);
-  const hasRole = (role: string) => authApi.hasRole(user, role);
+  const isAdmin = user?.roles.includes('admin') ?? false;
+  const isUser = user?.roles.includes('user') ?? false;
+  const hasRole = (role: string) => user?.roles.includes(role) ?? false;
 
   return (
     <AuthContext.Provider value={{ 
@@ -92,6 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login, 
       signup, 
       logout,
+      continueAsGuest,
       isAdmin,
       isUser,
       hasRole 

@@ -5,8 +5,8 @@ export interface User {
   username: string;
   email: string;
   roles: string[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export async function signup(
@@ -59,17 +59,4 @@ export async function logout(): Promise<void> {
   });
 
   if (!res.ok) throw new Error("Logout failed");
-}
-
-// Role-based helper functions
-export function isAdmin(user: User | null): boolean {
-  return user?.roles?.includes('admin') ?? false;
-}
-
-export function isUser(user: User | null): boolean {
-  return user?.roles?.includes('user') ?? false;
-}
-
-export function hasRole(user: User | null, role: string): boolean {
-  return user?.roles?.includes(role) ?? false;
 }
