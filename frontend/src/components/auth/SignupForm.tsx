@@ -1,12 +1,9 @@
 import { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { User } from '../../api/authentification';
 
 interface SignupFormProps {
   onClose: () => void;
   onSwitchToLogin: () => void;
-  signup: (username: string, email: string, password: string) => Promise<User>;
 }
 
 export default function SignupForm({ onClose, onSwitchToLogin }: SignupFormProps) {
@@ -19,7 +16,6 @@ export default function SignupForm({ onClose, onSwitchToLogin }: SignupFormProps
   });
 
   const { signup } = useAuth();
-  // const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

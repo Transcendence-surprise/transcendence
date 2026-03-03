@@ -1,12 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from "react-router-dom";
 import { useAuth } from '../../hooks/useAuth';
-import { User } from '../../api/authentification';
 
 interface LoginFormProps {
   onClose: () => void;
   onSwitchToSignup: () => void;
-  login: (username: string, password: string) => Promise<User>;
 }
 
 export default function LoginForm({ onClose, onSwitchToSignup }: LoginFormProps) {
@@ -17,7 +14,6 @@ export default function LoginForm({ onClose, onSwitchToSignup }: LoginFormProps)
   });
 
   const { login } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

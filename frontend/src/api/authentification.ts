@@ -5,8 +5,8 @@ export interface User {
   username: string;
   email: string;
   roles: string[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export async function signup(

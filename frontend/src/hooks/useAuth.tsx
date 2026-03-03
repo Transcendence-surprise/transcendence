@@ -12,7 +12,7 @@ export interface AuthContextType {
     password: string
   ) => Promise<authApi.User>;
   logout: () => Promise<void>;
-  setUser: (user: authApi.User | null) => void;
+  continueAsGuest: (nickname: string) => void;
   isAdmin: boolean;
   isUser: boolean;
   hasRole: (role: string) => boolean;
@@ -32,12 +32,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
+
+  useEffect(() => {
+    if (user) connectSocket();
+    else disconnectSocket();
+  }, [user]);
+
   const login = async (username: string, password: string) => {
     try {
       setLoading(true);
       const u = await authApi.login(username, password);
       setUser(u);
-      connectSocket();
       alert(`Welcome, ${u.username}!`);
       return u;
     } catch (err: any) {
@@ -57,7 +62,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(true);
         const u = await authApi.signup(username, email, password);
         setUser(u);
-        connectSocket();
         alert(`Welcome, ${u.username}!`);
         return u;
     } catch (err: any) {
@@ -73,12 +77,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       await authApi.logout();
       setUser(null);
-      disconnectSocket();
     } catch (err: any) {
       alert(err.message || "Logout failed");
     } finally {
       setLoading(false);
     }
+  };
+
+  const continueAsGuest = (nickname: string) => {
+    const guestUser: authApi.User = {
+      id: Math.floor(Math.random() * 1000000),
+      username: nickname,
+      email: "",
+      roles: ["guest"],
+    };
+
+    setUser(guestUser);
   };
 
   // Role-based computed values
@@ -93,7 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login, 
       signup, 
       logout,
-      setUser,
+      continueAsGuest,
       isAdmin,
       isUser,
       hasRole 

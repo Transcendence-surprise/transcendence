@@ -17,25 +17,23 @@ export default function GuestOrAuthModal({ onClose, onContinueAsGuest }: Props) 
   if (showLogin)
     return (
       <LoginForm
-        onClose={() => setShowLogin(false)}
+        onClose={onClose}
         onSwitchToSignup={() => {
           setShowLogin(false);
           setShowSignup(true);
         }}
-        login={login}
       />
     );
 
   if (showSignup)
     return (
       <SignupForm
-        onClose={() => setShowSignup(false)}
+        onClose={onClose}
         onSwitchToLogin={() => {
           setShowSignup(false);
           setShowLogin(true);
         }}
-        signup={signup}
-      />
+       />
     );
 
   return (

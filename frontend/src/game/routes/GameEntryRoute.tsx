@@ -8,7 +8,7 @@ import { useAuth } from '../../hooks/useAuth';
 
 export default function GameEntryRoute() {
   const navigate = useNavigate();
-  const { user, setUser } = useAuth();
+  const { user, continueAsGuest } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [selectedMode, setSelectedMode] = useState<'single'|'multi'|null>(null);
 
@@ -32,14 +32,7 @@ export default function GameEntryRoute() {
 
   const handleGuest = (nickname: string) => {
     // create guest user in context
-    setUser({
-      id: Math.floor(Math.random() * 1000000), // or uuidv4(), but need npm install uuid
-      username: nickname,
-      email: '',
-      roles: ['guest'],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
+    continueAsGuest(nickname);
     setShowModal(false);
     handleContinue();
   };
