@@ -12,6 +12,7 @@ export interface AuthContextType {
     password: string
   ) => Promise<authApi.User>;
   logout: () => Promise<void>;
+  setUser: (user: authApi.User | null) => void;
   isAdmin: boolean;
   isUser: boolean;
   hasRole: (role: string) => boolean;
@@ -81,9 +82,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Role-based computed values
-  const isAdmin = authApi.isAdmin(user);
-  const isUser = authApi.isUser(user);
-  const hasRole = (role: string) => authApi.hasRole(user, role);
+  const isAdmin = user?.roles.includes('admin') ?? false;
+  const isUser = user?.roles.includes('user') ?? false;
+  const hasRole = (role: string) => user?.roles.includes(role) ?? false;
 
   return (
     <AuthContext.Provider value={{ 
@@ -92,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login, 
       signup, 
       logout,
+      setUser,
       isAdmin,
       isUser,
       hasRole 
