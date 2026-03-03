@@ -33,7 +33,7 @@ export default function Lobby({
   console.log("Lobby received:", game);
 
   return (
-    <div className="min-h-screen bg-black text-[#ffffff]font-mono flex items-start justify-center px-4 py-10">
+    <div className="min-h-screen bg-black text-[#ffffff] font-mono flex items-start justify-center px-4 py-10">
       <div className="relative w-full max-w-5xl">
         <div className="absolute -inset-1 rounded-2xl bg-[radial-gradient(circle_at_top,rgba(0,234,255,0.25),transparent_55%)] blur-2xl" />
 
