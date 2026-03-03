@@ -90,9 +90,6 @@ export default function Profile() {
         />
       </div>
 
-      <p className=" text-lg text-gray-400">
-        This is where the user's profile information will be displayed.
-      </p>
     </div>
   );
 }
