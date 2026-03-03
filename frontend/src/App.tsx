@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import LayoutWithSidebar from './components/LayoutWithSidebar';
-import GameEntryRoute from './game/routes/GameEntryRote';
+import GameEntryRoute from './game/routes/GameEntryRoute';
 import SinglePlayerSetupRoute from "./game/routes/SingleSetupRoute";
 import MultiplayerSetupRoute from "./game/routes/MultiplayerSetupRoute";
 import MultiplayerCreateRoute from "./game/routes/MultiplayerCreateRoute";
