@@ -1,4 +1,3 @@
-
 // Match type enum
 export enum MatchType {
   SOLO = "Solo",
@@ -24,7 +23,9 @@ export interface RecentMatch {
 export interface PlayerProfile {
   id: string;
   name: string;
+  avatar: string;
   rank: string;
+  winstreak: number;
   winrate: number; // percentage 0-100
   totalMatches: number;
   totalWins: number;
@@ -37,7 +38,9 @@ export interface PlayerProfile {
 export const mockPlayerProfile: PlayerProfile = {
   id: "1",
   name: "ShadowNinja42",
+  avatar: "https://api.dicebear.com/9.x/bottts/svg?seed=Felix",
   rank: "#5",
+  winstreak: 3,
   winrate: 67.5,
   totalMatches: 120,
   totalWins: 81,
