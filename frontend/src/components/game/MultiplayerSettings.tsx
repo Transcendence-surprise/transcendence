@@ -39,7 +39,7 @@ export default function MultiplayerSettingsForm({
     "px-4 py-2 text-lg bg-gray-800 rounded w-20 border border-[#FFFFFF1A] focus:outline-none focus:border-cyan-200";
 
   return (
-    <div className="min-h-screen bg-black text-[#00eaff] font-mono flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-black text-[#ffffff] font-mono flex items-center justify-center px-4 py-10">
       <div className="relative w-full max-w-2xl">
         <div className="absolute -inset-1 rounded-2xl bg-[radial-gradient(circle_at_top,rgba(0,234,255,0.25),transparent_55%)] blur-2xl" />
         <div className="absolute -left-10 top-10 h-24 w-24 rounded-full bg-cyan-400/20 blur-2xl" />

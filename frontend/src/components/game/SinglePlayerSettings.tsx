@@ -33,7 +33,7 @@ export default function SinglePlayerSettingsForm({
   if (loading) return <div>Loading levels...</div>;
 
   return (
-    <div className="min-h-screen bg-black text-[#00eaff] font-mono flex flex-col items-center justify-center space-y-10">
+    <div className="min-h-screen bg-black text-[#ffffff] font-mono flex flex-col items-center justify-center space-y-10">
       <h2 className="text-4xl font-bold drop-shadow-lg">Single Player Settings</h2>
 
       {error && <p className="text-red-500">{error}</p>}
