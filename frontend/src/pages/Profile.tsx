@@ -7,7 +7,7 @@ export default function Profile() {
   const displayName = user?.username ?? mockPlayerProfile.name;
 
   return (
-    <div className="flex flex-col items-right min-h-[60vh]">
+    <div className="flex flex-col min-h-[60vh]">
       <div className="flex items-center gap-4 mb-8">
         <img
           src={mockPlayerProfile.avatar}
