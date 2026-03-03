@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { User } from '../../api/authentification';
 
@@ -19,7 +19,7 @@ export default function SignupForm({ onClose, onSwitchToLogin }: SignupFormProps
   });
 
   const { signup } = useAuth();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +41,6 @@ export default function SignupForm({ onClose, onSwitchToLogin }: SignupFormProps
       formData.password
     );
     onClose();
-    navigate('/');                                  // maybe current path?
   } catch (err: any) {
     console.error('Signup error:', err.message);
     alert(`Signup failed: ${err.message}`);

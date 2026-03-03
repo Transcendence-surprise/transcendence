@@ -26,8 +26,7 @@ export default function LoginForm({ onClose, onSwitchToSignup }: LoginFormProps)
     try {
       await login(formData.identifier, formData.password);
       onClose();
-      navigate(`/`);
-    } catch (err: any) {
+     } catch (err: any) {
         console.error('Login error:', err.message);
         alert(`Login failed: ${err.message}`);
       }
