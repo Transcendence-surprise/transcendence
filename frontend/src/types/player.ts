@@ -1,5 +1,5 @@
 // Recent match info
-export interface RecentMatch {
+export interface RecentGame {
   id: string;
   opponent: {
     name: string;
@@ -20,7 +20,7 @@ export interface PlayerProfile {
   totalMatches: number;
   totalWins: number;
   totalLosses: number;
-  recentMatches: RecentMatch[];
+  recentGames: RecentGame[];
 }
 
 // Mock data example
@@ -34,7 +34,7 @@ export const mockPlayerProfile: PlayerProfile = {
   totalMatches: 120,
   totalWins: 81,
   totalLosses: 35,
-  recentMatches: [
+  recentGames: [
     {
       id: "m1",
       opponent: {

@@ -90,6 +90,34 @@ export default function Profile() {
         />
       </div>
 
+      {/* Recent Matches */}
+      <div>
+        <h3 className="text-2xl font-bold text-white mb-4">Recent Games</h3>
+        <div className="bg-[#1A1A1F99] rounded-lg border border-[#FFFFFF1A] p-4 max-w-2xl">
+          {mockPlayerProfile.recentGames.slice(0, 4).map((match) => (
+            <div
+              key={match.id}
+              className="flex items-center justify-between py-3 border-b border-[#FFFFFF0A] last:border-b-0"
+            >
+              <div className="flex items-center gap-3">
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-bold ${
+                    match.result === "Win"
+                      ? "bg-green-500/20 text-green-400"
+                      : "bg-red-500/20 text-red-400"
+                  }`}
+                >
+                  {match.result}
+                </span>
+                <span className="text-gray-300">vs {match.opponent.name}</span>
+              </div>
+              <span className="text-xs text-gray-500">
+                {match.date.toLocaleDateString()}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
