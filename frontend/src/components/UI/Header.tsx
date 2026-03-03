@@ -35,7 +35,6 @@ export default function Header({
           <p className="text-sm text-blue-300">Backend status: {status}</p>
         </div>
 
-        {/* ✅ ONLY THIS PART CHANGED */}
         <div className="flex items-center gap-2">
           {user ? (
             <>

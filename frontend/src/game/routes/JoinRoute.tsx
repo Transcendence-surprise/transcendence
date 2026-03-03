@@ -12,10 +12,6 @@ export default function MultiplayerJoinRoute() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // const secondUser = "user-3yaosz";   // optional second player   FAKE
-
-  // console.log("currentUserId from join:", secondUser);
-
   useEffect(() => {
     setLoading(true);
     getMultiplayerGames()

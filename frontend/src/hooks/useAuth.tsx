@@ -25,13 +25,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Fetch current user on mount
   useEffect(() => {
-    const hasToken = document.cookie.includes("access_token=");
-    if (!hasToken) {
-      setUser(null);
-      setLoading(false);
-      return;
-    }
-
     authApi.getCurrentUser()
       .then(u => setUser(u))
       .catch(() => setUser(null))
