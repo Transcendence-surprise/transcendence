@@ -16,7 +16,7 @@ export default function Profile() {
         />
         <div>
           <h2 className="text-4xl font-bold text-[#ffffff]">{displayName}</h2>
-          <p className="text-m text-gray-400 mt-1">
+          <p className="text-base text-gray-400 mt-1">
             Rank {mockPlayerProfile.rank} • {mockPlayerProfile.winstreak} wins
             streak
           </p>
