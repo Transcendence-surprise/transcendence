@@ -49,7 +49,6 @@ export async function getCurrentUser(): Promise<User> {
   const res = await fetch("/api/users/me", { credentials: "include" });
   if (!res.ok) throw new Error("Not logged in");
   const user = await res.json();
-  console.log("user", user);
   return user;
 }
 
