@@ -5,10 +5,7 @@ let socket: Socket | null = null;
 
 export function connectSocket(user: User | null) {
 
-  if (socket) {
-    socket.disconnect();
-    socket = null;
-  }
+  if (socket) return socket;
 
   socket = io(window.location.origin, {
     path: '/socket.io/',
