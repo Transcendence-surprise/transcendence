@@ -9,35 +9,35 @@ export class GameController {
   constructor(private readonly gameClient: GameHttpService) {}
 
   @Post('create')
-  @Auth(AuthType.JWT)
+  @Auth(AuthType.JWT_OR_GUEST)
   @UseGuards(AuthGuard)
   createGame(@Body() body: unknown, @Req() req: FastifyRequest) {
     return this.gameClient.createGame(body, req);
   }
 
   @Post('start')
-  @Auth(AuthType.JWT)
+  @Auth(AuthType.JWT_OR_GUEST)
   @UseGuards(AuthGuard)
   startGame(@Body() body: unknown, @Req() req: FastifyRequest) {
     return this.gameClient.startGame(body, req);
   }
 
   @Post('join')
-  @Auth(AuthType.JWT)
+  @Auth(AuthType.JWT_OR_GUEST)
   @UseGuards(AuthGuard)
   join(@Body() body: unknown, @Req() req: FastifyRequest) {
     return this.gameClient.joinGame(body, req);
   }
 
   @Post('leave')
-  @Auth(AuthType.JWT)
+  @Auth(AuthType.JWT_OR_GUEST)
   @UseGuards(AuthGuard)
   leaveGame(@Body() body: unknown, @Req() req: FastifyRequest) {
     return this.gameClient.leaveGame(body, req);
   }
 
   @Get(':gameId')
-  @Auth(AuthType.JWT)
+  @Auth(AuthType.JWT_OR_GUEST)
   @UseGuards(AuthGuard)
   getGameState(@Param('gameId') gameId: string, @Req() req: FastifyRequest) {
     return this.gameClient.getGameState(gameId, req);
@@ -54,7 +54,7 @@ export class GameController {
   }
 
   @Get('check-player')
-  @Auth(AuthType.JWT)
+  @Auth(AuthType.JWT_OR_GUEST)
   @UseGuards(AuthGuard)
   checkPlayer(@Req() req: FastifyRequest) {
     return this.gameClient.checkPlayerAvailability(req);
