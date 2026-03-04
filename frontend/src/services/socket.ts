@@ -14,7 +14,7 @@ export function connectSocket(user: User | null) {
     path: '/socket.io/',
     withCredentials: true,
     autoConnect: true,
-    transports: ["websocket"],
+    transports: ["polling", "websocket"],
     auth: user?.roles.includes('guest')
       ? { guestId: user.id, guestUsername: user.username }
       : undefined,
