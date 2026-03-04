@@ -1,5 +1,4 @@
 import { useAuth } from "../../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   status: string;
@@ -13,14 +12,13 @@ export default function Header({
   onSignupClick,
 }: HeaderProps) {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
 
   return (
     <header className="p-4 border-b border-blue-600">
       <div className="flex justify-between items-center">
-        <button
-          onClick={() => navigate("/")}
-          className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer bg-none border-none p-0"
+        <a
+          href="/"
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
         >
           <div className="flex items-center gap-3">
             <img
@@ -36,7 +34,7 @@ export default function Header({
               MAZE IS LAVA
             </h1>
           </div>
-        </button>
+        </a>
         <div>
           <p className="text-sm text-blue-300">Backend status: {status}</p>
         </div>
