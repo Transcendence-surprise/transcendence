@@ -19,22 +19,23 @@ export async function apiFetch(
   url: string,
   options: RequestInit = {}
 ) {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
+  // Normalize caller-provided headers, regardless of their shape
+  const headers = new Headers(options.headers);
+
+  // Set default Content-Type only when a body is present and caller did not specify one
+  if (options.body !== undefined && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
 
   // Guest user → attach custom headers
   if (currentUser?.roles.includes("guest")) {
-    headers["X-Guest-Id"] = String(currentUser.id);
-    headers["X-Guest-Username"] = currentUser.username;
+    headers.set("X-Guest-Id", String(currentUser.id));
+    headers.set("X-Guest-Username", currentUser.username);
   }
 
   return fetch(url, {
     ...options,
     credentials: "include",                                 // normal JWT token in cookies
-    headers: {
-      ...headers,
-      ...options.headers,
-    },
+    headers,
   });
 }
