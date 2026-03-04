@@ -112,7 +112,6 @@ export async function checkPlayerAvailability(): Promise<{
 
   const res = await apiFetch("/api/game/check-player", {
     method: "GET",
-    credentials: "include",
   });
 
   if (!res.ok) {
