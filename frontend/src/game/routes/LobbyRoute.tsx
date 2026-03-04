@@ -33,18 +33,20 @@ export default function LobbyRoute() {
       return;
     }
 
-    const socket = connectSocket(user);
+    const socket = getSocket() ?? connectSocket(user);
+
+    const handleConnect = () => {
+      console.log("Socket connected -> now joining lobby");
+      socket.emit("joinLobby", { gameId });
+    };
 
     if (socket.connected) {
       socket.emit("joinLobby", { gameId });
     } else {
-      socket.on("connect", () => {
-        console.log("Socket connected -> now joining lobby");
-        socket.emit("joinLobby", { gameId });
-      })
+      socket.on("connect", handleConnect)
     }
 
-    socket.on("lobbyUpdate", (data) => {
+    const handleLobbyUpdate = (data: any) => {
       console.log("LOBBY UPDATE RECEIVED", data);
       setGame({
         id: data.gameId,
@@ -53,26 +55,32 @@ export default function LobbyRoute() {
         rules: data.rules,
         phase: data.phase,
       });
-    console.log("Game after set:", game);
-    });
+      console.log("Game after set:", game);
+    };
 
-    socket.on("lobbyMessage", (msg) => {
+    socket.on("lobbyUpdate", handleLobbyUpdate);
+
+    const handleLobbyMessage = (msg: any) => {
       console.log("LOBBY MESSAGE", msg);
       setMessages(prev => [...prev, msg]);
-    });
+    };
 
-    socket.on("error", (err) => {
+    socket.on("lobbyMessage", handleLobbyMessage);
+
+    const handleError = (err: any) => {
       console.log("LOBBY ERROR", err);
       setError(err.error || "Failed to join lobby");
-    });
+    };
+
+    socket.on("error", handleError);
 
     return () => {
-      socket.off("connect");
-      socket.off("lobbyUpdate");
-      socket.off("lobbyMessage");
-      socket.off("error"); 
+      socket.off("connect", handleConnect);
+      socket.off("lobbyUpdate", handleLobbyUpdate);
+      socket.off("lobbyMessage", handleLobbyMessage);
+      socket.off("error", handleError); 
     };
-  }, [gameId]);
+  }, [gameId, user, navigate]);
 
   // Start game (host only)
   const handleStart = async () => {

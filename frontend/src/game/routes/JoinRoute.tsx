@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getMultiplayerGames, joinGame, checkPlayerAvailability } from "../../api/game";
 import { MultiGame } from "../models/multiGames";
 import JoinTable from "../../components/game/Join";
-import { connectSocket } from "../../services/socket";
+import { getSocket, connectSocket } from "../../services/socket";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function MultiplayerJoinRoute() {
@@ -15,25 +15,30 @@ export default function MultiplayerJoinRoute() {
   const { user } = useAuth();
 
   useEffect(() => {
+
+    if (!user?.id) return;
+  
     setLoading(true);
     getMultiplayerGames()
       .then((data) => setGames(data))
       .catch((err) => setError(err.message || "Failed to load games"))
       .finally(() => setLoading(false));
 
-      const socket = connectSocket(user);
+      const socket = getSocket() ?? connectSocket(user);
 
       socket.emit("joinMultiplayerList");
 
-      socket.on("multiplayerListUpdate", (data) => {
+      const handleUpdate = (data: any) => {
         setGames(data.games);
-      });
-
-      return () => {
-        socket.off("multiplayerListUpdate");
       };
 
-  }, []);
+      socket.on("multiplayerListUpdate", handleUpdate);
+
+      return () => {
+        socket.off("multiplayerListUpdate", handleUpdate);
+      };
+
+  }, [user]);
 
   const handleJoin = async (gameId: string) => {
     try {

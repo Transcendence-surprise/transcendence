@@ -5,10 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { createGame, checkPlayerAvailability } from "../../api/game";
 import { MultiplayerSettings } from "../models/gameSettings";
 import MultiplayerSettingsForm from "../../components/game/MultiplayerSettings";
+import { useAuth } from "../../hooks/useAuth";
 
 
 export default function MultiplayerCreateRoute() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [settings, setSettings] = useState<MultiplayerSettings>({
     maxPlayers: 2,
@@ -18,8 +20,12 @@ export default function MultiplayerCreateRoute() {
   });
 
   useEffect(() => {
+     if (!user) {
+      navigate("/game");
+      return;
+    }
     console.log("🔧 Multiplayer settings changed:", settings);
-  }, [settings]);
+  }, [settings, user]);
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
