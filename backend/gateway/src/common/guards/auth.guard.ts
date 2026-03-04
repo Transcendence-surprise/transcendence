@@ -53,10 +53,13 @@ export class AuthGuard implements CanActivate {
       case AuthType.GUEST:
         return await this.validateGuest(request);
       case AuthType.JWT_OR_GUEST:
-        try { 
-          return await this.validateJwt(request); 
-        } catch {
-          return await this.validateGuest(request);
+        try {
+          return await this.validateJwt(request);
+        } catch (error) {
+          if (error instanceof UnauthorizedException) {
+            return await this.validateGuest(request);
+          }
+          throw error;
         }
       case AuthType.API_KEY_ONLY:
         return this.validateApiKey(request);
