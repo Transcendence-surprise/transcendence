@@ -12,7 +12,6 @@ export default function Header({
   onLoginClick,
   onSignupClick,
 }: HeaderProps) {
-
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -46,7 +45,7 @@ export default function Header({
           {user ? (
             <>
               <span className="px-3 py-1.5 text-sm text-cyan-400 font-semibold">
-                👻 {user.username.replace(/\d+/g, '').slice(0, 8)}
+                👻 {user.username.replace(/\d+/g, "").slice(0, 8)}
               </span>
 
               <button
