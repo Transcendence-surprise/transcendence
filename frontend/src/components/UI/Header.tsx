@@ -11,13 +11,15 @@ export default function Header({
   onLoginClick,
   onSignupClick,
 }: HeaderProps) {
-
   const { user, logout } = useAuth();
 
   return (
     <header className="p-4 border-b border-blue-600">
       <div className="flex justify-between items-center">
-        <div>
+        <a
+          href="/"
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
+        >
           <div className="flex items-center gap-3">
             <img
               src="../../../public/assets/logo-bolt.svg"
@@ -32,6 +34,8 @@ export default function Header({
               MAZE IS LAVA
             </h1>
           </div>
+        </a>
+        <div>
           <p className="text-sm text-blue-300">Backend status: {status}</p>
         </div>
 
@@ -39,12 +43,12 @@ export default function Header({
           {user ? (
             <>
               <span className="px-3 py-1.5 text-sm text-cyan-400 font-semibold">
-                👻 {user.username.replace(/\d+/g, '').slice(0, 8)}
+                👻 {user.username.replace(/\d+/g, "").slice(0, 8)}
               </span>
 
               <button
                 onClick={logout}
-                className="px-4 py-1.5 text-sm bg-red-600 hover:bg-red-500 text-white font-medium rounded-lg transition-all"
+                className="px-4 py-1.5 text-sm bg-[#FF2EDF] hover:bg-pink-400 text-white border border-pink-300/40 font-medium rounded-lg transition-all"
               >
                 Logout
               </button>
