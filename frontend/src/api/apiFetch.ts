@@ -11,6 +11,10 @@ export function setApiUser(user: User | null) {
   currentUser = user;
 }
 
+export function getApiUser(): User | null {
+  return currentUser;
+}
+
 export async function apiFetch(
   url: string,
   options: RequestInit = {}

@@ -33,7 +33,7 @@ export default function LobbyRoute() {
       return;
     }
 
-    const socket = connectSocket();
+    const socket = connectSocket(user);
 
     if (socket.connected) {
       socket.emit("joinLobby", { gameId });

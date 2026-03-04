@@ -1,24 +1,33 @@
 import { io, Socket } from "socket.io-client";
+import { User } from "../api/authentification";
 
 let socket: Socket | null = null;
 
-export function connectSocket() {
-    if (!socket) {
-      const socketHost = window.location.origin;
-      socket = io(socketHost, {
-        path: '/socket.io/',
-        withCredentials: true,
-        autoConnect: true,
-      });
+export function connectSocket(user: User | null) {
 
-          socket.on('connect', () => {
-      console.log('WS connected', socket?.id);
-    });
-
-    socket.on('disconnect', (reason) => {
-      console.log('WS disconnected', reason);
-    });
+  if (socket) {
+    socket.disconnect();
+    socket = null;
   }
+
+  socket = io(window.location.origin, {
+    path: '/socket.io/',
+    withCredentials: true,
+    autoConnect: true,
+    transports: ["websocket"],
+    auth: user?.roles.includes('guest')
+      ? { guestId: user.id, guestUsername: user.username }
+      : undefined,
+  });
+
+  socket.on('connect', () => {
+    console.log('WS connected', socket?.id);
+  });
+
+  socket.on('disconnect', (reason) => {
+    console.log('WS disconnected', reason);
+  });
+
   return socket;
 }
 

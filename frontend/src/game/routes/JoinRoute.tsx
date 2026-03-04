@@ -5,12 +5,14 @@ import { getMultiplayerGames, joinGame, checkPlayerAvailability } from "../../ap
 import { MultiGame } from "../models/multiGames";
 import JoinTable from "../../components/game/Join";
 import { connectSocket } from "../../services/socket";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function MultiplayerJoinRoute() {
   const navigate = useNavigate();
   const [games, setGames] = useState<MultiGame[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     setLoading(true);
@@ -19,7 +21,7 @@ export default function MultiplayerJoinRoute() {
       .catch((err) => setError(err.message || "Failed to load games"))
       .finally(() => setLoading(false));
 
-      const socket = connectSocket();
+      const socket = connectSocket(user);
 
       socket.emit("joinMultiplayerList");
 

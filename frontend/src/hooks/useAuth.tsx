@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
   useEffect(() => {
-    if (user) connectSocket();
+    if (user) connectSocket(user);
     else disconnectSocket();
   }, [user]);
 
