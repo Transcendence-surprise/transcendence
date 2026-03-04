@@ -69,8 +69,26 @@ export default function Lobby({
                 hostId={game.hostId}
                 maxPlayers={game.rules.maxPlayers}
               />
-                {/* Settings block */}
+              {/* Settings block */}
               <LobbySettings rules={game.rules} />
+
+              <div className="mt-4 flex flex-col items-start gap-3">
+                <div className="flex gap-4">
+                  {game.phase === "LOBBY" && (
+                    <LobbyActionButton
+                      onClick={onGameStarted}
+                      disabled={starting}
+                      variant="primary"
+                    >
+                      {starting ? "Starting..." : "Start Game"}
+                    </LobbyActionButton>
+                  )}
+
+                  <LobbyActionButton onClick={onGameLeave} variant="leave">
+                    Leave Lobby
+                  </LobbyActionButton>
+                </div>
+              </div>
             </div>
 
             {/* Chat column */}
@@ -93,25 +111,6 @@ export default function Lobby({
               {leaveError}
             </p>
           )}
-
-          {/* Actions */}
-          <div className="flex flex-col items-center gap-3">
-            <div className="flex gap-4">
-              {game.phase === "LOBBY" && (
-                <LobbyActionButton
-                  onClick={onGameStarted}
-                  disabled={starting}
-                  variant="primary"
-                >
-                  {starting ? "Starting..." : "Start Game"}
-                </LobbyActionButton>
-              )}
-
-              <LobbyActionButton onClick={onGameLeave} variant="leave">
-                Leave Lobby
-              </LobbyActionButton>
-            </div>
-          </div>
         </div>
       </div>
     </div>
