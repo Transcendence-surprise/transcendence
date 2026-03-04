@@ -50,6 +50,17 @@ export class AuthGuard implements CanActivate {
     switch (authType) {
       case AuthType.JWT:
         return await this.validateJwt(request);
+      case AuthType.GUEST:
+        return await this.validateGuest(request);
+      case AuthType.JWT_OR_GUEST:
+        try {
+          return await this.validateJwt(request);
+        } catch (error) {
+          if (error instanceof UnauthorizedException) {
+            return await this.validateGuest(request);
+          }
+          throw error;
+        }
       case AuthType.API_KEY_ONLY:
         return this.validateApiKey(request);
       case AuthType.JWT_OR_API_KEY:
@@ -118,5 +129,24 @@ export class AuthGuard implements CanActivate {
     if (headerKey)
       return headerKey.toString();
     return undefined;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/require-await
+  private async validateGuest(request: FastifyRequest): Promise<boolean> {
+    const guestId = request.headers['x-guest-id'];
+    const guestUsername = request.headers['x-guest-username'];
+
+    if (!guestId || !guestUsername) {
+      throw new UnauthorizedException('Guest headers missing');
+    }
+
+    (request as RequestWithUser).user = {
+      sub: Number(guestId),
+      username: String(guestUsername),
+      email: '',
+      roles: ['guest'],
+    };
+
+    return true;
   }
 }

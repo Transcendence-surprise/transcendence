@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import * as authApi from "../api/authentification";
 import { connectSocket, disconnectSocket } from "../services/socket";
+import { setApiUser } from "../api/apiFetch";
 
 export interface AuthContextType {
   user: authApi.User | null;
@@ -34,8 +35,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
   useEffect(() => {
-    if (user) connectSocket();
+    if (user) connectSocket(user);
     else disconnectSocket();
+  }, [user]);
+
+  useEffect(() => {
+    setApiUser(user);
   }, [user]);
 
   const login = async (username: string, password: string) => {
@@ -86,7 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const continueAsGuest = (nickname: string) => {
     const guestUser: authApi.User = {
-      id: Math.floor(Math.random() * 1000000),
+      id: Date.now(),
       username: nickname,
       email: "",
       roles: ["guest"],

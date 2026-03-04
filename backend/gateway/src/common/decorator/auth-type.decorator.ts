@@ -2,6 +2,8 @@ import { SetMetadata } from "@nestjs/common";
 
 export enum AuthType {
     JWT = 'jwt',
+    GUEST = 'guest',
+    JWT_OR_GUEST = 'jwt-or-guest',
     JWT_OR_API_KEY = 'jwt-or-api-key',
     API_KEY_ONLY = 'api-key-only',
     PUBLIC = 'public',

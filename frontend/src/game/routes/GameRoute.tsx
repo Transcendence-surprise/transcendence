@@ -5,19 +5,21 @@ import { useEffect, useState } from "react";
 import { getGameState } from "../../api/game";
 import BoardView from "../../components/game/Board";
 import { connectSocket } from "../../services/socket";
+import { useAuth } from '../../hooks/useAuth';
 
 export default function GameRoute() {
   const { id } = useParams<{ id: string }>();
   const [game, setGame] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!id) return;
 
-    const socket = connectSocket();
+    const socket = connectSocket(user);
 
     setLoading(true);
     getGameState(id)

@@ -2,6 +2,7 @@
 
 import { SingleLevel } from "../game/models/singleLevel";
 import { MultiGame } from "../game/models/multiGames";
+import { apiFetch } from "./apiFetch";
 
 export type GameSettings =
   | ({ mode: 'SINGLE'; allowSpectators?: false; levelId?: string })
@@ -14,10 +15,8 @@ export type PlayerInfo = {
 };
 
 export async function createGame(settings: GameSettings) {
-  const res = await fetch('/api/game/create', {
+  const res = await apiFetch('/api/game/create', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
     body: JSON.stringify(settings),
   });
 
@@ -34,26 +33,23 @@ export async function joinGame(
   gameId: string,
   role: "PLAYER" | "SPECTATOR" = "PLAYER"
 ) {
-  const res = await fetch('/api/game/join', {
+  const res = await apiFetch('/api/game/join', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
     body: JSON.stringify({ gameId, role }),
   });
   return res.json();
 }
 
 export async function startGame(gameId: string) {
-  const res = await fetch('/api/game/start', {
+  const res = await apiFetch('/api/game/start', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ gameId }),
   });
   return res.json();
 }
 
 export async function getGameState(gameId: string) {
-  const res = await fetch(`/api/game/${gameId}`);
+  const res = await apiFetch(`/api/game/${gameId}`);
   const data = await res.json();
 
   if (!res.ok) {
@@ -78,16 +74,15 @@ export async function getGameState(gameId: string) {
 // }
 
 export async function leaveGame(gameId: string ) {
-  const res = await fetch('/api/game/leave', {
+  const res = await apiFetch('/api/game/leave', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ gameId }),
   });
   return res.json();
 }
 
 export async function getSingleLevels(): Promise<SingleLevel[]> {
-  const res = await fetch("/api/game/single/levels");
+  const res = await apiFetch("/api/game/single/levels");
 
   if (!res.ok) {
     throw new Error("Failed to load levels");
@@ -97,7 +92,7 @@ export async function getSingleLevels(): Promise<SingleLevel[]> {
 }
 
 export async function getMultiplayerGames(): Promise<MultiGame[]> {
-  const res = await fetch("/api/game/multi/games");
+  const res = await apiFetch("/api/game/multi/games");
 
   if (!res.ok) {
     throw new Error("Failed to load multiplayer games");
@@ -115,9 +110,8 @@ export async function checkPlayerAvailability(): Promise<{
   phase: string;
 }> {
 
-  const res = await fetch("/api/game/check-player", {
+  const res = await apiFetch("/api/game/check-player", {
     method: "GET",
-    credentials: "include",
   });
 
   if (!res.ok) {

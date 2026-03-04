@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { createGame } from "../../api/game";
 import { SinglePlayerSettings } from "../models/gameSettings";
 import SinglePlayerSettingsForm from "../../components/game/SinglePlayerSettings";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function SingleSetupRoute() {
   const navigate = useNavigate();
@@ -12,11 +13,19 @@ export default function SingleSetupRoute() {
     levelId: undefined,
     allowSpectators: false,
   });
+  
+  const { user } = useAuth();
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleCreate = async (settings: SinglePlayerSettings) => {
+
+    if (!user) {
+      navigate("/game");
+      return;
+    }
+
     if (!settings.levelId) {
       setError("Please choose a level");
       return;
