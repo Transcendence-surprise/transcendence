@@ -32,13 +32,13 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-black text-[#00eaff] font-mono">
       {/* Hero Section */}
-      <div className="relative min-h-[70vh] flex items-center justify-center px-4 py-10 overflow-hidden">
+      <div className="relative min-h-[40vh] flex items-center justify-center px-4 py-10 overflow-hidden">
         {/* Content */}
         <div className="relative z-10 max-w-3xl text-center">
           <p className="text-xs uppercase tracking-[0.3em] text-[#7BE9FF] mb-4">
-            Welcome to
+            Welcome to hell
           </p>
-          <h1 className="text-7xl font-black drop-shadow-lg text-white mb-6">
+          <h1 className="text-5xl font-black drop-shadow-lg text-white mb-6">
             Transcendence
           </h1>
           <p className="text-xl text-[#B7F6FF] mb-4 leading-relaxed">
