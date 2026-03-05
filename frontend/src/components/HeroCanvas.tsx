@@ -1,4 +1,3 @@
-// src/components/HeroCanvas.tsx
 import { useEffect, useRef } from "react";
 
 type Props = { className?: string };
@@ -20,15 +19,15 @@ export default function HeroCanvas({ className }: Props) {
       enableTopLeft: true,
       enableBottomRight: true,
       
-      // Position settings (0.0 to 1.0 as percentage of canvas width/height)
-      // OR use negative numbers for pixel offset from edge (e.g., -100 for 100px from edge)
+  // Position settings (0.0 to 1.0 as percentage of canvas width/height)
+  // Use negative numbers for pixel offset from top-left corner (e.g., -100 for 100px from top/left)
       topLeft: {
-        x: 0.30,    // 15% from left (or use pixels: -150 for 150px from left)
-        y: 0.30,    // 15% from top
+        x: 0.30,    // 30% from left (or use pixels: -150 for 150px from left)
+        y: 0.30,    // 30% from top
       },
       bottomRight: {
-        x: 0.70,    // 85% from left
-        y: 0.70,    // 85% from top
+        x: 0.70,    // 70% from left
+        y: 0.70,    // 70% from top
       },
     };
     // ========================================
@@ -40,7 +39,7 @@ export default function HeroCanvas({ className }: Props) {
     // Separate configs for blue and purple
     const optsBlue = {
       len: 40,
-      count: 50,
+      count: 100,
       baseTime: 30,
       addedTime: 30,
       dieChance: 0.05,
@@ -49,15 +48,13 @@ export default function HeroCanvas({ className }: Props) {
       sparkDist: 10,
       sparkSize: 2,
       color: "hsl(220,100%,light%)",  // blue
-      baseLight: 50,
+      baseLight: 40,
       addedLight: 10,
-      shadowToTimePropMult: 6,
-      baseLightInputMultiplier: 0.01,
+      shadowToTimePropMult: 0.01,
+      baseLightInputMultiplier: 0.02,
       addedLightInputMultiplier: 0.02,
-      cx: 0,
-      cy: 0,
       repaintAlpha: 0.07,
-      hueChange: 0.1,
+      hueChange: 0.1, // stands for color changing if we use hue in hsl
     };
     const optsPurple = {
       ...optsBlue,
@@ -111,7 +108,6 @@ export default function HeroCanvas({ className }: Props) {
       ctx.globalCompositeOperation = "source-over";
       ctx.shadowBlur = 0;
       ctx.fillStyle = `rgba(0,0,0,${optsBlue.repaintAlpha})`;
-      // ctx.fillStyle = "black";
       ctx.fillRect(0, 0, w, h);
       ctx.globalCompositeOperation = "lighter";
       // Top-left: blue
@@ -159,9 +155,10 @@ export default function HeroCanvas({ className }: Props) {
         this.addedY = 0;
         this.rad = 0;
         this.lightInputMultiplier =
-          this.opts.baseLightInputMultiplier +
-          this.opts.addedLightInputMultiplier * Math.random();
+        this.opts.baseLightInputMultiplier +
+        this.opts.addedLightInputMultiplier * Math.random();
         this.color = this.opts.color.replace("hue", String(tick * this.opts.hueChange));
+        //this.color = this.opts.color;
         this.cumulativeTime = 0;
         this.beginPhase();
       }
@@ -227,7 +224,6 @@ export default function HeroCanvas({ className }: Props) {
       }
     }
 
-    // init
     resize();
     loop();
 
@@ -235,10 +231,7 @@ export default function HeroCanvas({ className }: Props) {
     const ro = new ResizeObserver(() => resize());
     ro.observe(c);
 
-    window.addEventListener("resize", resize);
-
     return () => {
-      window.removeEventListener("resize", resize);
       ro.disconnect();
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };

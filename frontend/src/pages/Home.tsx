@@ -60,12 +60,12 @@ export default function Home() {
 
         {/* Content */}
         <div  className="relative flex flex-col items-center justify-center overflow-hidden">
-            <p className="relative z-10 max-w-3xl text-cente text-xs uppercase tracking-[0.3em] text-[#7BE9FF] mb-4">
+            <p className="relative z-10 max-w-3xl text-center text-xs uppercase tracking-[0.3em] text-[#7BE9FF] mb-4">
               Welcome to hell
             </p>
-            <div className="relative z-10 max-w-3xl text-center text-5xl font-black drop-shadow-lg text-white mb-6">
+            <h1 className="relative z-10 max-w-3xl text-center text-5xl font-black drop-shadow-lg text-white mb-6">
               Transcendence
-            </div>
+            </h1>
         </div>
 
       </div>
