@@ -56,7 +56,7 @@ export default function Home() {
     {/* </div>  */}
       <div className="relative min-h-[50vh] flex items-center justify-center overflow-hidden mt-4">
         {/* Canvas background */}
-        <HeroCanvas className="absolute w-full h-[40vh] opacity-80" />
+        <HeroCanvas className="absolute w-full h-[50vh] opacity-80" />
 
         {/* Content */}
         <div  className="relative flex flex-col items-center justify-center overflow-hidden">
