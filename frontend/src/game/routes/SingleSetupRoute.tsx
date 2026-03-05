@@ -1,6 +1,6 @@
 // select level → create single player game
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createGame } from "../../api/game";
 import { SinglePlayerSettings } from "../models/gameSettings";
@@ -15,9 +15,16 @@ export default function SingleSetupRoute() {
   });
   
   const { user } = useAuth();
-
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+     if (!user) {
+      navigate("/game");
+      return;
+    }
+    console.log("🔧 Single Player settings changed:", settings);
+  }, [settings, user]);
 
   const handleCreate = async (settings: SinglePlayerSettings) => {
 
