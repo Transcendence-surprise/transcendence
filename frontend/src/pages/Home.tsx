@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import HomeNavCard from "../components/UI/HomeNavCard";
+import HeroCanvas from "../components/HeroCanvas";
 
 export default function Home() {
   const navCards = [
@@ -30,28 +31,46 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-[#00eaff] font-mono">
-      {/* Hero Section */}
-      <div className="relative min-h-[40vh] flex items-center justify-center px-4 py-10 overflow-hidden">
+     <div className="min-h-screen bg-black text-[#00eaff] font-mono">
+    {/* //   {/* Hero Section */}
+    {/* <div className="relative min-h-[40vh] flex items-center justify-center px-4 py-10 overflow-hidden"> */}
+      {/* Content */}
+         {/* <div className="relative z-10 max-w-3xl text-center">
+         <p className="text-xs uppercase tracking-[0.3em] text-[#7BE9FF] mb-4">
+           Welcome to hell
+           </p>
+           <h1 className="text-5xl font-black drop-shadow-lg text-white mb-6">
+             Transcendence
+           </h1>
+           <p className="text-xl text-[#B7F6FF] mb-4 leading-relaxed">
+             A server-driven multiplayer web game featuring user profiles,
+             authentication, and global leaderboards.
+           </p>
+           <p className="text-m text-[#B7F6FF] mb-4 leading-relaxed">
+             The app is split into microservices so real-time game logic,
+             user/profile management, and authentication can scale independently;
+             nginx routes frontend requests to the appropriate service and
+             PostgreSQL stores persistent data.
+           </p>
+         </div> */}
+    {/* </div>  */}
+      <div className="relative min-h-[40vh] flex items-center justify-center overflow-hidden">
+        {/* Canvas background */}
+        <HeroCanvas className="absolute w-full h-[40vh] opacity-80" />
+
+        {/* Optional dark overlay to improve text readability */}
+        {/* <div className="absolute inset-0 bg-black/40" /> */}
+
         {/* Content */}
-        <div className="relative z-10 max-w-3xl text-center">
-          <p className="text-xs uppercase tracking-[0.3em] text-[#7BE9FF] mb-4">
-            Welcome to hell
-          </p>
-          <h1 className="text-5xl font-black drop-shadow-lg text-white mb-6">
-            Transcendence
-          </h1>
-          <p className="text-xl text-[#B7F6FF] mb-4 leading-relaxed">
-            A server-driven multiplayer web game featuring user profiles,
-            authentication, and global leaderboards.
-          </p>
-          <p className="text-m text-[#B7F6FF] mb-4 leading-relaxed">
-            The app is split into microservices so real-time game logic,
-            user/profile management, and authentication can scale independently;
-            nginx routes frontend requests to the appropriate service and
-            PostgreSQL stores persistent data.
-          </p>
+        <div  className="relative min-h-[40vh] flex flex-col items-center justify-center overflow-hidden">
+            <p className="relative z-10 max-w-3xl text-cente text-xs uppercase tracking-[0.3em] text-[#7BE9FF] mb-4">
+              Welcome to hell
+            </p>
+            <div className="relative z-10 max-w-3xl text-center text-5xl font-black drop-shadow-lg text-white mb-6">
+              Transcendence
+            </div>
         </div>
+
       </div>
       {/* Navigation Section */}
       <div className="relative px-4 py-10">
