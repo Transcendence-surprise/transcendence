@@ -98,6 +98,19 @@ export default function HeroCanvas({ className }: Props) {
       cxBottomRight = calcPos(animationConfig.bottomRight.x, w);
       cyBottomRight = calcPos(animationConfig.bottomRight.y, h);
 
+      // Ensure existing lines use the updated centres after a resize
+      if (Array.isArray(linesTopLeft)) {
+        for (const line of linesTopLeft) {
+          (line as any).cx = cxTopLeft;
+          (line as any).cy = cyTopLeft;
+        }
+      }
+      if (Array.isArray(linesBottomRight)) {
+        for (const line of linesBottomRight) {
+          (line as any).cx = cxBottomRight;
+          (line as any).cy = cyBottomRight;
+        }
+      }
       dieX = w / 2 / optsBlue.len;
       dieY = h / 2 / optsBlue.len;
     };
