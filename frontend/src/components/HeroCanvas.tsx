@@ -41,8 +41,8 @@ export default function HeroCanvas({ className }: Props) {
     const optsBlue = {
       len: 40,
       count: 50,
-      baseTime: 40,
-      addedTime: 40,
+      baseTime: 30,
+      addedTime: 30,
       dieChance: 0.05,
       spawnChance: 1,
       sparkChance: 0.01,
