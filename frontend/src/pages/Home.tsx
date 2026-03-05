@@ -54,15 +54,12 @@ export default function Home() {
            </p>
          </div> */}
     {/* </div>  */}
-      <div className="relative min-h-[40vh] flex items-center justify-center overflow-hidden">
+      <div className="relative min-h-[50vh] flex items-center justify-center overflow-hidden mt-4">
         {/* Canvas background */}
         <HeroCanvas className="absolute w-full h-[40vh] opacity-80" />
 
-        {/* Optional dark overlay to improve text readability */}
-        {/* <div className="absolute inset-0 bg-black/40" /> */}
-
         {/* Content */}
-        <div  className="relative min-h-[40vh] flex flex-col items-center justify-center overflow-hidden">
+        <div  className="relative flex flex-col items-center justify-center overflow-hidden">
             <p className="relative z-10 max-w-3xl text-cente text-xs uppercase tracking-[0.3em] text-[#7BE9FF] mb-4">
               Welcome to hell
             </p>

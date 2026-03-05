@@ -23,12 +23,12 @@ export default function HeroCanvas({ className }: Props) {
       // Position settings (0.0 to 1.0 as percentage of canvas width/height)
       // OR use negative numbers for pixel offset from edge (e.g., -100 for 100px from edge)
       topLeft: {
-        x: 0.15,    // 15% from left (or use pixels: -150 for 150px from left)
-        y: 0.15,    // 15% from top
+        x: 0.30,    // 15% from left (or use pixels: -150 for 150px from left)
+        y: 0.30,    // 15% from top
       },
       bottomRight: {
-        x: 0.85,    // 85% from left
-        y: 0.85,    // 85% from top
+        x: 0.70,    // 85% from left
+        y: 0.70,    // 85% from top
       },
     };
     // ========================================
@@ -37,45 +37,38 @@ export default function HeroCanvas({ className }: Props) {
     let w = 0;
     let h = 0;
 
-    const opts = {
-      len: 20,
+    // Separate configs for blue and purple
+    const optsBlue = {
+      len: 40,
       count: 50,
-      baseTime: 30,
-      addedTime: 10,
+      baseTime: 40,
+      addedTime: 40,
       dieChance: 0.05,
       spawnChance: 1,
-      sparkChance: 0.0,
+      sparkChance: 0.01,
       sparkDist: 10,
       sparkSize: 2,
-
-      color: "hsl(hue,100%,light%)",
-      // Fixed blue with pulsing brightness:
-      //color: "hsl(220,100%,light%)",  // 220 = blue
-      // Fixed red:
-      //color: "hsl(0,100%,light%)",    // 0 = red
-      // Fixed green:
-      //color: "hsl(120,100%,light%)",  // 120 = green
-      // Fixed purple:
-      //color: "hsl(280,100%,light%)",  // 280 = purple
-      // Less saturated (more pastel):
-      //color: "hsl(hue,60%,light%)",   // 60% saturation instead of 100%
+      color: "hsl(220,100%,light%)",  // blue
       baseLight: 50,
       addedLight: 10,
       shadowToTimePropMult: 6,
       baseLightInputMultiplier: 0.01,
       addedLightInputMultiplier: 0.02,
-
       cx: 0,
       cy: 0,
-      repaintAlpha: 0.04,
+      repaintAlpha: 0.07,
       hueChange: 0.1,
     };
+    const optsPurple = {
+      ...optsBlue,
+      color: "hsl(280,100%,light%)", // purple
+    };
 
-    let tick = 0;
-    const linesTopLeft: Line[] = [];
-    const linesBottomRight: Line[] = [];
-    let dieX = 0;
-    let dieY = 0;
+  let tick = 0;
+  const linesTopLeft: Line[] = [];
+  const linesBottomRight: Line[] = [];
+  let dieX = 0;
+  let dieY = 0;
 
     // Centers for two animations
     let cxTopLeft = 0, cyTopLeft = 0;
@@ -84,24 +77,21 @@ export default function HeroCanvas({ className }: Props) {
     // square grid
     const baseRad = (Math.PI * 2) / 4;
 
-    // --- resize that matches your hero container size (not window) ---
     const resize = () => {
       const dpr = Math.max(1, window.devicePixelRatio || 1);
 
-      // IMPORTANT: use parent size (your hero section), not window
       w = c.clientWidth || 1;
       h = c.clientHeight || 1;
 
       c.width = Math.floor(w * dpr);
       c.height = Math.floor(h * dpr);
 
-      // draw in CSS pixels
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, w, h);
 
-      // Calculate positions based on config (supports both % and pixel values)
+     
       const calcPos = (val: number, dimension: number) => 
         val < 0 ? Math.abs(val) : val * dimension;
       
@@ -111,34 +101,30 @@ export default function HeroCanvas({ className }: Props) {
       cxBottomRight = calcPos(animationConfig.bottomRight.x, w);
       cyBottomRight = calcPos(animationConfig.bottomRight.y, h);
 
-      dieX = w / 2 / opts.len;
-      dieY = h / 2 / opts.len;
+      dieX = w / 2 / optsBlue.len;
+      dieY = h / 2 / optsBlue.len;
     };
 
     function loop() {
       rafRef.current = window.requestAnimationFrame(loop);
-
       ++tick;
-
       ctx.globalCompositeOperation = "source-over";
       ctx.shadowBlur = 0;
-      ctx.fillStyle = `rgba(0,0,0,${opts.repaintAlpha})`;
+      ctx.fillStyle = `rgba(0,0,0,${optsBlue.repaintAlpha})`;
+      // ctx.fillStyle = "black";
       ctx.fillRect(0, 0, w, h);
-
       ctx.globalCompositeOperation = "lighter";
-
-      // Spawn and draw top-left animation (if enabled)
+      // Top-left: blue
       if (animationConfig.enableTopLeft) {
-        if (linesTopLeft.length < opts.count && Math.random() < opts.spawnChance) {
-          linesTopLeft.push(new Line(cxTopLeft, cyTopLeft));
+        if (linesTopLeft.length < optsBlue.count && Math.random() < optsBlue.spawnChance) {
+          linesTopLeft.push(new Line(cxTopLeft, cyTopLeft, optsBlue));
         }
         for (const line of linesTopLeft) line.step();
       }
-
-      // Spawn and draw bottom-right animation (if enabled)
+      // Bottom-right: purple
       if (animationConfig.enableBottomRight) {
-        if (linesBottomRight.length < opts.count && Math.random() < opts.spawnChance) {
-          linesBottomRight.push(new Line(cxBottomRight, cyBottomRight));
+        if (linesBottomRight.length < optsPurple.count && Math.random() < optsPurple.spawnChance) {
+          linesBottomRight.push(new Line(cxBottomRight, cyBottomRight, optsPurple));
         }
         for (const line of linesBottomRight) line.step();
       }
@@ -155,12 +141,14 @@ export default function HeroCanvas({ className }: Props) {
       cumulativeTime: number = 0;
       time: number = 0;
       targetTime: number = 0;
-      cx: number = 0;  // Center X for this line
-      cy: number = 0;  // Center Y for this line
+      cx: number = 0;
+      cy: number = 0;
+      opts: typeof optsBlue;
 
-      constructor(cx: number, cy: number) {
+      constructor(cx: number, cy: number, opts: typeof optsBlue) {
         this.cx = cx;
         this.cy = cy;
+        this.opts = opts;
         this.reset();
       }
 
@@ -169,37 +157,28 @@ export default function HeroCanvas({ className }: Props) {
         this.y = 0;
         this.addedX = 0;
         this.addedY = 0;
-
         this.rad = 0;
-
         this.lightInputMultiplier =
-          opts.baseLightInputMultiplier +
-          opts.addedLightInputMultiplier * Math.random();
-
-        this.color = opts.color.replace("hue", String(tick * opts.hueChange));
+          this.opts.baseLightInputMultiplier +
+          this.opts.addedLightInputMultiplier * Math.random();
+        this.color = this.opts.color.replace("hue", String(tick * this.opts.hueChange));
         this.cumulativeTime = 0;
-
         this.beginPhase();
       }
 
       beginPhase() {
         this.x += this.addedX;
         this.y += this.addedY;
-
         this.time = 0;
         this.targetTime =
-          (opts.baseTime + opts.addedTime * Math.random()) | 0;
-
+          (this.opts.baseTime + this.opts.addedTime * Math.random()) | 0;
         this.rad += baseRad * (Math.random() < 0.5 ? 1 : -1);
         this.addedX = Math.cos(this.rad);
         this.addedY = Math.sin(this.rad);
-
-        // optional but helps square feel: snap to grid directions exactly
         this.addedX = Math.round(this.addedX);
         this.addedY = Math.round(this.addedY);
-
         if (
-          Math.random() < opts.dieChance ||
+          Math.random() < this.opts.dieChance ||
           this.x > dieX ||
           this.x < -dieX ||
           this.y > dieY ||
@@ -212,46 +191,37 @@ export default function HeroCanvas({ className }: Props) {
       step() {
         ++this.time;
         ++this.cumulativeTime;
-
         if (this.time >= this.targetTime) this.beginPhase();
-
         const prop = this.time / this.targetTime;
         const wave = Math.sin((prop * Math.PI) / 2);
         const x = this.addedX * wave;
         const y = this.addedY * wave;
-
-        ctx.shadowBlur = prop * opts.shadowToTimePropMult;
-
+        ctx.shadowBlur = prop * this.opts.shadowToTimePropMult;
         const light =
-          opts.baseLight +
-          opts.addedLight *
+          this.opts.baseLight +
+          this.opts.addedLight *
             Math.sin(this.cumulativeTime * this.lightInputMultiplier);
-
         const col = this.color.replace("light", String(light));
         ctx.fillStyle = col;
         ctx.shadowColor = col;
-
-        // thickness: change last 2 numbers (2,2)
         ctx.fillRect(
-          this.cx + (this.x + x) * opts.len,
-          this.cy + (this.y + y) * opts.len,
+          this.cx + (this.x + x) * this.opts.len,
+          this.cy + (this.y + y) * this.opts.len,
           2,
           2
         );
-
-        // sparkles OFF in your config (sparkChance: 0), but kept for parity
-        if (Math.random() < opts.sparkChance) {
+        if (Math.random() < this.opts.sparkChance) {
           ctx.fillRect(
             this.cx +
-              (this.x + x) * opts.len +
-              Math.random() * opts.sparkDist * (Math.random() < 0.5 ? 1 : -1) -
-              opts.sparkSize / 2,
+              (this.x + x) * this.opts.len +
+              Math.random() * this.opts.sparkDist * (Math.random() < 0.5 ? 1 : -1) -
+              this.opts.sparkSize / 2,
             this.cy +
-              (this.y + y) * opts.len +
-              Math.random() * opts.sparkDist * (Math.random() < 0.5 ? 1 : -1) -
-              opts.sparkSize / 2,
-            opts.sparkSize,
-            opts.sparkSize
+              (this.y + y) * this.opts.len +
+              Math.random() * this.opts.sparkDist * (Math.random() < 0.5 ? 1 : -1) -
+              this.opts.sparkSize / 2,
+            this.opts.sparkSize,
+            this.opts.sparkSize
           );
         }
       }
