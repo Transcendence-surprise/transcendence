@@ -3,13 +3,6 @@ import { useEffect, useRef } from "react";
 
 type Props = { className?: string };
 
-// This is your example ported 1:1 to React/TS:
-// - same HSL color formula
-// - same brightness pulsing
-// - same blending ("lighter")
-// - square turns (baseRad = 2π/4)
-// - no sparkles (sparkChance: 0)
-// - canvas fills its parent (hero container), not whole window
 export default function HeroCanvas({ className }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -18,6 +11,27 @@ export default function HeroCanvas({ className }: Props) {
     const c = canvasRef.current!;
     const ctx = c?.getContext("2d")!;
     if (!c || !ctx) return;
+
+    // ========================================
+    //  ANIMATION CONFIGURATION
+    // ========================================
+    const animationConfig = {
+      // Enable/disable animations (set to false to turn off)
+      enableTopLeft: true,
+      enableBottomRight: true,
+      
+      // Position settings (0.0 to 1.0 as percentage of canvas width/height)
+      // OR use negative numbers for pixel offset from edge (e.g., -100 for 100px from edge)
+      topLeft: {
+        x: 0.15,    // 15% from left (or use pixels: -150 for 150px from left)
+        y: 0.15,    // 15% from top
+      },
+      bottomRight: {
+        x: 0.85,    // 85% from left
+        y: 0.85,    // 85% from top
+      },
+    };
+    // ========================================
 
     // ---- Original variables (adapted for parent-sized canvas) ----
     let w = 0;
@@ -35,6 +49,16 @@ export default function HeroCanvas({ className }: Props) {
       sparkSize: 2,
 
       color: "hsl(hue,100%,light%)",
+      // Fixed blue with pulsing brightness:
+      //color: "hsl(220,100%,light%)",  // 220 = blue
+      // Fixed red:
+      //color: "hsl(0,100%,light%)",    // 0 = red
+      // Fixed green:
+      //color: "hsl(120,100%,light%)",  // 120 = green
+      // Fixed purple:
+      //color: "hsl(280,100%,light%)",  // 280 = purple
+      // Less saturated (more pastel):
+      //color: "hsl(hue,60%,light%)",   // 60% saturation instead of 100%
       baseLight: 50,
       addedLight: 10,
       shadowToTimePropMult: 6,
@@ -48,9 +72,14 @@ export default function HeroCanvas({ className }: Props) {
     };
 
     let tick = 0;
-    const lines: Line[] = [];
+    const linesTopLeft: Line[] = [];
+    const linesBottomRight: Line[] = [];
     let dieX = 0;
     let dieY = 0;
+
+    // Centers for two animations
+    let cxTopLeft = 0, cyTopLeft = 0;
+    let cxBottomRight = 0, cyBottomRight = 0;
 
     // square grid
     const baseRad = (Math.PI * 2) / 4;
@@ -72,8 +101,15 @@ export default function HeroCanvas({ className }: Props) {
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, w, h);
 
-      opts.cx = w / 2;
-      opts.cy = h / 2;
+      // Calculate positions based on config (supports both % and pixel values)
+      const calcPos = (val: number, dimension: number) => 
+        val < 0 ? Math.abs(val) : val * dimension;
+      
+      cxTopLeft = calcPos(animationConfig.topLeft.x, w);
+      cyTopLeft = calcPos(animationConfig.topLeft.y, h);
+      
+      cxBottomRight = calcPos(animationConfig.bottomRight.x, w);
+      cyBottomRight = calcPos(animationConfig.bottomRight.y, h);
 
       dieX = w / 2 / opts.len;
       dieY = h / 2 / opts.len;
@@ -91,11 +127,21 @@ export default function HeroCanvas({ className }: Props) {
 
       ctx.globalCompositeOperation = "lighter";
 
-      if (lines.length < opts.count && Math.random() < opts.spawnChance) {
-        lines.push(new Line());
+      // Spawn and draw top-left animation (if enabled)
+      if (animationConfig.enableTopLeft) {
+        if (linesTopLeft.length < opts.count && Math.random() < opts.spawnChance) {
+          linesTopLeft.push(new Line(cxTopLeft, cyTopLeft));
+        }
+        for (const line of linesTopLeft) line.step();
       }
 
-      for (const line of lines) line.step();
+      // Spawn and draw bottom-right animation (if enabled)
+      if (animationConfig.enableBottomRight) {
+        if (linesBottomRight.length < opts.count && Math.random() < opts.spawnChance) {
+          linesBottomRight.push(new Line(cxBottomRight, cyBottomRight));
+        }
+        for (const line of linesBottomRight) line.step();
+      }
     }
 
     class Line {
@@ -109,8 +155,12 @@ export default function HeroCanvas({ className }: Props) {
       cumulativeTime: number = 0;
       time: number = 0;
       targetTime: number = 0;
+      cx: number = 0;  // Center X for this line
+      cy: number = 0;  // Center Y for this line
 
-      constructor() {
+      constructor(cx: number, cy: number) {
+        this.cx = cx;
+        this.cy = cy;
         this.reset();
       }
 
@@ -183,8 +233,8 @@ export default function HeroCanvas({ className }: Props) {
 
         // thickness: change last 2 numbers (2,2)
         ctx.fillRect(
-          opts.cx + (this.x + x) * opts.len,
-          opts.cy + (this.y + y) * opts.len,
+          this.cx + (this.x + x) * opts.len,
+          this.cy + (this.y + y) * opts.len,
           2,
           2
         );
@@ -192,11 +242,11 @@ export default function HeroCanvas({ className }: Props) {
         // sparkles OFF in your config (sparkChance: 0), but kept for parity
         if (Math.random() < opts.sparkChance) {
           ctx.fillRect(
-            opts.cx +
+            this.cx +
               (this.x + x) * opts.len +
               Math.random() * opts.sparkDist * (Math.random() < 0.5 ? 1 : -1) -
               opts.sparkSize / 2,
-            opts.cy +
+            this.cy +
               (this.y + y) * opts.len +
               Math.random() * opts.sparkDist * (Math.random() < 0.5 ? 1 : -1) -
               opts.sparkSize / 2,
