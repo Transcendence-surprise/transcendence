@@ -170,7 +170,7 @@ export default function HeroCanvas({ className }: Props) {
         this.lightInputMultiplier =
         this.opts.baseLightInputMultiplier +
         this.opts.addedLightInputMultiplier * Math.random();
-        this.color = this.opts.color.replace("hue", String(tick * this.opts.hueChange));
+        this.color = this.opts.color;
         //this.color = this.opts.color;
         this.cumulativeTime = 0;
         this.beginPhase();
