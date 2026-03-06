@@ -1,7 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export interface PlayerContext {
-  id: number;
+  id: number | string;
   username: string;
   roles: string[];
 }
@@ -16,10 +16,13 @@ export const CurrentUser = createParamDecorator(
 
     if (!id || !username) return undefined;
 
+    const rolesArray = roles ? String(roles).split(',') : [];
+    const isGuest = rolesArray.includes('guest');
+
     return {
-      id: Number(id),
+      id: isGuest ? String(id) : Number(id),
       username: String(username),
-      roles: roles ? String(roles).split(',') : [],
+      roles: rolesArray,
     };
   },
 );

@@ -81,8 +81,8 @@ export default function App() {
           {<Route path="leaderboard" element={<Leaderboard />} />}
           {<Route path="settings" element={<Settings />} />}
           {<Route path="/admin" element={<AdminPanel />} />}
-		  {<Route path="chat" element={<Chat />} />}
-		  {<Route path="friends" element={<Friends />} />}
+          {<Route path="chat" element={<Chat />} />}
+          {<Route path="friends" element={<Friends />} />}
           
           {/* 404 Not Found */}
           {/* <Route path="*" element={<NotFound />} /> */}

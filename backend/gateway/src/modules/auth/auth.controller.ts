@@ -12,6 +12,7 @@ import {
 import type { FastifyReply } from 'fastify';
 import { AuthHttpService } from './auth.service';
 import { OAuth42Params } from '../../common/decorator/oauth42-params.decorator';
+import { CreateGuestTokenDto } from './dto/create-guest-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -114,9 +115,20 @@ export class AuthController {
     return this.authClient.removeApiKeyById(Number(id));
   }
 
+  @Post('guest-token')
+  async createGuestToken(
+    @Body() body: CreateGuestTokenDto,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const res = await this.authClient.createGuestToken(body.nickname); // calls auth-service internally
+    this.forwardCookies(reply, res.cookies); // forward auth-service Set-Cookie to client
+    return { ok: res.ok };
+  }
+
   private forwardCookies(reply: FastifyReply, cookies?: string[]) {
     if (cookies?.length) {
       reply.header('set-cookie', cookies);
     }
   }
+
 }

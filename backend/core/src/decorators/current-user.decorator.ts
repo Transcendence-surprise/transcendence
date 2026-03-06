@@ -2,7 +2,7 @@ import { BadRequestException, createParamDecorator, ExecutionContext } from '@ne
 import { FastifyRequest } from 'fastify';
 
 export interface JwtPayload {
-  sub: number;
+  sub: number | string;
   username: string;
   email: string;
   roles: string[];
@@ -12,20 +12,36 @@ export const CurrentUser = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): JwtPayload => {
     const request = ctx.switchToHttp().getRequest<FastifyRequest>();
 
-    const sub = Number(request.headers['x-user-id']);
+    const rawSub = request.headers['x-user-id']?.toString();
     const username = request.headers['x-user-username']?.toString();
     const email = request.headers['x-user-email']?.toString();
-    const roles = request.headers['x-user-roles'] as string[];
+    const rolesHeader = request.headers['x-user-roles'];
+    const roles = typeof rolesHeader === 'string' 
+      ? rolesHeader.split(',') 
+      : rolesHeader as string[];
 
-    if (isNaN(sub) || !username || !email || !roles) {
+    if (!rawSub || !username || !roles) {
       throw new BadRequestException('Invalid payload in headers');
     }
 
-    const user : JwtPayload = {
-      sub : sub,
-      username : username,
-      email : email,
-      roles : roles,
+    // For guests, sub is a UUID string; for regular users, it's a number
+    const isGuest = roles.includes('guest');
+    const sub: number | string = isGuest ? rawSub : Number(rawSub);
+
+    if (!isGuest && isNaN(sub as number)) {
+      throw new BadRequestException('Invalid user ID');
+    }
+
+    // email can be empty for guests
+    if (!isGuest && !email) {
+      throw new BadRequestException('Invalid payload in headers');
+    }
+
+    const user: JwtPayload = {
+      sub,
+      username,
+      email: email ?? '',
+      roles,
     };
 
     return user;

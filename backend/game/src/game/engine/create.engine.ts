@@ -6,7 +6,7 @@ import { compileRules } from "./compileRules.engine";
 
 
 export function createGame(
-  hostId: number,
+  hostId: number | string,
   nickname: string,
   settings: GameSettings
 ): GameState {

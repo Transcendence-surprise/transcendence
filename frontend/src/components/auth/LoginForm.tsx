@@ -49,14 +49,18 @@ export default function LoginForm({
     window.location.href = "/api/auth/intra42";
   };
 
-  const handleContinueAsGuest = () => {
+  const handleContinueAsGuest = async () => {
     if (!guestNickname.trim()) {
       alert("Please enter a nickname");
       return;
     }
 
-    continueAsGuest(guestNickname.trim());
-    onClose();
+    try {
+      await continueAsGuest(guestNickname.trim());
+      onClose();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to continue as guest");
+    }
   };
 
   return (

@@ -19,7 +19,7 @@ export default function GameRoute() {
   useEffect(() => {
     if (!id) return;
 
-    const socket = connectSocket(user);
+    const socket = connectSocket();
 
     setLoading(true);
     getGameState(id)

@@ -43,7 +43,7 @@ export default function Header({
           {user ? (
             <>
               <span className="px-3 py-1.5 text-sm text-cyan-400 font-semibold">
-                👻 {user.username.replace(/\d+/g, "").slice(0, 8)}
+                👻 {user?.username ?? "Guest"}
               </span>
 
               <button

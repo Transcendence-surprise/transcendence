@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import * as authApi from "../api/authentification";
 import { connectSocket, disconnectSocket } from "../services/socket";
-import { setApiUser } from "../api/apiFetch";
 
 export interface AuthContextType {
   user: authApi.User | null;
@@ -13,7 +12,7 @@ export interface AuthContextType {
     password: string
   ) => Promise<authApi.User>;
   logout: () => Promise<void>;
-  continueAsGuest: (nickname: string) => void;
+  continueAsGuest: (nickname: string) => Promise<authApi.User>;
   isAdmin: boolean;
   isUser: boolean;
   hasRole: (role: string) => boolean;
@@ -35,20 +34,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
   useEffect(() => {
-    if (user) connectSocket(user);
+    if (user) connectSocket();
     else disconnectSocket();
-  }, [user]);
-
-  useEffect(() => {
-    setApiUser(user);
   }, [user]);
 
   const login = async (username: string, password: string) => {
     try {
       setLoading(true);
       const u = await authApi.login(username, password);
-      setUser(u);
       alert(`Welcome, ${u.username}!`);
+      setUser(u);
       return u;
     } catch (err: any) {
       alert(err.message || "Login failed");
@@ -66,8 +61,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
         setLoading(true);
         const u = await authApi.signup(username, email, password);
-        setUser(u);
         alert(`Welcome, ${u.username}!`);
+        setUser(u);
         return u;
     } catch (err: any) {
         alert(err.message || "Signup failed");
@@ -89,21 +84,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const continueAsGuest = (nickname: string) => {
-    const guestUser: authApi.User = {
-      id: Date.now(),
-      username: nickname,
-      email: "",
-      roles: ["guest"],
-    };
-
+  const continueAsGuest = async (nickname: string): Promise<authApi.User> => {
+    // ask backend to create a guest JWT + cookie and get the created guest user
+    const guestUser = await authApi.createGuestToken(nickname);
     setUser(guestUser);
+    return guestUser;
   };
 
   // Role-based computed values
-  const isAdmin = user?.roles.includes('admin') ?? false;
-  const isUser = user?.roles.includes('user') ?? false;
-  const hasRole = (role: string) => user?.roles.includes(role) ?? false;
+  const isAdmin = user?.roles?.includes('admin') ?? false;
+  const isUser = user?.roles?.includes('user') ?? false;
+  const hasRole = (role: string) => user?.roles?.includes(role) ?? false;
 
   return (
     <AuthContext.Provider value={{ 

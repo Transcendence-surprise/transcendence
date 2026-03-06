@@ -3,15 +3,16 @@ import { JoinResult, JoinError } from "../models/joinResult";
 
 export function joinGameEngine(
   state: GameState,
-  playerId: number,
+  playerId: number | string,
   nickname: string,
   role: "PLAYER" | "SPECTATOR"
 ): JoinResult {
 
-  // Rule 1: cannot join twice
+  // Rule 1: cannot join twice - normalize IDs to strings before comparison
+  const playerIdStr = String(playerId);
   if (
-    state.players.some(p => p.id === playerId) ||
-    state.spectators.some(s => s.id === playerId)
+    state.players.some(p => String(p.id) === playerIdStr) ||
+    state.spectators.some(s => String(s.id) === playerIdStr)
   ) {
     return { ok: false, error: JoinError.PLAYER_ALREADY_JOINED };
   }

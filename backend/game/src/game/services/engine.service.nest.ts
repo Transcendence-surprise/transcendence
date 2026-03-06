@@ -23,7 +23,7 @@ import * as crypto from 'crypto';
 export class EngineService {
   private games = new Map<string, GameState>();
 
-  createGame(hostId: number, nickname:string, settings: GameSettings) {
+  createGame(hostId: number | string, nickname:string, settings: GameSettings) {
     const state = createGameEngine(hostId, nickname, settings); // from create.engine.ts
     const gameId = crypto.randomUUID();
     this.games.set(gameId, state);
@@ -35,7 +35,7 @@ export class EngineService {
     return state ?? null;
   }
 
-  startGame(gameId: string, hostId: number) {
+  startGame(gameId: string, hostId: number | string) {
     try {
       const state = this.getGameState(gameId);
 
@@ -51,7 +51,7 @@ export class EngineService {
 
   joinGame(
     gameId: string,
-    playerId: number,
+    playerId: number | string,
     name: string,
     role: "PLAYER" | "SPECTATOR"
   ) {
@@ -70,7 +70,7 @@ export class EngineService {
 //     return processTurnFn(state, boardAction, moveAction);
 //   }
 
-  leaveGame(gameId: string, playerId: number): LeaveResult {
+  leaveGame(gameId: string, playerId: number | string): LeaveResult {
     const state = this.getGameState(gameId);
 
     if (!state) {
@@ -94,7 +94,7 @@ export class EngineService {
     return getMultiplayerGames(this.games);
   }
 
-  checkPlayerAvailability(playerId: number): PlayerCheckResult {
+  checkPlayerAvailability(playerId: number | string): PlayerCheckResult {
     for (const [gameId, state] of this.games.entries()) {
       const isPlayer = state.players.some(p => p.id === playerId);
       const isSpectator = state.spectators.some(s => s.id === playerId);

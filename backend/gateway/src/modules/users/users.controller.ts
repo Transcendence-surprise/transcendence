@@ -35,7 +35,7 @@ export class UsersController {
   }
 
   @Get('me')
-  @Auth(AuthType.JWT)
+  @Auth(AuthType.JWT_OR_GUEST)
   @UseGuards(AuthGuard)
   async getUserByHisToken(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
     const result = await this.usersClient.findUserByHisToken(req);
@@ -43,7 +43,7 @@ export class UsersController {
   }
 
   @Patch('me')
-  @Auth(AuthType.JWT)
+  @Auth(AuthType.JWT_OR_GUEST)
   @UseGuards(AuthGuard)
   async updateMe(@Body() body: unknown, @Req() req: FastifyRequest, @Res() res: FastifyReply) {
     const result = await this.usersClient.updateMe(body, req);
