@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../hooks/useAuth';
 import { getSocket, connectSocket } from "../services/socket";
@@ -18,6 +18,8 @@ export default function Chat() {
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -76,6 +78,14 @@ export default function Chat() {
     return messages.find((m) => m.id === id);
   }
 
+  function scrollToBottom() {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
     <div className="flex flex-col h-[80vh] max-w-2xl mx-auto bg-slate-900 text-white rounded-lg">
 
@@ -93,14 +103,14 @@ export default function Chat() {
             <div key={msg.id} className="group">
 
               {replyMsg && (
-                <div className="text-xs text-gray-400 mb-1">
+                <div className="text-xs text-gray-400 mb-1 ml-[7.75rem] truncate max-w-full">
                   Replying to {replyMsg.username}: {replyMsg.content}
                 </div>
               )}
 
               <div className="flex items-start gap-3">
 
-                <div className="font-semibold text-blue-300">
+                <div className="w-28 min-w-28 font-semibold text-blue-300 truncate text-right">
                   {msg.username}
                 </div>
 
@@ -112,7 +122,13 @@ export default function Chat() {
 
                   {/* Hover actions */}
                   <div className="opacity-0 group-hover:opacity-100 text-xs text-gray-400 mt-1 flex gap-3">
-                    <button onClick={() => setReplyTo(msg)}>
+                    <button 
+                      className="hover:text-blue-400 transition-colors"
+                      onClick={() => {
+                        setReplyTo(msg);
+                        setTimeout(() => inputRef.current?.focus(), 0);
+                      }}
+                    >
                       Reply
                     </button>
                   </div>
@@ -123,12 +139,13 @@ export default function Chat() {
             </div>
           );
         })}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Reply Preview */}
       {replyTo && (
-        <div className="px-4 py-2 bg-slate-800 text-sm flex justify-between">
-          <span>
+        <div className="px-4 py-2 bg-slate-800 text-sm flex justify-between gap-2">
+          <span className="truncate">
             Replying to {replyTo.username}: {replyTo.content}
           </span>
 
@@ -144,9 +161,11 @@ export default function Chat() {
       {/* Input */}
       <div className="p-4 border-t border-slate-700 flex gap-2">
         <input
+          ref={inputRef}
           className="flex-1 bg-slate-800 p-2 rounded-md"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
           placeholder="Write a message..."
         />
 
