@@ -1,5 +1,4 @@
 import { io, Socket } from "socket.io-client";
-import { User } from "../api/authentification";
 
 let socket: Socket | null = null;
 
