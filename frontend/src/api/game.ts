@@ -97,7 +97,13 @@ export async function leaveGame(gameId: string ) {
     body: JSON.stringify({ gameId }),
     credentials: 'include',
   });
-  return res.json();
+  const data = await res.json();
+
+  if (!res.ok || !data.ok) {
+    throw new Error(data?.error || data?.message || 'Failed to leave game');
+  }
+
+  return data;
 }
 
 export async function getSingleLevels(): Promise<SingleLevel[]> {

@@ -24,7 +24,7 @@ export default function MultiplayerJoinRoute() {
       .catch((err) => setError(err.message || "Failed to load games"))
       .finally(() => setLoading(false));
 
-      const socket = getSocket() ?? connectSocket(user);
+      const socket = getSocket() ?? connectSocket();
 
       socket.emit("joinMultiplayerList");
 
@@ -60,11 +60,6 @@ export default function MultiplayerJoinRoute() {
         }
 
         const result = await joinGame(gameId, "PLAYER");
-
-        if (!result.ok) {
-          setError(result.error || "Failed to join game");
-          return;
-        }
 
         navigate(`/multiplayer/lobby/${gameId}`);
 

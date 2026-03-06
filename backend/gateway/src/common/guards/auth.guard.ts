@@ -61,16 +61,21 @@ export class AuthGuard implements CanActivate {
       case AuthType.GUEST:
         return await this.validateGuest(request);
       case AuthType.JWT_OR_GUEST:
-        // Check guest FIRST - if user has guest_token, use guest identity
-        // This ensures consistent identity when user created game as guest
-        try {
-          return await this.validateGuest(request);
-        } catch (error) {
-          if (error instanceof UnauthorizedException) {
+        // Prefer JWT when access_token is present (logged-in user takes precedence)
+        // Fall back to guest only if no JWT token exists
+        if (request.cookies?.access_token) {
+          try {
             return await this.validateJwt(request);
+          } catch (error) {
+            if (error instanceof UnauthorizedException) {
+              // JWT invalid/expired, try guest as fallback
+              return await this.validateGuest(request);
+            }
+            throw error;
           }
-          throw error;
         }
+        // No JWT token, try guest auth
+        return await this.validateGuest(request);
       case AuthType.API_KEY_ONLY:
         return this.validateApiKey(request);
       case AuthType.JWT_OR_API_KEY:

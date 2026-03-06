@@ -33,7 +33,7 @@ export default function LobbyRoute() {
       return;
     }
 
-    const socket = getSocket() ?? connectSocket(user);
+    const socket = getSocket() ?? connectSocket();
 
     const handleConnect = () => {
       console.log("Socket connected -> now joining lobby");
@@ -90,23 +90,11 @@ export default function LobbyRoute() {
     setStarting(true);
 
     try {
-      setStarting(true);
       setError(null);
 
-      const res = await startGame(gameId!);
+      await startGame(gameId);
 
-      if (!res.ok) {
-        console.warn("Cannot start game:", res.error);
-        if (res.error === "NOT_ENOUGH_PLAYERS") {
-          setStartError("Not enough players to start the game");
-        } else if (res.error === "NOT_HOST") {
-          setStartError("Only the host can start the game");
-        } else {
-          setStartError("Cannot start game");
-        }
-      return;
-    }
-      const updatedGame = await getGameState(gameId!);
+      const updatedGame = await getGameState(gameId);
       setGame(updatedGame);
 
       // backend switched phase → PLAY
@@ -115,7 +103,14 @@ export default function LobbyRoute() {
       }
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Cannot start game yet");
+      const errorMsg = err.message || "Cannot start game yet";
+      if (errorMsg.includes("NOT_ENOUGH_PLAYERS")) {
+        setStartError("Not enough players to start the game");
+      } else if (errorMsg.includes("NOT_HOST")) {
+        setStartError("Only the host can start the game");
+      } else {
+        setStartError(errorMsg);
+      }
     } finally {
       setStarting(false);
     }

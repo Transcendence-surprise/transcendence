@@ -315,8 +315,20 @@ export class WsGateway {
     const user = client.user;
     if (!user) return client.disconnect(true);
 
+    // Validate payload shape before processing
+    if (typeof payload?.content !== 'string') {
+      client.emit('error', { message: 'Invalid message format: content must be a string' });
+      return;
+    }
+
     const content = payload.content.trim();
     if (!content) return;                    // ignore empty messages
+
+    // Validate replyTo if provided
+    if (payload.replyTo !== undefined && typeof payload.replyTo !== 'string') {
+      client.emit('error', { message: 'Invalid message format: replyTo must be a string' });
+      return;
+    }
 
     const message: ChatMessage = {
       id: randomUUID(),

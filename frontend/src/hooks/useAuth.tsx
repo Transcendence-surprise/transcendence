@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import * as authApi from "../api/authentification";
 import { connectSocket, disconnectSocket } from "../services/socket";
-import { setApiUser } from "../api/apiFetch";
 
 export interface AuthContextType {
   user: authApi.User | null;
@@ -37,10 +36,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (user) connectSocket();
     else disconnectSocket();
-  }, [user]);
-
-  useEffect(() => {
-    setApiUser(user);
   }, [user]);
 
   const login = async (username: string, password: string) => {

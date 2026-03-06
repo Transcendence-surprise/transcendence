@@ -21,6 +21,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
 import { LoginWith2FADto } from './dto/login-with-2fa.dto';
 import { AuthTokenResponseDto } from './dto/auth-token-response.dto';
+import { CreateGuestTokenDto } from './dto/create-guest-token.dto';
 import {
   AuthControllerDocs,
   LoginDocs,
@@ -184,7 +185,7 @@ export class AuthController {
 
   @Post('guest-token')
   async createGuestToken(
-    @Body() body: { nickname: string },
+    @Body() body: CreateGuestTokenDto,
     @Res({ passthrough: true }) reply: FastifyReply
   ) {
     const token = await this.authService.createGuestToken(body.nickname);

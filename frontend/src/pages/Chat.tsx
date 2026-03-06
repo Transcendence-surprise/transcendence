@@ -26,7 +26,13 @@ export default function Chat() {
 
     const socket = connectSocket();
 
-    socket.emit("joinGlobalChat");
+    const joinChat = () => {
+      socket.emit("joinGlobalChat");
+    };
+
+    // Join on initial connect and on reconnect
+    joinChat();
+    socket.on("connect", joinChat);
 
     socket.on("chatHistory", (history: ChatMessage[]) => {
       setMessages(history);
@@ -37,6 +43,7 @@ export default function Chat() {
     });
 
     return () => {
+      socket.off("connect", joinChat);
       socket.off("chatHistory");
       socket.off("chatMessage");
     };
