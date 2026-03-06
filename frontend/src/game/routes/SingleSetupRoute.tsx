@@ -23,7 +23,6 @@ export default function SingleSetupRoute() {
       navigate("/game");
       return;
     }
-    console.log("🔧 Single Player settings changed:", settings);
   }, [settings, user, navigate]);
 
   const handleCreate = async (settings: SinglePlayerSettings) => {
