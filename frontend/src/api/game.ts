@@ -100,7 +100,10 @@ export async function leaveGame(gameId: string ) {
   const data = await res.json();
 
   if (!res.ok || !data.ok) {
-    throw new Error(data?.error || data?.message || 'Failed to leave game');
+    return {
+      ok: false,
+      error: data?.error || data?.message || 'Failed to leave game',
+    };
   }
 
   return data;
