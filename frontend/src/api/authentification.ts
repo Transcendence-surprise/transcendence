@@ -50,10 +50,10 @@ export async function getCurrentUser(): Promise<User> {
 
   const data = await res.json();
   if (process.env.NODE_ENV === "development") {
-    console.log("getCurrentUser response:", data);
-  }
-
   if (!res.ok) throw new Error("Not logged in");
+
+  const data = await res.json();
+  console.log("getCurrentUser response:", data);
   return data;
 }
 
