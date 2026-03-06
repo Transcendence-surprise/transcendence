@@ -11,12 +11,6 @@ import { EngineService } from '../game/services/engine.service.nest';
 import { ChatMessage, ChatService } from '../chat/chat.service';
 import jwt from 'jsonwebtoken';
 
-// Validate JWT_SECRET at module load time
-const JWT_SECRET = process.env.JWT_SECRET as string;
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required');
-}
-
 interface GuestTokenPayload {
   sub: string;
   username: string;
@@ -55,6 +49,14 @@ export class WsGateway {
     private chat: ChatService
   ) {}
 
+  private getJwtSecret(): string {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error('JWT_SECRET environment variable is required');
+    }
+    return secret;
+  }
+
   // Auth from cookies - guest_token takes precedence if present
   handleConnection(client: TypedSocket): void {
     try {
@@ -75,7 +77,7 @@ export class WsGateway {
       // Check guest_token FIRST - if user is playing as guest, use guest identity
       const guestToken = cookies['guest_token'];
       if (guestToken) {
-        const decoded = jwt.verify(guestToken, JWT_SECRET) as unknown as GuestTokenPayload;
+        const decoded = jwt.verify(guestToken, this.getJwtSecret()) as unknown as GuestTokenPayload;
 
         if (decoded.isGuest !== true || !decoded.sub || !decoded.username) {
           throw new Error('Invalid guest token payload');
@@ -95,7 +97,7 @@ export class WsGateway {
       // Fall back to JWT token for logged-in users
       const jwtToken = cookies['access_token'];
       if (jwtToken) {
-        const decoded = jwt.verify(jwtToken, JWT_SECRET) as unknown as AccessTokenPayload;
+        const decoded = jwt.verify(jwtToken, this.getJwtSecret()) as unknown as AccessTokenPayload;
 
         if (!decoded.sub || !decoded.username) {
           throw new Error('Invalid access token payload');
