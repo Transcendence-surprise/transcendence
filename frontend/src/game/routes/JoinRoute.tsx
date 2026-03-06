@@ -59,7 +59,7 @@ export default function MultiplayerJoinRoute() {
           return;
         }
 
-        const result = await joinGame(gameId, "PLAYER");
+        await joinGame(gameId, "PLAYER");
 
         navigate(`/multiplayer/lobby/${gameId}`);
 
