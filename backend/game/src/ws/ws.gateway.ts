@@ -74,27 +74,7 @@ export class WsGateway {
         })
       );
 
-      // Check guest_token FIRST - if user is playing as guest, use guest identity
-      const guestToken = cookies['guest_token'];
-      if (guestToken) {
-        const decoded = jwt.verify(guestToken, this.getJwtSecret()) as unknown as GuestTokenPayload;
-
-        if (decoded.isGuest !== true || !decoded.sub || !decoded.username) {
-          throw new Error('Invalid guest token payload');
-        }
-
-        client.user = {
-          sub: decoded.sub,  // Keep as string (UUID) for guests
-          username: decoded.username,
-          email: '',
-          roles: ['guest'],
-        };
-
-        console.log("WS connected guest", decoded.username);
-        return;
-      }
-
-      // Fall back to JWT token for logged-in users
+      // Check access_token FIRST - logged-in users take precedence over guest
       const jwtToken = cookies['access_token'];
       if (jwtToken) {
         const decoded = jwt.verify(jwtToken, this.getJwtSecret()) as unknown as AccessTokenPayload;
@@ -111,6 +91,26 @@ export class WsGateway {
         };
 
         console.log('WS connected JWT user', decoded.username);
+        return;
+      }
+
+      // Fall back to guest_token if no access_token
+      const guestToken = cookies['guest_token'];
+      if (guestToken) {
+        const decoded = jwt.verify(guestToken, this.getJwtSecret()) as unknown as GuestTokenPayload;
+
+        if (decoded.isGuest !== true || !decoded.sub || !decoded.username) {
+          throw new Error('Invalid guest token payload');
+        }
+
+        client.user = {
+          sub: decoded.sub,  // Keep as string (UUID) for guests
+          username: decoded.username,
+          email: '',
+          roles: ['guest'],
+        };
+
+        console.log("WS connected guest", decoded.username);
         return;
       }
 
