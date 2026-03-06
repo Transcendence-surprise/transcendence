@@ -16,9 +16,8 @@ export function startGameEngine(
     return { ok: false, error: StartError.ALREADY_STARTED };
   }
 
-  // Only host can start - use loose equality to handle number/string mismatch
-  if (state.hostId != playerId) {
-    console.log(`Host check failed: hostId=${state.hostId} (${typeof state.hostId}), playerId=${playerId} (${typeof playerId})`);
+  // Only host can start - normalize IDs to strings before comparison
+  if (String(state.hostId) !== String(playerId)) {
     return { ok: false, error: StartError.NOT_HOST };
   }
 

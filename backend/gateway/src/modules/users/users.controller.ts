@@ -38,10 +38,7 @@ export class UsersController {
   @Auth(AuthType.JWT_OR_GUEST)
   @UseGuards(AuthGuard)
   async getUserByHisToken(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
-    console.log("GATEWAY /me called");
-    console.log("Cookies:", req.cookies);
     const result = await this.usersClient.findUserByHisToken(req);
-    console.log("Response from users service:", result);
     return res.status(result.statusCode).send(result.data);
   }
 

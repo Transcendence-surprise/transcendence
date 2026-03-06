@@ -8,12 +8,11 @@ export function joinGameEngine(
   role: "PLAYER" | "SPECTATOR"
 ): JoinResult {
 
-  // Rule 1: cannot join twice - use loose equality for type compatibility
+  // Rule 1: cannot join twice - normalize IDs to strings before comparison
+  const playerIdStr = String(playerId);
   if (
-    // eslint-disable-next-line eqeqeq
-    state.players.some(p => p.id == playerId) ||
-    // eslint-disable-next-line eqeqeq
-    state.spectators.some(s => s.id == playerId)
+    state.players.some(p => String(p.id) === playerIdStr) ||
+    state.spectators.some(s => String(s.id) === playerIdStr)
   ) {
     return { ok: false, error: JoinError.PLAYER_ALREADY_JOINED };
   }

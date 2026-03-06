@@ -1,7 +1,7 @@
 // src/api/authentication.ts
 
 export interface User {
-  id: number;
+  id: number | string;
   username: string;
   email: string;
   roles: string[];
@@ -47,13 +47,8 @@ export async function login(identifier: string, password: string): Promise<User>
 
 export async function getCurrentUser(): Promise<User> {
   const res = await fetch("/api/users/me", { credentials: "include" });
-
-  const data = await res.json();
-  if (process.env.NODE_ENV === "development") {
   if (!res.ok) throw new Error("Not logged in");
-
   const data = await res.json();
-  console.log("getCurrentUser response:", data);
   return data;
 }
 

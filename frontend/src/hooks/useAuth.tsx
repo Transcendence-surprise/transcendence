@@ -90,11 +90,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const continueAsGuest = async (nickname: string): Promise<authApi.User> => {
-    // ask backend to create a guest JWT + cookie
-    await authApi.createGuestToken(nickname);
-
-    // get current user (reads the JWT from cookie)
-    const guestUser = await authApi.getCurrentUser();
+    // ask backend to create a guest JWT + cookie and get the created guest user
+    const guestUser = await authApi.createGuestToken(nickname);
     setUser(guestUser);
     return guestUser;
   };

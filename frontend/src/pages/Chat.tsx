@@ -5,7 +5,7 @@ import { getSocket, connectSocket } from "../services/socket";
 
 interface ChatMessage {
   id: string;
-  userId: string;
+  userId: number | string;
   username: string;
   content: string;
   timestamp: number;

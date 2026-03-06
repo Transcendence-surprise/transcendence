@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import jwt from 'jsonwebtoken';
 import { FastifyRequest } from 'fastify';
 import type { ConfigType } from '@nestjs/config';
 
@@ -142,13 +141,12 @@ export class AuthGuard implements CanActivate {
     return undefined;
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   private async validateGuest(request: FastifyRequest): Promise<boolean> {
     const token = request.cookies.guest_token;
     if (!token) throw new UnauthorizedException('Guest token missing');
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as GuestJwtPayload;
+      const decoded = await this.jwtService.verifyAsync<GuestJwtPayload>(token);
 
       // Extra type check to satisfy ESLint
       if (decoded.isGuest !== true || !decoded.sub || !decoded.username) {

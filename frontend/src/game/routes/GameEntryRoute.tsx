@@ -32,7 +32,7 @@ export default function GameEntryRoute() {
 
   const handleGuest = async (nickname: string) => {
     try {
-      const user = await continueAsGuest(nickname);
+      await continueAsGuest(nickname);
       setShowModal(false);
       handleContinue();
     } catch (err: any) {

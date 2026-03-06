@@ -6,9 +6,29 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { randomUUID } from 'node:crypto';
 import { EngineService } from '../game/services/engine.service.nest';
 import { ChatMessage, ChatService } from '../chat/chat.service';
-import jwt, { JwtPayload as JwtVerifyPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
+
+// Validate JWT_SECRET at module load time
+const JWT_SECRET = process.env.JWT_SECRET as string;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
+interface GuestTokenPayload {
+  sub: string;
+  username: string;
+  isGuest: true;
+}
+
+interface AccessTokenPayload {
+  sub: number;
+  username: string;
+  email: string;
+  roles: string[];
+}
 
 interface WsUser {
   sub: number | string;
@@ -55,13 +75,11 @@ export class WsGateway {
       // Check guest_token FIRST - if user is playing as guest, use guest identity
       const guestToken = cookies['guest_token'];
       if (guestToken) {
-        const decoded = jwt.verify(guestToken, process.env.JWT_SECRET!) as {
-          sub: string;
-          username: string;
-          isGuest: true;
-        };
+        const decoded = jwt.verify(guestToken, JWT_SECRET) as unknown as GuestTokenPayload;
 
-        if (!decoded.isGuest) throw new Error('Not a guest token');
+        if (decoded.isGuest !== true || !decoded.sub || !decoded.username) {
+          throw new Error('Invalid guest token payload');
+        }
 
         client.user = {
           sub: decoded.sub,  // Keep as string (UUID) for guests
@@ -77,18 +95,17 @@ export class WsGateway {
       // Fall back to JWT token for logged-in users
       const jwtToken = cookies['access_token'];
       if (jwtToken) {
-        const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET!) as JwtVerifyPayload & {
-          sub: number;
-          username: string;
-          email: string;
-          roles: string[];
-        };
+        const decoded = jwt.verify(jwtToken, JWT_SECRET) as unknown as AccessTokenPayload;
+
+        if (!decoded.sub || !decoded.username) {
+          throw new Error('Invalid access token payload');
+        }
 
         client.user = {
           sub: decoded.sub,
           username: decoded.username,
-          email: decoded.email,
-          roles: decoded.roles,
+          email: decoded.email ?? '',
+          roles: decoded.roles ?? ['user'],
         };
 
         console.log('WS connected JWT user', decoded.username);
@@ -300,7 +317,7 @@ export class WsGateway {
     if (!content) return;                    // ignore empty messages
 
     const message: ChatMessage = {
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       userId: user.sub,
       username: user.username,
       content,
