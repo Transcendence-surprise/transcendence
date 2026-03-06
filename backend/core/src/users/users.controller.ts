@@ -63,8 +63,19 @@ export class UsersController {
 
   @Get('me')
   @GetMeDocs()
-  getUserByHisToken(@CurrentUser() user : JwtPayload) {
-    return this.usersService.findOneById(user.sub);
+  async getUserByHisToken(@CurrentUser() user : JwtPayload) {
+    console.log("USERS SERVICE /me called");
+
+    if (user.roles?.includes('guest')) {
+      return {
+        id: user.sub,
+        username: user.username,
+        email: '',
+        roles: ['guest'],
+      };
+    }
+
+    return this.usersService.findOneById(user.sub as number);
   }
 
   @Patch('me')
@@ -73,7 +84,16 @@ export class UsersController {
     @CurrentUser() user: JwtPayload,
     @Body() updateMeDto: UpdateMeDto,
   ) {
-    return this.usersService.updateMe(user.sub, updateMeDto);
+    // Guests cannot update their profile in the database
+    if (user.roles?.includes('guest')) {
+      return {
+        id: user.sub,
+        username: user.username,
+        email: '',
+        roles: ['guest'],
+      };
+    }
+    return this.usersService.updateMe(user.sub as number, updateMeDto);
   }
 
   // Auth-test: allows to find user by id only if this user logged in

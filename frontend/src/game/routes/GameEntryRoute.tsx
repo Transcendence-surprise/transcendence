@@ -30,11 +30,14 @@ export default function GameEntryRoute() {
     if (m === 'multi') navigate("/multiplayer/setup");
   };
 
-  const handleGuest = (nickname: string) => {
-    // create guest user in context
-    continueAsGuest(nickname);
-    setShowModal(false);
-    handleContinue();
+  const handleGuest = async (nickname: string) => {
+    try {
+      const user = await continueAsGuest(nickname);
+      setShowModal(false);
+      handleContinue();
+    } catch (err: any) {
+      alert(err.message || "Failed to continue as guest");
+    }
   };
 
   return (

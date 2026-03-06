@@ -135,4 +135,21 @@ export class AuthHttpService {
     const res = await lastValueFrom(this.http[method]<T>(path, body));
     return res.data;
   }
+
+  async createGuestToken(nickname: string): Promise<{ ok: boolean; cookies: string[] }> {
+    // call auth-service
+    const res = await lastValueFrom(
+      this.http.post<{ ok: boolean }>(
+        '/api/auth/guest-token',  // endpoint on auth-service
+        { nickname },
+        { withCredentials: true }, // so auth-service cookie comes back
+      ),
+    );
+
+    return {
+      ok: res.data.ok,
+      cookies: this.extractCookies(res), // parse Set-Cookie headers from auth-service
+    };
+  }
+
 }

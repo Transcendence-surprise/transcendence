@@ -7,10 +7,11 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { EngineService } from '../game/services/engine.service.nest';
+import { ChatMessage, ChatService } from '../chat/chat.service';
 import jwt, { JwtPayload as JwtVerifyPayload } from 'jsonwebtoken';
 
 interface WsUser {
-  sub: number;
+  sub: number | string;
   username: string;
   email: string;
   roles: string[];
@@ -29,58 +30,72 @@ export class WsGateway {
   @WebSocketServer()
   server: Server;
 
-  constructor(private engine: EngineService) {}
+  constructor(
+    private engine: EngineService,
+    private chat: ChatService
+  ) {}
 
-  // JWT stored in 'access_token' cookie
+  // Auth from cookies - guest_token takes precedence if present
   handleConnection(client: TypedSocket): void {
     try {
-      // JWT from cookie
       const cookieHeader = client.handshake.headers.cookie;
-      if (cookieHeader) {
-        const token = cookieHeader
-          .split(';')
-          .map(c => c.trim())
-          .find(c => c.startsWith('access_token='))
-          ?.split('=')[1];
-
-        if (token) {
-          const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtVerifyPayload & {
-            sub: number;
-            username: string;
-            email: string;
-            roles: string[];
-          };
-
-          client.user = {
-            sub: decoded.sub,
-            username: decoded.username,
-            email: decoded.email,
-            roles: decoded.roles,
-          };
-
-          console.log('WS connected JWT user', decoded.username);
-          return;
-        }
-      }
-
-      // Guest from headers
-      const { guestId, guestUsername } = client.handshake.auth as {
-        guestId?: string;
-        guestUsername?: string;
-      } ?? {};
-
-      if (guestId && guestUsername) {
-        client.user = {
-          sub: Number(guestId),
-          username: guestUsername,
-          email: "",
-          roles: ["guest"],
-        };
-        console.log("WS connected guest", guestUsername);
+      if (!cookieHeader) {
+        console.log('WS auth failed: no cookies');
+        client.disconnect(true);
         return;
       }
 
-      console.log('WS auth failed: no valid JWT or guest headers');
+      const cookies = Object.fromEntries(
+        cookieHeader.split(';').map(c => {
+          const [key, ...vals] = c.trim().split('=');
+          return [key, vals.join('=')];
+        })
+      );
+
+      // Check guest_token FIRST - if user is playing as guest, use guest identity
+      const guestToken = cookies['guest_token'];
+      if (guestToken) {
+        const decoded = jwt.verify(guestToken, process.env.JWT_SECRET!) as {
+          sub: string;
+          username: string;
+          isGuest: true;
+        };
+
+        if (!decoded.isGuest) throw new Error('Not a guest token');
+
+        client.user = {
+          sub: decoded.sub,  // Keep as string (UUID) for guests
+          username: decoded.username,
+          email: '',
+          roles: ['guest'],
+        };
+
+        console.log("WS connected guest", decoded.username);
+        return;
+      }
+
+      // Fall back to JWT token for logged-in users
+      const jwtToken = cookies['access_token'];
+      if (jwtToken) {
+        const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET!) as JwtVerifyPayload & {
+          sub: number;
+          username: string;
+          email: string;
+          roles: string[];
+        };
+
+        client.user = {
+          sub: decoded.sub,
+          username: decoded.username,
+          email: decoded.email,
+          roles: decoded.roles,
+        };
+
+        console.log('WS connected JWT user', decoded.username);
+        return;
+      }
+
+      console.log('WS auth failed: no valid JWT or guest token');
       client.disconnect(true);
 
     } catch (error) {
@@ -257,5 +272,44 @@ export class WsGateway {
     });
   }
 
+  //GLOBAL CHAT
+
+  @SubscribeMessage("joinGlobalChat")
+  handleJoinGlobalChat(@ConnectedSocket() client: TypedSocket) {
+    const user = client.user;
+    if (!user) return client.disconnect(true);
+
+    const room = "chat:global";
+    void client.join(room);
+
+    const history = this.chat.getMessages(100);
+
+    // send history
+    client.emit("chatHistory", history);
+  }
+
+  @SubscribeMessage("chatMessage")
+  handleChatMessage(
+  @MessageBody() payload: { content: string; replyTo?: string },
+  @ConnectedSocket() client: TypedSocket,
+  ) {
+    const user = client.user;
+    if (!user) return client.disconnect(true);
+
+    const content = payload.content.trim();
+    if (!content) return;                    // ignore empty messages
+
+    const message: ChatMessage = {
+      id: crypto.randomUUID(),
+      userId: user.sub,
+      username: user.username,
+      content,
+      timestamp: Date.now(),
+      replyTo: payload.replyTo,
+    };
+
+    this.chat.addMessage(message);
+    this.server.to("chat:global").emit("chatMessage", message);
+  }
 }
 

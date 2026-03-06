@@ -181,4 +181,21 @@ export class AuthController {
       maxAge: 24 * 60 * 60,
     });
   }
+
+  @Post('guest-token')
+  async createGuestToken(
+    @Body() body: { nickname: string },
+    @Res({ passthrough: true }) reply: FastifyReply
+  ) {
+    const token = await this.authService.createGuestToken(body.nickname);
+    reply.setCookie('guest_token', token, {
+      httpOnly: true,
+      secure: this.config.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 24 * 60 * 60,
+    });
+    return { ok: true };
+  }
+
 }

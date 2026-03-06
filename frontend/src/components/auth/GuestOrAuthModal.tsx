@@ -4,7 +4,7 @@ import SignupForm from "./SignupForm";
 
 interface Props {
   onClose: () => void;
-  onContinueAsGuest: (nickname: string) => void;
+  onContinueAsGuest: (nickname: string) => Promise<any>;
 }
 
 export default function GuestOrAuthModal({
@@ -62,13 +62,13 @@ export default function GuestOrAuthModal({
               placeholder="Enter your nickname"
               className="mt-4 w-full px-4 py-2.5 rounded-lg bg-black/40 text-white border border-[#FFFFFF1A] focus:outline-none focus:ring-1 focus:ring-cyan-500"
             />
-
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (!nickname.trim()) return;
-                onContinueAsGuest(nickname.trim());
+                await onContinueAsGuest(nickname.trim());
+                onClose();
               }}
-              className="mt-5 w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50"
+              className="mt-5 w-full bg-gradient-to-r from-cyan-500 to-blue-500 ..."
             >
               Continue as Guest
             </button>

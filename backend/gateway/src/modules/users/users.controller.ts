@@ -35,15 +35,18 @@ export class UsersController {
   }
 
   @Get('me')
-  @Auth(AuthType.JWT)
+  @Auth(AuthType.JWT_OR_GUEST)
   @UseGuards(AuthGuard)
   async getUserByHisToken(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    console.log("GATEWAY /me called");
+    console.log("Cookies:", req.cookies);
     const result = await this.usersClient.findUserByHisToken(req);
+    console.log("Response from users service:", result);
     return res.status(result.statusCode).send(result.data);
   }
 
   @Patch('me')
-  @Auth(AuthType.JWT)
+  @Auth(AuthType.JWT_OR_GUEST)
   @UseGuards(AuthGuard)
   async updateMe(@Body() body: unknown, @Req() req: FastifyRequest, @Res() res: FastifyReply) {
     const result = await this.usersClient.updateMe(body, req);

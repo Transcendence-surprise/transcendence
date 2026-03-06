@@ -9,15 +9,16 @@ import { StartResult, StartError } from "../models/startResult";
  */
 export function startGameEngine(
   state: GameState,
-  playerId: number
+  playerId: number | string
 ): StartResult {
   // Already started?
   if (state.phase !== "LOBBY") {
     return { ok: false, error: StartError.ALREADY_STARTED };
   }
 
-  // Only host can start
-  if (state.hostId !== playerId) {
+  // Only host can start - use loose equality to handle number/string mismatch
+  if (state.hostId != playerId) {
+    console.log(`Host check failed: hostId=${state.hostId} (${typeof state.hostId}), playerId=${playerId} (${typeof playerId})`);
     return { ok: false, error: StartError.NOT_HOST };
   }
 

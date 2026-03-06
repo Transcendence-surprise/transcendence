@@ -3,7 +3,7 @@ import { User } from "../api/authentification";
 
 let socket: Socket | null = null;
 
-export function connectSocket(user: User | null) {
+export function connectSocket() {
 
   if (socket) return socket;
 
@@ -12,9 +12,6 @@ export function connectSocket(user: User | null) {
     withCredentials: true,
     autoConnect: true,
     transports: ["polling", "websocket"],
-    auth: user?.roles?.includes('guest')
-      ? { guestId: user.id, guestUsername: user.username }
-      : undefined,
   });
 
   socket.on('connect', () => {

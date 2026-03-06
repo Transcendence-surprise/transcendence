@@ -114,9 +114,20 @@ export class AuthController {
     return this.authClient.removeApiKeyById(Number(id));
   }
 
+  @Post('guest-token')
+  async createGuestToken(
+    @Body() body: { nickname: string },
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const res = await this.authClient.createGuestToken(body.nickname); // calls auth-service internally
+    this.forwardCookies(reply, res.cookies); // forward auth-service Set-Cookie to client
+    return { ok: res.ok };
+  }
+
   private forwardCookies(reply: FastifyReply, cookies?: string[]) {
     if (cookies?.length) {
       reply.header('set-cookie', cookies);
     }
   }
+
 }

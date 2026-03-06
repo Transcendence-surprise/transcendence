@@ -47,9 +47,12 @@ export async function login(identifier: string, password: string): Promise<User>
 
 export async function getCurrentUser(): Promise<User> {
   const res = await fetch("/api/users/me", { credentials: "include" });
+
+  const data = await res.json();
+  console.log("getCurrentUser response:", data);
+
   if (!res.ok) throw new Error("Not logged in");
-  const user = await res.json();
-  return user;
+  return data;
 }
 
 export async function logout(): Promise<void> {
@@ -59,4 +62,20 @@ export async function logout(): Promise<void> {
   });
 
   if (!res.ok) throw new Error("Logout failed");
+}
+
+export async function createGuestToken(nickname: string): Promise<User> {
+  const res = await fetch("/api/auth/guest-token", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nickname }),
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error?.message || "Guest token creation failed");
+  }
+
+  return getCurrentUser();
 }

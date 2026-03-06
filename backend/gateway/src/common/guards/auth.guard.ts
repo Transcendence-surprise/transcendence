@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
+import jwt from 'jsonwebtoken';
 import { FastifyRequest } from 'fastify';
 import type { ConfigType } from '@nestjs/config';
 
@@ -15,10 +16,18 @@ import { AuthHttpService } from '../../modules/auth/auth.service';
 import { AUTH_TYPE_KEY, AuthType } from '../decorator/auth-type.decorator';
 
 interface JwtPayload {
-  sub: number;
+  sub: number | string;
   username: string;
   email: string;
   roles: string[];
+}
+
+interface GuestJwtPayload {
+  sub: string;
+  username: string;
+  email?: string;
+  roles?: string[];
+  isGuest: true;
 }
 
 interface RequestWithUser extends FastifyRequest {
@@ -53,11 +62,13 @@ export class AuthGuard implements CanActivate {
       case AuthType.GUEST:
         return await this.validateGuest(request);
       case AuthType.JWT_OR_GUEST:
+        // Check guest FIRST - if user has guest_token, use guest identity
+        // This ensures consistent identity when user created game as guest
         try {
-          return await this.validateJwt(request);
+          return await this.validateGuest(request);
         } catch (error) {
           if (error instanceof UnauthorizedException) {
-            return await this.validateGuest(request);
+            return await this.validateJwt(request);
           }
           throw error;
         }
@@ -133,20 +144,27 @@ export class AuthGuard implements CanActivate {
 
   // eslint-disable-next-line @typescript-eslint/require-await
   private async validateGuest(request: FastifyRequest): Promise<boolean> {
-    const guestId = request.headers['x-guest-id'];
-    const guestUsername = request.headers['x-guest-username'];
+    const token = request.cookies.guest_token;
+    if (!token) throw new UnauthorizedException('Guest token missing');
 
-    if (!guestId || !guestUsername) {
-      throw new UnauthorizedException('Guest headers missing');
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as GuestJwtPayload;
+
+      // Extra type check to satisfy ESLint
+      if (decoded.isGuest !== true || !decoded.sub || !decoded.username) {
+        throw new UnauthorizedException('Invalid guest token');
+      }
+
+      (request as RequestWithUser).user = {
+        sub: decoded.sub,       // UUID string
+        username: decoded.username,
+        email: decoded.email ?? '',
+        roles: ['guest'],
+      };
+
+      return true;
+    } catch {
+      throw new UnauthorizedException('Invalid guest token');
     }
-
-    (request as RequestWithUser).user = {
-      sub: Number(guestId),
-      username: String(guestUsername),
-      email: '',
-      roles: ['guest'],
-    };
-
-    return true;
   }
 }

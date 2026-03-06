@@ -337,6 +337,24 @@ export class AuthService {
     };
   }
 
+  createGuestToken(nickname: string): Promise<string> {
+    // 1. Generate a UUID / guest id
+    const guestId = crypto.randomUUID();
+
+    // 2. Save guest user in DB (optional, can just return JWT)
+    const guestUser = {
+      sub: guestId,
+      username: nickname,
+      roles: ['guest'],
+      isGuest: true,
+    };
+
+    // 3. Sign JWT
+    const token = this.jwtService.sign(guestUser);
+
+    // 4. Return token (controller will set cookie)
+    return Promise.resolve(token);
+  }
 
   private async sendTwoFactorCode(email: string, userId: number): Promise<void> {
     const code = randomInt(100000, 999999).toString();
