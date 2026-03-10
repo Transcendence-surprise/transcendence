@@ -29,12 +29,12 @@ const appearancePlaceholders: AppearancePlaceholder[] = [
   {
     title: "Collectables appearance",
     description: "Choose which collectables set appears during matches.",
-    options: ["1", "2", "3", "4", "5", "6"],
+    options: ["1", "2"],
   },
   {
     title: "Player board appearance",
     description: "Choose your player look and style on the game board.",
-    options: ["1", "2", "3", "4", "5", "6"],
+    options: ["1", "2"],
   },
 ];
 
