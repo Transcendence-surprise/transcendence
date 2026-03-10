@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 type PlaceholderSetting = {
   title: string;
   description: string;
@@ -19,26 +21,38 @@ const securityPlaceholders: PlaceholderSetting[] = [
   },
 ];
 
-type AppearancePlaceholder = {
-  title: string;
-  description: string;
-  options: string[];
-};
+type CollectableSet = "gemstones" | "numbers";
 
-const appearancePlaceholders: AppearancePlaceholder[] = [
-  {
-    title: "Collectables appearance",
-    description: "Choose which collectables set appears during matches.",
-    options: ["1", "2"],
-  },
-  {
-    title: "Player board appearance",
-    description: "Choose your player look and style on the game board.",
-    options: ["1", "2"],
-  },
-];
+const collectableSetStorageKey = "settings.collectableSet";
+const gemstonePreview = Array.from({ length: 4 }, (_, index) => ({
+  id: String(index + 1),
+  src: `/assets/collectables/${index + 1}.svg`,
+}));
 
 export default function Settings() {
+  const [selectedCollectableSet, setSelectedCollectableSet] =
+    useState<CollectableSet>("gemstones");
+
+  useEffect(() => {
+    const savedSet = localStorage.getItem(collectableSetStorageKey);
+    if (!savedSet) {
+      return;
+    }
+
+    if (savedSet === "gemstones" || savedSet === "numbers") {
+      setSelectedCollectableSet(savedSet);
+    }
+  }, []);
+
+  const handleCollectableSetSelect = (set: CollectableSet) => {
+    if (set === "numbers") {
+      return;
+    }
+
+    setSelectedCollectableSet(set);
+    localStorage.setItem(collectableSetStorageKey, set);
+  };
+
   return (
     <div className="flex flex-col min-h-[60vh] gap-8 max-w-4xl">
       <div>
@@ -78,34 +92,63 @@ export default function Settings() {
       <section className="bg-[#1A1A1F99] rounded-xl border border-[#FFFFFF1A] p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-2xl font-bold text-white">Appearance</h3>
-          <span className="text-xs px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-300">
-            Assets/API Pending
-          </span>
         </div>
 
         <div className="space-y-4">
-          {appearancePlaceholders.map((group) => (
-            <div
-              key={group.title}
-              className="rounded-lg border border-[#FFFFFF1A] px-4 py-3"
-            >
-              <p className="text-white font-semibold">{group.title}</p>
-              <p className="text-sm text-gray-400 mb-3">{group.description}</p>
+          <div className="rounded-lg border border-[#FFFFFF1A] px-4 py-3">
+            <p className="text-white font-semibold">Collectables appearance</p>
+            <p className="text-sm text-gray-400 mb-3">
+              Choose which collectables set appears during matches.
+            </p>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {group.options.map((setName) => (
-                  <button
-                    key={`${group.title}-${setName}`}
-                    type="button"
-                    disabled
-                    className="rounded-md border border-[#FFFFFF1A] bg-[#0B0B0F] px-3 py-2 text-sm text-gray-500 cursor-not-allowed"
-                  >
-                    {setName}
-                  </button>
-                ))}
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => handleCollectableSetSelect("gemstones")}
+                aria-pressed={selectedCollectableSet === "gemstones"}
+                className={`rounded-md border bg-[#0B0B0F] p-3 text-left transition-colors ${
+                  selectedCollectableSet === "gemstones"
+                    ? "border-cyan-300"
+                    : "border-[#FFFFFF1A] hover:border-cyan-500/60"
+                }`}
+              >
+                <p className="text-white font-semibold pb-3">Gemstones</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {gemstonePreview.map((gemstone) => (
+                    <img
+                      key={gemstone.id}
+                      src={gemstone.src}
+                      alt={`Gemstone preview ${gemstone.id}`}
+                      className="w-7 h-7"
+                    />
+                  ))}
+                </div>
+              </button>
+
+              <button
+                type="button"
+                disabled
+                aria-disabled
+                className="rounded-md border border-[#FFFFFF1A] bg-[#0B0B0F] p-3 text-left opacity-60 cursor-not-allowed"
+              >
+                <p className="text-white font-semibold pb-3">Numbers</p>
+              </button>
             </div>
-          ))}
+          </div>
+
+          <div className="rounded-lg border border-[#FFFFFF1A] px-4 py-3">
+            <p className="text-white font-semibold">Player board appearance</p>
+            <p className="text-sm text-gray-400 mb-3">
+              Choose your player look and style on the game board.
+            </p>
+            <button
+              type="button"
+              disabled
+              className="rounded-md border border-[#FFFFFF1A] bg-[#0B0B0F] px-3 py-2 text-sm text-gray-500 cursor-not-allowed"
+            >
+              Coming soon
+            </button>
+          </div>
         </div>
       </section>
     </div>
