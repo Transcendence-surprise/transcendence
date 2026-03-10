@@ -1,9 +1,62 @@
+type PlaceholderSetting = {
+  title: string;
+  description: string;
+  actionLabel: string;
+};
+
+const securityPlaceholders: PlaceholderSetting[] = [
+  {
+    title: "Two-factor authentication (2FA)",
+    description:
+      "Add an extra verification step at login for better account security.",
+    actionLabel: "Enable / Disable",
+  },
+  {
+    title: "Password",
+    description:
+      "Update your password regularly to keep your account protected.",
+    actionLabel: "Change Password",
+  },
+];
 
 export default function Settings() {
   return (
-	<div className="flex flex-col items-center justify-center min-h-[60vh]">
-	  <h2 className="text-4xl font-bold mb-8 text-blue-400">Settings Page</h2>
-	  <p className="text-blue-300">This is where you can customize your settings.</p>
-	</div>
+    <div className="flex flex-col min-h-[60vh] gap-8 max-w-4xl">
+      <div>
+        <h2 className="text-4xl font-bold text-white">Settings</h2>
+        <p className="text-[#B7F6FF] mt-2">
+          Manage your account security settings.
+        </p>
+      </div>
+
+      <section className="bg-[#1A1A1F99] rounded-xl border border-[#FFFFFF1A] p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-2xl font-bold text-white">Security</h3>
+          <span className="text-xs px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-300">
+            API Pending
+          </span>
+        </div>
+        <div className="space-y-3">
+          {securityPlaceholders.map((item) => (
+            <div
+              key={item.title}
+              className="flex items-center justify-between gap-4 rounded-lg border border-[#FFFFFF1A] px-4 py-3"
+            >
+              <div>
+                <p className="text-white font-semibold">{item.title}</p>
+                <p className="text-sm text-gray-400">{item.description}</p>
+              </div>
+              <button
+                type="button"
+                disabled
+                className="px-3 py-1.5 rounded-md text-sm font-bold border border-[#FFFFFF1A] text-gray-500 cursor-not-allowed"
+              >
+                {item.actionLabel}
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
   );
 }
