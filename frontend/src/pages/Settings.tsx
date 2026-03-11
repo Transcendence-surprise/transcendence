@@ -49,10 +49,6 @@ export default function Settings() {
   }, []);
 
   const handleCollectableSetSelect = (set: CollectableSet) => {
-    if (set === "numbers") {
-      return;
-    }
-
     setSelectedCollectableSet(set);
     localStorage.setItem(collectableSetStorageKey, set);
   };
@@ -129,7 +125,7 @@ export default function Settings() {
                 </div>
               </button>
 
-            <button
+              <button
                 type="button"
                 onClick={() => handleCollectableSetSelect("numbers")}
                 aria-pressed={selectedCollectableSet === "numbers"}
