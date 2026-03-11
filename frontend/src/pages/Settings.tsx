@@ -26,7 +26,11 @@ type CollectableSet = "gemstones" | "numbers";
 const collectableSetStorageKey = "settings.collectableSet";
 const gemstonePreview = Array.from({ length: 4 }, (_, index) => ({
   id: String(index + 1),
-  src: `/assets/collectables/${index + 1}.svg`,
+  src: `/assets/collectables/gems/${index + 1}.svg`,
+}));
+const numberPreview = Array.from({ length: 4 }, (_, index) => ({
+  id: String(index + 1),
+  src: `/assets/collectables/numbers/${index + 1}.svg`,
 }));
 
 export default function Settings() {
@@ -125,13 +129,27 @@ export default function Settings() {
                 </div>
               </button>
 
-              <button
+            <button
                 type="button"
-                disabled
-                aria-disabled
-                className="rounded-md border border-[#FFFFFF1A] bg-[#0B0B0F] p-3 text-left opacity-60 cursor-not-allowed"
+                onClick={() => handleCollectableSetSelect("numbers")}
+                aria-pressed={selectedCollectableSet === "numbers"}
+                className={`rounded-md border bg-[#0B0B0F] p-3 text-left transition-colors ${
+                  selectedCollectableSet === "numbers"
+                    ? "border-cyan-300"
+                    : "border-[#FFFFFF1A] hover:border-cyan-500/60"
+                }`}
               >
                 <p className="text-white font-semibold pb-3">Numbers</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {numberPreview.map((number) => (
+                    <img
+                      key={number.id}
+                      src={number.src}
+                      alt={`Number preview ${number.id}`}
+                      className="w-7 h-7"
+                    />
+                  ))}
+                </div>
               </button>
             </div>
           </div>
