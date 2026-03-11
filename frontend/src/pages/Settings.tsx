@@ -24,8 +24,10 @@ const securityPlaceholders: PlaceholderSetting[] = [
 ];
 
 type CollectableSet = "gemstones" | "numbers";
+type PlayerIconSet = "star" | "space_inv";
 
 const collectableSetStorageKey = "settings.collectableSet";
+const playerIconSetStorageKey = "settings.playerIconSet";
 const gemstonePreview = Array.from({ length: 4 }, (_, index) => ({
   id: String(index + 1),
   src: `/assets/collectables/gems/${index + 1}.svg`,
@@ -34,12 +36,22 @@ const numberPreview = Array.from({ length: 4 }, (_, index) => ({
   id: String(index + 1),
   src: `/assets/collectables/numbers/${index + 1}.svg`,
 }));
+const starPlayerPreview = Array.from({ length: 4 }, (_, index) => ({
+  id: String(index + 1),
+  src: `/assets/player/star/${index + 1}.svg`,
+}));
+const spaceInvPlayerPreview = Array.from({ length: 4 }, (_, index) => ({
+  id: String(index + 5),
+  src: `/assets/player/space_inv/${index + 5}.svg`,
+}));
 
 export default function Settings() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [selectedCollectableSet, setSelectedCollectableSet] =
     useState<CollectableSet>("gemstones");
+  const [selectedPlayerIconSet, setSelectedPlayerIconSet] =
+    useState<PlayerIconSet>("star");
 
   useEffect(() => {
     if (!user) return;
@@ -50,6 +62,11 @@ export default function Settings() {
 
     if (savedSet === "gemstones" || savedSet === "numbers") {
       setSelectedCollectableSet(savedSet);
+    }
+
+    const savedPlayerSet = localStorage.getItem(playerIconSetStorageKey);
+    if (savedPlayerSet === "star" || savedPlayerSet === "space_inv") {
+      setSelectedPlayerIconSet(savedPlayerSet);
     }
   }, [user]);
   if (!user) {
@@ -72,6 +89,11 @@ export default function Settings() {
   const handleCollectableSetSelect = (set: CollectableSet) => {
     setSelectedCollectableSet(set);
     localStorage.setItem(collectableSetStorageKey, set);
+  };
+
+  const handlePlayerIconSetSelect = (set: PlayerIconSet) => {
+    setSelectedPlayerIconSet(set);
+    localStorage.setItem(playerIconSetStorageKey, set);
   };
 
   return (
@@ -176,13 +198,54 @@ export default function Settings() {
             <p className="text-sm text-gray-400 mb-3">
               Choose your player look and style on the game board.
             </p>
-            <button
-              type="button"
-              disabled
-              className="rounded-md border border-[#FFFFFF1A] bg-[#0B0B0F] px-3 py-2 text-sm text-gray-500 cursor-not-allowed"
-            >
-              Coming soon
-            </button>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => handlePlayerIconSetSelect("star")}
+                aria-pressed={selectedPlayerIconSet === "star"}
+                className={`rounded-md border bg-[#0B0B0F] p-3 text-left transition-colors ${
+                  selectedPlayerIconSet === "star"
+                    ? "border-cyan-300"
+                    : "border-[#FFFFFF1A] hover:border-cyan-500/60"
+                }`}
+              >
+                <p className="text-white font-semibold pb-3">Stars</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {starPlayerPreview.map((icon) => (
+                    <img
+                      key={icon.id}
+                      src={icon.src}
+                      alt={`Star player icon preview ${icon.id}`}
+                      className="w-12 h-12"
+                    />
+                  ))}
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handlePlayerIconSetSelect("space_inv")}
+                aria-pressed={selectedPlayerIconSet === "space_inv"}
+                className={`rounded-md border bg-[#0B0B0F] p-3 text-left transition-colors ${
+                  selectedPlayerIconSet === "space_inv"
+                    ? "border-cyan-300"
+                    : "border-[#FFFFFF1A] hover:border-cyan-500/60"
+                }`}
+              >
+                <p className="text-white font-semibold pb-3">Space Invaders</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {spaceInvPlayerPreview.map((icon) => (
+                    <img
+                      key={icon.id}
+                      src={icon.src}
+                      alt={`Space invader player icon preview ${icon.id}`}
+                      className="w-7 h-7"
+                    />
+                  ))}
+                </div>
+              </button>
+            </div>
           </div>
         </div>
       </section>
