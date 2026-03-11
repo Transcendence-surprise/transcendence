@@ -17,7 +17,7 @@ export default function GameRoute() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!id) return;
+    if (!id || !user) return;
 
     const socket = connectSocket();
 
@@ -27,7 +27,7 @@ export default function GameRoute() {
         setGame(g);
 
         // join play room
-        socket.emit("joinPlay", { gameId: id, userId: "PLAYER_ID" });
+        socket.emit("joinPlay", { gameId: id, userId: user.id });
 
         // listen for updates
         socket.on("playUpdate", (data) => {

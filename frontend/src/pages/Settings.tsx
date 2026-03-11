@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 type PlaceholderSetting = {
   title: string;
@@ -34,10 +36,13 @@ const numberPreview = Array.from({ length: 4 }, (_, index) => ({
 }));
 
 export default function Settings() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [selectedCollectableSet, setSelectedCollectableSet] =
     useState<CollectableSet>("gemstones");
 
   useEffect(() => {
+    if (!user) return;
     const savedSet = localStorage.getItem(collectableSetStorageKey);
     if (!savedSet) {
       return;
@@ -46,7 +51,23 @@ export default function Settings() {
     if (savedSet === "gemstones" || savedSet === "numbers") {
       setSelectedCollectableSet(savedSet);
     }
-  }, []);
+  }, [user]);
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <h2 className="text-3xl font-bold mb-6 text-blue-400">
+          Login required to access settings
+        </h2>
+
+        <button
+          onClick={() => navigate(-1)}
+          className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg"
+        >
+          Back
+        </button>
+      </div>
+    );
+  }
 
   const handleCollectableSetSelect = (set: CollectableSet) => {
     setSelectedCollectableSet(set);
@@ -151,7 +172,7 @@ export default function Settings() {
           </div>
 
           <div className="rounded-lg border border-[#FFFFFF1A] px-4 py-3">
-            <p className="text-white font-semibold">Player board appearance</p>
+            <p className="text-white font-semibold">Player appearance</p>
             <p className="text-sm text-gray-400 mb-3">
               Choose your player look and style on the game board.
             </p>
