@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 
-export default function BadGatewayPage() {
+export default function ServiceUnavailablePage() {
   return (
     <div className="min-h-screen bg-black text-[#d7fbff]">
       <main className="mx-auto flex min-h-screen w-full max-w-4xl flex-col items-center justify-center px-6 py-10">
@@ -10,11 +10,11 @@ export default function BadGatewayPage() {
           </p>
 
           <h1 className="mb-2 text-6xl font-black leading-none text-white sm:text-7xl">
-            502
+            503
           </h1>
 
           <h2 className="mb-4 text-2xl font-bold text-[#c8faff] sm:text-3xl">
-            Bad Gateway
+            Service Unavailable
           </h2>
 
 		  	<h1 className="mb-2 text-4xl font-bold leading-none text-white sm:text-7xl">
@@ -22,7 +22,7 @@ export default function BadGatewayPage() {
           </h1>
 
           <p className="max-w-xl text-sm leading-relaxed text-[#9cefff] sm:text-base">
-            A bad gateway error occurred.
+            The service is currently unavailable.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
