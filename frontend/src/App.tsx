@@ -15,6 +15,7 @@ import Settings from "./pages/Settings";
 import Chat from "./pages/Chat";
 import Friends from "./pages/Friends";
 import AdminPanel from "./pages/AdminPanel";
+import NotFoundPage from "./pages/error/404"
 
 export default function App() {
   return (
@@ -67,7 +68,7 @@ export default function App() {
             {<Route path="friends" element={<Friends />} />}
 
             {/* 404 Not Found */}
-            {/* <Route path="*" element={<NotFound />} /> */}
+            {<Route path="404" element={<NotFoundPage />} />}
           </Route>
         </Route>
       </Routes>
