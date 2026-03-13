@@ -54,7 +54,7 @@ export default function Settings() {
     useState<PlayerIconSet>("star");
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || user.roles.includes("guest")) return;
     const savedSet = localStorage.getItem(collectableSetStorageKey);
     if (!savedSet) {
       return;
@@ -69,7 +69,7 @@ export default function Settings() {
       setSelectedPlayerIconSet(savedPlayerSet);
     }
   }, [user]);
-  if (!user) {
+  if (!user || user.roles.includes("guest")) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
         <h2 className="text-3xl font-bold mb-6 text-blue-400">
