@@ -10,7 +10,10 @@ export class CreateGuestTokenDto {
     maxLength: 20,
   })
   @IsString()
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Transform(({ value }) => {
+    const v = value as unknown;
+    return typeof v === 'string' ? v.trim() : v;
+  })
   @MinLength(1, { message: 'Nickname must not be empty' })
   @MaxLength(20, { message: 'Nickname must be at most 20 characters' })
   @Matches(/^[a-zA-Z0-9_-]+$/, {
