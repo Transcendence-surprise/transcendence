@@ -16,62 +16,68 @@ import Chat from "./pages/Chat";
 import Friends from "./pages/Friends";
 import AdminPanel from "./pages/AdminPanel";
 import NotFoundPage from "./pages/error/404";
+import GlobalErrorBoundary from "./components/error/GlobalErrorBoundary";
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Layout wraps all routes */}
-        <Route path="/" element={<Layout />}>
-          {/* Home page */}
-          <Route index element={<Home />} />
-          <Route element={<LayoutWithSidebar />}>
-            {/* Game routes */}
-            {/* Game entry: select Single or Multiplayer */}
-            <Route path="game" element={<GameEntryRoute />} />
+      <GlobalErrorBoundary>
+        <Routes>
+          {/* Layout wraps all routes */}
+          <Route path="/" element={<Layout />}>
+            {/* Home page */}
+            <Route index element={<Home />} />
+            <Route element={<LayoutWithSidebar />}>
+              {/* Game routes */}
+              {/* Game entry: select Single or Multiplayer */}
+              <Route path="game" element={<GameEntryRoute />} />
 
-            {/* Single Player setup */}
-            <Route path="single/setup" element={<SinglePlayerSetupRoute />} />
+              {/* Single Player setup */}
+              <Route path="single/setup" element={<SinglePlayerSetupRoute />} />
 
-            {/* Multiplayer setup */}
-            <Route
-              path="multiplayer/setup"
-              element={<MultiplayerSetupRoute />}
-            />
+              {/* Multiplayer setup */}
+              <Route
+                path="multiplayer/setup"
+                element={<MultiplayerSetupRoute />}
+              />
 
-            {/* Create Game route (Host) */}
-            <Route
-              path="multiplayer/create"
-              element={<MultiplayerCreateRoute />}
-            />
+              {/* Create Game route (Host) */}
+              <Route
+                path="multiplayer/create"
+                element={<MultiplayerCreateRoute />}
+              />
 
-            {/* Join Game route (Player) */}
-            <Route
-              path="/multiplayer/join"
-              element={<MultiplayerJoinRoute />}
-            />
+              {/* Join Game route (Player) */}
+              <Route
+                path="/multiplayer/join"
+                element={<MultiplayerJoinRoute />}
+              />
 
-            {/* Multiplayer lobby */}
-            <Route path="multiplayer/lobby/:gameId" element={<LobbyRoute />} />
+              {/* Multiplayer lobby */}
+              <Route
+                path="multiplayer/lobby/:gameId"
+                element={<LobbyRoute />}
+              />
 
-            {/* Game screen */}
-            <Route path="game/:id" element={<GameRoute />} />
+              {/* Game screen */}
+              <Route path="game/:id" element={<GameRoute />} />
 
-            {/* Other XD routes */}
+              {/* Other XD routes */}
 
-            {/* Future routes - uncomment when ready */}
-            {<Route path="profile" element={<Profile />} />}
-            {<Route path="leaderboard" element={<Leaderboard />} />}
-            {<Route path="settings" element={<Settings />} />}
-            {<Route path="/admin" element={<AdminPanel />} />}
-            {<Route path="chat" element={<Chat />} />}
-            {<Route path="friends" element={<Friends />} />}
+              {/* Future routes - uncomment when ready */}
+              {<Route path="profile" element={<Profile />} />}
+              {<Route path="leaderboard" element={<Leaderboard />} />}
+              {<Route path="settings" element={<Settings />} />}
+              {<Route path="/admin" element={<AdminPanel />} />}
+              {<Route path="chat" element={<Chat />} />}
+              {<Route path="friends" element={<Friends />} />}
+            </Route>
+
+            {/* 404 Not Found */}
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
-
-          {/* 404 Not Found */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
+        </Routes>
+      </GlobalErrorBoundary>
     </BrowserRouter>
   );
 }
