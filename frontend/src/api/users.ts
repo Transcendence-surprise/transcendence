@@ -36,10 +36,9 @@ export async function toggleTwoFactorAuth(enabled: boolean): Promise<User> {
 }
 
 export async function changePassword(
-  userId: string | number,
   password: string,
 ): Promise<User> {
-  const res = await fetch(`/api/users/id/${userId}`, {
+  const res = await fetch(`/api/users/me/password`, {
     method: "PATCH",
     credentials: "include",
     headers: {
