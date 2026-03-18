@@ -46,7 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(u);
       return u;
     } catch (err: any) {
-      alert(err.message || "Login failed");
       throw err;
     } finally {
       setLoading(false);
