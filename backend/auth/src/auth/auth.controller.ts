@@ -20,6 +20,7 @@ import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
 import { LoginWith2FADto } from './dto/login-with-2fa.dto';
+import { CreatePasswordResetDto } from './dto/create-password-reset.dto';
 import { AuthTokenResponseDto } from './dto/auth-token-response.dto';
 import { CreateGuestTokenDto } from './dto/create-guest-token.dto';
 import {
@@ -28,6 +29,7 @@ import {
   LoginWith2FADocs,
   SignupDocs,
   LogoutDocs,
+  PasswordResetDocs,
   GoogleAuthDocs,
   GoogleAuthCallbackDocs,
   Intra42AuthDocs,
@@ -92,6 +94,16 @@ export class AuthController {
     const { access_token, ...response } = result;
     this.setAccessTokenCookie(reply, access_token);
     return response;
+  }
+
+  @Post('password-reset')
+  @PasswordResetDocs()
+  @HttpCode(HttpStatus.OK)
+  async requestPasswordReset(
+    @Body() createPasswordResetDto: CreatePasswordResetDto,
+  ) {
+    await this.authService.createPasswordResetToken(createPasswordResetDto.email);
+    return { ok: true };
   }
 
   @Post('logout')

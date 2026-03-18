@@ -25,6 +25,8 @@ import { CreateApiKeyResDto } from './dto/create-api-key-res.dto';
 import { GetApiKeyResDto } from './dto/get-api-key-res.dto';
 import { LoginWith2FADto } from './dto/login-with-2fa.dto';
 import { LogoutResDto } from './dto/logout-res.dto';
+import { CreatePasswordResetDto } from './dto/create-password-reset.dto';
+import { PasswordResetRequestResDto } from './dto/password-reset-request-res.dto';
 import { TwoFactorRequiredResDto } from './dto/two-factor-required-res.dto';
 
 const AuthControllerDocs = () => ApiTags('Authentication');
@@ -154,6 +156,22 @@ const LogoutDocs = () =>
     ApiOkResponse({
       description: 'Logout successful',
       type: LogoutResDto,
+    }),
+  );
+
+const PasswordResetDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Request password reset',
+      description: 'Generate a one-time password reset token and send it to the user email',
+    }),
+    ApiBody({
+      description: 'Email for the user that wants to reset their password',
+      type: CreatePasswordResetDto,
+    }),
+    ApiOkResponse({
+      description: 'Password reset request accepted',
+      type: PasswordResetRequestResDto,
     }),
   );
 
@@ -301,6 +319,7 @@ export {
   LoginWith2FADocs,
   SignupDocs,
   LogoutDocs,
+  PasswordResetDocs,
   GoogleAuthDocs,
   GoogleAuthCallbackDocs,
   Intra42AuthDocs,

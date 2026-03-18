@@ -25,10 +25,17 @@ interface TwoFactorCode {
   userId: number;
 }
 
+interface PasswordResetToken {
+  userId: number;
+  expiresAt: Date;
+}
+
 @Injectable()
 export class AuthService {
   private codeStore = new Map<string, TwoFactorCode>();
+  private passwordResetStore = new Map<string, PasswordResetToken>();
   private readonly CODE_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
+  private readonly PASSWORD_RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
 
   constructor(
     @Inject(authConfig.KEY)
@@ -262,6 +269,46 @@ export class AuthService {
     throw new Error(
       `Failed to create user after ${maxAttempts} attempts due to username conflicts`
     );
+  }
+
+  async createPasswordResetToken(email: string): Promise<void> {
+    const user = await this.findUserByEmail(email);
+
+    if (!user) {
+      return;
+    }
+
+    const token = randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + this.PASSWORD_RESET_TOKEN_EXPIRY_MS);
+
+    const hash = createHmac('sha256', this.config.jwt.secret)
+      .update(token)
+      .digest('hex');
+
+    this.passwordResetStore.set(hash, { userId: user.id, expiresAt });
+
+    const resetUrl = new URL('/reset-password', this.config.frontend.url);
+    resetUrl.searchParams.set('token', token);
+
+    const subject = 'Reset your Transcendence password';
+    const text = `You requested a password reset. Click the link below to reset your password:\n\n${resetUrl.toString()}\n\nThis link expires in 1 hour. If you did not request this, you can ignore this email.`;
+    const html = `<p>You requested a password reset. Click <a href="${resetUrl.toString()}">here</a> to reset your password.</p><p>This link expires in 1 hour. If you did not request this, you can ignore this email.</p>`;
+
+    await this.httpService.axiosRef.post(
+      `${this.config.core.url}/api/mail`,
+      { to: user.email, subject, text, html },
+    );
+
+    this.cleanupExpiredPasswordResetTokens();
+  }
+
+  private cleanupExpiredPasswordResetTokens(): void {
+    const now = new Date();
+    for (const [key, data] of this.passwordResetStore.entries()) {
+      if (data.expiresAt < now) {
+        this.passwordResetStore.delete(key);
+      }
+    }
   }
 
   async getAllApiKeys() {
