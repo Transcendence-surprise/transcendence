@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await authApi.logout();
       setUser(null);
     } catch (err: any) {
-      alert(err.message || "Logout failed");
+      throw err;
     } finally {
       setLoading(false);
     }
