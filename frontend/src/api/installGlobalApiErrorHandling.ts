@@ -9,7 +9,12 @@ const STATUS_REDIRECTS: Record<number, string> = {
 let isInstalled = false;
 
 function resolvePathFromRequest(input: RequestInfo | URL): string {
-  const requestUrl = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+  const requestUrl =
+    typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url;
 
   try {
     return new URL(requestUrl, window.location.origin).pathname;
@@ -41,7 +46,10 @@ export function installGlobalApiErrorHandling(): void {
   isInstalled = true;
   const originalFetch = window.fetch.bind(window);
 
-  window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+  window.fetch = async (
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ): Promise<Response> => {
     try {
       const response = await originalFetch(input, init);
 
