@@ -68,7 +68,7 @@ export default function GuestOrAuthModal({
                 await onContinueAsGuest(nickname.trim());
                 onClose();
               }}
-              className="mt-5 w-full bg-gradient-to-r from-cyan-500 to-blue-500 ..."
+              className="mt-5 w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50"
             >
               Continue as Guest
             </button>
