@@ -9,7 +9,7 @@ export interface AuthContextType {
   signup: (
     username: string,
     email: string,
-    password: string
+    password: string,
   ) => Promise<authApi.User>;
   logout: () => Promise<void>;
   continueAsGuest: (nickname: string) => Promise<authApi.User>;
@@ -26,12 +26,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Fetch current user on mount
   useEffect(() => {
-    authApi.getCurrentUser()
-      .then(u => setUser(u))
+    authApi
+      .getCurrentUser()
+      .then((u) => setUser(u))
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
   }, []);
-
 
   useEffect(() => {
     if (user) connectSocket();
@@ -53,24 +53,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-    const signup = async (
-    username: string,
-    email: string,
-    password: string
-    ) => {
+  const signup = async (username: string, email: string, password: string) => {
     try {
-        setLoading(true);
-        const u = await authApi.signup(username, email, password);
-        alert(`Welcome, ${u.username}!`);
-        setUser(u);
-        return u;
+      setLoading(true);
+      const u = await authApi.signup(username, email, password);
+      alert(`Welcome, ${u.username}!`);
+      setUser(u);
+      return u;
     } catch (err: any) {
-        alert(err.message || "Signup failed");
-        throw err;
+      throw err;
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-    };
+  };
 
   const logout = async () => {
     try {
@@ -92,22 +87,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Role-based computed values
-  const isAdmin = user?.roles?.includes('admin') ?? false;
-  const isUser = user?.roles?.includes('user') ?? false;
+  const isAdmin = user?.roles?.includes("admin") ?? false;
+  const isUser = user?.roles?.includes("user") ?? false;
   const hasRole = (role: string) => user?.roles?.includes(role) ?? false;
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      loading, 
-      login, 
-      signup, 
-      logout,
-      continueAsGuest,
-      isAdmin,
-      isUser,
-      hasRole 
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        signup,
+        logout,
+        continueAsGuest,
+        isAdmin,
+        isUser,
+        hasRole,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
