@@ -1,4 +1,4 @@
-import { mockPlayerProfile } from "../types/player";
+import { mockPlayerProfile } from "../types/mockPlayer";
 import StatCard from "../components/UI/StatCard";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
