@@ -12,8 +12,8 @@ export default function Leaderboard() {
             className="flex items-center justify-between py-4 px-4 border-b border-[#FFFFFF0A] last:border-b-0 hover:bg-[#FFFFFF08] transition"
           >
             <div className="flex items-center gap-4 flex-1">
-              <div className="w-10 h-10 rounded-full bg-yellow-400/20 flex items-center justify-center min-w-10">
-                <span className="text-yellow-400 font-bold text-lg">
+              <div className="w-10 h-10 flex items-center justify-center min-w-10">
+                <span className="text-[#00eaff] font-bold text-lg">
                   {index + 1}
                 </span>
               </div>
