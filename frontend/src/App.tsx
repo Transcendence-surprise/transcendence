@@ -16,6 +16,11 @@ import Chat from "./pages/Chat";
 import Friends from "./pages/Friends";
 import AdminPanel from "./pages/AdminPanel";
 import NotFoundPage from "./pages/error/404";
+import BadRequestPage from "./pages/error/400";
+import ForbiddenPage from "./pages/error/403";
+import ServerErrorPage from "./pages/error/500";
+import BadGatewayPage from "./pages/error/502";
+import ServiceUnavailablePage from "./pages/error/503";
 import GlobalErrorBoundary from "./components/error/GlobalErrorBoundary";
 
 export default function App() {
@@ -23,6 +28,12 @@ export default function App() {
     <BrowserRouter>
       <GlobalErrorBoundary>
         <Routes>
+          <Route path="/400" element={<BadRequestPage />} />
+          <Route path="/403" element={<ForbiddenPage />} />
+          <Route path="/500" element={<ServerErrorPage />} />
+          <Route path="/502" element={<BadGatewayPage />} />
+          <Route path="/503" element={<ServiceUnavailablePage />} />
+
           {/* Layout wraps all routes */}
           <Route path="/" element={<Layout />}>
             {/* Home page */}
