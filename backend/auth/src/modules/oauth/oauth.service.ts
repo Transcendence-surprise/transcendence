@@ -7,8 +7,8 @@ import { randomUUID, randomBytes } from 'node:crypto';
 
 import authConfig from '../../config/auth.config';
 import { AuthService } from '../auth/auth.service';
-import { OAuth42ResDto } from '../dto/oauth/oauth42-res.dto';
-import { Profile42ResDto } from '../dto/oauth/profile42-res.dto';
+import { OAuth42ResDto } from './dto/oauth42-res.dto';
+import { Profile42ResDto } from './dto/profile42-res.dto';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { GetUserResDto } from '../auth/dto/get-user-res.dto';
 import { AxiosError } from 'axios';
