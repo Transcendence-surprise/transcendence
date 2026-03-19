@@ -87,6 +87,14 @@ export class AuthHttpService {
     return this.requestWithCookies('post', '/api/auth/logout');
   }
 
+  async requestPasswordReset<T = unknown>(body: unknown): Promise<T> {
+    return this.request('post', '/api/auth/password-reset', body);
+  }
+
+  async confirmPasswordReset<T = unknown>(body: unknown): Promise<T> {
+    return this.request('post', '/api/auth/password-reset/confirm', body);
+  }
+
   async getAllApiKeys<T = unknown>(): Promise<T> {
     return this.request('get', '/api/auth/api-keys');
   }

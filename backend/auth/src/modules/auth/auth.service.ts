@@ -99,9 +99,7 @@ export class AuthService {
     const token = randomBytes(32).toString('hex');
     const expiresAt = new Date(Date.now() + this.PASSWORD_RESET_TOKEN_EXPIRY_MS);
 
-    const hash = createHmac('sha256', this.config.jwt.secret)
-      .update(token)
-      .digest('hex');
+    const hash = this.hashPasswordResetToken(token);
 
     this.passwordResetStore.set(hash, { userId: user.id, expiresAt });
 
@@ -109,14 +107,52 @@ export class AuthService {
     resetUrl.searchParams.set('token', token);
 
     const subject = 'Reset your Transcendence password';
-    const text = `You requested a password reset. Click the link below to reset your password:\n\n${resetUrl.toString()}\n\nThis link expires in 1 hour. If you did not request this, you can ignore this email.`;
-    const html = `<p>You requested a password reset. Click <a href="${resetUrl.toString()}">here</a> to reset your password.</p><p>This link expires in 1 hour. If you did not request this, you can ignore this email.</p>`;
+    const text = `You requested a password reset. Here is the token: ${token}.
 
+    Use the following URL to reset your password:
+    ${resetUrl.toString()}
+
+    This link expires in 1 hour. If you did not request this, you can ignore this email.`;
+        const html = `
+          <p>You requested a password reset.</p>
+          <p>Your token is: <strong>${token}</strong></p>
+          <p>Click <a href="${resetUrl.toString()}">here</a> to reset your password.</p>
+          <p>
+            Or copy this URL into your browser:
+            <a href="${resetUrl.toString()}">${resetUrl.toString()}</a>
+          </p>
+          <p>This link expires in 1 hour. If you did not request this, you can ignore this email.</p>
+    `;
     await this.httpService.axiosRef.post(
       `${this.config.core.url}/api/mail`,
       { to: user.email, subject, text, html },
     );
 
+    this.cleanupExpiredPasswordResetTokens();
+  }
+
+  private hashPasswordResetToken(token: string): string {
+    return createHmac('sha256', this.config.jwt.secret)
+      .update(token)
+      .digest('hex');
+  }
+
+  async confirmPasswordReset(token: string, password: string): Promise<void> {
+    const hash = this.hashPasswordResetToken(token);
+    const record = this.passwordResetStore.get(hash);
+
+    if (!record || record.expiresAt < new Date()) {
+      this.passwordResetStore.delete(hash);
+      throw new UnauthorizedException('Invalid or expired password reset token');
+    }
+
+    const { userId } = record;
+
+    await this.httpService.axiosRef.patch(`${this.config.core.url}/api/users/id/${userId}`, {
+      password,
+    });
+
+    this.passwordResetStore.delete(hash);
     this.cleanupExpiredPasswordResetTokens();
   }
 

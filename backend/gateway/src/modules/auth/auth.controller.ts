@@ -45,6 +45,16 @@ export class AuthController {
     return res.data;
   }
 
+  @Post('password-reset')
+  async requestPasswordReset(@Body() body: unknown) {
+    return this.authClient.requestPasswordReset(body);
+  }
+
+  @Post('password-reset/confirm')
+  async confirmPasswordReset(@Body() body: unknown) {
+    return this.authClient.confirmPasswordReset(body);
+  }
+
   @Get('google')
   @Redirect()
   async googleAuth() {

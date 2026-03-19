@@ -16,6 +16,7 @@ import { LoginUserDto } from './dto/login/login-user.dto';
 import { SignupUserDto } from './dto/signup/signup-user.dto';
 import { LoginWith2FADto } from './dto/login/login-with-2fa.dto';
 import { CreatePasswordResetDto } from './dto/password-reset/create-password-reset.dto';
+import { ConfirmPasswordResetDto } from './dto/password-reset/confirm-password-reset.dto';
 import { AuthTokenResponseDto } from './dto/auth-token-response.dto';
 import { CreateGuestTokenDto } from './dto/guest/create-guest-token.dto';
 import {
@@ -25,6 +26,7 @@ import {
   SignupDocs,
   LogoutDocs,
   PasswordResetDocs,
+  PasswordResetConfirmDocs,
 } from './auth.controller.docs';
 
 @AuthControllerDocs()
@@ -89,6 +91,20 @@ export class AuthController {
     @Body() createPasswordResetDto: CreatePasswordResetDto,
   ) {
     await this.authService.createPasswordResetToken(createPasswordResetDto.email);
+    return { ok: true };
+  }
+
+  @Post('password-reset/confirm')
+  @PasswordResetConfirmDocs()
+  @HttpCode(HttpStatus.OK)
+  async confirmPasswordReset(
+    @Body() confirmPasswordResetDto: ConfirmPasswordResetDto,
+  ) {
+    await this.authService.confirmPasswordReset(
+      confirmPasswordResetDto.token,
+      confirmPasswordResetDto.password,
+    );
+
     return { ok: true };
   }
 

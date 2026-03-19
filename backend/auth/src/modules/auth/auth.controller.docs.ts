@@ -18,6 +18,7 @@ import { SignupUserResDto } from './dto/signup/signup-user-res.dto';
 import { LoginWith2FADto } from './dto/login/login-with-2fa.dto';
 import { LogoutResDto } from './dto/logout-res.dto';
 import { CreatePasswordResetDto } from './dto/password-reset/create-password-reset.dto';
+import { ConfirmPasswordResetDto } from './dto/password-reset/confirm-password-reset.dto';
 import { PasswordResetRequestResDto } from './dto/password-reset/password-reset-request-res.dto';
 import { TwoFactorRequiredResDto } from './dto/login/two-factor-required-res.dto';
 
@@ -167,6 +168,27 @@ const PasswordResetDocs = () =>
     }),
   );
 
+const PasswordResetConfirmDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Confirm password reset',
+      description: 'Apply one-time token and set new user password',
+    }),
+    ApiBody({
+      description: 'Token and new password',
+      type: ConfirmPasswordResetDto,
+    }),
+    ApiOkResponse({
+      description: 'Password changed successfully',
+      schema: {
+        type: 'object',
+        properties: { ok: { type: 'boolean', example: true } },
+      },
+    }),
+    ApiBadRequestResponse({ description: 'Bad request' }),
+    ApiUnauthorizedResponse({ description: 'Invalid or expired password reset token' }),
+  );
+
 export {
   AuthControllerDocs,
   LoginDocs,
@@ -174,4 +196,5 @@ export {
   SignupDocs,
   LogoutDocs,
   PasswordResetDocs,
+  PasswordResetConfirmDocs,
 };

@@ -6,7 +6,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 
-const OAuthControllerDocs = () => ApiTags('OAuth');
+const OAuthControllerDocs = () => ApiTags('Authentication');
 
 const GoogleAuthDocs = () =>
   applyDecorators(
