@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Board } from "../../game/models/board";
 import { PlayerState, PlayerProgress } from "../../game/models/gameState";
-import { MdOutlineKeyboardArrowDown } from "react-icons/md";
+import {
+  MdOutlineKeyboardArrowDown,
+  MdOutlineKeyboardArrowLeft,
+  MdOutlineKeyboardArrowRight,
+  MdOutlineKeyboardArrowUp,
+} from "react-icons/md";
 
 type Props = {
   board: Board;
@@ -9,14 +14,15 @@ type Props = {
   progress: Record<string, PlayerProgress>;
 };
 
-const CELL_SIZE = 70;
+type Side = "top" | "right" | "bottom" | "left";
+
+const CELL_SIZE = 68;
 const CELL_BORDER_WIDTH = 1;
 const CELL_BORDER_COLOR = "#6b7280";
 const TILE_DRAW_INSET = 1;
 
 const TILE_ROTATION_OFFSET: Record<"I" | "L" | "T" | "X", number> = {
   I: 0,
-  // The current L SVG is authored one quarter-turn ahead of backend L0 semantics.
   L: -90,
   T: 0,
   X: 0,
@@ -58,9 +64,119 @@ function loadSvgImage(svgMarkup: string) {
   });
 }
 
+function makeId(side: Side, index: number): string {
+  return `${side}-${index}`;
+}
+
+function getNextButtonId(
+  key: string,
+  currentDir: string | undefined,
+  currentIndex: number,
+  boardWidth: number,
+  boardHeight: number
+): string | null {
+  if (!currentDir) {
+    if (key === "ArrowUp") return makeId("top", 0);
+    if (key === "ArrowDown") return makeId("bottom", 0);
+    if (key === "ArrowLeft") return makeId("left", 0);
+    if (key === "ArrowRight") return makeId("right", 0);
+    return null;
+  }
+
+  if (currentDir === "top") {
+    if (key === "ArrowLeft") {
+      return currentIndex > 0
+        ? makeId("top", currentIndex - 1)
+        : makeId("left", 0);
+    }
+
+    if (key === "ArrowRight") {
+      return currentIndex < boardWidth - 1
+        ? makeId("top", currentIndex + 1)
+        : makeId("right", 0);
+    }
+
+    if (key === "ArrowDown") {
+      return makeId("bottom", currentIndex);
+    }
+
+    if (key === "ArrowUp") {
+      return makeId("top", currentIndex);
+    }
+  }
+
+  if (currentDir === "right") {
+    if (key === "ArrowUp") {
+      return currentIndex > 0
+        ? makeId("right", currentIndex - 1)
+        : makeId("top", boardWidth - 1);
+    }
+
+    if (key === "ArrowDown") {
+      return currentIndex < boardHeight - 1
+        ? makeId("right", currentIndex + 1)
+        : makeId("bottom", boardWidth - 1);
+    }
+
+    if (key === "ArrowLeft") {
+      return makeId("left", currentIndex);
+    }
+
+    if (key === "ArrowRight") {
+      return makeId("right", currentIndex);
+    }
+  }
+
+  if (currentDir === "bottom") {
+    if (key === "ArrowLeft") {
+      return currentIndex > 0
+        ? makeId("bottom", currentIndex - 1)
+        : makeId("left", boardHeight - 1);
+    }
+
+    if (key === "ArrowRight") {
+      return currentIndex < boardWidth - 1
+        ? makeId("bottom", currentIndex + 1)
+        : makeId("right", boardHeight - 1);
+    }
+
+    if (key === "ArrowUp") {
+      return makeId("top", currentIndex);
+    }
+
+    if (key === "ArrowDown") {
+      return makeId("bottom", currentIndex);
+    }
+  }
+
+  if (currentDir === "left") {
+    if (key === "ArrowUp") {
+      return currentIndex > 0
+        ? makeId("left", currentIndex - 1)
+        : makeId("top", 0);
+    }
+
+    if (key === "ArrowDown") {
+      return currentIndex < boardHeight - 1
+        ? makeId("left", currentIndex + 1)
+        : makeId("bottom", 0);
+    }
+
+    if (key === "ArrowRight") {
+      return makeId("right", currentIndex);
+    }
+
+    if (key === "ArrowLeft") {
+      return makeId("left", currentIndex);
+    }
+  }
+
+  return null;
+}
+
 export default function BoardView({ board, players, progress }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [selectedButton, setSelectedButton] = useState<string | null>(null); // format: "direction-index" e.g. "left-0", "top-2"
+  const [selectedButton, setSelectedButton] = useState<string | null>(null);
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   const collectibleSet = useMemo(() => {
@@ -76,15 +192,11 @@ export default function BoardView({ board, players, progress }: Props) {
   }, [progress]);
 
   const handleShiftRow = (rowIndex: number, direction: "left" | "right") => {
-    // Emit shift event - this would typically be sent to the game backend/server
     console.log(`Shifting row ${rowIndex} ${direction}`);
-    // You would dispatch this to your game state management here
   };
 
   const handleShiftColumn = (colIndex: number, direction: "up" | "down") => {
-    // Emit shift event - this would typically be sent to the game backend/server
     console.log(`Shifting column ${colIndex} ${direction}`);
-    // You would dispatch this to your game state management here
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -94,60 +206,10 @@ export default function BoardView({ board, players, progress }: Props) {
 
     e.preventDefault();
 
-    // Parse current selection
-    const [currentDir, currentIndexStr] = (selectedButton || "").split("-");
-    const currentIndex = parseInt(currentIndexStr) || 0;
-
-    let newButtonId = selectedButton;
-
-    if (e.key === "ArrowUp") {
-      if (currentDir === "left" || currentDir === "right") {
-        // Move up in row
-        const newIndex = Math.max(0, currentIndex - 1);
-        newButtonId = `${currentDir}-${newIndex}`;
-      } else if (currentDir === "bottom") {
-        // Move from bottom to top
-        newButtonId = `top-${currentIndex}`;
-      } else if (!currentDir) {
-        // First selection - go to top
-        newButtonId = `top-0`;
-      }
-    } else if (e.key === "ArrowDown") {
-      if (currentDir === "left" || currentDir === "right") {
-        // Move down in row
-        const newIndex = Math.min(board.height - 1, currentIndex + 1);
-        newButtonId = `${currentDir}-${newIndex}`;
-      } else if (currentDir === "top") {
-        // Move from top to bottom
-        newButtonId = `bottom-${currentIndex}`;
-      } else if (!currentDir) {
-        // First selection - go to bottom
-        newButtonId = `bottom-0`;
-      }
-    } else if (e.key === "ArrowLeft") {
-      if (currentDir === "top" || currentDir === "bottom") {
-        // Move left in column
-        const newIndex = Math.max(0, currentIndex - 1);
-        newButtonId = `${currentDir}-${newIndex}`;
-      } else if (currentDir === "right" || !currentDir) {
-        // Move to left side at same row
-        const rowIdx = currentDir === "right" ? currentIndex : 0;
-        newButtonId = `left-${rowIdx}`;
-      }
-    } else if (e.key === "ArrowRight") {
-      if (currentDir === "top" || currentDir === "bottom") {
-        // Move right in column
-        const newIndex = Math.min(board.width - 1, currentIndex + 1);
-        newButtonId = `${currentDir}-${newIndex}`;
-      } else if (currentDir === "left" || !currentDir) {
-        // Move to right side at same row
-        const rowIdx = currentDir === "left" ? currentIndex : 0;
-        newButtonId = `right-${rowIdx}`;
-      }
-    } else if (e.key === "Enter" && selectedButton) {
-      // Trigger action on selected button
+    if (e.key === "Enter" && selectedButton) {
       const [dir, idxStr] = selectedButton.split("-");
-      const idx = parseInt(idxStr);
+      const idx = Number(idxStr);
+
       if (dir === "left") {
         handleShiftRow(idx, "left");
       } else if (dir === "right") {
@@ -157,11 +219,27 @@ export default function BoardView({ board, players, progress }: Props) {
       } else if (dir === "bottom") {
         handleShiftColumn(idx, "down");
       }
+
+      return;
     }
 
-    if (newButtonId !== selectedButton) {
+    const [currentDir, currentIndexStr] = (selectedButton || "").split("-");
+    const currentIndex = Number(currentIndexStr) || 0;
+
+    const newButtonId = getNextButtonId(
+      e.key,
+      currentDir,
+      currentIndex,
+      board.width,
+      board.height
+    );
+
+    if (newButtonId && newButtonId !== selectedButton) {
       setSelectedButton(newButtonId);
-      setTimeout(() => buttonRefs.current[newButtonId]?.focus(), 0);
+
+      requestAnimationFrame(() => {
+        buttonRefs.current[newButtonId]?.focus();
+      });
     }
   };
 
@@ -215,7 +293,6 @@ export default function BoardView({ board, players, progress }: Props) {
 
           const image = tileImages[tile.type];
 
-          
           if (image) {
             ctx.save();
 
@@ -233,7 +310,6 @@ export default function BoardView({ board, players, progress }: Props) {
 
             ctx.restore();
           }
-
 
           const player = players.find((p) => p.x === tile.x && p.y === tile.y);
 
@@ -277,107 +353,101 @@ export default function BoardView({ board, players, progress }: Props) {
   }, [board, players, collectibleSet]);
 
   return (
-    <div className="p-4 flex flex-col items-center gap-2" onKeyDown={handleKeyDown}>
-      {/* Top Arrows Row */}
-      <div className="flex gap-0 justify-start">
+    <div className="flex flex-col items-center gap-2" onKeyDown={handleKeyDown}>
+      <div className="flex gap-1 justify-center">
         {Array.from({ length: board.width }).map((_, colIndex) => (
           <button
             key={`top-${colIndex}`}
             ref={(el) => {
               if (el) buttonRefs.current[`top-${colIndex}`] = el;
             }}
-            onClick={() => handleShiftColumn(colIndex, "up")}
-            onFocus={() => setSelectedButton(`top-${colIndex}`)}
-            onBlur={() => setSelectedButton(null)}
-            className={`px-4 py-2 rounded transition-all text-lg font-bold ${
-              selectedButton === `top-${colIndex}`
-                ? "bg-blue-600 text-white scale-105 shadow-lg"
-                : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-            }`}
+            onClick={() => {
+              setSelectedButton(`top-${colIndex}`);
+              handleShiftColumn(colIndex, "up");
+            }}
+            className="px-4 rounded transition-all text-lg font-bold"
             aria-label={`Shift column ${colIndex} up`}
-            style={{ flex: "1 1 70px" }}
           >
-          <MdOutlineKeyboardArrowDown />
+            <MdOutlineKeyboardArrowDown
+              className={`text-3xl transition-colors ${
+                selectedButton === `top-${colIndex}` ? "text-cyan-bright" : "text-magenta"
+              }`}
+            />
           </button>
         ))}
       </div>
 
-      {/* Main container with left arrows, canvas, and right arrows */}
-      <div className="flex items-stretch gap-2">
-        {/* Left Arrows Column */}
-        <div className="flex flex-col gap-0 justify-start">
+      <div className="flex items-stretch gap-1">
+        <div className="flex flex-col gap-2 justify-center">
           {Array.from({ length: board.height }).map((_, rowIndex) => (
             <button
               key={`left-${rowIndex}`}
               ref={(el) => {
                 if (el) buttonRefs.current[`left-${rowIndex}`] = el;
               }}
-              onClick={() => handleShiftRow(rowIndex, "left")}
-              onFocus={() => setSelectedButton(`left-${rowIndex}`)}
-              onBlur={() => setSelectedButton(null)}
-              className={`px-3 py-4 rounded transition-all text-xl font-bold ${
-                selectedButton === `left-${rowIndex}`
-                  ? "bg-blue-600 text-white scale-105 shadow-lg"
-                  : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-              }`}
+              onClick={() => {
+                setSelectedButton(`left-${rowIndex}`);
+                handleShiftRow(rowIndex, "left");
+              }}
+              className="px-1 py-4 rounded transition-all text-xl font-bold"
               aria-label={`Shift row ${rowIndex} left`}
-              style={{ flex: "1 1 70px" }}
             >
-              &gt;
+              <MdOutlineKeyboardArrowRight
+                className={`text-3xl transition-colors ${
+                  selectedButton === `left-${rowIndex}` ? "text-cyan-bright" : "text-magenta"
+                }`}
+              />
             </button>
           ))}
         </div>
 
-        {/* Canvas Container */}
-        <div className="border-2 border-gray-400 rounded-lg overflow-hidden flex-shrink-0">
+        <div className="border-gray-400 rounded-lg overflow-hidden flex-shrink-0">
           <canvas ref={canvasRef} className="block" />
         </div>
 
-        {/* Right Arrows Column */}
-        <div className="flex flex-col gap-0 justify-start">
+        <div className="flex flex-col gap-1 justify-center">
           {Array.from({ length: board.height }).map((_, rowIndex) => (
             <button
               key={`right-${rowIndex}`}
               ref={(el) => {
                 if (el) buttonRefs.current[`right-${rowIndex}`] = el;
               }}
-              onClick={() => handleShiftRow(rowIndex, "right")}
-              onFocus={() => setSelectedButton(`right-${rowIndex}`)}
-              onBlur={() => setSelectedButton(null)}
-              className={`px-3 py-4 rounded transition-all text-xl font-bold ${
-                selectedButton === `right-${rowIndex}`
-                  ? "bg-blue-600 text-white scale-105 shadow-lg"
-                  : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-              }`}
+              onClick={() => {
+                setSelectedButton(`right-${rowIndex}`);
+                handleShiftRow(rowIndex, "right");
+              }}
+              className="py-4 rounded transition-all text-xl font-bold"
               aria-label={`Shift row ${rowIndex} right`}
-              style={{ flex: "1 1 70px" }}
             >
-              &lt;
+              <MdOutlineKeyboardArrowLeft
+                className={`text-3xl transition-colors ${
+                  selectedButton === `right-${rowIndex}` ? "text-cyan-bright" : "text-magenta"
+                }`}
+              />
             </button>
           ))}
         </div>
       </div>
 
-      {/* Bottom Arrows Row */}
-      <div className="flex gap-0 justify-start">
+      <div className="flex gap-1 justify-center">
         {Array.from({ length: board.width }).map((_, colIndex) => (
           <button
             key={`bottom-${colIndex}`}
             ref={(el) => {
               if (el) buttonRefs.current[`bottom-${colIndex}`] = el;
             }}
-            onClick={() => handleShiftColumn(colIndex, "down")}
-            onFocus={() => setSelectedButton(`bottom-${colIndex}`)}
-            onBlur={() => setSelectedButton(null)}
-            className={`px-4 py-2 rounded transition-all text-lg font-bold ${
-              selectedButton === `bottom-${colIndex}`
-                ? "bg-blue-600 text-white scale-105 shadow-lg"
-                : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-            }`}
+            onClick={() => {
+              setSelectedButton(`bottom-${colIndex}`);
+              handleShiftColumn(colIndex, "down");
+            }}
+            className="px-4 rounded transition-all text-lg font-bold"
             aria-label={`Shift column ${colIndex} down`}
-            style={{ flex: "1 1 70px" }}
           >
-            ↓
+            <MdOutlineKeyboardArrowUp
+              className={`text-3xl transition-colors ${
+                selectedButton === `bottom-${colIndex}` ? "text-cyan-bright" : "text-magenta"
+              }`}
+            />
           </button>
         ))}
       </div>
