@@ -5,7 +5,7 @@ import { createHmac, randomBytes } from 'node:crypto';
 
 import { ApiKey } from '@transcendence/db-entities';
 import { CreateApiKeyResDto } from './dto/api-key/create-api-key-res.dto';
-import authConfig from '../config/auth.config';
+import authConfig from '../../config/auth.config';
 import type { ConfigType } from '@nestjs/config';
 
 @Injectable()

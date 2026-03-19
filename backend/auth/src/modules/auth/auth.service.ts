@@ -7,7 +7,7 @@ import { randomUUID, randomBytes, createHmac, randomInt } from 'node:crypto';
 import { LoginUserDto } from './dto/login/login-user.dto';
 import { SignupUserDto } from './dto/signup/signup-user.dto';
 import { GetUserResDto } from './dto/get-user-res.dto';
-import authConfig from '../config/auth.config';
+import authConfig from '../../config/auth.config';
 
 interface TwoFactorCode {
   code: string;

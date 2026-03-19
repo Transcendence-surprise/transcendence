@@ -2,7 +2,7 @@ import { Controller, Get, Query, Redirect, Res, HttpCode, HttpStatus, Inject } f
 import type { FastifyReply } from 'fastify';
 import type { ConfigType } from '@nestjs/config';
 
-import authConfig from '../config/auth.config';
+import authConfig from '../../config/auth.config';
 import { OAuthService } from './oauth.service';
 import { AuthTokenResponseDto } from '../auth/dto/auth-token-response.dto';
 
@@ -17,7 +17,7 @@ import {
   Intra42AuthDocs,
   Intra42AuthCallbackDocs,
 } from './oauth.controller.docs';
-import { OAuth42Data } from '../common/decorators/oauth42-data.decorator';
+import { OAuth42Data } from '../../common/decorators/oauth42-data.decorator';
 
 @OAuthControllerDocs()
 @Controller('auth')

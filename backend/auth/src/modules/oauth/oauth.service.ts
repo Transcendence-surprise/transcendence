@@ -5,7 +5,7 @@ import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import { randomUUID, randomBytes } from 'node:crypto';
 
-import authConfig from '../config/auth.config';
+import authConfig from '../../config/auth.config';
 import { AuthService } from '../auth/auth.service';
 import { OAuth42ResDto } from '../auth/dto/oauth/oauth42-res.dto';
 import { Profile42ResDto } from '../auth/dto/oauth/profile42-res.dto';
