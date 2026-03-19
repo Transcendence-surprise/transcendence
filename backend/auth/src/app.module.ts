@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import authConfig from './config/auth.config';
 import { AuthModule } from './auth/auth.module';
+import { OAuthModule } from './oauth/oauth.module';
 import { ApiKeyModule } from './api-keys/api-key.module';
 import { HealthController } from './health/health.controller';
 
@@ -28,6 +29,7 @@ import { HealthController } from './health/health.controller';
       }),
     }),
     AuthModule,
+    OAuthModule,
     ApiKeyModule,
   ],
   controllers: [HealthController],

@@ -4,11 +4,8 @@ import {
   Post,
   HttpCode,
   HttpStatus,
-  Get,
-  Redirect,
   Res,
   Inject,
-  Query,
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
 import type { ConfigType } from '@nestjs/config';
@@ -28,12 +25,7 @@ import {
   SignupDocs,
   LogoutDocs,
   PasswordResetDocs,
-  GoogleAuthDocs,
-  GoogleAuthCallbackDocs,
-  Intra42AuthDocs,
-  Intra42AuthCallbackDocs,
 } from './auth.controller.docs';
-import { OAuth42Data } from '../common/decorators/oauth42-data.decorator';
 
 @AuthControllerDocs()
 @Controller('auth')
@@ -106,53 +98,6 @@ export class AuthController {
   logout(@Res({ passthrough: true }) reply: FastifyReply) {
     reply.clearCookie('access_token');
     return { ok: true };
-  }
-
-  @Get('google')
-  @GoogleAuthDocs()
-  @HttpCode(HttpStatus.FOUND)
-  @Redirect()
-  GoogleAuth() {
-    const location = this.authService.getGoogleAuthUrl();
-    return { url: location };
-  }
-
-  @Get('google/callback')
-  @GoogleAuthCallbackDocs()
-  async googleAuthCallback(
-    @Query('code') code: string,
-    @Res() reply: FastifyReply,
-  ) {
-    const result = await this.authService.googleAuthCallback(code);
-
-    this.setAccessTokenCookie(reply, result.access_token);
-
-    return reply.redirect(result.redirect, HttpStatus.FOUND);
-  }
-
-  @Get('intra42')
-  @HttpCode(HttpStatus.FOUND)
-  @Intra42AuthDocs()
-  @Redirect()
-  intra42Auth() {
-    const location = this.authService.getIntraAuthUrl();
-    return { url: location };
-  }
-
-  @Get('intra42/callback')
-  @Intra42AuthCallbackDocs()
-  async intra42AuthCallback(
-    @OAuth42Data() params: OAuth42Data,
-    @Res() reply: FastifyReply,
-  ) {
-    const result = await this.authService.intra42AuthCallback(
-      params.code,
-      params.state,
-    );
-
-    this.setAccessTokenCookie(reply, result.access_token);
-
-    return reply.redirect(result.redirect, HttpStatus.FOUND);
   }
 
   private setAccessTokenCookie(reply: FastifyReply, token: string) {

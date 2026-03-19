@@ -1,19 +1,13 @@
-import { Injectable, Inject, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
 import type { ConfigType } from '@nestjs/config';
-import { google } from 'googleapis';
-import { OAuth2Client } from 'google-auth-library';
 import { randomUUID, randomBytes, createHmac, randomInt } from 'node:crypto';
 
 import { LoginUserDto } from './dto/login/login-user.dto';
 import { SignupUserDto } from './dto/signup/signup-user.dto';
-import { OAuth42ResDto } from './dto/oauth/oauth42-res.dto';
-import { Profile42ResDto } from './dto/oauth/profile42-res.dto';
 import { GetUserResDto } from './dto/get-user-res.dto';
-import { CreateUserDto } from './dto/create-user.dto';
 import authConfig from '../config/auth.config';
-import { AxiosError } from 'axios';
 
 interface TwoFactorCode {
   code: string;
@@ -84,140 +78,6 @@ export class AuthService {
     return this.generateJwtToken(response.data);
   }
 
-  private getAuthClient(): OAuth2Client {
-    const authClient = new OAuth2Client(
-      this.config.google.clientId,
-      this.config.google.secret,
-      this.config.google.redirectUri,
-    );
-
-    return authClient;
-  }
-
-  getGoogleAuthUrl() {
-    const authClient = this.getAuthClient();
-
-    const authorizeUrl = authClient.generateAuthUrl({
-      access_type: 'offline',
-      scope: [
-        'https://www.googleapis.com/auth/userinfo.profile',
-        'https://www.googleapis.com/auth/userinfo.email',
-      ],
-      prompt: 'consent',
-    })
-
-    return authorizeUrl;
-  }
-
-  async googleAuthCallback(code: string) {
-    const authClient = this.getAuthClient();
-    const tokenData = await authClient.getToken(code);
-    const tokens = tokenData.tokens;
-
-    authClient.setCredentials(tokens);
-
-    const googleAuth = google.oauth2({
-      version: 'v2',
-      auth: authClient
-    });
-
-    const userInfo = await googleAuth.userinfo.get();
-    const { email, given_name } = userInfo.data;
-
-    if (!email || !given_name) {
-      throw new BadRequestException('google did not provide required email and/or name');
-    }
-
-    let user = await this.findUserByEmail(email);
-    if (!user) {
-      user = await this.createUserFromInfo(given_name, email);
-    }
-
-    const authResponse = await this.generateJwtToken(user);
-
-    return {
-      access_token: authResponse.access_token,
-      redirect: this.config.frontend.url,
-    };
-  }
-
-  getIntraAuthUrl() {
-    const { clientId, redirectUri, authUrl } = this.config.intra42;
-
-    const params = new URLSearchParams({
-      client_id: clientId,
-      redirect_uri: redirectUri,
-      scope: 'public',
-      state: randomUUID(),
-      response_type: 'code',
-    });
-
-    return `${authUrl}?${params.toString()}`;
-  }
-
-  async intra42AuthCallback(code: string, state: string) {
-    const { userUrl } = this.config.intra42;
-
-    const token = await this.exchangeCodeForToken(code, state);
-    const profile = await this.fetchProfile(userUrl, token.access_token);
-
-    let user = await this.findUserByEmail(profile.email);
-    if (!user) {
-      user = await this.createUserFromInfo(profile.login, profile.email);
-    }
-
-    const authResponse = await this.generateJwtToken(user);
-
-    return {
-      access_token: authResponse.access_token,
-      redirect: this.config.frontend.url,
-    };
-  }
-
-  private async exchangeCodeForToken(
-    code: string, state: string
-  ): Promise<OAuth42ResDto> {
-    const { clientId, tokenUrl, redirectUri, secret } = this.config.intra42;
-
-
-    const oauthParams = new URLSearchParams({
-      grant_type: 'authorization_code',
-      client_id: clientId,
-      client_secret: secret,
-      code: code,
-      redirect_uri: redirectUri,
-      state: state,
-    });
-
-    const tokenResponse = await this.httpService.axiosRef.post<OAuth42ResDto>(
-      tokenUrl,
-      oauthParams.toString(),
-      {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      },
-    );
-
-    const data = tokenResponse.data;
-    const token: OAuth42ResDto = {
-      access_token: data.access_token,
-      token_type: data.token_type,
-      expires_in: data.expires_in,
-      refresh_token: data.refresh_token,
-      scope: data.scope,
-      created_at: data.created_at,
-      secret_valid_until: data.secret_valid_until,
-    };
-
-    return token;
-  }
-
-  private async fetchProfile(userUrl: string, accessToken: string): Promise<Profile42ResDto> {
-    const profileResponse = await this.httpService.axiosRef.get<Profile42ResDto>(userUrl, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    return profileResponse.data;
-  }
-
   private async findUserByEmail(email: string): Promise<GetUserResDto | null> {
     try {
       const response = await this.httpService.axiosRef.get<GetUserResDto>(
@@ -227,42 +87,6 @@ export class AuthService {
     } catch {
       return null;
     }
-  }
-
-  private async createUserFromInfo(name: string, email: string): Promise<GetUserResDto> {
-    const baseUsername = name;
-    let username = baseUsername;
-    const maxAttempts = 10;
-
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      try {
-        const createUserDto: CreateUserDto = {
-          username,
-          email: email,
-        };
-
-        const response = await this.httpService.axiosRef.post<GetUserResDto>(
-          `${this.config.core.url}/api/users`,
-          createUserDto,
-        );
-
-        return response.data;
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          if (error.response?.status === 409 && attempt < maxAttempts - 1) {
-            const suffix = randomBytes(6).toString('hex');
-            username = `${baseUsername}_${suffix}`;
-            continue;
-          }
-        }
-
-        throw error;
-      }
-    }
-
-    throw new Error(
-      `Failed to create user after ${maxAttempts} attempts due to username conflicts`
-    );
   }
 
   async createPasswordResetToken(email: string): Promise<void> {
@@ -305,7 +129,7 @@ export class AuthService {
     }
   }
 
-  private async generateJwtToken(user: GetUserResDto) {
+  async generateJwtToken(user: GetUserResDto) {
     const payload = {
       sub: user.id,
       username: user.username,
@@ -322,10 +146,8 @@ export class AuthService {
   }
 
   createGuestToken(nickname: string): Promise<string> {
-    // 1. Generate a UUID / guest id
-    const guestId = crypto.randomUUID();
+    const guestId = randomUUID();
 
-    // 2. Save guest user in DB (optional, can just return JWT)
     const guestUser = {
       sub: guestId,
       username: nickname,
@@ -333,10 +155,8 @@ export class AuthService {
       isGuest: true,
     };
 
-    // 3. Sign JWT
     const token = this.jwtService.sign(guestUser);
 
-    // 4. Return token (controller will set cookie)
     return Promise.resolve(token);
   }
 
