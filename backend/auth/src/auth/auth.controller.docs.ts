@@ -17,17 +17,17 @@ import {
   getSchemaPath,
   ApiResponse,
 } from '@nestjs/swagger';
-import { LoginUserDto } from './dto/login-user.dto';
-import { LoginUserResDto } from './dto/login-user-res.dto';
-import { SignupUserDto } from './dto/signup-user.dto';
-import { SignupUserResDto } from './dto/signup-user-res.dto';
-import { CreateApiKeyResDto } from './dto/create-api-key-res.dto';
-import { GetApiKeyResDto } from './dto/get-api-key-res.dto';
-import { LoginWith2FADto } from './dto/login-with-2fa.dto';
+import { LoginUserDto } from './dto/login/login-user.dto';
+import { LoginUserResDto } from './dto/login/login-user-res.dto';
+import { SignupUserDto } from './dto/signup/signup-user.dto';
+import { SignupUserResDto } from './dto/signup/signup-user-res.dto';
+import { CreateApiKeyResDto } from './dto/api-key/create-api-key-res.dto';
+import { GetApiKeyResDto } from './dto/api-key/get-api-key-res.dto';
+import { LoginWith2FADto } from './dto/login/login-with-2fa.dto';
 import { LogoutResDto } from './dto/logout-res.dto';
-import { CreatePasswordResetDto } from './dto/create-password-reset.dto';
-import { PasswordResetRequestResDto } from './dto/password-reset-request-res.dto';
-import { TwoFactorRequiredResDto } from './dto/two-factor-required-res.dto';
+import { CreatePasswordResetDto } from './dto/password-reset/create-password-reset.dto';
+import { PasswordResetRequestResDto } from './dto/password-reset/password-reset-request-res.dto';
+import { TwoFactorRequiredResDto } from './dto/login/two-factor-required-res.dto';
 
 const AuthControllerDocs = () => ApiTags('Authentication');
 

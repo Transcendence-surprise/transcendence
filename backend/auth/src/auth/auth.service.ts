@@ -8,12 +8,12 @@ import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import { randomUUID, randomBytes, createHmac, randomInt } from 'node:crypto';
 
-import { LoginUserDto } from './dto/login-user.dto';
-import { SignupUserDto } from './dto/signup-user.dto';
-import { OAuth42ResDto } from './dto/oauth42-res.dto';
-import { Profile42ResDto } from './dto/profile42-res.dto';
+import { LoginUserDto } from './dto/login/login-user.dto';
+import { SignupUserDto } from './dto/signup/signup-user.dto';
+import { OAuth42ResDto } from './dto/oauth/oauth42-res.dto';
+import { Profile42ResDto } from './dto/oauth/profile42-res.dto';
 import { GetUserResDto } from './dto/get-user-res.dto';
-import { CreateApiKeyResDto } from './dto/create-api-key-res.dto';
+import { CreateApiKeyResDto } from './dto/api-key/create-api-key-res.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import authConfig from '../config/auth.config';
 import { ApiKey } from '@transcendence/db-entities';

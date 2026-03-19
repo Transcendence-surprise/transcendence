@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { GetUserResDto } from './get-user-res.dto';
+import { GetUserResDto } from '../get-user-res.dto';
 
-export class LoginUserResDto {
+export class SignupUserResDto {
   @ApiProperty({ type: () => GetUserResDto })
   user: GetUserResDto;
 }
