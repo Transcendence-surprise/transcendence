@@ -1,9 +1,7 @@
-import { Injectable, Inject, NotFoundException, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
 import type { ConfigType } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import { randomUUID, randomBytes, createHmac, randomInt } from 'node:crypto';
@@ -13,10 +11,8 @@ import { SignupUserDto } from './dto/signup/signup-user.dto';
 import { OAuth42ResDto } from './dto/oauth/oauth42-res.dto';
 import { Profile42ResDto } from './dto/oauth/profile42-res.dto';
 import { GetUserResDto } from './dto/get-user-res.dto';
-import { CreateApiKeyResDto } from './dto/api-key/create-api-key-res.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import authConfig from '../config/auth.config';
-import { ApiKey } from '@transcendence/db-entities';
 import { AxiosError } from 'axios';
 
 interface TwoFactorCode {
@@ -42,8 +38,6 @@ export class AuthService {
     private config: ConfigType<typeof authConfig>,
     private httpService: HttpService,
     private jwtService: JwtService,
-    @InjectRepository(ApiKey)
-    private apiKeyRepo: Repository<ApiKey>,
   ) {}
 
   async login(loginUserDto: LoginUserDto) {
@@ -309,63 +303,6 @@ export class AuthService {
         this.passwordResetStore.delete(key);
       }
     }
-  }
-
-  async getAllApiKeys() {
-    return await this.apiKeyRepo.find();
-  }
-
-  async createApiKey() {
-    const token = randomBytes(32).toString('hex');
-    const prefixedToken = `tr_${token}`;
-
-    const hash = createHmac('sha256', this.config.apiKey.secret)
-      .update(prefixedToken)
-      .digest('hex');
-
-    const expiresAt = new Date(Date.now() + Number(this.config.apiKey.expirySeconds) * 1000);
-
-    const apiKey = this.apiKeyRepo.create({
-      hash,
-      expiresAt,
-    })
-
-    await this.apiKeyRepo.save(apiKey);
-
-    const apiKeyRes : CreateApiKeyResDto = {
-      id: apiKey.id,
-      token: prefixedToken,
-      expiresAt: apiKey.expiresAt,
-      createdAt: apiKey.createdAt,
-    }
-
-    return apiKeyRes;
-  }
-
-  async validateApiKey(token: string): Promise<boolean> {
-    const hash = createHmac('sha256', this.config.apiKey.secret)
-      .update(token)
-      .digest('hex');
-
-    const apiKey = await this.apiKeyRepo.findOne({
-      where: { hash }
-    });
-
-    if (!apiKey)
-      return false;
-
-    if (apiKey.expiresAt && apiKey.expiresAt < new Date()) {
-      return false;
-    }
-
-    return true;
-  }
-
-  async removeApiKeyById(id: string) {
-    const res = await this.apiKeyRepo.delete({ id });
-    if (!res.affected)
-      throw new NotFoundException(`Api-key ${id} not found`);
-    return { deleted: true, id }
   }
 
   private async generateJwtToken(user: GetUserResDto) {

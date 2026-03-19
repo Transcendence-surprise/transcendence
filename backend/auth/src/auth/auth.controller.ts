@@ -8,8 +8,6 @@ import {
   Redirect,
   Res,
   Inject,
-  Delete,
-  Param,
   Query,
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
@@ -34,10 +32,6 @@ import {
   GoogleAuthCallbackDocs,
   Intra42AuthDocs,
   Intra42AuthCallbackDocs,
-  GetApiKeysDocs,
-  CreateApiKeyDocs,
-  RemoveApiKeyDocs,
-  ValidateApiKeyDocs,
 } from './auth.controller.docs';
 import { OAuth42Data } from '../common/decorators/oauth42-data.decorator';
 
@@ -159,30 +153,6 @@ export class AuthController {
     this.setAccessTokenCookie(reply, result.access_token);
 
     return reply.redirect(result.redirect, HttpStatus.FOUND);
-  }
-
-  @Get('api-keys')
-  @GetApiKeysDocs()
-  getAllApiKeys() {
-    return this.authService.getAllApiKeys();
-  }
-
-  @Post('api-keys')
-  @CreateApiKeyDocs()
-  createApiKey() {
-    return this.authService.createApiKey();
-  }
-
-  @Delete('api-keys')
-  @RemoveApiKeyDocs()
-  removeApiKeyById(@Param('id') id: string) {
-    return this.authService.removeApiKeyById(id);
-  }
-
-  @Get('api-keys/validate')
-  @ValidateApiKeyDocs()
-  validateApiKey(@Query('token') token: string) {
-    return this.authService.validateApiKey(token);
   }
 
   private setAccessTokenCookie(reply: FastifyReply, token: string) {

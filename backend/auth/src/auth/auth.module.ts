@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { JwtModule } from '@nestjs/jwt';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import authConfig from '../config/auth.config';
 
-import { ApiKey } from '@transcendence/db-entities';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 
@@ -22,7 +20,6 @@ import { AuthController } from './auth.controller';
         signOptions: { expiresIn: '24h' },
       }),
     }),
-    TypeOrmModule.forFeature([ApiKey]),
   ],
   controllers: [AuthController],
   providers: [AuthService],
