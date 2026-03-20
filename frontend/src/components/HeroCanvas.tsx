@@ -39,18 +39,18 @@ export default function HeroCanvas({ className }: Props) {
     // Separate configs for blue and purple
     const optsBlue = {
       len: 40,
-      count: 100,
+      count: 50,  // Reduced from 100 (50% less particles)
       baseTime: 30,
       addedTime: 30,
       dieChance: 0.05,
-      spawnChance: 1,
-      sparkChance: 0.01,
+      spawnChance: 0.5,  // Reduced from 1 (spawn less frequently)
+      sparkChance: 0.005,  // Reduced from 0.01 (50% fewer sparks)
       sparkDist: 10,
       sparkSize: 2,
       color: "hsl(220,100%,light%)",  // blue
       baseLight: 40,
       addedLight: 10,
-      shadowToTimePropMult: 0.01,
+      shadowToTimePropMult: 0.005,  // Reduced from 0.01 (less shadow calculation)
       baseLightInputMultiplier: 0.02,
       addedLightInputMultiplier: 0.02,
       repaintAlpha: 0.07,
@@ -118,6 +118,10 @@ export default function HeroCanvas({ className }: Props) {
     function loop() {
       rafRef.current = window.requestAnimationFrame(loop);
       ++tick;
+      
+      // Reduce frame rate on low-end devices (every 2nd frame)
+      if (tick % 2 === 1) return;
+      
       ctx.globalCompositeOperation = "source-over";
       ctx.shadowBlur = 0;
       ctx.fillStyle = `rgba(0,0,0,${optsBlue.repaintAlpha})`;
@@ -206,7 +210,12 @@ export default function HeroCanvas({ className }: Props) {
         const wave = Math.sin((prop * Math.PI) / 2);
         const x = this.addedX * wave;
         const y = this.addedY * wave;
-        ctx.shadowBlur = prop * this.opts.shadowToTimePropMult;
+        
+        // Only update shadow blur every 2 steps to reduce calculations
+        if (this.time % 2 === 0) {
+          ctx.shadowBlur = prop * this.opts.shadowToTimePropMult;
+        }
+        
         const light =
           this.opts.baseLight +
           this.opts.addedLight *

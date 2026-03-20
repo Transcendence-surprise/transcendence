@@ -1,9 +1,10 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { AuthProvider } from "./hooks/useAuth";
-import { installGlobalApiErrorHandling } from "./api/installGlobalApiErrorHandling";
-import "./index.css";
-import App from "./App";
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { AuthProvider } from './hooks/useAuth'
+import { installGlobalApiErrorHandling } from './api/installGlobalApiErrorHandling';
+import "./global.css";
+import './index.css'
+import App from './App'
 
 installGlobalApiErrorHandling();
 
