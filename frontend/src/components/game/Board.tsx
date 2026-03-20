@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Board } from "../../game/models/board";
 import { PlayerState, PlayerProgress } from "../../game/models/gameState";
 import {
@@ -149,6 +150,7 @@ function getNextButtonId(
 }
 
 export default function BoardView({ board, players, progress }: Props) {
+  const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [selectedButton, setSelectedButton] = useState<string | null>(null);
   const [boardState, setBoardState] = useState(board);
@@ -491,6 +493,13 @@ export default function BoardView({ board, players, progress }: Props) {
           </button>
         ))}
       </div>
+
+      <button
+        onClick={() => navigate(-2)}
+      className="mt-2 text-sm underline text-blue-300"
+      >
+        Leave Game
+      </button>
     </div>
   );
 }
