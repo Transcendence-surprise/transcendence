@@ -1,5 +1,6 @@
 // SVG strings for canvas rendering
-export const TILE_SVGS: Record<string, string> = {
+type TileType = 'I' | 'L' | 'T' | 'X';
+export const TILE_SVGS: Record<TileType, string> = {
   I: `<svg width="68" height="68" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M1 68C0.447715 68 0 67.5523 0 67L0 1C0 0.447716 0.447715 0 1 0H5C5.55228 0 6 0.447715 6 1L6 67C6 67.5523 5.55228 68 5 68H1Z" fill="#fb85f3"/>
         <path d="M63 68C62.4477 68 62 67.5523 62 67L62 1C62 0.447716 62.4477 0 63 0H67C67.5523 0 68 0.447715 68 1V67C68 67.5523 67.5523 68 67 68H63Z" fill="#fb85f3"/>
