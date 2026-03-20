@@ -53,13 +53,13 @@
   --color-icon-red: red;
   
   /* ================== SHADOWS & EFFECTS ================== */
-  --shadow-cyan-glow: 0_0_8px_rgba(0, 234, 255, 0.8);
-  --shadow-cyan-glow-12: 0_0_12px_rgba(0, 200, 255, 0.45);
-  --shadow-cyan-light: 0_8px_20px_rgba(0, 234, 255, 0.25);
-  --shadow-cyan-light-sm: 0_6px_16px_rgba(0, 234, 255, 0.3);
-  --shadow-dark-lg: 0_16px_50px_rgba(0, 0, 0, 0.6);
-  --shadow-cyan-lg: 0_0_30px_rgba(0, 234, 255, 1);
-  --shadow-cyan-md: 0_0_10px_rgba(0, 234, 255, 1);
+  --shadow-cyan-glow: 0 0 8px rgba(0, 234, 255, 0.8);
+  --shadow-cyan-glow-12: 0 0 12px rgba(0, 200, 255, 0.45);
+  --shadow-cyan-light: 0 8px 20px rgba(0, 234, 255, 0.25);
+  --shadow-cyan-light-sm: 0 6px 16px rgba(0, 234, 255, 0.3);
+  --shadow-dark-lg: 0 16px 50px rgba(0, 0, 0, 0.6);
+  --shadow-cyan-lg: 0 0 30px rgba(0, 234, 255, 1);
+  --shadow-cyan-md: 0 0 10px rgba(0, 234, 255, 1);
   
   /* ================== SIZING CONSTANTS (in pixels) ================== */
   /* Game board grid */

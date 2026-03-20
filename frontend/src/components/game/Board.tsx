@@ -156,6 +156,10 @@ export default function BoardView({ board, players, progress }: Props) {
   const [boardState, setBoardState] = useState(board);
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
+  useEffect(() => {
+    setBoardState(board);
+  }, [board]);
+
   const collectibleSet = useMemo(() => {
     const collectedIds = new Set<string>();
 
