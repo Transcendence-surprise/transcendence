@@ -1,11 +1,11 @@
-const s01Map: string[][] = [
+const s03Map: string[][] = [
   ["L1", "T1", "T1", "T1", "T1", "T1", "T1","T1", "L2"],
   ["L1", "T0", "T0", "T0", "T0", "T0", "T0","T0", "L2"],
   ["L1", "T0", "T0", "T0", "T0", "T0", "T0","T0", "L2"],
   ["L0", "T3", "L3", "L3", "T3", "L3", "L3","T3", "L3"]
 ];
 
-export default s01Map;
+export default s03Map;
 
 
 // "I"	0    "I0" 
