@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthController } from './health/health.controller';
 import { UsersModule } from './users/users.module';
 import { MailModule } from './mail/mail.module';
+import { ImagesModule } from './images/images.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MailModule } from './mail/mail.module';
     }),
     UsersModule,
     MailModule,
+    ImagesModule,
   ],
   controllers: [HealthController],
   providers: [],
