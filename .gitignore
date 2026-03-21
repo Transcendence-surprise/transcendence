@@ -26,7 +26,6 @@ logs/
 
 # --- Editor ---
 .github/instructions
-.vscode/
 .idea/
 *.swp
 
