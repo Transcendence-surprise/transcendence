@@ -4,10 +4,13 @@ import { UnauthorizedException } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { User } from '@transcendence/db-entities';
 import * as bcrypt from 'bcrypt';
 
 // Mock bcrypt module
 jest.mock('bcrypt');
+
+type MockUsersService = jest.Mocked<UsersService>;
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -26,26 +29,28 @@ describe('UsersController', () => {
     password: '$2b$10$hashedPassword',
   };
 
-  const mockUsersService = {
-    findAll: jest.fn(),
+  const mockUsersService: MockUsersService = {
+    findAll: jest.fn<Promise<User[]>, []>(),
     // findOneByUsername: jest.fn(),
-    findOneById: jest.fn(),
-    findByIdentifier: jest.fn(),
-    validateCredentials: jest.fn(async (validateCredDto: { identifier: string; password: string }) => {
-      const user = await mockUsersService.findByIdentifier(validateCredDto.identifier);
+    findOneById: jest.fn<Promise<User>, [number]>(),
+    findByIdentifier: jest.fn<Promise<User | null>, [string]>(),
+    validateCredentials: jest.fn<Promise<Omit<User, 'password'>>, [{ identifier: string; password: string }]>(
+      async (validateCredDto: { identifier: string; password: string }) => {
+      const user = (await mockUsersService.findByIdentifier(validateCredDto.identifier)) as User & { password: string | null };
       if (!user) throw new UnauthorizedException('Invalid credentials');
       if (!user.password) throw new UnauthorizedException('Invalid credentials');
-      const passwordCorrect = await (bcrypt.compare as jest.Mock)(
+      const passwordCorrect = await bcrypt.compare(
         validateCredDto.password,
         user.password,
       );
       if (!passwordCorrect) throw new UnauthorizedException('Invalid credentials');
       const { password: _, ...userWithoutPassword } = user;
-      return userWithoutPassword;
+      // as unknown as Record<string, unknown> to avoid unsafe-typing of spread
+      return userWithoutPassword as unknown as Omit<typeof user, 'password'>;
     }),
     // removeByUsername: jest.fn(),
     create: jest.fn(),
-  };
+  } as unknown as MockUsersService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

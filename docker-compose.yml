@@ -36,6 +36,8 @@ services:
     container_name: core
     env_file:
       - ./.env
+    volumes:
+      - images_data:/app/uploads
     depends_on:
       migration:
         condition: service_completed_successfully
@@ -138,3 +140,7 @@ services:
 
 networks:
   transcendence_net:
+
+volumes:
+  images_data:
+
