@@ -132,13 +132,7 @@ export class AuthController {
     @Res({ passthrough: true }) reply: FastifyReply
   ) {
     const token = await this.authService.createGuestToken(body.nickname);
-    reply.setCookie('guest_token', token, {
-      httpOnly: true,
-      secure: this.config.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 24 * 60 * 60,
-    });
+    this.setAccessTokenCookie(reply, token);
     return { ok: true };
   }
 

@@ -21,14 +21,6 @@ interface JwtPayload {
   roles: string[];
 }
 
-interface GuestJwtPayload {
-  sub: string;
-  username: string;
-  email?: string;
-  roles?: string[];
-  isGuest: true;
-}
-
 interface RequestWithUser extends FastifyRequest {
   user?: JwtPayload;
 }
@@ -58,24 +50,6 @@ export class AuthGuard implements CanActivate {
     switch (authType) {
       case AuthType.JWT:
         return await this.validateJwt(request);
-      case AuthType.GUEST:
-        return await this.validateGuest(request);
-      case AuthType.JWT_OR_GUEST:
-        // Prefer JWT when access_token is present (logged-in user takes precedence)
-        // Fall back to guest only if no JWT token exists
-        if (request.cookies?.access_token) {
-          try {
-            return await this.validateJwt(request);
-          } catch (error) {
-            if (error instanceof UnauthorizedException) {
-              // JWT invalid/expired, try guest as fallback
-              return await this.validateGuest(request);
-            }
-            throw error;
-          }
-        }
-        // No JWT token, try guest auth
-        return await this.validateGuest(request);
       case AuthType.API_KEY_ONLY:
         return this.validateApiKey(request);
       case AuthType.JWT_OR_API_KEY:
@@ -146,28 +120,4 @@ export class AuthGuard implements CanActivate {
     return undefined;
   }
 
-  private async validateGuest(request: FastifyRequest): Promise<boolean> {
-    const token = request.cookies.guest_token;
-    if (!token) throw new UnauthorizedException('Guest token missing');
-
-    try {
-      const decoded = await this.jwtService.verifyAsync<GuestJwtPayload>(token);
-
-      // Extra type check to satisfy ESLint
-      if (decoded.isGuest !== true || !decoded.sub || !decoded.username) {
-        throw new UnauthorizedException('Invalid guest token');
-      }
-
-      (request as RequestWithUser).user = {
-        sub: decoded.sub,       // UUID string
-        username: decoded.username,
-        email: decoded.email ?? '',
-        roles: ['guest'],
-      };
-
-      return true;
-    } catch {
-      throw new UnauthorizedException('Invalid guest token');
-    }
-  }
 }

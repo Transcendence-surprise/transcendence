@@ -64,8 +64,6 @@ export class UsersController {
   @Get('me')
   @GetMeDocs()
   async getUserByHisToken(@CurrentUser() user : JwtPayload) {
-    console.log("USERS SERVICE /me called");
-
     if (user.roles?.includes('guest')) {
       return {
         id: user.sub,
@@ -84,7 +82,6 @@ export class UsersController {
     @CurrentUser() user: JwtPayload,
     @Body() updateMeDto: UpdateMeDto,
   ) {
-    // Guests cannot update their profile in the database
     if (user.roles?.includes('guest')) {
       return {
         id: user.sub,
