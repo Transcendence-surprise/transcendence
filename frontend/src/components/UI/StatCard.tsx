@@ -6,7 +6,7 @@ type StatCardProps = {
 
 export default function StatCard({ icon, title, value }: StatCardProps) {
   return (
-    <div className="flex flex-col p-4 bg-[#1A1A1F99] rounded-lg border border-[#FFFFFF1A] hover:border-cyan-200 transition-all">
+    <div className="flex flex-col p-4 bg-bg-modal rounded-lg border border-[var(--color-border-subtle)] hover:border-cyan-200 transition-all">
       <div className="flex items-center gap-2 mb-2">
         {icon}
         <span className="text-xs text-gray-400">{title}</span>

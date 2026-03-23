@@ -5,7 +5,7 @@ export default function LayoutWithSidebar() {
   return (
     <div className="flex">
       <Sidebar />
-      <main className="flex-1 p-6 bg-black text-blue-400">
+      <main className="flex-1 p-6 bg-bg-dark text-blue-hero">
         <Outlet />
       </main>
     </div>

@@ -33,20 +33,20 @@ export default function Lobby({
   console.log("Lobby received:", game);
 
   return (
-    <div className="min-h-screen bg-black text-[#ffffff] font-mono flex items-start justify-center px-4 py-10">
+    <div className="min-h-screen bg-bg-dark text-white font-sans flex items-start justify-center px-4 py-10">
       <div className="relative w-full max-w-5xl">
         <div className="absolute -inset-1 rounded-2xl bg-[radial-gradient(circle_at_top,rgba(0,234,255,0.25),transparent_55%)] blur-2xl" />
 
-        <div className="relative rounded-2xl border border-[#FFFFFF1A] bg-[#0B0B0F] px-8 py-10 shadow-[0_16px_50px_rgba(0,0,0,0.6)]">
+        <div className="relative rounded-2xl border border-[var(--color-border-subtle)] bg-bg-dark-secondary px-8 py-10 shadow-dark-lg">
           {/* Header */}
           <div className="flex flex-col items-center gap-2 mb-8">
-            <h2 className="text-4xl font-bold drop-shadow-lg text-[#7BE9FF]">
+            <h2 className="text-4xl font-bold drop-shadow-lg text-light-cyan">
               Waiting for players to join
             </h2>
-            {/* <p className="text-xs uppercase tracking-[0.4em] text-[#7BE9FF]">
+            {/* <p className="text-xs uppercase tracking-[0.4em] text-light-cyan">
               Waiting for players to join
             </p> */}
-            {/* <p className="text-sm text-[#B7F6FF] text-center max-w-md">
+            {/* <p className="text-sm text-lightest-cyan text-center max-w-md">
               Game ID: {game.id} • Host: {game.hostId}
             </p> */}
           </div>
@@ -54,7 +54,7 @@ export default function Lobby({
           {/* Spectators badge */}
           {game.rules.allowSpectators && (
             <div className="mb-4 flex justify-start">
-              <span className="text-xs px-3 py-1 rounded-full bg-[#0B2A30]/60 border border-cyan-300/30 text-cyan-200">
+              <span className="text-xs px-3 py-1 rounded-full bg-button-cyan-bg/60 border border-cyan-300/30 text-light-cyan">
                 Spectators Allowed
               </span>
             </div>

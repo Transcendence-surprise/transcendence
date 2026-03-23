@@ -29,7 +29,7 @@ export default function Layout() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-blue-400 font-mono">
+    <div className="min-h-screen bg-bg-dark text-blue-hero font-sans">
       {/* Header */}
 	  <Header 
         status={status}

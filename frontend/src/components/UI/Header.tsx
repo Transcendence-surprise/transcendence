@@ -15,7 +15,7 @@ export default function Header({
   const { user, logout } = useAuth();
 
   return (
-    <header className="p-4 border-b border-blue-600">
+    <header className="p-4 border-b border-[var(--color-border-blue)]">
       <div className="flex justify-between items-center">
         <a
           href="/"
@@ -31,25 +31,25 @@ export default function Header({
                   "drop-shadow(0 0 30px #00EAFF) drop-shadow(0 0 10px #00EAFF)",
               }}
             />
-            <h1 className="text-4xl font-black bg-gradient-to-r from-[#00EAFF] via-[#FF2EDF] to-[#00EAFF] text-transparent bg-clip-text">
+            <h1 className="text-4xl font-black bg-gradient-to-r from-cyan-bright via-magenta to-cyan-bright bg-clip-text text-transparent">
               MAZE IS LAVA
             </h1>
           </div>
         </a>
         <div>
-          <p className="text-sm text-blue-300">Backend status: {status}</p>
+          <p className="text-sm text-light-cyan">Backend status: {status}</p>
         </div>
 
         <div className="flex items-center gap-2">
           {user ? (
             <>
-              <span className="px-3 py-1.5 text-sm text-cyan-400 font-semibold">
+              <span className="px-3 py-1.5 text-sm text-cyan-bright font-semibold">
                 👻 {user?.username ?? "Guest"}
               </span>
 
               <button
                 onClick={logout}
-                className="px-4 py-1.5 text-sm bg-[#FF2EDF] hover:bg-pink-400 text-white border border-pink-300/40 font-medium rounded-lg transition-all"
+                className="px-4 py-1.5 text-sm bg-button-magenta hover:bg-pink-400 text-white border border-pink-300/40 font-medium rounded-lg transition-all"
               >
                 Logout
               </button>
@@ -58,14 +58,14 @@ export default function Header({
             <>
               <button
                 onClick={onLoginClick}
-                className="px-4 py-1.5 text-sm bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-lg transition-all border border-gray-600"
+                className="px-4 py-1.5 text-sm bg-button-gray hover:bg-gray-700 text-white font-medium rounded-lg transition-all border border-gray-600"
               >
                 Login
               </button>
 
               <button
                 onClick={onSignupClick}
-                className="px-4 py-1.5 text-sm bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-medium rounded-lg transition-all shadow-lg shadow-cyan-500/30"
+                className="px-4 py-1.5 text-sm bg-gradient-to-r from-cyan-bright to-blue-hero hover:from-cyan-bright hover:to-blue-hero text-white font-medium rounded-lg transition-all shadow-lg shadow-cyan-500/30"
               >
                 Sign Up
               </button>

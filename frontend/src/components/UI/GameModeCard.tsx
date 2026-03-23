@@ -12,7 +12,7 @@ export default function GameModeCard({
   onClick,
 }: GameModeCardProps) {
   return (
-    <button
+     <button
       onClick={onClick}
       className="flex flex-col items-center justify-center p-8 bg-[#1A1A1F99] rounded-lg shadow-lg hover:shadow-[0_8px_20px_rgba(0,234,255,0.4)] hover:scale-105 transition-all border border-[#FFFFFF1A] hover:border-cyan-200 cursor-pointer w-96"
     >

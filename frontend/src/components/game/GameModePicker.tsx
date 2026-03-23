@@ -9,10 +9,10 @@ type Props = {
 
 export default function GameModePicker({ onSelectSingle, onSelectMulti, onBack }: Props) {
   return (
-    <div className="min-h-screen bg-black text-[#ffffff] font-mono flex flex-col items-center justify-center space-y-8">
+    <div className="min-h-screen bg-bg-dark text-white font-sans flex flex-col items-center justify-center space-y-8">
       <h2 className="text-4xl font-bold drop-shadow-lg">Choose Game Mode</h2>
 
-      <div className="flex gap-8  justify-center flex-wrap">
+      <div className="flex gap-8 justify-center flex-wrap">
         <GameModeCard
           icon="/assets/solo.svg"
           title="Single Player"

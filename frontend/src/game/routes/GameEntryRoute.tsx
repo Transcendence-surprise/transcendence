@@ -78,7 +78,7 @@ export default function GameEntryRoute() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-[#ffffff] font-mono flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-bg-dark text-white font-sans flex flex-col items-center justify-center">
       {/* Debug Info */}
       <div className="text-xs text-gray-500 mb-4">
         User: {user?.username || "not logged in"} | Active Games: {activeGameIds.length}

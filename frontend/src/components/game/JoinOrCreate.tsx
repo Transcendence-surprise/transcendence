@@ -8,7 +8,7 @@ type Props = {
 
 export default function MultiplayerOption({ onCreate, onJoin, onBack }: Props) {
   return (
-    <div className="min-h-screen bg-black text-[#ffffff] font-mono flex flex-col items-center justify-center space-y-8">
+    <div className="min-h-screen bg-bg-dark text-white font-sans flex flex-col items-center justify-center space-y-8">
       <h2 className="text-4xl font-bold">Choose your multiplayer option</h2>
       <div className="flex gap-8  justify-center flex-wrap">
         <GameModeCard

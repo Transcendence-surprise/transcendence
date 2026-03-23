@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       fontFamily: {
@@ -11,73 +8,79 @@ export default {
         montserrat: ["Montserrat", "sans-serif"],
         dm: ["DM Sans", "sans-serif"],
       },
+
       colors: {
-        // Brand colors
+        /* Brand */
+        white: "var(--color-white)",
         "cyan-bright": "var(--color-cyan-bright)",
         magenta: "var(--color-magenta)",
         pink: "var(--color-pink)",
 
-        // Animation colors
+        /* Hero / canvas */
         "blue-hero": "var(--color-blue-hero)",
         "purple-hero": "var(--color-purple-hero)",
         "cyan-teal": "var(--color-cyan-teal)",
 
-        // Backgrounds
+        /* Backgrounds */
         "bg-dark": "var(--color-bg-dark)",
         "bg-dark-primary": "var(--color-bg-dark-primary)",
         "bg-dark-secondary": "var(--color-bg-dark-secondary)",
         "bg-dark-tertiary": "var(--color-bg-dark-tertiary)",
         "bg-modal": "var(--color-bg-modal)",
 
-        // Text colors
-        "light-cyan": "var(--color-text-light-cyan)",
-        "lighter-cyan": "var(--color-text-lighter-cyan)",
-        "lightest-cyan": "var(--color-text-lightest-cyan)",
-        "muted-400": "var(--color-text-gray-400)",
-        "muted-500": "var(--color-text-gray-500)",
-        "muted-600": "var(--color-text-gray-600)",
+        /* Text-like colors */
+        "light-cyan": "var(--color-light-cyan)",
+        "lighter-cyan": "var(--color-lighter-cyan)",
+        "lightest-cyan": "var(--color-lightest-cyan)",
+        "cyan-100": "var(--color-cyan-100)",
+        "cyan-400": "var(--color-cyan-400)",
+        "gray-400": "var(--color-gray-400)",
+        "gray-500": "var(--color-gray-500)",
+        "gray-600": "var(--color-gray-600)",
 
-        // Borders
+        /* Borders / utility colors */
         "border-subtle": "var(--color-border-subtle)",
         "border-blue": "var(--color-border-blue)",
         "border-cyan": "var(--color-border-cyan)",
         "border-pink": "var(--color-border-pink)",
+        "border-gray": "var(--color-border-gray)",
 
-        // Game board
+        /* Game board */
         "cell-border": "var(--color-cell-border)",
         "tile-i": "var(--color-tile-i)",
         "tile-l": "var(--color-tile-l)",
         "tile-t": "var(--color-tile-t)",
         "tile-x": "var(--color-tile-x)",
 
-        // Interactive
+        /* Buttons */
+        "button-hover": "var(--color-button-hover)",
+        "button-gray": "var(--color-button-gray)",
         "button-cyan-bg": "var(--color-button-cyan-bg)",
         "button-cyan-hover": "var(--color-button-cyan-hover)",
 
-        // Optional compatibility colors
-        white: "#FFFFFF",
-        black: "#000000",
-        gray: {
-          300: "#d1d5db",
-          400: "#9ca3af",
-          600: "#4b5563",
-          700: "#374151",
-          800: "#1f2937",
-          900: "#111827",
-        },
-        blue: {
-          600: "#2563eb",
-        },
-        green: {
-          400: "#4ade80",
-        },
-        cyan: {
-          100: "#cffafe",
-          200: "#a5f3fc",
-          300: "#06b6d4",
-          500: "#06b6d4",
-        },
-        "pink-400": "#f472b6",
+        /* Icons */
+        "icon-red": "var(--color-icon-red)",
+      },
+
+      boxShadow: {
+        "cyan-glow": "var(--shadow-cyan-glow)",
+        "cyan-glow-12": "var(--shadow-cyan-glow-12)",
+        "cyan-light": "var(--shadow-cyan-light)",
+        "cyan-light-sm": "var(--shadow-cyan-light-sm)",
+        "dark-lg": "var(--shadow-dark-lg)",
+        "cyan-lg": "var(--shadow-cyan-lg)",
+        "cyan-md": "var(--shadow-cyan-md)",
+      },
+
+      spacing: {
+        cell: "var(--size-cell)",
+        "cell-border": "var(--size-cell-border)",
+        "cell-content": "var(--size-cell-content)",
+        sidebar: "var(--size-sidebar-width)",
+        "sidebar-item": "var(--size-sidebar-item-height)",
+        indicator: "var(--size-sidebar-indicator)",
+        "button-icon": "var(--size-button-icon)",
+        "button-arrow": "var(--size-button-icon-arrow)",
       },
     },
   },
