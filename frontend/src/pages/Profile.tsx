@@ -1,4 +1,4 @@
-import { mockPlayerProfile } from "../types/player";
+import { mockPlayerProfile } from "../types/mockPlayer";
 import StatCard from "../components/UI/StatCard";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
@@ -9,17 +9,18 @@ export default function Profile() {
   const displayName = user?.username ?? mockPlayerProfile.name;
 	if (!user || user.roles.includes("guest")) {
 	  return (
-		<div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-		  <h2 className="text-3xl font-bold mb-6 text-blue-400">
-			Login required to access profile
-		  </h2>
-		  <button
-			onClick={() => navigate(-1)}
-			className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg"
-		  >
-			Back
-		  </button>
-		</div>
+		 <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <h2 className="text-3xl font-bold mb-6 text-cyan-400">
+            Login required to access profile
+        </h2>
+
+        <button
+            onClick={() => navigate(-1)}
+            className="py-3 px-6 rounded-lg font-medium text-white bg-[#2A2A3199] border border-[#FFFFFF1A] hover:shadow-[0_8px_20px_rgba(0,234,255,0.25)] hover:border-cyan-200 transition-all"
+        >
+            Back
+        </button>
+        </div>
 	  );
 	}
   return (
