@@ -160,9 +160,13 @@ export default function BoardView({ board, players, progress, gameId }: Props) {
 
   const handleLeaveGame = async () => {
     try {
-      await leaveGame(gameId);
+      const result = await leaveGame(gameId);
+      if (!result.ok) {
+        console.error("Error leaving game:", result.error);
+        alert("Error leaving game");
+      }
     } catch (err) {
-      console.error("Error deleting game:", err);
+      console.error("Unexpected error leaving game:", err);
       alert("Error leaving game");
     } finally {
       // Navigate back regardless of success/failure
