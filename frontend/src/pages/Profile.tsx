@@ -16,7 +16,7 @@ export default function Profile() {
 
         <button
             onClick={() => navigate(-1)}
-            className="py-3 px-6 rounded-lg font-medium text-white bg-[#2A2A3199] border border-[#FFFFFF1A] hover:shadow-[0_8px_20px_rgba(0,234,255,0.25)] hover:border-cyan-200 transition-all"
+            className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
         >
             Back
         </button>
@@ -32,7 +32,7 @@ export default function Profile() {
           className="w-24 h-24 rounded-full object-cover border-2 border-blue-400"
         />
         <div>
-          <h2 className="text-4xl font-bold text-[#ffffff]">{displayName}</h2>
+          <h2 className="text-4xl font-bold text-white">{displayName}</h2>
           <p className="text-base text-gray-400 mt-1">
             Rank {mockPlayerProfile.rank} • {mockPlayerProfile.winstreak} wins
             streak
@@ -112,11 +112,11 @@ export default function Profile() {
       {/* Recent Matches */}
       <div>
         <h3 className="text-2xl font-bold text-white mb-4">Recent Games</h3>
-        <div className="bg-[#1A1A1F99] rounded-lg border border-[#FFFFFF1A] p-4 max-w-2xl">
+        <div className="bg-bg-modal rounded-lg border border-[var(--color-border-subtle)] p-4 max-w-2xl">
           {mockPlayerProfile.recentGames.slice(0, 4).map((match) => (
             <div
               key={match.id}
-              className="flex items-center justify-between py-3 border-b border-[#FFFFFF0A] last:border-b-0"
+              className="flex items-center justify-between py-3 border-b border-[var(--color-border-gray)] last:border-b-0"
             >
               <div className="flex items-center gap-3">
                 <span

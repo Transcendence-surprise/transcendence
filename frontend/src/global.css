@@ -1,58 +1,58 @@
 :root {
   /* ================== BRAND COLORS ================== */
-  /* Primary gradient colors for hero/header branding */
-  --color-cyan-bright: #00EAFF;
-  --color-magenta: #FF2EDF;
+  --color-cyan-bright: #00eaff;
+  --color-magenta: #ff2edf;
   --color-pink: #fb85f3;
-  
-  /* Animation/Canvas colors */
+
+  /* ================== ANIMATION / CANVAS COLORS ================== */
   --color-blue-hero: #5c90f6;
   --color-purple-hero: hsl(280, 100%, 50%);
   --color-cyan-teal: #21e6c5;
-  
-  /* ================== BACKGROUND & SURFACES ================== */
+
+  /* ================== BACKGROUNDS / SURFACES ================== */
   --color-bg-dark: #000000;
-  --color-bg-dark-primary: #0B0B0F;
+  --color-bg-dark-primary: #0b0b0f;
   --color-bg-dark-secondary: #101019;
-  --color-bg-dark-tertiary: #1A1A1F;
+  --color-bg-dark-tertiary: #1a1a1f;
+  --color-bg-dark-card: #1a1a1f;
   --color-bg-modal: rgba(26, 26, 31, 0.95);
-  --color-bg-modal-opaque: #1A1A1F99;
-  
+  --color-bg-modal-opaque: #1a1a1f99;
+
   /* ================== TEXT COLORS ================== */
-  --color-text-white: #FFFFFF;
-  --color-text-light-cyan: #00eaff;
-  --color-text-lighter-cyan: #7BE9FF;
-  --color-text-lightest-cyan: #B7F6FF;
-  --color-text-cyan-100: #B7F6FF;
-  --color-text-cyan-400: #22d3ee;
-  --color-text-gray-400: #9ca3af;
-  --color-text-gray-500: #6b7280;
-  --color-text-gray-600: #4b5563;
-  
+  --color-white: #ffffff;
+  --color-light-cyan: #00eaff;
+  --color-lighter-cyan: #7be9ff;
+  --color-lightest-cyan: #b7f6ff;
+  --color-cyan-100: #b7f6ff;
+  --color-cyan-400: #22d3ee;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+
   /* ================== BORDERS ================== */
-  --color-border-subtle: #FFFFFF1A;
+  --color-border-subtle: #ffffff1a;
   --color-border-blue: #2563eb;
   --color-border-cyan: #06b6d4;
   --color-border-pink: #db2777;
   --color-border-pink-light: rgba(219, 39, 119, 0.4);
   --color-border-gray: #4b5563;
-  
+
   /* ================== GAME BOARD COLORS ================== */
   --color-cell-border: #6b7280;
   --color-tile-i: #fb85f3;
   --color-tile-l: #5c90f6;
   --color-tile-t: #21e6c5;
-  --color-tile-x: #D9D9D9;
+  --color-tile-x: #d9d9d9;
   --color-player-stroke: #ffffff;
-  
+
   /* ================== INTERACTIVE ELEMENT COLORS ================== */
   --color-button-hover: #9333ea;
   --color-button-gray: #1f2937;
-  --color-button-cyan-bg: #0B2A30;
-  --color-button-cyan-hover: #11414A;
+  --color-button-cyan-bg: #0b2a30;
+  --color-button-cyan-hover: #11414a;
   --color-icon-red: red;
-  
-  /* ================== SHADOWS & EFFECTS ================== */
+
+  /* ================== SHADOWS ================== */
   --shadow-cyan-glow: 0 0 8px rgba(0, 234, 255, 0.8);
   --shadow-cyan-glow-12: 0 0 12px rgba(0, 200, 255, 0.45);
   --shadow-cyan-light: 0 8px 20px rgba(0, 234, 255, 0.25);
@@ -60,37 +60,28 @@
   --shadow-dark-lg: 0 16px 50px rgba(0, 0, 0, 0.6);
   --shadow-cyan-lg: 0 0 30px rgba(0, 234, 255, 1);
   --shadow-cyan-md: 0 0 10px rgba(0, 234, 255, 1);
-  
-  /* ================== SIZING CONSTANTS (in pixels) ================== */
-  /* Game board grid */
+
+  /* ================== SIZING ================== */
   --size-cell: 68px;
   --size-cell-border: 1px;
-  --size-cell-content: 62px; /* CELL_SIZE - 2*CELL_BORDER_WIDTH = 66px adjusted */
-  
-  /* Sidebar */
+  --size-cell-content: 62px;
+
   --size-sidebar-width: 280px;
   --size-sidebar-item-height: 38px;
   --size-sidebar-indicator: 2px;
-  
-  /* Buttons and controls */
+
   --size-button-icon: 24px;
   --size-button-icon-arrow: 20px;
-  
-  /* ================== SPACING (Tailwind classes reference) ================== */
-  /* Common spacing patterns used: px-2, px-3, px-4, px-5, px-6, px-8 */
-  /* Vertical: py-1, py-1.5, py-2, py-4, py-5, py-8, py-10 */
-  /* Gap values: gap-2, gap-4, gap-12 */
-  
+
   /* ================== ANIMATION TIMINGS ================== */
-  --timing-hero-base: 30; /* base time for hero canvas animation */
-  --timing-hero-added: 30; /* added time for hero canvas animation */
-  --timing-shadow-mult: 0.01; /* shadowToTimePropMult for hero canvas */
-  --timing-light-input-base: 0.02; /* baseLightInputMultiplier */
-  --timing-light-input-added: 0.02; /* addedLightInputMultiplier */
-  --timing-repaint-alpha: 0.07; /* canvas repaint alpha transparency */
-  
-  /* ================== CANVAS ANIMATION OPTIONS ================== */
-  /* Hero Canvas - Blue Animation */
+  --timing-hero-base: 30;
+  --timing-hero-added: 30;
+  --timing-shadow-mult: 0.01;
+  --timing-light-input-base: 0.02;
+  --timing-light-input-added: 0.02;
+  --timing-repaint-alpha: 0.07;
+
+  /* ================== CANVAS OPTIONS ================== */
   --canvas-blue-die-chance: 0.05;
   --canvas-blue-spawn-chance: 1;
   --canvas-blue-spark-chance: 0.01;
@@ -99,8 +90,7 @@
   --canvas-blue-base-light: 40;
   --canvas-blue-added-light: 10;
   --canvas-blue-hue-change: 0.1;
-  
-  /* Hero Canvas - Purple Animation (same as blue with different color) */
+
   --canvas-purple-die-chance: 0.05;
   --canvas-purple-spawn-chance: 1;
   --canvas-purple-spark-chance: 0.01;
@@ -109,20 +99,21 @@
   --canvas-purple-base-light: 40;
   --canvas-purple-added-light: 10;
   --canvas-purple-hue-change: 0.1;
-  
-  /* ================== FONT STYLES ================== */
+
+  /* ================== FONTS ================== */
   --font-canvas-label: bold 12px sans-serif;
   --font-monospace: monospace;
-  
-  /* ================== OPACITY/ALPHA VALUES ================== */
+
+  /* ================== OPACITY ================== */
   --alpha-border-subtle: 0.1;
   --alpha-bg-overlay: 0.95;
 }
 
-* {
-font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+html {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  font-family: inherit;
 }

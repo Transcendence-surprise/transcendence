@@ -26,7 +26,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className=" w-[280px] min-h-screen bg-[background: rgba(26, 26, 31, 0.95)] border-r border-blue-600 p-4">
+    <aside className=" w-[280px] min-h-screen bg-[background: rgba(26, 26, 31, 0.95)] border-r border-[var(--color-border-blue)] p-4">
       <nav className="flex flex-col gap-2">
         {navItems.map((item) => (
           <Link
@@ -37,7 +37,7 @@ export default function Sidebar() {
               transition-all duration-200 font-medium
               ${
                 isActive(item.path)
-                  ? "text-[#00eaff] border border-t border-cyan-200/70 border-t-cyan-200/70 bg-[linear-gradient(90deg,rgba(0,234,255,0.35)_0%,rgba(0,102,255,0.35)_100%)]"
+                  ? "text-cyan-bright border border-t border-cyan-200/70 border-t-cyan-200/70 bg-[linear-gradient(90deg,rgba(0,234,255,0.35)_0%,rgba(0,102,255,0.35)_100%)]"
                   : "text-gray-400 hover:text-cyan-100 hover:shadow-[0_0_12px_rgba(0,200,255,0.45)]"
               }
             `}

@@ -58,7 +58,7 @@ export default function Chat() {
 
         <button
             onClick={() => navigate(-1)}
-            className="py-3 px-6 rounded-lg font-medium text-white bg-[#2A2A3199] border border-[#FFFFFF1A] hover:shadow-[0_8px_20px_rgba(0,234,255,0.25)] hover:border-cyan-200 transition-all"
+            className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
         >
             Back
         </button>
@@ -94,10 +94,10 @@ export default function Chat() {
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-[80vh] max-w-2xl mx-auto bg-slate-900 text-white rounded-lg">
+    <div className="flex flex-col h-[80vh] max-w-2xl mx-auto bg-bg-dark text-white rounded-lg">
 
       {/* Header */}
-      <div className="p-4 border-b border-slate-700 text-xl font-bold text-blue-400">
+      <div className="p-4 border-b border-[var(--color-border-gray)] text-xl font-bold text-blue-hero">
         Global Chat
       </div>
 

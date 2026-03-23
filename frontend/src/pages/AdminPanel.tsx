@@ -20,8 +20,8 @@ export default function AdminPanel() {
   if (!isAdmin) {
     return (
       <div className="p-6">
-        <h2 className="text-xl font-bold text-red-800">Access Denied</h2>
-        <p className="text-red-600">You do not have admin privileges.</p>
+        <h2 className="text-xl font-bold text-icon-red">Access Denied</h2>
+        <p className="text-icon-red/80">You do not have admin privileges.</p>
       </div>
     );
   }

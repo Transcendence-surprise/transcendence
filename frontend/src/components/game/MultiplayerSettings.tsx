@@ -19,7 +19,7 @@ type FieldProps = {
 function SettingsField({ label, children }: FieldProps) {
   return (
     <label className="text-lg grid grid-cols-[180px_auto] items-center gap-x-4 justify-center text-center">
-      <span className="text-[#00eaff] text-right">{label}</span>
+      <span className="text-cyan-bright text-right">{label}</span>
       {children}
     </label>
   );
@@ -34,26 +34,26 @@ export default function MultiplayerSettingsForm({
   loading,
 }: Props) {
   const selectClassName =
-    "px-4 py-2 text-lg bg-gray-800 rounded border border-[#FFFFFF1A] focus:outline-none focus:border-cyan-200";
+    "px-4 py-2 text-lg bg-gray-800 rounded border border-[var(--color-border-subtle)] focus:outline-none focus:border-cyan-200";
   const inputClassName =
-    "px-4 py-2 text-lg bg-gray-800 rounded w-20 border border-[#FFFFFF1A] focus:outline-none focus:border-cyan-200";
+    "px-4 py-2 text-lg bg-gray-800 rounded w-20 border border-[var(--color-border-subtle)] focus:outline-none focus:border-cyan-200";
 
   return (
-    <div className="min-h-screen bg-black text-[#ffffff] font-mono flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-bg-dark text-white font-sans flex items-center justify-center px-4 py-10">
       <div className="relative w-full max-w-2xl">
         <div className="absolute -inset-1 rounded-2xl bg-[radial-gradient(circle_at_top,rgba(0,234,255,0.25),transparent_55%)] blur-2xl" />
         <div className="absolute -left-10 top-10 h-24 w-24 rounded-full bg-cyan-400/20 blur-2xl" />
         <div className="absolute -right-10 bottom-6 h-24 w-24 rounded-full bg-blue-500/20 blur-2xl" />
 
-        <div className="relative rounded-2xl border border-[#FFFFFF1A] bg-[#0B0B0F] px-8 py-10 shadow-[0_16px_50px_rgba(0,0,0,0.6)]">
+        <div className="relative rounded-2xl border border-[var(--color-border-subtle)] bg-bg-dark-secondary px-8 py-10 shadow-dark-lg">
           <div className="flex flex-col items-center gap-2">
-            <p className="text-xs uppercase tracking-[0.4em] text-[#7BE9FF]">
+            <p className="text-xs uppercase tracking-[0.4em] text-light-cyan">
               Lobby Setup
             </p>
             <h2 className="text-4xl font-bold drop-shadow-lg text-white">
               Multiplayer Settings
             </h2>
-            <p className="text-sm text-[#B7F6FF] text-center max-w-md">
+            <p className="text-sm text-lightest-cyan text-center max-w-md">
               Tune your lobby rules before inviting friends.
             </p>
           </div>
@@ -129,7 +129,7 @@ export default function MultiplayerSettingsForm({
               <SimpleButton title="Create Game" onClick={onCreate} />
             </div>
             <button
-              className="text-sm underline text-blue-300"
+              className="text-sm underline text-blue-hero"
               onClick={onBack}
             >
               Back

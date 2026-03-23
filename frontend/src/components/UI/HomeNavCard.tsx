@@ -16,14 +16,14 @@ export default function HomeNavCard({
   return (
     <Link
       to={to}
-      className="group relative rounded-xl border border-[#FFFFFF1A] bg-gradient-to-br from-[#0B0B0F] to-[#101019] p-6 overflow-hidden transition-all duration-300 hover:border-cyan-300/60 hover:shadow-[0_0_30px_rgba(0,234,255,0.4)]"
+      className="group relative rounded-xl border border-[var(--color-border-subtle)] bg-gradient-to-br from-bg-dark-secondary to-bg-dark p-6 overflow-hidden transition-all duration-300 hover:border-cyan-300/60 hover:shadow-cyan-light"
     >
       <div className="relative z-10">
         <div className="text-4xl mb-3">{icon}</div>
         <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
           {title}
         </h3>
-        <p className="text-sm text-[#B7F6FF] group-hover:text-cyan-200 transition-colors">
+        <p className="text-sm text-lightest-cyan group-hover:text-cyan-200 transition-colors">
           {description}
         </p>
 

@@ -60,13 +60,13 @@ export default function Settings() {
   if (!user || user.roles.includes("guest")) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <h2 className="text-3xl font-bold mb-6 text-cyan-400">
+        <h2 className="text-3xl font-bold mb-6 text-blue-hero">
             Login required to access settings
         </h2>
 
         <button
             onClick={() => navigate(-1)}
-            className="py-3 px-6 rounded-lg font-medium text-white bg-[#2A2A3199] border border-[#FFFFFF1A] hover:shadow-[0_8px_20px_rgba(0,234,255,0.25)] hover:border-cyan-200 transition-all"
+            className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
         >
             Back
         </button>
@@ -124,10 +124,10 @@ export default function Settings() {
     <div className="flex flex-col min-h-[60vh] gap-8 max-w-4xl">
       <div>
         <h2 className="text-4xl font-bold text-white">Settings</h2>
-        <p className="text-[#B7F6FF] mt-2">Manage your account settings.</p>
+        <p className="text-lightest-cyan mt-2">Manage your account settings.</p>
       </div>
 
-      <section className="bg-[#1A1A1F99] rounded-xl border border-[#FFFFFF1A] p-5">
+      <section className="bg-bg-modal rounded-xl border border-[var(--color-border-subtle)] p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-2xl font-bold text-white">Security</h3>
           <span className="text-xs px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-300">
@@ -136,7 +136,7 @@ export default function Settings() {
         </div>
         <div className="space-y-3">
           {/* Two-Factor Authentication - Placeholder */}
-          <div className="flex items-center justify-between gap-4 rounded-lg border border-[#FFFFFF1A] px-4 py-3">
+          <div className="flex items-center justify-between gap-4 rounded-lg border border-[var(--color-border-subtle)] px-4 py-3">
             <div>
               <p className="text-white font-semibold">
                 Two-factor authentication (2FA)
@@ -149,14 +149,14 @@ export default function Settings() {
             <button
               type="button"
               disabled
-              className="px-3 py-1.5 rounded-md text-sm font-bold border border-[#FFFFFF1A] text-gray-500 cursor-not-allowed"
+              className="px-3 py-1.5 rounded-md text-sm font-bold border border-[var(--color-border-subtle)] text-gray-500 cursor-not-allowed"
             >
               Enable / Disable
             </button>
           </div>
 
           {/* Password Change */}
-          <div className="flex items-center justify-between gap-4 rounded-lg border border-[#FFFFFF1A] px-4 py-3">
+          <div className="flex items-center justify-between gap-4 rounded-lg border border-[var(--color-border-subtle)] px-4 py-3">
             <div>
               <p className="text-white font-semibold">Password</p>
               <p className="text-sm text-gray-400">
@@ -166,7 +166,7 @@ export default function Settings() {
             <button
               type="button"
               onClick={() => setShowPasswordModal(true)}
-              className="px-3 py-1.5 rounded-md text-sm font-bold border border-[#FFFFFF1A] text-gray-300 hover:border-gray-400 cursor-pointer transition-colors"
+              className="px-3 py-1.5 rounded-md text-sm font-bold border border-[var(--color-border-subtle)] text-gray-300 hover:border-gray-400 cursor-pointer transition-colors"
             >
               Change Password
             </button>
@@ -174,13 +174,13 @@ export default function Settings() {
         </div>
       </section>
 
-      <section className="bg-[#1A1A1F99] rounded-xl border border-[#FFFFFF1A] p-5">
+      <section className="bg-bg-modal rounded-xl border border-[var(--color-border-subtle)] p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-2xl font-bold text-white">Appearance</h3>
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-lg border border-[#FFFFFF1A] px-4 py-3">
+          <div className="rounded-lg border border-[var(--color-border-subtle)] px-4 py-3">
             <p className="text-white font-semibold">Collectables appearance</p>
             <p className="text-sm text-gray-400 mb-3">
               Choose which collectables set appears during matches.
@@ -191,10 +191,10 @@ export default function Settings() {
                 type="button"
                 onClick={() => handleCollectableSetSelect("gemstones")}
                 aria-pressed={selectedCollectableSet === "gemstones"}
-                className={`rounded-md border bg-[#0B0B0F] p-3 text-left transition-colors ${
+                className={`rounded-md border bg-bg-dark p-3 text-left transition-colors ${
                   selectedCollectableSet === "gemstones"
                     ? "border-cyan-300"
-                    : "border-[#FFFFFF1A] hover:border-cyan-500/60"
+                    : "border-[var(--color-border-subtle)] hover:border-cyan-500/60"
                 }`}
               >
                 <p className="text-white font-semibold pb-3">Gemstones</p>
@@ -214,10 +214,10 @@ export default function Settings() {
                 type="button"
                 onClick={() => handleCollectableSetSelect("numbers")}
                 aria-pressed={selectedCollectableSet === "numbers"}
-                className={`rounded-md border bg-[#0B0B0F] p-3 text-left transition-colors ${
+                className={`rounded-md border bg-bg-dark p-3 text-left transition-colors ${
                   selectedCollectableSet === "numbers"
                     ? "border-cyan-300"
-                    : "border-[#FFFFFF1A] hover:border-cyan-500/60"
+                    : "border-[var(--color-border-subtle)] hover:border-cyan-500/60"
                 }`}
               >
                 <p className="text-white font-semibold pb-3">Numbers</p>
@@ -235,7 +235,7 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="rounded-lg border border-[#FFFFFF1A] px-4 py-3">
+          <div className="rounded-lg border border-[var(--color-border-subtle)] px-4 py-3">
             <p className="text-white font-semibold">Player appearance</p>
             <p className="text-sm text-gray-400 mb-3">
               Choose your player look and style on the game board.
@@ -246,10 +246,10 @@ export default function Settings() {
                 type="button"
                 onClick={() => handlePlayerIconSetSelect("star")}
                 aria-pressed={selectedPlayerIconSet === "star"}
-                className={`rounded-md border bg-[#0B0B0F] p-3 text-left transition-colors ${
+                className={`rounded-md border bg-bg-dark p-3 text-left transition-colors ${
                   selectedPlayerIconSet === "star"
                     ? "border-cyan-300"
-                    : "border-[#FFFFFF1A] hover:border-cyan-500/60"
+                    : "border-[var(--color-border-subtle)] hover:border-cyan-500/60"
                 }`}
               >
                 <p className="text-white font-semibold pb-3">Stars</p>
@@ -269,10 +269,10 @@ export default function Settings() {
                 type="button"
                 onClick={() => handlePlayerIconSetSelect("space_inv")}
                 aria-pressed={selectedPlayerIconSet === "space_inv"}
-                className={`rounded-md border bg-[#0B0B0F] p-3 text-left transition-colors ${
+                className={`rounded-md border bg-bg-dark p-3 text-left transition-colors ${
                   selectedPlayerIconSet === "space_inv"
                     ? "border-cyan-300"
-                    : "border-[#FFFFFF1A] hover:border-cyan-500/60"
+                    : "border-[var(--color-border-subtle)] hover:border-cyan-500/60"
                 }`}
               >
                 <p className="text-white font-semibold pb-3">Space Invaders</p>
@@ -295,7 +295,7 @@ export default function Settings() {
       {/* Password Change Modal */}
       {showPasswordModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1A1A1F] rounded-xl border border-[#FFFFFF1A] p-6 max-w-md w-full">
+          <div className="bg-bg-dark rounded-xl border border-[var(--color-border-subtle)] p-6 max-w-md w-full">
             <h3 className="text-2xl font-bold text-white mb-4">
               Change Password
             </h3>
@@ -322,7 +322,7 @@ export default function Settings() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   disabled={passwordLoading}
-                  className="w-full px-3 py-2 rounded-lg bg-[#0B0B0F] border border-[#FFFFFF1A] text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors disabled:opacity-50"
+                  className="w-full px-3 py-2 rounded-lg bg-bg-dark-secondary border border-[var(--color-border-subtle)] text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors disabled:opacity-50"
                   placeholder="Enter new password"
                 />
               </div>
@@ -336,7 +336,7 @@ export default function Settings() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   disabled={passwordLoading}
-                  className="w-full px-3 py-2 rounded-lg bg-[#0B0B0F] border border-[#FFFFFF1A] text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors disabled:opacity-50"
+                  className="w-full px-3 py-2 rounded-lg bg-bg-dark-secondary border border-[var(--color-border-subtle)] text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors disabled:opacity-50"
                   placeholder="Confirm new password"
                 />
               </div>
@@ -351,7 +351,7 @@ export default function Settings() {
                     setPasswordError(null);
                   }}
                   disabled={passwordLoading}
-                  className="flex-1 px-4 py-2 rounded-lg border border-[#FFFFFF1A] text-gray-300 hover:border-gray-400 transition-colors disabled:opacity-50 cursor-pointer"
+                  className="flex-1 px-4 py-2 rounded-lg border border-[var(--color-border-subtle)] text-gray-300 hover:border-gray-400 transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   Cancel
                 </button>
