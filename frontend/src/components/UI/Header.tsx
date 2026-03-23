@@ -1,4 +1,5 @@
 import { useAuth } from "../../hooks/useAuth";
+import logoBolt from "/logo-bolt.svg";
 
 interface HeaderProps {
   status: string;
@@ -22,7 +23,7 @@ export default function Header({
         >
           <div className="flex items-center gap-3">
             <img
-              src="../../../public/assets/logo-bolt.svg"
+              src={logoBolt}
               alt="logo"
               className="h-8 w-8"
               style={{
