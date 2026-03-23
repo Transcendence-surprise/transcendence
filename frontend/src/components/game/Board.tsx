@@ -9,11 +9,13 @@ import {
   MdOutlineKeyboardArrowUp,
 } from "react-icons/md";
 import { TILE_SVGS } from "./tiles/tilesConstants";
+import { leaveGame } from "../../api/game";
 
 type Props = {
   board: Board;
   players: PlayerState[];
   progress: Record<string, PlayerProgress>;
+  gameId: string;
 };
 
 type Side = "top" | "right" | "bottom" | "left";
@@ -149,12 +151,25 @@ function getNextButtonId(
   return null;
 }
 
-export default function BoardView({ board, players, progress }: Props) {
+export default function BoardView({ board, players, progress, gameId }: Props) {
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [selectedButton, setSelectedButton] = useState<string | null>(null);
   const [boardState, setBoardState] = useState(board);
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  const handleLeaveGame = async () => {
+    try {
+      await leaveGame(gameId);
+    } catch (err) {
+      console.error("Error deleting game:", err);
+      alert("Error leaving game");
+    } finally {
+      // Navigate back regardless of success/failure
+      console.log("Navigating back...");
+      navigate(-1);
+    }
+  };
 
   useEffect(() => {
     setBoardState(board);
@@ -500,7 +515,13 @@ export default function BoardView({ board, players, progress }: Props) {
 
       <button
         onClick={() => navigate(-2)}
-      className="mt-2 text-sm underline text-blue-300"
+        className="mt-2 text-sm underline text-blue-300"
+      >
+        Back
+      </button>
+      <button
+        onClick={handleLeaveGame}
+        className="mt-2 text-sm underline text-blue-300"
       >
         Leave Game
       </button>

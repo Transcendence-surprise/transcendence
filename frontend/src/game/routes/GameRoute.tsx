@@ -63,6 +63,7 @@ export default function GameRoute() {
         board={game.board}
         players={game.players}
         progress={game.playerProgress}
+        gameId={id || ""}
       />
     );
   }

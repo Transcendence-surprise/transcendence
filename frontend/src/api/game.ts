@@ -97,12 +97,22 @@ export async function leaveGame(gameId: string ) {
     body: JSON.stringify({ gameId }),
     credentials: 'include',
   });
-  const data = await res.json();
+
+  let data: any = {};
+  try {
+    data = await res.json();
+  } catch (e) {
+    // Backend returned invalid JSON
+    return {
+      ok: false,
+      error: `Server error: ${res.status} ${res.statusText}`,
+    };
+  }
 
   if (!res.ok || !data.ok) {
     return {
       ok: false,
-      error: data?.error || data?.message || 'Failed to leave game',
+      error: data?.error || data?.message || `Failed to leave game: ${res.statusText}`,
     };
   }
 
