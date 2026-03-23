@@ -20,24 +20,18 @@ export default function GameEntryRoute() {
   useEffect(() => {
     const checkActive = async () => {
       if (!user) {
-        console.log("No user, skipping active game check");
         setActiveGameIds([]);
         return;
       }
       try {
-        console.log("Checking for active games...");
-        
         // Use checkPlayerAvailability which searches through ALL games for this player
         const availability = await checkPlayerAvailability();
-        console.log("checkPlayerAvailability result:", availability);
-        
+
         // Note: Backend returns ok:false when player HAS a game (backwards logic)
         // gameId will be present if player is in a game
         if (availability.gameId) {
-          console.log("Found active game:", availability.gameId);
           setActiveGameIds([availability.gameId]);
         } else {
-          console.log("No active game found");
           setActiveGameIds([]);
         }
       } catch (error) {
