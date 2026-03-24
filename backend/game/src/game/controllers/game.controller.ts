@@ -33,16 +33,6 @@ export class GameController {
 ) {}
 
   // Create Game
-  // @Post('create')
-  // @ApiBody({ type: CreateGameDto })
-  // @ApiResponse({ status: 201, type: CreateGameResponseDto })
-  // createGame(@Body() body: CreateGameDto) : CreateGameResponseDto {
-  //   const { gameId } = this.engine.createGame(body.hostId, body.settings);
-
-  //   this.wsGateway.sendMultiplayerListUpdate();
-  //   // console.log("Game was created", gameId );
-  //   return { ok: true, gameId };
-  // }
   @Post('create')
   @ApiBody({ type: CreateGameDto })
   @ApiResponse({ status: 201, type: CreateGameResponseDto })

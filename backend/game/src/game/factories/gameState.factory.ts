@@ -37,7 +37,6 @@ export function createGameState(level: Level): GameState {
     board: structuredClone(level.board),
 
     currentPlayerIndex: 0,
-    currentPlayerId: null,
 
     lastBoardAction: undefined,
 
