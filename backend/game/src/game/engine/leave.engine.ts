@@ -10,7 +10,21 @@ export function leaveGameEngine(
   // Prevent host from leaving - use loose equality for type compatibility
   if (state.hostId == playerId) {
     if (state.phase === "PLAY") {
-        return { ok: false, error: LeaveError.HOST_CANNOT_LEAVE };
+      // Remove host from players (always index 0)
+      state.players.splice(0, 1);
+      // Update currentPlayerIndex if needed
+      if (state.currentPlayerIndex === 0) {
+        // If host was current player, set to next or 0
+        state.currentPlayerIndex = state.players.length > 0 ? 0 : 0;
+      } else {
+        // If host was before current player, decrement index
+        state.currentPlayerIndex--;
+      }
+      // If only one player remains, signal game deletion
+      if (state.players.length === 1) {
+        return { ok: true, deleteGame: true };
+      }
+      return { ok: true };
     }
     return { ok: true, deleteGame: true };
   }
@@ -21,9 +35,21 @@ export function leaveGameEngine(
     state.players.splice(playerIndex, 1);
 
     // Update current player if needed
-     if (state.currentPlayerId == playerId) {
-      state.currentPlayerId = state.players[0]?.id ?? null;
-      state.currentPlayerIndex = 0;
+    if (state.currentPlayerIndex === playerIndex) {
+      // If the leaving player is the current player, set to next player or 0
+      if (state.players.length > 0) {
+        state.currentPlayerIndex = state.players.length > playerIndex ? playerIndex : 0;
+      } else {
+        state.currentPlayerIndex = 0;
+      }
+    } else if (playerIndex < state.currentPlayerIndex) {
+      // If the leaving player is before the current player, decrement index
+      state.currentPlayerIndex--;
+    }
+
+    // If only one player remains, signal game deletion
+    if (state.players.length === 1) {
+      return { ok: true, deleteGame: true };
     }
 
     return { ok: true };

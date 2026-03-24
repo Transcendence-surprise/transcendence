@@ -26,7 +26,8 @@ describe("startGameEngine", () => {
 
     // single-player games start in PLAY immediately
     expect(state.phase).toBe("PLAY");
-    expect(state.currentPlayerId).toBe(hostId);
+    expect(state.currentPlayerIndex).toBe(0);
+    expect(state.players[state.currentPlayerIndex].id).toBe(hostId);
     expect(state.players.length).toBe(1);
     expect(state.players[0].id).toBe(hostId);
   });
@@ -41,7 +42,8 @@ describe("startGameEngine", () => {
 
     expect(result.ok).toBe(true);
     expect(state.phase).toBe("PLAY");
-    expect(state.currentPlayerId).toBe(hostId);
+    expect(state.currentPlayerIndex).toBe(0);
+    expect(state.players[state.currentPlayerIndex].id).toBe(hostId);
   });
 
   it("fails if non-host tries to start multiplayer game", () => {

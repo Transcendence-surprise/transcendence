@@ -6,7 +6,7 @@ import { BoardAction } from "./boardAction";
 export type GamePhase = "LOBBY" | "PLAY" | "END";
 
 export interface PlayerState {
-  id: number | string;                     // unique player identifier (number for users, string UUID for guests)
+  id: number | string;            // unique player identifier (number for users, string UUID for guests)
   slotId: string;                 // "P1"
   name: string;                   // nickname
   x: number;                      // current X position
@@ -67,7 +67,6 @@ export interface GameState {
 
   board: Board;                       // board tiles
   currentPlayerIndex: number;         // whose turn in players[]
-  currentPlayerId: number | string | null;     // convenience field
   lastBoardAction?: BoardAction;      // last action performed
   turnActions: {                      // per-turn counters
     rotateCount: Record<string, number>;

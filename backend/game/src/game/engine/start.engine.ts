@@ -29,10 +29,9 @@ export function startGameEngine(
   // Everything OK → start
   state.phase = "PLAY";
 
-  // For multi: first player is already currentPlayerId
-  if (!state.currentPlayerId && state.players.length > 0) {
+  // For multi: set first player as current
+  if (state.players.length > 0) {
     state.currentPlayerIndex = 0;
-    state.currentPlayerId = state.players[0].id;
   }
 
   return { ok: true };

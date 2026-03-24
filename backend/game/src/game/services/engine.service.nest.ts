@@ -41,10 +41,10 @@ export class EngineService {
 
       if (!state) {
         return { ok: false, error: StartError.GAME_NOT_FOUND };
-  }
+      }
 
       return startGameEngine(state, hostId);
-    } catch (err) {
+    } catch {
       return { ok: false, error: StartError.GAME_NOT_FOUND };
     }
   }
