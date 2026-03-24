@@ -39,4 +39,13 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .expect({ status: 'ok' });
   });
+
+  it('/api/leaderboard/daily (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/api/leaderboard/daily')
+      .expect(200);
+
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBeLessThanOrEqual(10);
+  });
 });

@@ -59,6 +59,12 @@ export class UsersController {
     return res.status(result.statusCode).send(result.data);
   }
 
+  @Get('leaderboard/daily')
+  async getDailyLeaderboard(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    const result = await this.usersClient.getDailyLeaderboard(req);
+    return res.status(result.statusCode).send(result.data);
+  }
+
   @Put('id/:id')
   async updateUser(
     @Param('id') id: string,

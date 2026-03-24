@@ -5,6 +5,7 @@ import { HealthController } from './health/health.controller';
 import { UsersModule } from './users/users.module';
 import { MailModule } from './mail/mail.module';
 import { ImagesModule } from './images/images.module';
+import { LeaderboardModule } from './leaderboard/leaderboard.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ImagesModule } from './images/images.module';
     UsersModule,
     MailModule,
     ImagesModule,
+    LeaderboardModule,
   ],
   controllers: [HealthController],
   providers: [],

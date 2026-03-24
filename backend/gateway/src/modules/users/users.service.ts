@@ -72,6 +72,10 @@ export class UsersHttpService {
     return this.request<T>(`/api/users/id/${id}`, 'patch', body, req);
   }
 
+  async getDailyLeaderboard<T = unknown>(req?: FastifyRequest): Promise<{ statusCode: number; data: T }> {
+    return this.request<T>('/api/leaderboard/daily', 'get', undefined, req);
+  }
+
   private async request<T>(
     path: string,
     method: 'get' | 'post' | 'delete' | 'put' | 'patch' = 'get',
