@@ -126,7 +126,7 @@ export class WsGateway {
   }
 
   // --------------------
-  // Game / Lobby / Play
+  // JOIN LOBBY
   // --------------------
 
   @SubscribeMessage('joinLobby')
@@ -141,43 +141,34 @@ export class WsGateway {
       return client.disconnect(true);
     }
 
-    const state = this.engine.getGameState(data.gameId);
-
-    console.log("LOBBY_UPDATE_START");
-    console.log("LOBBY_USER: ", user.username);
-    // console.log("Game state:", JSON.stringify(state, null, 2));
-
-    if (!state) {
-      console.log("GAME_NOT_FOUND");
-      return client.emit("error", { error: "GAME_NOT_FOUND" });
-    }
-    if (state.phase !== "LOBBY") {
-      console.log("LOBBY_CLOSED");
-      return client.emit("error", { error: "LOBBY_CLOSED" });
-    }
-
     const room = `lobby:${data.gameId}`;
     void client.join(room);
 
-      const playersWithNames = state.players.map(p => ({
+    this.sendLobbyUpdate(data.gameId);
+  }
+
+  sendLobbyUpdate(gameId: string) {
+    const state = this.engine.getGameState(gameId);
+    if (!state) return;
+
+    const playersWithNames = state.players.map(p => ({
       id: p.id,
-      displayName: p.name, // or username
+      displayName: p.name,
     }));
 
     const host = playersWithNames.find(p => p.id === state.hostId);
 
-    console.log('LOBBY_USER:', user.username, user.roles.includes('guest') ? '(guest)' : '');
-    console.log("Players: ", playersWithNames);
-    console.log("Spectators: ", state.rules.allowSpectators);
-
-    this.server.to(room).emit('lobbyUpdate', {
-    gameId: data.gameId,
-    host: host?.displayName ?? "Unknown",
-    players: playersWithNames,
-    rules: state.rules,
-    phase: state.phase,
+    // Emit to the lobby room
+    this.sendToRoom(`lobby:${gameId}`, 'lobbyUpdate', {
+      gameId,
+      host: host?.displayName ?? "Unknown",
+      players: playersWithNames,
+      rules: state.rules,
+      phase: state.phase,
     });
   }
+
+// MULTIPLAYER GAMES TABLE
 
   @SubscribeMessage('joinMultiplayerList')
   handleJoinMultiplayerList(
@@ -195,6 +186,8 @@ export class WsGateway {
       games,
     });
   }
+
+// LOBBY CHAT
 
   @SubscribeMessage("lobbyMessage")
   handleLobbyMessage(
@@ -240,31 +233,31 @@ export class WsGateway {
       .emit("lobbyMessage", chatMessage);
   }
 
-  @SubscribeMessage('joinPlay')
-  handleJoinPlay(
-    @MessageBody() data: { gameId: string },
-    @ConnectedSocket() client: TypedSocket,
-  ) {
-    const state = this.engine.getGameState(data.gameId);
+  // @SubscribeMessage('joinPlay')
+  // handleJoinPlay(
+  //   @MessageBody() data: { gameId: string },
+  //   @ConnectedSocket() client: TypedSocket,
+  // ) {
+  //   const state = this.engine.getGameState(data.gameId);
 
-    if (!state) {
-      return client.emit("error", { error: "GAME_NOT_FOUND" });
-    }
-    if (state.phase !== "PLAY") {
-      return client.emit("error", { error: "GAME_NOT_IN_PLAY" });
-    }
+  //   if (!state) {
+  //     return client.emit("error", { error: "GAME_NOT_FOUND" });
+  //   }
+  //   if (state.phase !== "PLAY") {
+  //     return client.emit("error", { error: "GAME_NOT_IN_PLAY" });
+  //   }
 
-    const room = `play:${data.gameId}`;
-    void client.join(room);
+  //   const room = `play:${data.gameId}`;
+  //   void client.join(room);
 
-    // Send initial state immediately
-    client.emit("playUpdate", {
-      phase: "PLAY",
-      board: state.board,
-      players: state.players,
-      playerProgress: state.playerProgress,
-    });
-  }
+  //   // Send initial state immediately
+  //   client.emit("playUpdate", {
+  //     phase: "PLAY",
+  //     board: state.board,
+  //     players: state.players,
+  //     playerProgress: state.playerProgress,
+  //   });
+  // }
 
   //GLOBAL CHAT
 
@@ -318,7 +311,8 @@ export class WsGateway {
     this.server.to("chat:global").emit("chatMessage", message);
   }
 
-  // Check player status (for "Continue Game" feature)
+  // PLAYER STATUS CHECK (for game entry/lobby and status dot)
+
   @SubscribeMessage("checkPlayerStatus")
   handleCheckPlayerStatus(@ConnectedSocket() client: TypedSocket) {
     const user = client.user;
