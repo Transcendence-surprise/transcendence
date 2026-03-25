@@ -67,6 +67,15 @@ export default function LobbyRoute() {
 
     socket.on("lobbyMessage", handleLobbyMessage);
 
+    const handleLobbyDeleted = (data: { gameId: string }) => {
+      if (data.gameId === gameId) {
+        alert("The host left and the lobby was closed!");
+        navigate("/game");
+      }
+    };
+
+    socket.on("lobbyDeleted", handleLobbyDeleted);
+
     const handleError = (err: any) => {
       console.log("LOBBY ERROR", err);
       setError(err.error || "Failed to join lobby");
@@ -78,6 +87,7 @@ export default function LobbyRoute() {
       socket.off("connect", handleConnect);
       socket.off("lobbyUpdate", handleLobbyUpdate);
       socket.off("lobbyMessage", handleLobbyMessage);
+      socket.off("lobbyDeleted", handleLobbyDeleted);
       socket.off("error", handleError); 
     };
   }, [gameId, user, navigate]);

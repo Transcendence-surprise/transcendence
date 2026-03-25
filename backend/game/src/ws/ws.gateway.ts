@@ -168,6 +168,13 @@ export class WsGateway {
     });
   }
 
+  // Host lef, game deleted, or other lobby-ending event
+  sendLobbyDeleted(gameId: string) {
+    // Emit to the lobby room so everyone sees it
+    this.sendToRoom(`lobby:${gameId}`, "lobbyDeleted", { gameId });
+    console.log(`Lobby ${gameId} deleted, all clients notified`);
+  }
+
 // MULTIPLAYER GAMES TABLE
 
   @SubscribeMessage('joinMultiplayerList')
@@ -350,4 +357,3 @@ export class WsGateway {
     });
   }
 }
-

@@ -79,10 +79,12 @@ export class EngineService {
     const result = leaveGameEngine(state, playerId);
     if (!result.ok) return result;
 
+    const previousPlayers = state.players.map(p => p.id);
+
     if (result.deleteGame) {
       this.games.delete(gameId);
       console.log(`Game ${gameId} deleted after player left ${playerId}`);
-      return { ok: true, deleteGame: true };
+      return { ok: true, deleteGame: true, previousPlayers };
     }
     console.log(`Player ${playerId} left game ${gameId}`);
     return { ok: true };

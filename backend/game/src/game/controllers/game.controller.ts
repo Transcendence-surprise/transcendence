@@ -130,6 +130,10 @@ export class GameController {
       this.wsGateway.sendMultiplayerListUpdate();
       this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
       this.wsGateway.sendLobbyUpdate(body.gameId);
+      if (result.deleteGame) {
+        result.previousPlayers?.forEach(id => this.wsGateway.sendPlayerStatusUpdate(id));
+        this.wsGateway.sendLobbyDeleted(body.gameId);
+      }
     }
 
     return result.ok ? { ok: true } : { ok: false, error: result.error };
