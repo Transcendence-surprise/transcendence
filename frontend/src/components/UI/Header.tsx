@@ -1,5 +1,6 @@
 import { useAuth } from "../../hooks/useAuth";
 import logoBolt from "/logo-bolt.svg";
+import GameStatusDot from "../game/GameStatusDot";
 
 interface HeaderProps {
   status: string;
@@ -36,8 +37,9 @@ export default function Header({
             </h1>
           </div>
         </a>
-        <div>
+        <div className="flex items-center gap-2">
           <p className="text-sm text-light-cyan">Backend status: {status}</p>
+          <GameStatusDot user={user ? { id: user.id?.toString() } : null} />
         </div>
 
         <div className="flex items-center gap-2">
