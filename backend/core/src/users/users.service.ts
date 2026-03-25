@@ -18,42 +18,60 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
   constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
+  private mapUser(user: User): Omit<User, 'password' | 'avatarImage'> & {
+    avatarImageId: number | null;
+    avatarUrl: string | null;
+  } {
+    const { password: _password, avatarImage: _avatarImage, ...rest } = user;
+    return {
+      ...rest,
+      avatarImageId: user.avatarImageId ?? null,
+      avatarUrl: user.avatarImage?.url ?? null,
+    };
+  }
+
   async findAll() {
-    return await this.userRepo.find();
+    const users = await this.userRepo.find({ relations: ['avatarImage'] });
+    return users.map((user: User) => this.mapUser(user));
   }
 
   async findOneByUsername(username: string) {
-    const user = await this.userRepo.findOne({ where: { username } });
+    const user = await this.userRepo.findOne({ where: { username }, relations: ['avatarImage'] });
     if (!user) throw new NotFoundException(`User '${username}' not found`);
-    return user;
+    return this.mapUser(user);
   }
 
   async findOneById(id: number) {
-    const user = await this.userRepo.findOne({ where: { id } });
+    const user = await this.userRepo.findOne({ where: { id }, relations: ['avatarImage'] });
     if (!user) throw new NotFoundException(`User '${id}' not found`);
-    return user;
+    return this.mapUser(user);
   }
 
   async findOneByEmail(email: string) {
-    const user = await this.userRepo.findOne({ where: { email } });
+    const user = await this.userRepo.findOne({ where: { email }, relations: ['avatarImage'] });
     if (!user)
       throw new NotFoundException(`User with email '${email}' not found`);
-    return user;
+    return this.mapUser(user);
   }
 
   async findByIdentifierWithPassword(identifier: string) {
     return await this.userRepo
       .createQueryBuilder('user')
+      .leftJoinAndSelect('user.avatarImage', 'avatarImage')
       .where('user.username = :identifier OR user.email = :identifier', { identifier })
       .addSelect('user.password')
       .getOne();
   }
 
   async findByIdentifier(identifier: string) {
-    return await this.userRepo
+    const user = await this.userRepo
       .createQueryBuilder('user')
+      .leftJoinAndSelect('user.avatarImage', 'avatarImage')
       .where('user.username = :identifier OR user.email = :identifier', { identifier })
       .getOne();
+
+    if (!user) return null;
+    return this.mapUser(user);
   }
 
   async validateCredentials(validateCredDto: ValidateCredDto) {
@@ -76,8 +94,8 @@ export class UsersService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const { password: _, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    const safeUser = this.mapUser(user);
+    return safeUser;
   }
 
   async removeByUsername(username: string) {
@@ -109,8 +127,7 @@ export class UsersService {
     }
 
     const savedUser = await this.userRepo.save(user);
-    const { password: _, ...userWithoutPassword } = savedUser;
-    return userWithoutPassword;
+    return this.mapUser(savedUser);
   }
 
   async updateMe(userId: number, updateMeDto: UpdateMeDto) {
@@ -123,9 +140,12 @@ export class UsersService {
       user.twoFactorEnabled = updateMeDto.twoFactorEnabled;
     }
 
+    if (updateMeDto.avatarImageId !== undefined) {
+      user.avatarImageId = updateMeDto.avatarImageId;
+    }
+
     const updatedUser = await this.userRepo.save(user);
-    const { password: _, ...userWithoutPassword } = updatedUser;
-    return userWithoutPassword;
+    return this.mapUser(updatedUser);
   }
 
   async createOrUpdate(id: number, updateUserDto: UpdateUserDto) {
@@ -166,8 +186,7 @@ export class UsersService {
     }
 
     const savedUser = await this.userRepo.save(user);
-    const { password: _, ...userWithoutPassword } = savedUser;
-    return { user: userWithoutPassword, created };
+    return { user: this.mapUser(savedUser), created };
   }
 
   async updateUserPartial(id: number, updateUserPartialDto: UpdateUserPartialDto) {

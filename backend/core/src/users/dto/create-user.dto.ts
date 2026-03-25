@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MaxLength, MinLength, IsOptional, Matches } from 'class-validator';
+import { IsEmail, IsString, MaxLength, MinLength, IsOptional, Matches, IsInt } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
@@ -30,4 +30,13 @@ export class CreateUserDto {
   @MaxLength(72)
   @Matches(/\S/, { message: 'password must contain a non-whitespace character' })
   password?: string;
+
+  @ApiProperty({
+    description: 'Avatar image id from images table',
+    example: 42,
+    required: false,
+  })
+  @IsOptional()
+  @IsInt()
+  avatarImageId?: number;
 }

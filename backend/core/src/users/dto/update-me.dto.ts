@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional } from 'class-validator';
+import { IsBoolean, IsOptional, IsInt } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateMeDto {
@@ -10,4 +10,13 @@ export class UpdateMeDto {
   @IsOptional()
   @IsBoolean()
   twoFactorEnabled?: boolean;
+
+  @ApiProperty({
+    description: 'Avatar image id from images table',
+    example: 42,
+    required: false,
+  })
+  @IsOptional()
+  @IsInt()
+  avatarImageId?: number;
 }
