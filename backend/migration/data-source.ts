@@ -3,7 +3,7 @@ import { config } from 'dotenv';
 import { resolve } from 'path';
 import { DataSource } from 'typeorm';
 
-import { ApiKey, Game, GamePlayer, User } from '@transcendence/db-entities';
+import { ApiKey, Game, GamePlayer, User, Image } from '@transcendence/db-entities';
 
 config({ path: resolve(__dirname, '../../.env') });
 
@@ -23,7 +23,7 @@ export default new DataSource({
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
-  entities: [ApiKey, User, Game, GamePlayer],
+  entities: [ApiKey, User, Game, GamePlayer, Image],
   migrations: ['migrations/*.ts'],
   migrationsTableName: 'migrations',
   synchronize: false,

@@ -7,25 +7,20 @@ import {
   ApiUnauthorizedResponse,
   ApiOkResponse,
   ApiConflictResponse,
-  ApiFoundResponse,
-  ApiQuery,
-  ApiCreatedResponse,
-  ApiParam,
-  ApiNotFoundResponse,
-  ApiExcludeEndpoint,
   ApiExtraModels,
   getSchemaPath,
   ApiResponse,
 } from '@nestjs/swagger';
-import { LoginUserDto } from './dto/login-user.dto';
-import { LoginUserResDto } from './dto/login-user-res.dto';
-import { SignupUserDto } from './dto/signup-user.dto';
-import { SignupUserResDto } from './dto/signup-user-res.dto';
-import { CreateApiKeyResDto } from './dto/create-api-key-res.dto';
-import { GetApiKeyResDto } from './dto/get-api-key-res.dto';
-import { LoginWith2FADto } from './dto/login-with-2fa.dto';
+import { LoginUserDto } from './dto/login/login-user.dto';
+import { LoginUserResDto } from './dto/login/login-user-res.dto';
+import { SignupUserDto } from './dto/signup/signup-user.dto';
+import { SignupUserResDto } from './dto/signup/signup-user-res.dto';
+import { LoginWith2FADto } from './dto/login/login-with-2fa.dto';
 import { LogoutResDto } from './dto/logout-res.dto';
-import { TwoFactorRequiredResDto } from './dto/two-factor-required-res.dto';
+import { CreatePasswordResetDto } from './dto/password-reset/create-password-reset.dto';
+import { ConfirmPasswordResetDto } from './dto/password-reset/confirm-password-reset.dto';
+import { PasswordResetRequestResDto } from './dto/password-reset/password-reset-request-res.dto';
+import { TwoFactorRequiredResDto } from './dto/login/two-factor-required-res.dto';
 
 const AuthControllerDocs = () => ApiTags('Authentication');
 
@@ -157,143 +152,42 @@ const LogoutDocs = () =>
     }),
   );
 
-const GoogleAuthDocs = () =>
+const PasswordResetDocs = () =>
   applyDecorators(
     ApiOperation({
-      summary: 'User authentication with Google',
-      description: 'Redirect user to Google for authentication',
+      summary: 'Request password reset',
+      description: 'Generate a one-time password reset token and send it to the user email',
     }),
-    ApiFoundResponse({ description: 'Redirection to Google authentication url' }),
+    ApiBody({
+      description: 'Email for the user that wants to reset their password',
+      type: CreatePasswordResetDto,
+    }),
+    ApiOkResponse({
+      description: 'Password reset request accepted',
+      type: PasswordResetRequestResDto,
+    }),
   );
 
-const GoogleAuthCallbackDocs = () =>
+const PasswordResetConfirmDocs = () =>
   applyDecorators(
     ApiOperation({
-      summary: 'Callback for user returned from Google',
-      description: 'Receive code and exchange with Google token for user authentication',
+      summary: 'Confirm password reset',
+      description: 'Apply one-time token and set new user password',
     }),
-    ApiQuery({
-      name: 'code',
-      type: String,
-      description: 'Authorization code from Google',
+    ApiBody({
+      description: 'Token and new password',
+      type: ConfirmPasswordResetDto,
     }),
-    ApiFoundResponse({
-      description: 'Redirection to application with JWT set as HttpOnly cookie',
-      headers: {
-        'Set-Cookie': {
-          description: 'JWT access token as HttpOnly cookie',
-          schema: {
-            type: 'string',
-            example: 'access_token=eyJhbGciOi...; HttpOnly; Path=/; SameSite=Lax; Max-Age=86400',
-          },
-        },
+    ApiOkResponse({
+      description: 'Password changed successfully',
+      schema: {
+        type: 'object',
+        properties: { ok: { type: 'boolean', example: true } },
       },
     }),
+    ApiBadRequestResponse({ description: 'Bad request' }),
+    ApiUnauthorizedResponse({ description: 'Invalid or expired password reset token' }),
   );
-
-const Intra42AuthDocs = () =>
-  applyDecorators(
-    ApiOperation({
-      summary: 'User authentication with intra42',
-      description: 'Redirect user with formed url to intra for authenitcation'
-    }),
-    ApiFoundResponse({ description: 'Redirection to authentication url' }),
-  );
-
-const Intra42AuthCallbackDocs = () =>
-  applyDecorators(
-    ApiOperation({
-      summary: 'Callback for user returned from intra42',
-      description: 'Receive code and exchange with intra42 token for user authentication'
-    }),
-    ApiQuery({
-      name: 'code',
-      type: String,
-      description: 'Authorization code from intra42',
-    }),
-    ApiQuery({
-      name: 'state',
-      type: String,
-      description: 'State parameter to prevent CSRF attacks',
-    }),
-    ApiFoundResponse({
-      description: 'Redirection to application with JWT set as HttpOnly cookie',
-      headers: {
-        'Set-Cookie': {
-          description: 'JWT access token as HttpOnly cookie',
-          schema: {
-            type: 'string',
-            example: 'access_token=eyJhbGciOi...; HttpOnly; Path=/; SameSite=Lax; Max-Age=86400',
-          },
-        },
-      },
-    }),
-  );
-
-  const GetApiKeysDocs = () =>
-    applyDecorators(
-      ApiOperation({
-        summary: 'Get all API keys',
-        description: 'Retrieve a list of all API keys',
-      }),
-      ApiOkResponse({
-        description: 'List of API keys',
-        type: GetApiKeyResDto,
-        isArray: true,
-      }),
-    );
-
-  const CreateApiKeyDocs = () =>
-    applyDecorators(
-      ApiOperation({
-        summary: 'Create API key',
-        description: 'Generate a new API key and return its token and metadata',
-      }),
-      ApiCreatedResponse({
-        description: 'API key created',
-        type: CreateApiKeyResDto,
-      }),
-      ApiBadRequestResponse({ description: 'Bad request' }),
-    );
-
-  const RemoveApiKeyDocs = () =>
-    applyDecorators(
-      ApiOperation({
-        summary: 'Delete API key',
-        description: 'Remove an API key by id',
-      }),
-      ApiParam({
-        name: 'id',
-        type: 'string',
-        description: 'ID of the API key to remove',
-      }),
-      ApiOkResponse({ description: 'API key deleted' }),
-      ApiNotFoundResponse({ description: 'API key not found' }),
-    );
-
-  const ValidateApiKeyDocs = () =>
-    applyDecorators(
-      ApiExcludeEndpoint(),
-      ApiOperation({
-        summary: 'Validate API key',
-        description: 'Validate an API key token and return boolean result',
-      }),
-      ApiQuery({
-        name: 'token',
-        type: String,
-        description: 'API key token to validate',
-      }),
-      ApiOkResponse({
-        description: 'Validation passed',
-        schema: { type: 'boolean' },
-        example: true,
-      }),
-      ApiBadRequestResponse({
-        description: 'Validation failed',
-        schema: { type: 'boolean' },
-        example: false,
-      }),
-    );
 
 export {
   AuthControllerDocs,
@@ -301,12 +195,6 @@ export {
   LoginWith2FADocs,
   SignupDocs,
   LogoutDocs,
-  GoogleAuthDocs,
-  GoogleAuthCallbackDocs,
-  Intra42AuthDocs,
-  Intra42AuthCallbackDocs,
-  GetApiKeysDocs,
-  CreateApiKeyDocs,
-  RemoveApiKeyDocs,
-  ValidateApiKeyDocs,
+  PasswordResetDocs,
+  PasswordResetConfirmDocs,
 };

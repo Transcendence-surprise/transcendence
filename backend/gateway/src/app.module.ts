@@ -8,6 +8,8 @@ import { HealthController } from './health/health.controller';
 import { AuthHttpModule } from './modules/auth/auth.module';
 import { UsersHttpModule } from './modules/users/users.module';
 import { GameModule } from './modules/game/game.module';
+import { ImagesHttpModule } from './modules/images/images.module';
+import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { GameModule } from './modules/game/game.module';
     AuthHttpModule,
     UsersHttpModule,
     GameModule,
+    ImagesHttpModule,
+    LeaderboardModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -11,12 +11,6 @@ import { EngineService } from '../game/services/engine.service.nest';
 import { ChatMessage, ChatService } from '../chat/chat.service';
 import jwt from 'jsonwebtoken';
 
-interface GuestTokenPayload {
-  sub: string;
-  username: string;
-  isGuest: true;
-}
-
 interface AccessTokenPayload {
   sub: number;
   username: string;
@@ -57,7 +51,7 @@ export class WsGateway {
     return secret;
   }
 
-  // Auth from cookies - guest_token takes precedence if present
+  // Auth from cookies - guest and user flows share access_token
   handleConnection(client: TypedSocket): void {
     try {
       const cookieHeader = client.handshake.headers.cookie;
@@ -74,49 +68,27 @@ export class WsGateway {
         })
       );
 
-      // Check access_token FIRST - logged-in users take precedence over guest
       const jwtToken = cookies['access_token'];
-      if (jwtToken) {
-        const decoded = jwt.verify(jwtToken, this.getJwtSecret()) as unknown as AccessTokenPayload;
-
-        if (!decoded.sub || !decoded.username) {
-          throw new Error('Invalid access token payload');
-        }
-
-        client.user = {
-          sub: decoded.sub,
-          username: decoded.username,
-          email: decoded.email ?? '',
-          roles: decoded.roles ?? ['user'],
-        };
-
-        console.log('WS connected JWT user', decoded.username);
+      if (!jwtToken) {
+        console.log('WS auth failed: no access_token');
+        client.disconnect(true);
         return;
       }
 
-      // Fall back to guest_token if no access_token
-      const guestToken = cookies['guest_token'];
-      if (guestToken) {
-        const decoded = jwt.verify(guestToken, this.getJwtSecret()) as unknown as GuestTokenPayload;
+      const decoded = jwt.verify(jwtToken, this.getJwtSecret()) as unknown as AccessTokenPayload;
 
-        if (decoded.isGuest !== true || !decoded.sub || !decoded.username) {
-          throw new Error('Invalid guest token payload');
-        }
-
-        client.user = {
-          sub: decoded.sub,  // Keep as string (UUID) for guests
-          username: decoded.username,
-          email: '',
-          roles: ['guest'],
-        };
-
-        console.log("WS connected guest", decoded.username);
-        return;
+      if (!decoded.sub || !decoded.username) {
+        throw new Error('Invalid access token payload');
       }
 
-      console.log('WS auth failed: no valid JWT or guest token');
-      client.disconnect(true);
+      client.user = {
+        sub: decoded.sub,
+        username: decoded.username,
+        email: decoded.email ?? '',
+        roles: decoded.roles ?? ['user'],
+      };
 
+      console.log('WS connected user', decoded.username);
     } catch (error) {
       console.error('WS auth failed', error instanceof Error ? error.message : error);
       client.disconnect(true);

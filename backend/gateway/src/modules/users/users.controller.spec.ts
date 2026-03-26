@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersHttpService } from './users.service';
@@ -22,7 +23,7 @@ describe('UsersController', () => {
       removeById: jest.fn(),
       create: jest.fn(),
       findUserByHisToken: jest.fn(),
-    };
+    } as unknown as jest.Mocked<UsersHttpService>;
 
     // Mock Fastify reply object
     mockRes = {

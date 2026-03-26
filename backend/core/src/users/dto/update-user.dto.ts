@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsBoolean,
   IsArray,
+  IsInt,
   MinLength,
   MaxLength,
   Matches,
@@ -58,4 +59,13 @@ export class UpdateUserDto {
   })
   @IsBoolean()
   twoFactorEnabled: boolean;
+
+  @ApiProperty({
+    description: 'Avatar image id from images table',
+    example: 42,
+    required: false,
+  })
+  @IsOptional()
+  @IsInt()
+  avatarImageId?: number;
 }

@@ -39,4 +39,14 @@ describe('AppController (e2e)', () => {
       .expect(200)
       .expect({ status: 'ok' });
   });
+
+  it('/leaderboard/daily (GET)', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/leaderboard/daily')
+      .expect(200);
+
+    expect(Array.isArray(response.body)).toBe(true);
+    const leaderboard = response.body as Array<unknown>;
+    expect(leaderboard.length).toBeLessThanOrEqual(10);
+  });
 });

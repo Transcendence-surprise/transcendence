@@ -3,7 +3,9 @@ import { ConfigModule, ConfigType } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import authConfig from './config/auth.config';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { OAuthModule } from './modules/oauth/oauth.module';
+import { ApiKeyModule } from './modules/api-keys/api-key.module';
 import { HealthController } from './health/health.controller';
 
 @Module({
@@ -26,7 +28,9 @@ import { HealthController } from './health/health.controller';
         synchronize: config.db.synchonize,
       }),
     }),
-    AuthModule
+    AuthModule,
+    OAuthModule,
+    ApiKeyModule,
   ],
   controllers: [HealthController],
   providers: [],

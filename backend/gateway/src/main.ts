@@ -7,6 +7,7 @@ import {
 import { ValidationPipe } from '@nestjs/common';
 import setupMergedSwagger from './swagger/merge-swagger';
 import fastifyCookie from '@fastify/cookie';
+import multipart from '@fastify/multipart';
 import { AxiosExceptionFilter } from './common/filters/axios-exception.filter';
 
 async function bootstrap() {
@@ -21,6 +22,11 @@ async function bootstrap() {
   );
 
   await app.register(fastifyCookie);
+  await app.register(multipart, {
+    limits: {
+      fileSize: 104857600, // 104 megabytes
+    },
+  });
 
   app.useGlobalFilters(new AxiosExceptionFilter());
 

@@ -3,9 +3,12 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Image } from '../media/image.entity';
 
 @Entity({ name: 'users' })
 @Index('users_email_unique_not_null', ['email'], {
@@ -24,6 +27,16 @@ export class User {
 
   @Column({ type: 'varchar', length: 255, nullable: true, select: false })
   password: string | null;
+
+  @Column({ name: 'avatar_image_id', type: 'int', nullable: true })
+  avatarImageId: number | null;
+
+  @ManyToOne(() => Image, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'avatar_image_id' })
+  avatarImage: Image | null;
 
   @Column({ name: 'roles', type: 'text', array: true, default: ['user'] })
   roles: string[];

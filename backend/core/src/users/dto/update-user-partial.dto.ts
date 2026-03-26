@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsBoolean,
   IsArray,
+  IsInt,
   MinLength,
   MaxLength,
 } from 'class-validator';
@@ -64,4 +65,13 @@ export class UpdateUserPartialDto {
   @IsOptional()
   @IsBoolean()
   twoFactorEnabled?: boolean;
+
+  @ApiProperty({
+    description: 'Avatar image id from images table',
+    example: 42,
+    required: false,
+  })
+  @IsOptional()
+  @IsInt()
+  avatarImageId?: number;
 }

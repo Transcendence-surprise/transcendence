@@ -10,6 +10,12 @@ export class GetUserResDto {
   @ApiProperty({ type: 'string', example: 'tmp@example.com' })
   email: string;
 
+  @ApiProperty({ type: 'integer', example: 42, required: false })
+  avatarImageId?: number | null;
+
+  @ApiProperty({ type: 'string', example: 'https://cdn.example.com/avatar.png', required: false })
+  avatarUrl?: string | null;
+
   @ApiProperty({ type: 'array', example: 'user, admin' })
   roles: string[];
 

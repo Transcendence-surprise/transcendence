@@ -16,6 +16,9 @@ describe('AuthController', () => {
     const mockService = {
       login: jest.fn(),
       signup: jest.fn(),
+      logout: jest.fn(),
+      requestPasswordReset: jest.fn(),
+      confirmPasswordReset: jest.fn(),
       intra42AuthRedirect: jest.fn(),
       intra42AuthCallback: jest.fn(),
     };
@@ -77,6 +80,34 @@ describe('AuthController', () => {
       const result = await controller.signup(dto, mockReply);
 
       expect(service.signup).toHaveBeenCalledWith(dto);
+      expect(result).toEqual(response);
+    });
+  });
+
+  describe('requestPasswordReset', () => {
+    it('should call service.requestPasswordReset and return result', async () => {
+      const dto = { email: 'test@example.com' };
+      const response = { ok: true };
+
+      service.requestPasswordReset.mockResolvedValue(response);
+
+      const result = await controller.requestPasswordReset(dto);
+
+      expect(service.requestPasswordReset).toHaveBeenCalledWith(dto);
+      expect(result).toEqual(response);
+    });
+  });
+
+  describe('confirmPasswordReset', () => {
+    it('should call service.confirmPasswordReset and return result', async () => {
+      const dto = { token: 'abc', password: 'newpass' };
+      const response = { ok: true };
+
+      service.confirmPasswordReset.mockResolvedValue(response);
+
+      const result = await controller.confirmPasswordReset(dto);
+
+      expect(service.confirmPasswordReset).toHaveBeenCalledWith(dto);
       expect(result).toEqual(response);
     });
   });

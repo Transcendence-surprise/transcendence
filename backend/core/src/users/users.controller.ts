@@ -11,15 +11,23 @@ import {
   HttpStatus,
   Res,
   HttpCode,
+  Req,
+  BadRequestException,
 } from '@nestjs/common';
-import type { FastifyReply } from 'fastify';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 import { UsersService } from './users.service';
+import { ImagesService, UploadedFile } from '../images/images.service';
 import { ValidateCredDto } from './dto/validate-credentials.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserPartialDto } from './dto/update-user-partial.dto';
+
+type MaybeMultipartRequest = FastifyRequest & {
+  isMultipart?: () => boolean;
+  file?: () => Promise<UploadedFile | undefined>;
+};
 
 import {
   UsersControllerDocs,
@@ -41,7 +49,10 @@ import type { JwtPayload } from '../decorators/current-user.decorator';
 @UsersControllerDocs()
 @Controller('users')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private imagesService: ImagesService,
+  ) {}
 
   @Get()
   @FindAllDocs()
@@ -64,8 +75,6 @@ export class UsersController {
   @Get('me')
   @GetMeDocs()
   async getUserByHisToken(@CurrentUser() user : JwtPayload) {
-    console.log("USERS SERVICE /me called");
-
     if (user.roles?.includes('guest')) {
       return {
         id: user.sub,
@@ -84,7 +93,6 @@ export class UsersController {
     @CurrentUser() user: JwtPayload,
     @Body() updateMeDto: UpdateMeDto,
   ) {
-    // Guests cannot update their profile in the database
     if (user.roles?.includes('guest')) {
       return {
         id: user.sub,
@@ -94,6 +102,24 @@ export class UsersController {
       };
     }
     return this.usersService.updateMe(user.sub as number, updateMeDto);
+  }
+
+  @Post('me/avatar')
+  async uploadAvatar(
+    @CurrentUser() user: JwtPayload,
+    @Req() req: MaybeMultipartRequest,
+  ) {
+    if (!req.isMultipart || !req.isMultipart()) {
+      throw new BadRequestException('Expected multipart/form-data');
+    }
+
+    const file = await req.file();
+    if (!file || !file.filename) {
+      throw new BadRequestException('Missing file in form-data');
+    }
+
+    const image = await this.imagesService.createFromUpload(file);
+    return this.usersService.updateMe(user.sub as number, { avatarImageId: image.id });
   }
 
   // Auth-test: allows to find user by id only if this user logged in

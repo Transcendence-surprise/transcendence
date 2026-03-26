@@ -64,6 +64,10 @@ export class UsersHttpService {
     return this.request<T>('/api/users/me', 'patch', body, req, true);
   }
 
+  async uploadAvatar<T = unknown>(req: FastifyRequest): Promise<{ statusCode: number; data: T }> {
+    return this.request<T>('/api/users/me/avatar', 'post', req.raw, req, true);
+  }
+
   async updateUser<T = unknown>(id: number, body: unknown, req?: FastifyRequest): Promise<{ statusCode: number; data: T }> {
     return this.request<T>(`/api/users/id/${id}`, 'put', body, req);
   }

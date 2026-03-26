@@ -8,7 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from '@transcendence/db-entities';
+import { User, Image } from '@transcendence/db-entities';
 import * as bcrypt from 'bcrypt';
 
 // Mock bcrypt module
@@ -18,17 +18,42 @@ describe('UsersService', () => {
   let service: UsersService;
   let repository: Repository<User>;
 
+  const mockImage: Image = {
+    id: 10,
+    url: 'https://cdn.example.com/avatar.png',
+    filename: 'avatar.png',
+    mimeType: 'image/png',
+    size: 1024,
+    createdAt: new Date(),
+  };
+
   const mockUser: User = {
     id: 1,
     username: 'testuser',
     email: 'test@example.com',
     password: 'hashedPassword',
     roles: ['user'],
+    twoFactorEnabled: false,
+    avatarImageId: mockImage.id,
+    avatarImage: mockImage,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
 
+  const mockUserPublic: Record<string, unknown> = {
+    id: mockUser.id,
+    username: mockUser.username,
+    email: mockUser.email,
+    roles: mockUser.roles,
+    twoFactorEnabled: mockUser.twoFactorEnabled,
+    avatarImageId: mockUser.avatarImageId,
+    avatarUrl: mockUser.avatarImage?.url ?? null,
+    createdAt: mockUser.createdAt,
+    updatedAt: mockUser.updatedAt,
+  };
+
   const mockQueryBuilder = {
+    leftJoinAndSelect: jest.fn().mockReturnThis(),
     where: jest.fn().mockReturnThis(),
     addSelect: jest.fn().mockReturnThis(),
     getOne: jest.fn(),
@@ -74,7 +99,7 @@ describe('UsersService', () => {
 
       const result = await service.findAll();
 
-      expect(result).toEqual(users);
+      expect(result).toEqual([mockUserPublic]);
       expect(mockRepository.find).toHaveBeenCalledTimes(1);
     });
 
@@ -93,9 +118,10 @@ describe('UsersService', () => {
 
       const result = await service.findOneByUsername('testuser');
 
-      expect(result).toEqual(mockUser);
+      expect(result).toEqual(mockUserPublic);
       expect(mockRepository.findOne).toHaveBeenCalledWith({
         where: { username: 'testuser' },
+        relations: ['avatarImage'],
       });
     });
 
@@ -117,8 +143,8 @@ describe('UsersService', () => {
 
       const result = await service.findOneById(1);
 
-      expect(result).toEqual(mockUser);
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(result).toEqual(mockUserPublic);
+      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 }, relations: ['avatarImage'] });
     });
 
     it('should throw NotFoundException when user not found', async () => {
@@ -137,9 +163,10 @@ describe('UsersService', () => {
 
       const result = await service.findOneByEmail('test@example.com');
 
-      expect(result).toEqual(mockUser);
+      expect(result).toEqual(mockUserPublic);
       expect(mockRepository.findOne).toHaveBeenCalledWith({
         where: { email: 'test@example.com' },
+        relations: ['avatarImage'],
       });
     });
 
@@ -205,7 +232,7 @@ describe('UsersService', () => {
         { identifier: 'testuser' },
       );
       expect(mockQueryBuilder.addSelect).not.toHaveBeenCalled();
-      expect(result).toEqual(mockUser);
+      expect(result).toEqual(mockUserPublic);
     });
 
     it('should return null when user not found', async () => {
@@ -236,6 +263,9 @@ describe('UsersService', () => {
         username: 'testuser',
         email: 'test@example.com',
         roles: ['user'],
+        twoFactorEnabled: false,
+        avatarImageId: 10,
+        avatarUrl: 'https://cdn.example.com/avatar.png',
         createdAt: mockUser.createdAt,
         updatedAt: mockUser.updatedAt,
       });
