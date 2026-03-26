@@ -70,6 +70,7 @@ export class GameController {
 
     if (result.ok) {
       this.wsGateway.sendMultiplayerListUpdate();
+      this.wsGateway.sendLobbyUpdate(body.gameId);
     }
 
     return result.ok ? { ok: true } : { ok: false, error: result.error };
@@ -130,10 +131,17 @@ export class GameController {
       this.wsGateway.sendMultiplayerListUpdate();
       this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
       this.wsGateway.sendLobbyUpdate(body.gameId);
+
       if (result.deleteGame) {
-        result.previousPlayers?.forEach(id => this.wsGateway.sendPlayerStatusUpdate(id));
-        this.wsGateway.sendLobbyDeleted(body.gameId);
+        result.previousPlayers?.forEach(id =>
+          this.wsGateway.sendPlayerStatusUpdate(id)
+        );
+        this.wsGateway.sendGameDeleted(body.gameId);
+      } else {
+        // If game not deleted, still notify play phase clients of player leaving
+        this.wsGateway.sendPlayUpdate(body.gameId);
       }
+
     }
 
     return result.ok ? { ok: true } : { ok: false, error: result.error };

@@ -26,29 +26,40 @@ export default function GameRoute() {
       .then((g) => {
         setGame(g);
 
-        // join play room
-        socket.emit("joinPlay", { gameId: id, userId: user.id });
+    // join play room
+    socket.emit("joinPlay", { gameId: id, userId: user.id });
 
-        // listen for updates
-        socket.on("playUpdate", (data) => {
-          setGame((prev: any) => ({
-            ...prev,
-            ...data,
-          }));
-        });
+    // listen for updates
+    const handlePlayUpdate = (data: any) => {
+      setGame((prev: any) => ({
+        ...prev,
+        ...data,
+      }));
+    };
+    socket.on("playUpdate", handlePlayUpdate);
 
-        // listen for errors
-        socket.on("error", (err) => {
-          setError(err.error || "Failed to join play");
-        });
-      })
-      .catch((err) =>
-        setError(err instanceof Error ? err.message : "Failed to load game")
-      )
-      .finally(() => setLoading(false));
+    // Listen for game deleted
+    const handleGameDeleted = (data: { gameId: string }) => {
+      if (data.gameId === id) {
+        alert("Game was deleted by host");
+        navigate("/game");
+      }
+    };
+    socket.on("gameDeleted", handleGameDeleted);
+
+    // listen for errors
+    socket.on("error", (err) => {
+      setError(err.error || "Failed to join play");
+    });
+    })
+    .catch((err) =>
+      setError(err instanceof Error ? err.message : "Failed to load game")
+    )
+    .finally(() => setLoading(false));
 
     return () => {
       socket.off("playUpdate");
+      socket.off("gameDeleted");
       socket.off("error");
     };
   }, [id, navigate]);

@@ -168,11 +168,13 @@ export class WsGateway {
     });
   }
 
-  // Host lef, game deleted, or other lobby-ending event
-  sendLobbyDeleted(gameId: string) {
+// GAME DELETED - notify clients in lobby that game was deleted (host left)
+
+  sendGameDeleted(gameId: string) {
     // Emit to the lobby room so everyone sees it
     this.sendToRoom(`lobby:${gameId}`, "lobbyDeleted", { gameId });
-    console.log(`Lobby ${gameId} deleted, all clients notified`);
+    this.sendToRoom(`play:${gameId}`, "gameDeleted", { gameId });
+    console.log(`Game ${gameId} deleted, all clients notified`);
   }
 
 // MULTIPLAYER GAMES TABLE
@@ -240,31 +242,33 @@ export class WsGateway {
       .emit("lobbyMessage", chatMessage);
   }
 
-  // @SubscribeMessage('joinPlay')
-  // handleJoinPlay(
-  //   @MessageBody() data: { gameId: string },
-  //   @ConnectedSocket() client: TypedSocket,
-  // ) {
-  //   const state = this.engine.getGameState(data.gameId);
+// START GAME - send initial game state to all players in the play room
 
-  //   if (!state) {
-  //     return client.emit("error", { error: "GAME_NOT_FOUND" });
-  //   }
-  //   if (state.phase !== "PLAY") {
-  //     return client.emit("error", { error: "GAME_NOT_IN_PLAY" });
-  //   }
+  @SubscribeMessage('joinPlay')
+  handleJoinPlay(
+    @MessageBody() data: { gameId: string },
+    @ConnectedSocket() client: TypedSocket,
+  ) {
+    const room = `play:${data.gameId}`;
+    void client.join(room);
 
-  //   const room = `play:${data.gameId}`;
-  //   void client.join(room);
+    
 
-  //   // Send initial state immediately
-  //   client.emit("playUpdate", {
-  //     phase: "PLAY",
-  //     board: state.board,
-  //     players: state.players,
-  //     playerProgress: state.playerProgress,
-  //   });
-  // }
+    // Send initial state immediately
+    this.sendPlayUpdate(data.gameId);
+  }
+
+  sendPlayUpdate(gameId: string) {
+    const state = this.engine.getGameState(gameId);
+    if (!state) return;
+
+    this.sendToRoom(`play:${gameId}`, "playUpdate", {
+      phase: state.phase,
+      board: state.board,
+      players: state.players,
+      playerProgress: state.playerProgress,
+    });
+  }
 
   //GLOBAL CHAT
 

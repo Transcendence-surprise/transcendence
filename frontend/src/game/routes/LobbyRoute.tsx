@@ -48,14 +48,18 @@ export default function LobbyRoute() {
 
     const handleLobbyUpdate = (data: any) => {
       console.log("LOBBY UPDATE RECEIVED", data);
-      setGame({
-        id: data.gameId,
-        hostName: data.host,
-        players: data.players,
-        rules: data.rules,
-        phase: data.phase,
-      });
-      console.log("Game after set:", game);
+        setGame({
+          id: data.gameId,
+          hostName: data.host,
+          players: data.players,
+          rules: data.rules,
+          phase: data.phase,
+        });
+        // If phase changed to PLAY, navigate to board
+        if (data.phase === "PLAY") {
+          navigate(`/game/${data.gameId}`);
+        }
+        console.log("Game after set:", game);
     };
 
     socket.on("lobbyUpdate", handleLobbyUpdate);
