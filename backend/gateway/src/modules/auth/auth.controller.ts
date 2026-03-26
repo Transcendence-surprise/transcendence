@@ -120,7 +120,7 @@ export class AuthController {
     return this.authClient.createApiKey();
   }
 
-  @Delete('api-keys')
+  @Delete('api-keys/:id')
   async removeApiKeyById(@Param('id') id: string) {
     return this.authClient.removeApiKeyById(Number(id));
   }
