@@ -144,8 +144,18 @@ export class UsersService {
       user.avatarImageId = updateMeDto.avatarImageId;
     }
 
-    const updatedUser = await this.userRepo.save(user);
-    return this.mapUser(updatedUser);
+    await this.userRepo.save(user);
+
+    const updatedUserWithRelation = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: ['avatarImage'],
+    });
+
+    if (!updatedUserWithRelation) {
+      throw new NotFoundException(`User with ID ${userId} not found after update`);
+    }
+
+    return this.mapUser(updatedUserWithRelation);
   }
 
   async createOrUpdate(id: number, updateUserDto: UpdateUserDto) {

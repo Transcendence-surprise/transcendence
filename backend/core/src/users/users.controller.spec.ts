@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { ImagesService } from '../images/images.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from '@transcendence/db-entities';
 import * as bcrypt from 'bcrypt';
@@ -20,6 +21,10 @@ describe('UsersController', () => {
     id: 1,
     username: 'testuser',
     email: 'test@example.com',
+    roles: ['user'],
+    twoFactorEnabled: false,
+    avatarImageId: null,
+    avatarUrl: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -36,7 +41,7 @@ describe('UsersController', () => {
     findByIdentifier: jest.fn<Promise<User | null>, [string]>(),
     validateCredentials: jest.fn<Promise<Omit<User, 'password'>>, [{ identifier: string; password: string }]>(
       async (validateCredDto: { identifier: string; password: string }) => {
-      const user = (await mockUsersService.findByIdentifier(validateCredDto.identifier)) as User & { password: string | null };
+      const user = (await mockUsersService.findByIdentifier(validateCredDto.identifier)) as unknown as User & { password: string | null };
       if (!user) throw new UnauthorizedException('Invalid credentials');
       if (!user.password) throw new UnauthorizedException('Invalid credentials');
       const passwordCorrect = await bcrypt.compare(
@@ -52,6 +57,10 @@ describe('UsersController', () => {
     create: jest.fn(),
   } as unknown as MockUsersService;
 
+  const mockImagesService = {
+    createFromUpload: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
@@ -59,6 +68,10 @@ describe('UsersController', () => {
         {
           provide: UsersService,
           useValue: mockUsersService,
+        },
+        {
+          provide: ImagesService,
+          useValue: mockImagesService,
         },
       ],
     }).compile();

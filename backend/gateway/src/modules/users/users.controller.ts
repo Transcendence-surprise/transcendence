@@ -50,6 +50,14 @@ export class UsersController {
     return res.status(result.statusCode).send(result.data);
   }
 
+  @Post('me/avatar')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
+  async uploadAvatar(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    const result = await this.usersClient.uploadAvatar(req);
+    return res.status(result.statusCode).send(result.data);
+  }
+
   @Get('id/:id')
   @Auth(AuthType.JWT)
   @Roles(['user'])
