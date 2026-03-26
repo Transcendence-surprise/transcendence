@@ -1,11 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
-  IsEnum,
   IsOptional,
   IsBoolean,
   IsString,
   IsIn,
-  IsNumber,
 } from 'class-validator';
 
 export class CheckPlayerAvailabilityDto {
