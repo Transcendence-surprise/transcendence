@@ -40,9 +40,9 @@ describe('AppController (e2e)', () => {
       .expect({ status: 'ok' });
   });
 
-  it('/api/leaderboard/daily (GET)', async () => {
+  it('/leaderboard/daily (GET)', async () => {
     const response = await request(app.getHttpServer())
-      .get('/api/leaderboard/daily')
+      .get('/leaderboard/daily')
       .expect(200);
 
     expect(Array.isArray(response.body)).toBe(true);
