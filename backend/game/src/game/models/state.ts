@@ -67,7 +67,9 @@ export interface GameState {
 
   board: Board;                       // board tiles
   currentPlayerIndex: number;         // whose turn in players[]
+  currentPlayerId: string | number;   // for WS notifications
   lastBoardAction?: BoardAction;      // last action performed
+  boardActionsPending: boolean;       // true until board action performed
   turnActions: {                      // per-turn counters
     rotateCount: Record<string, number>;
     shiftDone: boolean;
@@ -75,9 +77,9 @@ export interface GameState {
   };
 
   playerProgress: Record<string, PlayerProgress>; // per-player objectives and collected items
-  gameEnded: boolean;                 // has the game ended?
-  boardActionsPending: boolean;       // true until board action performed
+
   collected: Record<string, boolean>; // globally collected items
+  gameEnded: boolean;                 // has the game ended?
   gameResult?: {
     winnerIds: string[];
   };

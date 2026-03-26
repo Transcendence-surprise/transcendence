@@ -1,0 +1,6 @@
+// src/game/models/boardAction.ts
+export type BoardAction =
+  | { type: "ROTATE_TILE"; x: number; y: number }
+  | { type: "SWAP_TILES"; x1: number; y1: number; x2: number; y2: number }
+  | { type: "SHIFT"; axis: "ROW"; index: number; direction: "LEFT" | "RIGHT" }
+  | { type: "SHIFT"; axis: "COL"; index: number; direction: "UP" | "DOWN" };

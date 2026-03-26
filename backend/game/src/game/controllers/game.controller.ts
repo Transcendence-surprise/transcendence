@@ -3,8 +3,6 @@ import { EngineService } from '../services/engine.service.nest';
 import { UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { GameSettings } from '../models/state';
 import { WsGateway } from '../../ws/ws.gateway';
-// import { BoardAction } from '../models/boardAction';
-// import { MoveAction } from '../models/moveAction';
 import { ApiBody, ApiOkResponse, ApiParam, ApiResponse } from '@nestjs/swagger';
 import {
   CreateGameDto,
@@ -13,7 +11,8 @@ import {
   StartResponseDto,
   JoinGameDto,
   JoinResponseDto,
-//   MoveDto,
+  BoardMoveDto,
+  BoardResponseDto,
   LeaveGameDto,
   LeaveResponseDto,
   GameStateDto,
@@ -94,30 +93,31 @@ export class GameController {
     return result;
   }
 
-//   // Make move
-//   @Post('move')
-//   @ApiBody({ type: MoveDto })
-//   move(
-//     @Body() body: {
-//       gameId: string;
-//       playerId: string;
-//       boardAction?: BoardAction;
-//       moveAction?: MoveAction;
-//     }
-//   ) {
-//     // Retrieve game state (from memory/db)
-//     const state: GameState = this.engine.getGameState(body.gameId);
+  // Make move
 
-//     // Call your engine logic
-//     const result = this.engine.processTurn(
-//       state,
-//       body.boardAction ?? null,
-//       body.moveAction
-//     );
+  //Board modification
+  @Post('boardmove')
+  @ApiBody({ type: BoardMoveDto })
+  @ApiResponse({ status: 201, type: BoardResponseDto })
+  boardMove(
+    @Body() body: BoardMoveDto,
+    @CurrentUser() user: PlayerContext
+  ) : BoardResponseDto {
 
-//     return result.ok ? { ok: true } : { ok: false, error: result.error };
-//   }
+    if (!user.id) {
+      throw new UnauthorizedException('User id missing');
+    }
 
+    const result = this.engine.boardModification(body.gameId, body.action, user.id);
+    
+    if (result.ok) {
+      this.wsGateway.sendPlayUpdate(body.gameId);
+    }
+    return result;
+  }
+
+
+  // Leave game
   @Post('leave')
   @ApiBody({ type: LeaveGameDto })
   @ApiResponse({ status: 201, type: LeaveResponseDto })

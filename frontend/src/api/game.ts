@@ -2,6 +2,7 @@
 
 import { SingleLevel } from "../game/models/singleLevel";
 import { MultiGame } from "../game/models/multiGames";
+import { BoardAction } from "../game/models/boardAction";
 
 export type GameSettings =
   | ({ mode: 'SINGLE'; allowSpectators?: false; levelId?: string })
@@ -60,6 +61,23 @@ export async function startGame(gameId: string) {
 
   if (!res.ok || !data.ok) {
     throw new Error(data?.error || data?.message || 'Failed to start game');
+  }
+
+  return data;
+}
+
+
+export async function boardModification(gameId: string, action: BoardAction) {
+  const res = await fetch('/api/game/boardmove', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ gameId, action }),
+    credentials: 'include',
+  });
+  const data = await res.json();
+
+  if (!res.ok || !data.ok) {
+    throw new Error(data?.error || data?.message || 'Failed to perform board action');
   }
 
   return data;

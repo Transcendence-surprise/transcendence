@@ -11,18 +11,9 @@ import {
 } from 'class-validator';
 import { StartError } from '../models/startResult';
 import { JoinError } from '../models/joinResult';
-// import type { BoardAction } from '../models/boardAction';
-// import type { MoveAction } from '../models/moveAction';
-import { LevelDto } from './level.dto';
 import { LeaveError } from '../models/leaveResult';
-import { PlayerStateDto } from './player-state.dto';
-import { SpectatorDto } from './spectator.dto';
-import { GameRulesDto } from './game-rules.dto';
-import { BoardDto } from './board.dto';
-import { BoardActionDto } from './board-action.dto';
-import { PlayerProgressDto } from './player-progress.dto';
-import { TurnActionsDto } from './turn-action.dto';
-import { GameResultDto } from './game-result.dto';
+import type { BoardAction } from '../models/boardAction';
+import { BoardActionError } from '../models/boardAction';
 
 export enum PlayerRole {
   PLAYER = 'PLAYER',
@@ -102,6 +93,26 @@ export class JoinResponseDto {
   error?: JoinError;
 }
 
+export class BoardMoveDto {
+  @ApiProperty()
+  @IsUUID()
+  gameId!: string;
+
+  @ApiProperty({ description: 'The board action to perform' })
+  action: BoardAction;
+}
+
+export class BoardResponseDto {
+  @ApiProperty()
+  ok: boolean;
+
+  @ApiPropertyOptional()
+  action?: BoardAction;
+
+  @ApiPropertyOptional({ enum: BoardActionError })
+  error?: BoardActionError;
+}
+
 export class LeaveGameDto {
   @ApiProperty({ description: 'ID of the game to leave' })
   @IsUUID()
@@ -117,69 +128,9 @@ export class LeaveResponseDto {
   error?: LeaveError;
 }
 
-// export class MoveDto {
-//   @ApiProperty()
-//   gameId: string;
-
-//   @ApiProperty()
-//   playerId: string;
-
-//   @ApiProperty({ required: false, type: Object })
-//   boardAction?: BoardAction;
-
-//   @ApiProperty({ required: false, type: Object })
-//   moveAction?: MoveAction;
-// }
-
 export class GameStateDto {
   @ApiProperty()
   levelId: string;
 
-  @ApiProperty()
-  level: LevelDto;
 
-  @ApiProperty()
-  phase: string;
-
-  @ApiProperty({ required: false })
-  hostId?: string;
-
-  @ApiProperty({ type: [PlayerStateDto] })
-  players: PlayerStateDto[];
-
-  @ApiProperty({ type: [SpectatorDto] })
-  spectators: SpectatorDto[];
-
-  @ApiProperty({ type: GameRulesDto })
-  rules: GameRulesDto;
-
-  @ApiProperty({ type: BoardDto })
-  board: BoardDto;
-
-  @ApiProperty()
-  currentPlayerIndex: number;
-
-  @ApiProperty({ nullable: true })
-  currentPlayerId: string | null;
-
-  @ApiProperty({ type: BoardActionDto, required: false })
-  lastBoardAction?: BoardActionDto;
-
-  @ApiProperty({ type: TurnActionsDto })
-  turnActions: TurnActionsDto;
-
-  @ApiProperty({ type: Object })
-  playerProgress: Record<string, PlayerProgressDto>;
-
-  @ApiProperty()
-  gameEnded: boolean;
-
-  @ApiProperty()
-  boardActionsPending: boolean;
-
-  @ApiProperty({ type: Object })
-  collected: Record<string, boolean>;
-
-  @ApiProperty({ type: GameResultDto, required: false })
-  gameResult?: GameResultDto;
 }
