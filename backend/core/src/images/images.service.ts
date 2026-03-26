@@ -4,6 +4,18 @@ import { Repository } from 'typeorm';
 import { Image } from '@transcendence/db-entities/media/image.entity';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
+import { createWriteStream } from 'fs';
+import { mkdir } from 'fs/promises';
+import { join } from 'path';
+import { pipeline } from 'stream/promises';
+
+export interface UploadedFile {
+  fieldname: string;
+  filename: string;
+  encoding: string;
+  mimetype: string;
+  file: NodeJS.ReadableStream;
+}
 
 @Injectable()
 export class ImagesService {
@@ -26,6 +38,32 @@ export class ImagesService {
 
   async create(createImageDto: CreateImageDto): Promise<Image> {
     const image = this.imageRepository.create(createImageDto);
+    return this.imageRepository.save(image);
+  }
+
+  async createFromUpload(uploadedFile: UploadedFile): Promise<Image> {
+    const uploadDir = '/app/uploads';
+    await mkdir(uploadDir, { recursive: true });
+
+    const safeFilename = `${Date.now()}-${uploadedFile.filename.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+    const targetPath = join(uploadDir, safeFilename);
+
+    let size = 0;
+    uploadedFile.file.on('data', (chunk: Buffer) => {
+      size += chunk.length;
+    });
+
+    await pipeline(uploadedFile.file, createWriteStream(targetPath));
+
+    const publicUri = `/uploads/${safeFilename}`;
+
+    const image = this.imageRepository.create({
+      url: publicUri,
+      filename: uploadedFile.filename,
+      mimeType: uploadedFile.mimetype,
+      size,
+    });
+
     return this.imageRepository.save(image);
   }
 

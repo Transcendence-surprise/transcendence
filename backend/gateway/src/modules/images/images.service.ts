@@ -15,12 +15,32 @@ export class ImagesHttpService {
     return this.request<T>(`/api/images/${id}`, 'get');
   }
 
-  async create<T = unknown>(body: unknown): Promise<{ statusCode: number; data: T }> {
-    return this.request<T>('/api/images', 'post', body);
+  async create<T = unknown>(body: unknown, req?: FastifyRequest): Promise<{ statusCode: number; data: T }> {
+    const contentType = req?.headers?.['content-type'];
+    if (contentType && contentType.includes('multipart/form-data')) {
+      return this.upload<T>(req);
+    }
+    return this.request<T>('/api/images', 'post', body, req);
   }
 
-  async update<T = unknown>(id: number, body: unknown): Promise<{ statusCode: number; data: T }> {
-    return this.request<T>(`/api/images/${id}`, 'patch', body);
+  async upload<T = unknown>(req: FastifyRequest): Promise<{ statusCode: number; data: T }> {
+    const headers: Record<string, string> = {};
+    Object.entries(req.headers).forEach(([key, value]) => {
+      if (typeof value === 'string') {
+        headers[key] = value;
+      }
+    });
+
+    const response = await lastValueFrom(this.http.post<T>('/api/images', req.raw, { headers }));
+
+    return {
+      statusCode: response.status,
+      data: response.data,
+    };
+  }
+
+  async update<T = unknown>(id: number, body: unknown, req?: FastifyRequest): Promise<{ statusCode: number; data: T }> {
+    return this.request<T>(`/api/images/${id}`, 'patch', body, req);
   }
 
   async remove<T = unknown>(id: number): Promise<{ statusCode: number; data: T }> {

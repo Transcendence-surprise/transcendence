@@ -7,11 +7,16 @@ import {
   Patch,
   Delete,
   ParseIntPipe,
+  Req,
+  BadRequestException,
 } from '@nestjs/common';
-import { ImagesService } from './images.service';
-import { CreateImageDto } from './dto/create-image.dto';
+import { FastifyRequest } from 'fastify';
+import { ImagesService, UploadedFile } from './images.service';
 import { UpdateImageDto } from './dto/update-image.dto';
 
+type MaybeMultipartRequest = FastifyRequest & {
+  file?: () => Promise<UploadedFile | undefined>;
+};
 @Controller('images')
 export class ImagesController {
   constructor(private readonly imagesService: ImagesService) {}
@@ -27,8 +32,17 @@ export class ImagesController {
   }
 
   @Post()
-  create(@Body() createImageDto: CreateImageDto) {
-    return this.imagesService.create(createImageDto);
+  async uploadFile(@Req() req: MaybeMultipartRequest) {
+    if (!req.isMultipart || !req.isMultipart()) {
+      throw new BadRequestException('Expected multipart/form-data');
+    }
+
+    const file = await req.file();
+    if (!file || !file.filename) {
+      throw new BadRequestException('Missing file in form-data');
+    }
+
+    return this.imagesService.createFromUpload(file);
   }
 
   @Patch(':id')

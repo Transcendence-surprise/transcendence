@@ -6,6 +6,9 @@ import {
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import multipart from '@fastify/multipart';
+import fastifyStatic from '@fastify/static';
+import { mkdir } from 'fs/promises';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -24,6 +27,21 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  const uploadDir = '/app/uploads';
+  await mkdir(uploadDir, { recursive: true });
+
+  await app.register(multipart, {
+    limits: {
+      fileSize: 104857600, // 104 megabytes
+    },
+  });
+
+  await app.register(fastifyStatic, {
+    root: uploadDir,
+    prefix: '/uploads/',
+    decorateReply: false,
+  });
 
   app.setGlobalPrefix('api');
 

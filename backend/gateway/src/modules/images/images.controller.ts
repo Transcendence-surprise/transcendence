@@ -7,9 +7,10 @@ import {
   Patch,
   Delete,
   Res,
+  Req,
   HttpCode,
 } from '@nestjs/common';
-import type { FastifyReply } from 'fastify';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ImagesHttpService } from './images.service';
 
 @Controller('images')
@@ -30,14 +31,23 @@ export class ImagesController {
 
   @Post()
   @HttpCode(201)
-  async create(@Body() body: unknown, @Res() res: FastifyReply) {
-    const result = await this.imagesClient.create(body);
+  async create(
+    @Body() body: unknown,
+    @Req() req: FastifyRequest,
+    @Res() res: FastifyReply,
+  ) {
+    const result = await this.imagesClient.create(body, req);
     return res.status(result.statusCode).send(result.data);
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() body: unknown, @Res() res: FastifyReply) {
-    const result = await this.imagesClient.update(Number(id), body);
+  async update(
+    @Param('id') id: string,
+    @Body() body: unknown,
+    @Req() req: FastifyRequest,
+    @Res() res: FastifyReply,
+  ) {
+    const result = await this.imagesClient.update(Number(id), body, req);
     return res.status(result.statusCode).send(result.data);
   }
 

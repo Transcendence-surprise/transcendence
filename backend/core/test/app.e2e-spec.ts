@@ -46,6 +46,7 @@ describe('AppController (e2e)', () => {
       .expect(200);
 
     expect(Array.isArray(response.body)).toBe(true);
-    expect(response.body.length).toBeLessThanOrEqual(10);
+    const leaderboard = response.body as Array<unknown>;
+    expect(leaderboard.length).toBeLessThanOrEqual(10);
   });
 });
