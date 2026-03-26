@@ -42,6 +42,11 @@ export function leaveGameEngine(
         console.log(`No players remains after player left ${playerId}`);
         return { ok: true, deleteGame: true };
       }
+      // If only one player remains in multiplayer mode, delete game
+      if (state.rules.mode === "MULTI" && state.players.length === 1) {
+        console.log(`Only one player remains after player left ${playerId}. Game will be deleted.`);
+        return { ok: true, deleteGame: true };
+      }
       // Update current player if needed
       if (state.currentPlayerIndex === playerIndex) {
         // If the leaving player is the current player, set to next player or 0

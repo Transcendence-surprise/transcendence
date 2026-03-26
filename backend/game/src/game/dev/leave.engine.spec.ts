@@ -85,7 +85,24 @@ describe("leaveGameEngine", () => {
   it("handles leaving until all players gone except host", () => {
     let r = leaveGameEngine(state, 2);
     expect(r.ok).toBe(true);
+    // After player 2 leaves, game should not be deleted
     expect(r.deleteGame).toBeUndefined();
+    r = leaveGameEngine(state, 3);
+    expect(r.ok).toBe(true);
+    // After player 3 leaves, only host remains, so game should be deleted
+    expect(r.deleteGame).toBe(true);
+    expect(state.players.length).toBe(1);
+    expect(state.players[0].id).toBe(1);
+    expect(state.currentPlayerIndex).toBe(0);
+    expect(state.players[state.currentPlayerIndex].id).toBe(1);
+  });
+
+  it("handles leaving until all players gone except host (multi mode)", () => {
+    // Remove player 2 (3 players remain)
+    let r = leaveGameEngine(state, 2);
+    expect(r.ok).toBe(true);
+    expect(r.deleteGame).toBeUndefined();
+    // Remove player 3 (now only host remains, so game should be deleted)
     r = leaveGameEngine(state, 3);
     expect(r.ok).toBe(true);
     expect(r.deleteGame).toBe(true);
@@ -93,6 +110,17 @@ describe("leaveGameEngine", () => {
     expect(state.players[0].id).toBe(1);
     expect(state.currentPlayerIndex).toBe(0);
     expect(state.players[state.currentPlayerIndex].id).toBe(1);
+  });
+
+  it("deletes game when last player leaves in single mode", () => {
+    // Set up single mode with one player (host)
+    const singleSettings = { mode: "SINGLE" } as const;
+    state = createGame(1, "HOST1", singleSettings);
+    expect(state.players.length).toBe(1);
+    const r = leaveGameEngine(state, 1);
+    expect(r.ok).toBe(true);
+    expect(r.deleteGame).toBe(true);
+    expect(state.players.length).toBe(1); // player array not mutated until deletion
   });
 
   it("removes current player and sets host as current if needed", () => {
@@ -121,5 +149,4 @@ describe("leaveGameEngine", () => {
     expect(r.ok).toBe(true);
     expect(r.deleteGame).toBe(true);
   });
-
 });
