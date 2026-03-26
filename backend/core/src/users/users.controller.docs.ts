@@ -167,7 +167,8 @@ const UpdateMeDocs = () =>
     ApiCookieAuth('JWT'),
     ApiOperation({
       summary: 'Update current user',
-      description: 'Update the currently authenticated user profile',
+      description:
+        'Update the currently authenticated user profile, including optional avatarImageId to change avatar',
       operationId: 'updateCurrentUser',
     }),
     ApiBody({
@@ -180,6 +181,35 @@ const UpdateMeDocs = () =>
     }),
     ApiUnauthorizedResponse({ description: 'Unauthorized - JWT token required' }),
     ApiBadRequestResponse({ description: 'Bad request - Invalid data' }),
+  );
+
+const UploadAvatarDocs = () =>
+  applyDecorators(
+    ApiCookieAuth('JWT'),
+    ApiOperation({
+      summary: 'Upload avatar for current user',
+      description:
+        'Upload an avatar image file (multipart/form-data) and assign it to the current user profile',
+      operationId: 'uploadCurrentUserAvatar',
+    }),
+    ApiBody({
+      description: 'Avatar file as form-data, field name `file`',
+      schema: {
+        type: 'object',
+        properties: {
+          file: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    }),
+    ApiCreatedResponse({
+      description: 'Avatar uploaded and user updated',
+      type: GetUserResDto,
+    }),
+    ApiBadRequestResponse({ description: 'Missing/invalid image upload' }),
+    ApiUnauthorizedResponse({ description: 'Unauthorized - JWT token required' }),
   );
 
 const FindOneByEmailDocs = () =>
