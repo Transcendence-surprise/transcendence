@@ -155,27 +155,15 @@ export class GameController {
     @Param('gameId') gameId: string,
     @CurrentUser() user: PlayerContext
   ): GameStateResponseDto {
-    const state = this.engine.getPrivateGameState(gameId, user.id);
-
-    if (!state) {
-      throw new NotFoundException(`Game not found`);
-    }
-
     if (!user.id) {
       throw new UnauthorizedException('User id missing');
     }
 
-      const result = this.engine.getPrivateGameState(gameId, user.id);
-
-      if (!result) {
-        throw new NotFoundException(`Game not found`);
-      }
-
-      if (!result.ok) {
-        return { ok: false, error: result.error };
-      }
-
-      return { ok: true, state: result.state };
+    const result = this.engine.getPrivateGameState(gameId, user.id);
+    if (!result.ok) {
+      return { ok: false, error: result.error };
+    }
+    return { ok: true, state: result.state };
   }
 
   @Get('single/levels')
