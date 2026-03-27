@@ -117,18 +117,20 @@ export class EngineService {
     if (!state) {
       return { ok: false, error: LeaveError.GAME_NOT_FOUND };
     }
+    // Capture previous players and spectators BEFORE mutation
+    const previousPlayers = state.players.map(p => p.id);
+    const previousSpectators = state.spectators.map(s => s.id);
+
     const result = leaveGameEngine(state, playerId);
     if (!result.ok) return result;
-
-    const previousPlayers = state.players.map(p => p.id);
 
     if (result.deleteGame) {
       this.games.delete(gameId);
       console.log(`Game ${gameId} deleted after player left ${playerId}`);
-      return { ok: true, deleteGame: true, previousPlayers };
+      return { ok: true, deleteGame: true, previousPlayers, previousSpectators };
     }
     console.log(`Player ${playerId} left game ${gameId}`);
-    return { ok: true };
+    return { ok: true, previousPlayers, previousSpectators };
   }
 
   getSinglePlayerLevels(): SingleLevelInfo[] {

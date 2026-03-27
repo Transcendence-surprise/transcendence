@@ -3,6 +3,7 @@ export interface LeaveResult {
   error?: LeaveError;
   deleteGame?: boolean;
   previousPlayers?: (string | number)[];
+  previousSpectators?: (string | number)[];
 }
 
 export enum LeaveError {
