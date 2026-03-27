@@ -97,9 +97,11 @@ export class EngineService {
   }
 
   checkPlayerAvailability(playerId: number | string): PlayerCheckResult {
+    const pid = playerId.toString();
+
     for (const [gameId, state] of this.games.entries()) {
-      const isPlayer = state.players.some(p => p.id === playerId);
-      const isSpectator = state.spectators.some(s => s.id === playerId);
+      const isPlayer = state.players.some(p => p.id.toString() === pid);
+      const isSpectator = state.spectators.some(s => s.id.toString() === pid);
 
       if (isPlayer || isSpectator) {
         return {

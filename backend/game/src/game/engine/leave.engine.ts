@@ -37,27 +37,19 @@ export function leaveGameEngine(
   const playerIndex = state.players.findIndex(p => p.id == playerId);
   if (playerIndex >= 0) {
     state.players.splice(playerIndex, 1);
-
     // If no players remain, reset index and delete game
-    if (state.players.length === 0) {
-      console.log(`Player ${playerId} left the game. Game will be deleted (no players remain).`);
-      return { ok: true, deleteGame: true };
-    }
-
-    // Update current player if needed
-    if (state.currentPlayerIndex === playerIndex) {
-      // If the leaving player is the current player, set to next player or 0
-      state.currentPlayerIndex = state.players.length > playerIndex ? playerIndex : 0;
-    } else if (playerIndex < state.currentPlayerIndex) {
-      // If the leaving player is before the current player, decrement index
-      state.currentPlayerIndex = Math.max(0, state.currentPlayerIndex - 1);
-    }
-
-    // If only one player remains, signal game deletion
-    if (state.players.length === 1) {
-      console.log(`Only one player remains after player left ${playerId}`);
-      return { ok: true, deleteGame: true };
-    }
+      if (state.players.length === 0) {
+        console.log(`No players remains after player left ${playerId}`);
+        return { ok: true, deleteGame: true };
+      }
+      // Update current player if needed
+      if (state.currentPlayerIndex === playerIndex) {
+        // If the leaving player is the current player, set to next player or 0
+        state.currentPlayerIndex = state.players.length > playerIndex ? playerIndex : 0;
+      } else if (playerIndex < state.currentPlayerIndex) {
+        // If the leaving player is before the current player, decrement index
+        state.currentPlayerIndex = Math.max(0, state.currentPlayerIndex - 1);
+      }
     console.log(`Player left ${playerId}`);
     return { ok: true };
   }

@@ -68,6 +68,9 @@ export class WsGateway {
         })
       );
 
+      let user: WsUser | null = null;
+
+      // Check access_token FIRST - logged-in users take precedence over guest
       const jwtToken = cookies['access_token'];
       if (!jwtToken) {
         console.log('WS auth failed: no access_token');
@@ -313,6 +316,44 @@ export class WsGateway {
 
     this.chat.addMessage(message);
     this.server.to("chat:global").emit("chatMessage", message);
+  }
+
+  // Check player status (for "Continue Game" feature)
+  @SubscribeMessage("checkPlayerStatus")
+  handleCheckPlayerStatus(@ConnectedSocket() client: TypedSocket) {
+    const user = client.user;
+    console.log(`Checking player status for user: ${user?.username}`);
+    if (!user) return client.disconnect(true);
+    console.log(`Second try Checking player status for user: ${user.username}`);
+    try {
+      const result = this.engine.checkPlayerAvailability(user.sub);
+      console.log(`Player status for ${user.username}:`, result);
+      client.emit("playerStatus", {
+        ok: result.ok,
+        gameId: result.gameId,
+        phase: result.phase || "LOBBY",
+      });
+    } catch (err) {
+      console.error("Player status check failed:", err);
+      client.emit("playerStatus", { ok: false, phase: "LOBBY" });
+    }
+  }
+
+  sendPlayerStatusUpdate(playerId: string | number) {
+    const result = this.engine.checkPlayerAvailability(playerId);
+
+    // 🔹 Emit to per-user room instead of using sockets.get()
+    this.server.to(`user:${playerId.toString()}`).emit("playerStatus", {
+      ok: result.ok,
+      gameId: result.gameId,
+      phase: result.phase || "LOBBY",
+    });
+
+    console.log(`Sent playerStatus update to user:${playerId}`, {
+      ok: result.ok,
+      gameId: result.gameId,
+      phase: result.phase,
+    });
   }
 }
 

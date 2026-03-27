@@ -52,9 +52,9 @@ export class GameController {
       user.username,
       settings
     );
-  
+    console.log(`Game created with ID: ${gameId} in phase ${this.engine.getGameState(gameId)?.phase || 'IDK'} by user ${user.id}`);
     this.wsGateway.sendMultiplayerListUpdate();
-  
+    this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
     return { ok: true, gameId };
   }
 
@@ -87,6 +87,7 @@ export class GameController {
 
     if (result.ok) {
       this.wsGateway.sendMultiplayerListUpdate();
+      this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
     }
     // console.log("User Joined: ", body.playerId );
     return result;
@@ -127,6 +128,7 @@ export class GameController {
 
     if (result.ok) {
       this.wsGateway.sendMultiplayerListUpdate();
+      this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
     }
 
     return result.ok ? { ok: true } : { ok: false, error: result.error };
