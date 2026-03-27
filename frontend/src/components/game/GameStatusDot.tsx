@@ -20,7 +20,6 @@ export default function GameStatusDot({ user }: GameStatusDotProps) {
         return;
       }
       try {
-        console.log(`!!! Checking player availability at front for user: ${user.id}`);
         const availability = await checkPlayerAvailability();
         if (!ignore) {
           if (!availability.ok && availability.gameId) {
@@ -40,10 +39,8 @@ export default function GameStatusDot({ user }: GameStatusDotProps) {
     const handleStatus = (data: any) => {
       if (ignore) return;
       if (data && !data.ok && data.gameId) {
-        console.log(`Player has an active game:`, data);
         setActiveGame({ gameId: data.gameId, phase: data.phase });
       } else {
-        console.log(`No active game for user`, data);
         setActiveGame(null);
       }
     };
