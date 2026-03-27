@@ -88,10 +88,10 @@ export async function getGameState(gameId: string) {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data?.message || 'Failed to fetch game state');
+    throw new Error(data?.error || 'Game state missing');
   }
 
-  return data; // full game object
+  return data.state; // full game object
 }
 
 // export async function makeMove(

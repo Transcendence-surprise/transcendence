@@ -7,7 +7,11 @@ export function useBoardState(board: Board, progress: Record<string, PlayerProgr
 
   const collectibleSet = useMemo(() => {
     const collectedIds = new Set<string>();
-    Object.values(progress).forEach(p => p.collectedItems.forEach(id => collectedIds.add(id)));
+    Object.values(progress).forEach(p => {
+      if (Array.isArray(p.collectedItems)) {
+        p.collectedItems.forEach(id => collectedIds.add(id));
+      }
+    });
     return collectedIds;
   }, [progress]);
 

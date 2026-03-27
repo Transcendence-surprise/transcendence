@@ -14,6 +14,9 @@ import { JoinError } from '../models/joinResult';
 import { LeaveError } from '../models/leaveResult';
 import type { BoardAction } from '../models/boardAction';
 import { BoardActionError } from '../models/boardAction';
+import type { Board } from '../models/board';
+import type { PlayerProgress } from '../models/state';
+import { PlayerStateDto } from './playerState.dto';
 
 export enum PlayerRole {
   PLAYER = 'PLAYER',
@@ -128,9 +131,63 @@ export class LeaveResponseDto {
   error?: LeaveError;
 }
 
-export class GameStateDto {
+export class PrivateGameStateDto {
+  // -----------------------
+  // Common / Public info
+  // -----------------------
   @ApiProperty()
   levelId: string;
 
+  @ApiProperty()
+  hostName: string;
 
+  @ApiProperty({ enum: ['LOBBY', 'PLAY', 'END'] })
+  phase: 'LOBBY' | 'PLAY' | 'END';
+
+  @ApiProperty()
+  board: Board;
+
+  @ApiProperty({ type: [PlayerStateDto] })
+  players: PlayerStateDto[];
+
+  @ApiProperty()
+  currentPlayerId: string | number;
+
+  @ApiPropertyOptional()
+  gameResult?: { winnerIds: string[] };
+
+  @ApiProperty({ type: [String], description: 'Who is watching' })
+  spectators: string[];
+
+  @ApiProperty({ type: [String] })
+  objectives: string[];
+
+  @ApiPropertyOptional()
+  gameStartedAt?: number;
+
+  @ApiPropertyOptional()
+  moveStartedAt?: number;
+
+  // -----------------------
+  // Personal / Private info
+  // -----------------------
+  @ApiProperty()
+  boardActionsPending: boolean;
+
+  @ApiProperty()
+  playerProgress: PlayerProgress;
+
+  @ApiProperty()
+  skipsLeft: number;
+}
+
+export class GameStateResponseDto {
+  @ApiProperty()
+  ok: boolean;
+
+  @ApiPropertyOptional()
+  state?: PrivateGameStateDto;
+
+  @ApiPropertyOptional()
+  error?: string;
 }

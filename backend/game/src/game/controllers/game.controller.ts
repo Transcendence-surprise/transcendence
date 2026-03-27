@@ -15,7 +15,7 @@ import {
   BoardResponseDto,
   LeaveGameDto,
   LeaveResponseDto,
-  GameStateDto,
+  GameStateResponseDto,
 } from '../dtos/game.dto';
 import { SingleLevelDto } from '../dtos/level-registry.dto';
 import { MultiGameDto } from '../dtos/game-lobby-list.dto';
@@ -147,17 +147,35 @@ export class GameController {
     return result.ok ? { ok: true } : { ok: false, error: result.error };
   }
 
-  @Get(':gameId') // Need define fields thats I return
+  // Get game state
+  @Get(':gameId')
   @ApiParam({ name: 'gameId', type: 'string' })
-  @ApiOkResponse({ type: GameStateDto })
-  getGameState(@Param('gameId') gameId: string) {
-    const state = this.engine.getGameState(gameId);
+  @ApiOkResponse({ type: GameStateResponseDto })
+  getGameState(
+    @Param('gameId') gameId: string,
+    @CurrentUser() user: PlayerContext
+  ): GameStateResponseDto {
+    const state = this.engine.getPrivateGameState(gameId, user.id);
 
     if (!state) {
       throw new NotFoundException(`Game not found`);
     }
 
-    return state;
+    if (!user.id) {
+      throw new UnauthorizedException('User id missing');
+    }
+
+      const result = this.engine.getPrivateGameState(gameId, user.id);
+
+      if (!result) {
+        throw new NotFoundException(`Game not found`);
+      }
+
+      if (!result.ok) {
+        return { ok: false, error: result.error };
+      }
+
+      return { ok: true, state: result.state };
   }
 
   @Get('single/levels')

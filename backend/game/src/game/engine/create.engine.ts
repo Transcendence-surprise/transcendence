@@ -18,6 +18,7 @@ export function createGame(
       : createMultiplayerLevel(settings);
   // Create base state
   const state = createGameState(level);
+  state.gameStartedAt = Date.now();  
 
   // Compile and attach rules
   state.rules = compileRules(settings);
@@ -57,6 +58,7 @@ export function createGame(
     x: spawn.x,
     y: spawn.y,
     hasMoved: false,
+    skipsLeft: 3,
   });
 
   state.hostId = hostId;

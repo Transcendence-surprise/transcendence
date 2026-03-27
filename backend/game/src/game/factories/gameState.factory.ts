@@ -11,6 +11,7 @@ export function createGameState(level: Level): GameState {
           x: p.x,
           y: p.y,
           hasMoved: false,
+          skipsLeft: 3,
         }))
       : [];  // multiplayer starts empty, host will join later
 
@@ -37,6 +38,7 @@ export function createGameState(level: Level): GameState {
     board: structuredClone(level.board),
 
     currentPlayerIndex: 0,
+    currentPlayerId: initialPlayers.length > 0 ? initialPlayers[0].id : 0,
 
     lastBoardAction: undefined,
 

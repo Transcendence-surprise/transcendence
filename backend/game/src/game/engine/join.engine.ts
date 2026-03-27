@@ -45,6 +45,7 @@ export function joinGameEngine(
       x: availableSlot.x,
       y: availableSlot.y,
       hasMoved: false,
+      skipsLeft: 3,
     });
 
     // Initialize player progress

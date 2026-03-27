@@ -19,6 +19,7 @@ export function compileRules(settings: GameSettings): GameRules {
     allowSpectators: settings.allowSpectators,
 
     collectiblesPerPlayer: settings.collectiblesPerPlayer ?? 5,
+    moveLimitPerTurnSec: settings.turnDeadline ?? 180,
 
     requiresBoardActionPerTurn: true,
     fixedCorners: true,

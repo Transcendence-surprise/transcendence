@@ -16,6 +16,8 @@ import { MultiGame } from '../models/gameInfo';
 import { processBoardAction } from '../engine/boardAction.engine';
 import { BoardAction, BoardActionResult, BoardActionError } from '../models/boardAction';
 import * as crypto from 'crypto';
+import { PrivateGameStateResult, PrivateStateError } from '../models/privatState';
+import { getPrivateState } from '../engine/privateState.engine';
 
 @Injectable()
 export class EngineService {
@@ -31,6 +33,24 @@ export class EngineService {
   getGameState(gameId: string): GameState | null {
     const state = this.games.get(gameId);
     return state ?? null;
+  }
+
+  getPrivateGameState(gameId: string, playerId: number | string): PrivateGameStateResult {
+    const state = this.games.get(gameId);
+
+    if (!state) {
+      return { ok: false, error: PrivateStateError.GAME_NOT_FOUND };
+    }
+
+    const playerExists = state.players.some(
+      p => p.id.toString() === playerId.toString()
+    );
+
+    if (!playerExists) {
+      return { ok: false, error: PrivateStateError.PLAYER_NOT_FOUND };
+    }
+
+    return getPrivateState(state, playerId);
   }
 
   startGame(gameId: string, hostId: number | string) {
@@ -69,19 +89,19 @@ export class EngineService {
     if (!state) {
       return { ok: false, error: BoardActionError.GAME_NOT_FOUND };
     }
-// 1. Check player exists
-const playerExists = state.players.some(
-  p => p.id.toString() === playerId.toString()
-);
+    // Check player exists
+    const playerExists = state.players.some(
+      p => p.id.toString() === playerId.toString()
+    );
 
-if (!playerExists) {
-  return { ok: false, error: BoardActionError.PLAYER_NOT_FOUND };
-}
+    if (!playerExists) {
+      return { ok: false, error: BoardActionError.PLAYER_NOT_FOUND };
+    }
 
-// 2. Check turn
-if (state.currentPlayerId.toString() !== playerId.toString()) {
-  return { ok: false, error: BoardActionError.NOT_YOUR_TURN };
-}
+    // Check turn
+    if (state.currentPlayerId.toString() !== playerId.toString()) {
+      return { ok: false, error: BoardActionError.NOT_YOUR_TURN };
+    }
     if (state.phase !== "PLAY") {
       return { ok: false, error: BoardActionError.INVALID_ACTION };
     }
