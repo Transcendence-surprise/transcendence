@@ -84,7 +84,7 @@ export class WsGateway {
         throw new Error('Invalid access token payload');
       }
 
-      client.user = {
+      user = {
         sub: decoded.sub,
         username: decoded.username,
         email: decoded.email ?? '',
@@ -92,10 +92,18 @@ export class WsGateway {
       };
 
       console.log('WS connected user', decoded.username);
+
+      // Attach the user to the client
+      client.user = user;
+      // Join per-user room for playerStatus updates
+      void client.join(`user:${user.sub.toString()}`);
+      console.log(`User ${user.username} joined room: user:${user.sub.toString()}`);
+
     } catch (error) {
       console.error('WS auth failed', error instanceof Error ? error.message : error);
       client.disconnect(true);
     }
+
   }
 
   // // --------------------
