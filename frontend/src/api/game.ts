@@ -87,8 +87,12 @@ export async function getGameState(gameId: string) {
   const res = await fetch(`/api/game/${gameId}`, { credentials: 'include' });
   const data = await res.json();
 
-  if (!res.ok) {
+  if (!res.ok || !data.ok) {
     throw new Error(data?.error || 'Game state missing');
+  }
+
+  if (!data.state) {
+    throw new Error('Game state missing in response');
   }
 
   return data.state; // full game object
