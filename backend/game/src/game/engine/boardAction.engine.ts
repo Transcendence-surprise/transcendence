@@ -22,7 +22,12 @@ export function processBoardAction(
   const board = cloneBoard(state.board);
 
   // Apply action depending on type
-  applyBoardAction(board, action);
+  try {
+    applyBoardAction(board, action);
+  } catch {
+    // Map known errors to BoardActionError.INVALID_ACTION (or more specific if desired)
+    return { ok: false, error: BoardActionError.INVALID_ACTION };
+  }
 
   // Update game state
   state.board = board;

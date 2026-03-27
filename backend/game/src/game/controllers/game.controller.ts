@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { EngineService } from '../services/engine.service.nest';
-import { UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 import { GameSettings } from '../models/state';
 import { WsGateway } from '../../ws/ws.gateway';
 import { ApiBody, ApiOkResponse, ApiParam, ApiResponse } from '@nestjs/swagger';
