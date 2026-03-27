@@ -1,10 +1,8 @@
 import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { EngineService } from '../services/engine.service.nest';
-import { UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 import { GameSettings } from '../models/state';
 import { WsGateway } from '../../ws/ws.gateway';
-// import { BoardAction } from '../models/boardAction';
-// import { MoveAction } from '../models/moveAction';
 import { ApiBody, ApiOkResponse, ApiParam, ApiResponse } from '@nestjs/swagger';
 import {
   CreateGameDto,
@@ -13,10 +11,11 @@ import {
   StartResponseDto,
   JoinGameDto,
   JoinResponseDto,
-//   MoveDto,
+  BoardMoveDto,
+  BoardResponseDto,
   LeaveGameDto,
   LeaveResponseDto,
-  GameStateDto,
+  GameStateResponseDto,
 } from '../dtos/game.dto';
 import { SingleLevelDto } from '../dtos/level-registry.dto';
 import { MultiGameDto } from '../dtos/game-lobby-list.dto';
@@ -33,16 +32,6 @@ export class GameController {
 ) {}
 
   // Create Game
-  // @Post('create')
-  // @ApiBody({ type: CreateGameDto })
-  // @ApiResponse({ status: 201, type: CreateGameResponseDto })
-  // createGame(@Body() body: CreateGameDto) : CreateGameResponseDto {
-  //   const { gameId } = this.engine.createGame(body.hostId, body.settings);
-
-  //   this.wsGateway.sendMultiplayerListUpdate();
-  //   // console.log("Game was created", gameId );
-  //   return { ok: true, gameId };
-  // }
   @Post('create')
   @ApiBody({ type: CreateGameDto })
   @ApiResponse({ status: 201, type: CreateGameResponseDto })
@@ -62,9 +51,9 @@ export class GameController {
       user.username,
       settings
     );
-  
+    console.log(`Game created with ID: ${gameId} in phase ${this.engine.getGameState(gameId)?.phase || 'IDK'} by user ${user.id}`);
     this.wsGateway.sendMultiplayerListUpdate();
-  
+    this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
     return { ok: true, gameId };
   }
 
@@ -80,6 +69,7 @@ export class GameController {
 
     if (result.ok) {
       this.wsGateway.sendMultiplayerListUpdate();
+      this.wsGateway.sendLobbyUpdate(body.gameId);
     }
 
     return result.ok ? { ok: true } : { ok: false, error: result.error };
@@ -97,35 +87,37 @@ export class GameController {
 
     if (result.ok) {
       this.wsGateway.sendMultiplayerListUpdate();
+      this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
     }
     // console.log("User Joined: ", body.playerId );
     return result;
   }
 
-//   // Make move
-//   @Post('move')
-//   @ApiBody({ type: MoveDto })
-//   move(
-//     @Body() body: {
-//       gameId: string;
-//       playerId: string;
-//       boardAction?: BoardAction;
-//       moveAction?: MoveAction;
-//     }
-//   ) {
-//     // Retrieve game state (from memory/db)
-//     const state: GameState = this.engine.getGameState(body.gameId);
+  // Make move
 
-//     // Call your engine logic
-//     const result = this.engine.processTurn(
-//       state,
-//       body.boardAction ?? null,
-//       body.moveAction
-//     );
+  //Board modification
+  @Post('boardmove')
+  @ApiBody({ type: BoardMoveDto })
+  @ApiResponse({ status: 201, type: BoardResponseDto })
+  boardMove(
+    @Body() body: BoardMoveDto,
+    @CurrentUser() user: PlayerContext
+  ) : BoardResponseDto {
 
-//     return result.ok ? { ok: true } : { ok: false, error: result.error };
-//   }
+    if (!user.id) {
+      throw new UnauthorizedException('User id missing');
+    }
 
+    const result = this.engine.boardModification(body.gameId, body.action, user.id);
+    
+    if (result.ok) {
+      this.wsGateway.sendPlayUpdate(body.gameId);
+    }
+    return result;
+  }
+
+
+  // Leave game
   @Post('leave')
   @ApiBody({ type: LeaveGameDto })
   @ApiResponse({ status: 201, type: LeaveResponseDto })
@@ -137,22 +129,41 @@ export class GameController {
 
     if (result.ok) {
       this.wsGateway.sendMultiplayerListUpdate();
+      this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
+      this.wsGateway.sendLobbyUpdate(body.gameId);
+
+      if (result.deleteGame) {
+        result.previousPlayers?.forEach(id =>
+          this.wsGateway.sendPlayerStatusUpdate(id)
+        );
+        this.wsGateway.sendGameDeleted(body.gameId);
+      } else {
+        // If game not deleted, still notify play phase clients of player leaving
+        this.wsGateway.sendPlayUpdate(body.gameId);
+      }
+
     }
 
     return result.ok ? { ok: true } : { ok: false, error: result.error };
   }
 
-  @Get(':gameId') // Need define fields thats I return
+  // Get game state
+  @Get(':gameId')
   @ApiParam({ name: 'gameId', type: 'string' })
-  @ApiOkResponse({ type: GameStateDto })
-  getGameState(@Param('gameId') gameId: string) {
-    const state = this.engine.getGameState(gameId);
-
-    if (!state) {
-      throw new NotFoundException(`Game not found`);
+  @ApiOkResponse({ type: GameStateResponseDto })
+  getGameState(
+    @Param('gameId') gameId: string,
+    @CurrentUser() user: PlayerContext
+  ): GameStateResponseDto {
+    if (!user.id) {
+      throw new UnauthorizedException('User id missing');
     }
 
-    return state;
+    const result = this.engine.getPrivateGameState(gameId, user.id);
+    if (!result.ok) {
+      return { ok: false, error: result.error };
+    }
+    return { ok: true, state: result.state };
   }
 
   @Get('single/levels')

@@ -2,6 +2,7 @@
 
 import { SingleLevel } from "../game/models/singleLevel";
 import { MultiGame } from "../game/models/multiGames";
+import { BoardAction } from "../game/models/boardAction";
 
 export type GameSettings =
   | ({ mode: 'SINGLE'; allowSpectators?: false; levelId?: string })
@@ -65,15 +66,36 @@ export async function startGame(gameId: string) {
   return data;
 }
 
+
+export async function boardModification(gameId: string, action: BoardAction) {
+  const res = await fetch('/api/game/boardmove', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ gameId, action }),
+    credentials: 'include',
+  });
+  const data = await res.json();
+
+  if (!res.ok || !data.ok) {
+    throw new Error(data?.error || data?.message || 'Failed to perform board action');
+  }
+
+  return data;
+}
+
 export async function getGameState(gameId: string) {
   const res = await fetch(`/api/game/${gameId}`, { credentials: 'include' });
   const data = await res.json();
 
-  if (!res.ok) {
-    throw new Error(data?.message || 'Failed to fetch game state');
+  if (!res.ok || !data.ok) {
+    throw new Error(data?.error || 'Game state missing');
   }
 
-  return data; // full game object
+  if (!data.state) {
+    throw new Error('Game state missing in response');
+  }
+
+  return data.state; // full game object
 }
 
 // export async function makeMove(

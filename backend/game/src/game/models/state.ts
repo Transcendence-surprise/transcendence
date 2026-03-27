@@ -6,12 +6,14 @@ import { BoardAction } from "./boardAction";
 export type GamePhase = "LOBBY" | "PLAY" | "END";
 
 export interface PlayerState {
-  id: number | string;                     // unique player identifier (number for users, string UUID for guests)
+  id: number | string;            // unique player identifier (number for users, string UUID for guests)
   slotId: string;                 // "P1"
   name: string;                   // nickname
   x: number;                      // current X position
   y: number;                      // current Y position
   hasMoved: boolean;              // did the player already move this turn?
+  skipsLeft: number;              // how many skips the player has left
+  moveStartedAt?: number;         // timestamp when player's turn started (for move timer)
   // stunned?: boolean;           // future-proof: player cannot act
 }
 
@@ -35,6 +37,7 @@ export interface MultiplayerSettings {
   allowSpectators: boolean;
   boardSize: 6 | 7 | 8 | 9;
   collectiblesPerPlayer: number;
+  turnDeadline?: number;
 }
 
 export type GameSettings = 
@@ -47,6 +50,7 @@ export interface GameRules {
   allowSpectators: boolean;
 
   collectiblesPerPlayer?: number;
+  moveLimitPerTurnSec?: number;
 
   requiresBoardActionPerTurn: boolean;
   fixedCorners: boolean;
@@ -58,7 +62,7 @@ export interface GameState {
   level: Level;                       // level created for current game
   phase: GamePhase;                   // tracks current turn phase
 
-  hostId: number | string;                    // game owner (first player)
+  hostId: number | string;            // game owner (first player)
   hostName: string;
   players: PlayerState[];             // all players
   spectators: Spectator[];            // all spectators
@@ -67,8 +71,9 @@ export interface GameState {
 
   board: Board;                       // board tiles
   currentPlayerIndex: number;         // whose turn in players[]
-  currentPlayerId: number | string | null;     // convenience field
+  currentPlayerId: string | number;   // for WS notifications
   lastBoardAction?: BoardAction;      // last action performed
+  boardActionsPending: boolean;       // true until board action performed
   turnActions: {                      // per-turn counters
     rotateCount: Record<string, number>;
     shiftDone: boolean;
@@ -76,10 +81,11 @@ export interface GameState {
   };
 
   playerProgress: Record<string, PlayerProgress>; // per-player objectives and collected items
-  gameEnded: boolean;                 // has the game ended?
-  boardActionsPending: boolean;       // true until board action performed
+
   collected: Record<string, boolean>; // globally collected items
+  gameEnded: boolean;                 // has the game ended?
   gameResult?: {
-    winnerIds: string[];
+    winnerId: string;
   };
+  gameStartedAt?: number;                    // total game timer
 }

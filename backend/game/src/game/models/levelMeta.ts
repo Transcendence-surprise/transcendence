@@ -8,7 +8,7 @@ export interface LevelMeta {
   objectives: LevelObjective[];
   constraints?: {
     maxMoves?: number;
-    timeLimitSec?: number;
+    levelLimitSec?: number;
   };
 
   startingPoints: {

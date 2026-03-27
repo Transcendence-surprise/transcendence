@@ -68,6 +68,9 @@ export class WsGateway {
         })
       );
 
+      let user: WsUser | null = null;
+
+      // Check access_token FIRST - logged-in users take precedence over guest
       const jwtToken = cookies['access_token'];
       if (!jwtToken) {
         console.log('WS auth failed: no access_token');
@@ -81,7 +84,7 @@ export class WsGateway {
         throw new Error('Invalid access token payload');
       }
 
-      client.user = {
+      user = {
         sub: decoded.sub,
         username: decoded.username,
         email: decoded.email ?? '',
@@ -89,10 +92,18 @@ export class WsGateway {
       };
 
       console.log('WS connected user', decoded.username);
+
+      // Attach the user to the client
+      client.user = user;
+      // Join per-user room for playerStatus updates
+      void client.join(`user:${user.sub.toString()}`);
+      console.log(`User ${user.username} joined room: user:${user.sub.toString()}`);
+
     } catch (error) {
       console.error('WS auth failed', error instanceof Error ? error.message : error);
       client.disconnect(true);
     }
+
   }
 
   // // --------------------
@@ -123,7 +134,7 @@ export class WsGateway {
   }
 
   // --------------------
-  // Game / Lobby / Play
+  // JOIN LOBBY
   // --------------------
 
   @SubscribeMessage('joinLobby')
@@ -138,12 +149,8 @@ export class WsGateway {
       return client.disconnect(true);
     }
 
+    // Validate game existence and phase before joining lobby
     const state = this.engine.getGameState(data.gameId);
-
-    console.log("LOBBY_UPDATE_START");
-    console.log("LOBBY_USER: ", user.username);
-    // console.log("Game state:", JSON.stringify(state, null, 2));
-
     if (!state) {
       console.log("GAME_NOT_FOUND");
       return client.emit("error", { error: "GAME_NOT_FOUND" });
@@ -156,25 +163,41 @@ export class WsGateway {
     const room = `lobby:${data.gameId}`;
     void client.join(room);
 
-      const playersWithNames = state.players.map(p => ({
+    this.sendLobbyUpdate(data.gameId);
+  }
+
+  sendLobbyUpdate(gameId: string) {
+    const state = this.engine.getGameState(gameId);
+    if (!state) return;
+
+    const playersWithNames = state.players.map(p => ({
       id: p.id,
-      displayName: p.name, // or username
+      displayName: p.name,
     }));
 
-    const host = playersWithNames.find(p => p.id === state.hostId);
+    // Normalize both sides to string to ensure correct host resolution.
+    const host = playersWithNames.find(p => String(p.id) === String(state.hostId));
 
-    console.log('LOBBY_USER:', user.username, user.roles.includes('guest') ? '(guest)' : '');
-    console.log("Players: ", playersWithNames);
-    console.log("Spectators: ", state.rules.allowSpectators);
-
-    this.server.to(room).emit('lobbyUpdate', {
-    gameId: data.gameId,
-    host: host?.displayName ?? "Unknown",
-    players: playersWithNames,
-    rules: state.rules,
-    phase: state.phase,
+    // Emit to the lobby room
+    this.sendToRoom(`lobby:${gameId}`, 'lobbyUpdate', {
+      gameId,
+      host: host?.displayName ?? "Unknown",
+      players: playersWithNames,
+      rules: state.rules,
+      phase: state.phase,
     });
   }
+
+// GAME DELETED - notify clients in lobby that game was deleted (host left)
+
+  sendGameDeleted(gameId: string) {
+    // Emit to the lobby room so everyone sees it
+    this.sendToRoom(`lobby:${gameId}`, "lobbyDeleted", { gameId });
+    this.sendToRoom(`play:${gameId}`, "gameDeleted", { gameId });
+    console.log(`Game ${gameId} deleted, all clients notified`);
+  }
+
+// MULTIPLAYER GAMES TABLE
 
   @SubscribeMessage('joinMultiplayerList')
   handleJoinMultiplayerList(
@@ -192,6 +215,8 @@ export class WsGateway {
       games,
     });
   }
+
+// LOBBY CHAT
 
   @SubscribeMessage("lobbyMessage")
   handleLobbyMessage(
@@ -237,26 +262,28 @@ export class WsGateway {
       .emit("lobbyMessage", chatMessage);
   }
 
+// START GAME - send initial game state to all players in the play room
+
   @SubscribeMessage('joinPlay')
   handleJoinPlay(
     @MessageBody() data: { gameId: string },
     @ConnectedSocket() client: TypedSocket,
   ) {
-    const state = this.engine.getGameState(data.gameId);
-
-    if (!state) {
-      return client.emit("error", { error: "GAME_NOT_FOUND" });
-    }
-    if (state.phase !== "PLAY") {
-      return client.emit("error", { error: "GAME_NOT_IN_PLAY" });
-    }
-
     const room = `play:${data.gameId}`;
     void client.join(room);
 
+    
+
     // Send initial state immediately
-    client.emit("playUpdate", {
-      phase: "PLAY",
+    this.sendPlayUpdate(data.gameId);
+  }
+
+  sendPlayUpdate(gameId: string) {
+    const state = this.engine.getGameState(gameId);
+    if (!state) return;
+
+    this.sendToRoom(`play:${gameId}`, "playUpdate", {
+      phase: state.phase,
       board: state.board,
       players: state.players,
       playerProgress: state.playerProgress,
@@ -314,5 +341,43 @@ export class WsGateway {
     this.chat.addMessage(message);
     this.server.to("chat:global").emit("chatMessage", message);
   }
-}
 
+  // PLAYER STATUS CHECK (for game entry/lobby and status dot)
+
+  @SubscribeMessage("checkPlayerStatus")
+  handleCheckPlayerStatus(@ConnectedSocket() client: TypedSocket) {
+    const user = client.user;
+    console.log(`Checking player status for user: ${user?.username}`);
+    if (!user) return client.disconnect(true);
+    console.log(`Second try Checking player status for user: ${user.username}`);
+    try {
+      const result = this.engine.checkPlayerAvailability(user.sub);
+      console.log(`Player status for ${user.username}:`, result);
+      client.emit("playerStatus", {
+        ok: result.ok,
+        gameId: result.gameId,
+        phase: result.phase || "LOBBY",
+      });
+    } catch (err) {
+      console.error("Player status check failed:", err);
+      client.emit("playerStatus", { ok: false, phase: "LOBBY" });
+    }
+  }
+
+  sendPlayerStatusUpdate(playerId: string | number) {
+    const result = this.engine.checkPlayerAvailability(playerId);
+
+    // 🔹 Emit to per-user room instead of using sockets.get()
+    this.server.to(`user:${playerId.toString()}`).emit("playerStatus", {
+      ok: result.ok,
+      gameId: result.gameId,
+      phase: result.phase || "LOBBY",
+    });
+
+    console.log(`Sent playerStatus update to user:${playerId}`, {
+      ok: result.ok,
+      gameId: result.gameId,
+      phase: result.phase,
+    });
+  }
+}

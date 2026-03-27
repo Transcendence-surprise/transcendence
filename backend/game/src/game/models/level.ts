@@ -26,7 +26,7 @@ export interface Level {
 
   constraints?: {
     maxMoves?: number;
-    timeLimitSec?: number;
+    levelLimitSec?: number;
   };
 
   // allowedCards?: string[];

@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom';
 import Layout from '../components/Layout'
 import { AuthProvider } from '../hooks/useAuth'
 
@@ -10,9 +11,11 @@ vi.mock('../api/health', () => ({
 describe('Home e2e (smoke)', () => {
   it('renders main layout', async () => {
     render(
-      <AuthProvider>
-        <Layout />
-      </AuthProvider>
+      <MemoryRouter>
+        <AuthProvider>
+          <Layout />
+        </AuthProvider>
+      </MemoryRouter>
     )
 
     // wait for the health check effect to finish to avoid `act` warnings

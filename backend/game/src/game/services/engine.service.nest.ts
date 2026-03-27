@@ -1,10 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { GameState, GameSettings } from '../models/state';
-// import { BoardAction } from '../models/boardAction';
-// import { MoveAction } from '../models/moveAction';
-// import { MoveResult } from '../models/moveResult';
 import { PlayerCheckResult } from '../models/payerCheckResult';
-// import { processTurn as processTurnFn } from '../engine/turn.engine';
 import { createGame as  createGameEngine} from '../engine/create.engine';
 import { joinGameEngine } from '../engine/join.engine';
 import { startGameEngine } from "../engine/start.engine";
@@ -17,7 +13,11 @@ import { listSinglePlayerLevels } from '../engine/levelRegistry.engine';
 import { getMultiplayerGames } from '../engine/multiGames.engine';
 import { SingleLevelInfo } from '../models/levelInfo';
 import { MultiGame } from '../models/gameInfo';
+import { processBoardAction } from '../engine/boardAction.engine';
+import { BoardAction, BoardActionResult, BoardActionError } from '../models/boardAction';
 import * as crypto from 'crypto';
+import { PrivateGameStateResult, PrivateStateError } from '../models/privatState';
+import { getPrivateState } from '../engine/privateState.engine';
 
 @Injectable()
 export class EngineService {
@@ -35,16 +35,34 @@ export class EngineService {
     return state ?? null;
   }
 
+  getPrivateGameState(gameId: string, playerId: number | string): PrivateGameStateResult {
+    const state = this.games.get(gameId);
+
+    if (!state) {
+      return { ok: false, error: PrivateStateError.GAME_NOT_FOUND };
+    }
+
+    const playerExists = state.players.some(
+      p => p.id.toString() === playerId.toString()
+    );
+
+    if (!playerExists) {
+      return { ok: false, error: PrivateStateError.PLAYER_NOT_FOUND };
+    }
+
+    return getPrivateState(state, playerId);
+  }
+
   startGame(gameId: string, hostId: number | string) {
     try {
       const state = this.getGameState(gameId);
 
       if (!state) {
         return { ok: false, error: StartError.GAME_NOT_FOUND };
-  }
+      }
 
       return startGameEngine(state, hostId);
-    } catch (err) {
+    } catch {
       return { ok: false, error: StartError.GAME_NOT_FOUND };
     }
   }
@@ -62,13 +80,36 @@ export class EngineService {
     return joinGameEngine(state, playerId, name, role);
   }
 
-//   processTurn(
-//     state: GameState,
-//     boardAction: BoardAction | null,
-//     moveAction?: MoveAction
-//   ): MoveResult {
-//     return processTurnFn(state, boardAction, moveAction);
-//   }
+  boardModification(
+    gameId: string,
+    boardAction: BoardAction,
+    playerId: number | string,
+  ): BoardActionResult {
+      const state = this.getGameState(gameId);
+    if (!state) {
+      return { ok: false, error: BoardActionError.GAME_NOT_FOUND };
+    }
+    // Check player exists
+    const playerExists = state.players.some(
+      p => p.id.toString() === playerId.toString()
+    );
+
+    if (!playerExists) {
+      return { ok: false, error: BoardActionError.PLAYER_NOT_FOUND };
+    }
+
+    // Check turn
+    if (state.currentPlayerId.toString() !== playerId.toString()) {
+      return { ok: false, error: BoardActionError.NOT_YOUR_TURN };
+    }
+    if (state.phase !== "PLAY") {
+      return { ok: false, error: BoardActionError.INVALID_ACTION };
+    }
+    if (state.boardActionsPending === false) {
+      return { ok: false, error: BoardActionError.BOARD_ACTION_ALREADY_PERFORMED };
+    }
+    return processBoardAction(state, boardAction);
+  }
 
   leaveGame(gameId: string, playerId: number | string): LeaveResult {
     const state = this.getGameState(gameId);
@@ -76,14 +117,20 @@ export class EngineService {
     if (!state) {
       return { ok: false, error: LeaveError.GAME_NOT_FOUND };
     }
+    // Capture previous players and spectators BEFORE mutation
+    const previousPlayers = state.players.map(p => p.id);
+    const previousSpectators = state.spectators.map(s => s.id);
+
     const result = leaveGameEngine(state, playerId);
     if (!result.ok) return result;
 
     if (result.deleteGame) {
       this.games.delete(gameId);
-      return { ok: true, deleteGame: true };
+      console.log(`Game ${gameId} deleted after player left ${playerId}`);
+      return { ok: true, deleteGame: true, previousPlayers, previousSpectators };
     }
-    return { ok: true };
+    console.log(`Player ${playerId} left game ${gameId}`);
+    return { ok: true, previousPlayers, previousSpectators };
   }
 
   getSinglePlayerLevels(): SingleLevelInfo[] {
@@ -95,9 +142,11 @@ export class EngineService {
   }
 
   checkPlayerAvailability(playerId: number | string): PlayerCheckResult {
+    const pid = playerId.toString();
+
     for (const [gameId, state] of this.games.entries()) {
-      const isPlayer = state.players.some(p => p.id === playerId);
-      const isSpectator = state.spectators.some(s => s.id === playerId);
+      const isPlayer = state.players.some(p => p.id.toString() === pid);
+      const isSpectator = state.spectators.some(s => s.id.toString() === pid);
 
       if (isPlayer || isSpectator) {
         return {

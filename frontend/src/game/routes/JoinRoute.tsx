@@ -58,11 +58,8 @@ export default function MultiplayerJoinRoute() {
           }
           return;
         }
-
         await joinGame(gameId, "PLAYER");
-
         navigate(`/multiplayer/lobby/${gameId}`);
-
       } catch (err: any) {
         setError(err.message || "Failed to join game");
       } finally {

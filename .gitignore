@@ -50,3 +50,6 @@ instructions
 
 # tarball deps
 *.tgz
+
+# VS Code settings
+.vscode/

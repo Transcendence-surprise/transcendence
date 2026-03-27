@@ -28,7 +28,8 @@ describe('Game Engine', () => {
     expect(state.hostId).toBe(hostId);
     expect(state.players.length).toBe(1);
     expect(state.players[0].id).toBe(hostId);
-    expect(state.currentPlayerId).toBe(hostId);
+    expect(state.currentPlayerIndex).toBe(0);
+    expect(state.players[state.currentPlayerIndex].id).toBe(hostId);
   });
 
   it('should not call startGameEngine for single-player (already PLAY)', () => {
@@ -40,7 +41,8 @@ describe('Game Engine', () => {
     const state = createGame(hostId, nickname, settings);
 
     expect(state.phase).toBe('PLAY');
-    expect(state.currentPlayerId).toBe(hostId);
+    expect(state.currentPlayerIndex).toBe(0);
+    expect(state.players[state.currentPlayerIndex].id).toBe(hostId);
   });
 
   it('should create a multiplayer game in LOBBY phase', () => {

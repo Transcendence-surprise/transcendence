@@ -48,14 +48,18 @@ export default function LobbyRoute() {
 
     const handleLobbyUpdate = (data: any) => {
       console.log("LOBBY UPDATE RECEIVED", data);
-      setGame({
-        id: data.gameId,
-        hostName: data.host,
-        players: data.players,
-        rules: data.rules,
-        phase: data.phase,
-      });
-      console.log("Game after set:", game);
+        setGame({
+          id: data.gameId,
+          hostName: data.host,
+          players: data.players,
+          rules: data.rules,
+          phase: data.phase,
+        });
+        // If phase changed to PLAY, navigate to board
+        if (data.phase === "PLAY") {
+          navigate(`/game/${data.gameId}`);
+        }
+        console.log("Game after set:", game);
     };
 
     socket.on("lobbyUpdate", handleLobbyUpdate);
@@ -66,6 +70,15 @@ export default function LobbyRoute() {
     };
 
     socket.on("lobbyMessage", handleLobbyMessage);
+
+    const handleLobbyDeleted = (data: { gameId: string }) => {
+      if (data.gameId === gameId) {
+        alert("The host left and the lobby was closed!");
+        navigate("/game");
+      }
+    };
+
+    socket.on("lobbyDeleted", handleLobbyDeleted);
 
     const handleError = (err: any) => {
       console.log("LOBBY ERROR", err);
@@ -78,6 +91,7 @@ export default function LobbyRoute() {
       socket.off("connect", handleConnect);
       socket.off("lobbyUpdate", handleLobbyUpdate);
       socket.off("lobbyMessage", handleLobbyMessage);
+      socket.off("lobbyDeleted", handleLobbyDeleted);
       socket.off("error", handleError); 
     };
   }, [gameId, user, navigate]);

@@ -1,4 +1,4 @@
-import { GameSettings, GameState, PlayerState } from '../models/state';
+import { GameSettings, GameState } from '../models/state';
 import { createGameState } from '../factories/gameState.factory';
 import { getSingleplayerLevelById } from '../factories/singleLevel.factory';
 import { createMultiplayerLevel } from '../factories/multiLevel.factory';
@@ -18,6 +18,7 @@ export function createGame(
       : createMultiplayerLevel(settings);
   // Create base state
   const state = createGameState(level);
+  state.gameStartedAt = Date.now();  
 
   // Compile and attach rules
   state.rules = compileRules(settings);
@@ -30,9 +31,8 @@ export function createGame(
 
     state.hostId = hostId;
     state.hostName = nickname;
-    console.log(`${state.hostName} created new game!`);
+    // console.log(`${state.hostName} created new game!`);
     state.currentPlayerIndex = 0;
-    state.currentPlayerId = hostId;
 
     state.playerProgress[hostId] = {
       collectedItems: [],
@@ -58,13 +58,13 @@ export function createGame(
     x: spawn.x,
     y: spawn.y,
     hasMoved: false,
+    skipsLeft: 3,
   });
 
   state.hostId = hostId;
   state.hostName = nickname;
-  console.log(`${state.hostName} created new game!`);
+  // console.log(`${state.hostName} created new game!`);
   state.currentPlayerIndex = 0;
-  state.currentPlayerId = hostId;
 
   // Initialize host progress
   const firstCollectible = level.collectibles?.find(c => c.ownerSlotId === spawn.slotId);
@@ -78,7 +78,7 @@ export function createGame(
     })),
   };
 
-  console.log("CREATE GAME SPECTATORS:", state.rules.allowSpectators);
+  // console.log("CREATE GAME SPECTATORS:", state.rules.allowSpectators);
 
   // Final state setup
   state.spectators = [];

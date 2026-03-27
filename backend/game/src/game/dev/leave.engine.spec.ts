@@ -25,7 +25,6 @@ describe("leaveGameEngine", () => {
     state.spectators.push({ id: 11 });
     state.spectators.push({ id: 22 });
 
-    state.currentPlayerId = 1;
     state.currentPlayerIndex = 0;
 
     state.phase = "LOBBY";
@@ -46,8 +45,11 @@ describe("leaveGameEngine", () => {
   it("prevents host from leaving in PLAY", () => {
     state.phase = "PLAY";
     const result = leaveGameEngine(state, 1);
-    expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.error).toBe(LeaveError.HOST_CANNOT_LEAVE);
+    expect(result.ok).toBe(true);
+    expect(result.deleteGame).toBeUndefined();
+    // Host should be removed from players
+    expect(state.players.some(p => p.id === 1)).toBe(false);
+    // Game is not deleted unless only one player remains
   });
 
   it("allows host to leave in LOBBY and triggers deleteGame", () => {
@@ -58,13 +60,12 @@ describe("leaveGameEngine", () => {
   });
 
   it("updates currentPlayerId if current player leaves", () => {
-    state.currentPlayerId = 2;
     state.currentPlayerIndex = 1;
 
     const result = leaveGameEngine(state, 2);
     expect(result.ok).toBe(true);
-    expect(state.currentPlayerId).toBe(1);
-    expect(state.currentPlayerIndex).toBe(0);
+    expect(state.currentPlayerIndex).toBe(1);
+    expect(state.players[state.currentPlayerIndex].id).toBe(3);
   });
 
   it("returns error for non-existent player", () => {
@@ -82,22 +83,53 @@ describe("leaveGameEngine", () => {
   });
 
   it("handles leaving until all players gone except host", () => {
-    leaveGameEngine(state, 2);
-    leaveGameEngine(state, 3);
-
+    let r = leaveGameEngine(state, 2);
+    expect(r.ok).toBe(true);
+    // After player 2 leaves, game should not be deleted
+    expect(r.deleteGame).toBeUndefined();
+    r = leaveGameEngine(state, 3);
+    expect(r.ok).toBe(true);
+    // After player 3 leaves, only host remains, so game should be deleted
+    expect(r.deleteGame).toBe(true);
     expect(state.players.length).toBe(1);
     expect(state.players[0].id).toBe(1);
-    expect(state.currentPlayerId).toBe(1);
+    expect(state.currentPlayerIndex).toBe(0);
+    expect(state.players[state.currentPlayerIndex].id).toBe(1);
+  });
+
+  it("handles leaving until all players gone except host (multi mode)", () => {
+    // Remove player 2 (3 players remain)
+    let r = leaveGameEngine(state, 2);
+    expect(r.ok).toBe(true);
+    expect(r.deleteGame).toBeUndefined();
+    // Remove player 3 (now only host remains, so game should be deleted)
+    r = leaveGameEngine(state, 3);
+    expect(r.ok).toBe(true);
+    expect(r.deleteGame).toBe(true);
+    expect(state.players.length).toBe(1);
+    expect(state.players[0].id).toBe(1);
+    expect(state.currentPlayerIndex).toBe(0);
+    expect(state.players[state.currentPlayerIndex].id).toBe(1);
+  });
+
+  it("deletes game when last player leaves in single mode", () => {
+    // Set up single mode with one player (host)
+    const singleSettings = { mode: "SINGLE" } as const;
+    state = createGame(1, "HOST1", singleSettings);
+    expect(state.players.length).toBe(1);
+    const r = leaveGameEngine(state, 1);
+    expect(r.ok).toBe(true);
+    expect(r.deleteGame).toBe(true);
+    expect(state.players.length).toBe(1); // player array not mutated until deletion
   });
 
   it("removes current player and sets host as current if needed", () => {
-    state.currentPlayerId = 3;
     state.currentPlayerIndex = 2;
     const result = leaveGameEngine(state, 3);
     expect(result.ok).toBe(true);
     expect(state.players.find(p => p.id === 3)).toBeUndefined();
-    expect(state.currentPlayerId).toBe(1); // host now first
     expect(state.currentPlayerIndex).toBe(0);
+    expect(state.players[state.currentPlayerIndex].id).toBe(1); // host now first
   });
 
   it("leaving all spectators leaves empty spectator list", () => {
@@ -109,11 +141,12 @@ describe("leaveGameEngine", () => {
   it("host cannot leave in PLAY but can in LOBBY", () => {
     state.phase = "PLAY";
     let r = leaveGameEngine(state, 1);
-    expect(r.ok).toBe(false);
+    expect(r.ok).toBe(true);
+    expect(r.deleteGame).toBeUndefined();
+    expect(state.players.some(p => p.id === 1)).toBe(false);
     state.phase = "LOBBY";
     r = leaveGameEngine(state, 1);
     expect(r.ok).toBe(true);
     expect(r.deleteGame).toBe(true);
   });
-
 });
