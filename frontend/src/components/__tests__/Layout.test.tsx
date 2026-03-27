@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom';
 import Layout from '../Layout'
 import { AuthProvider } from '../../hooks/useAuth'
 
@@ -9,9 +10,11 @@ vi.mock('../../api/health', () => ({
 describe('Layout', () => {
   it('renders header and backend status', async () => {
     render(
-      <AuthProvider>
-        <Layout />
-      </AuthProvider>
+      <MemoryRouter>
+        <AuthProvider>
+          <Layout />
+        </AuthProvider>
+      </MemoryRouter>
     )
 
     expect(screen.getAllByText(/Transcendence Game/i).length).toBeGreaterThan(0)
