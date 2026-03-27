@@ -17,7 +17,7 @@ import { useKeyboardNavigation } from "../../hooks/useKeyboardNavigation";
 type Props = {
   board: Board;
   players: PlayerState[];
-  progress: Record<string, PlayerProgress>;
+  progress: PlayerProgress;
   gameId: string;
 };
 

@@ -2,16 +2,14 @@ import { useState, useMemo } from "react";
 import { Board } from "../game/models/board";
 import { PlayerProgress } from "../game/models/gameState";
 
-export function useBoardState(board: Board, progress: Record<string, PlayerProgress>) {
+export function useBoardState(board: Board, progress: PlayerProgress) {
   const [boardState, setBoardState] = useState(board);
 
   const collectibleSet = useMemo(() => {
     const collectedIds = new Set<string>();
-    Object.values(progress).forEach(p => {
-      if (Array.isArray(p.collectedItems)) {
-        p.collectedItems.forEach(id => collectedIds.add(id));
-      }
-    });
+    if (progress && Array.isArray(progress.collectedItems)) {
+      progress.collectedItems.forEach(id => collectedIds.add(id));
+    }
     return collectedIds;
   }, [progress]);
 
