@@ -149,6 +149,17 @@ export class WsGateway {
       return client.disconnect(true);
     }
 
+    // Validate game existence and phase before joining lobby
+    const state = this.engine.getGameState(data.gameId);
+    if (!state) {
+      console.log("GAME_NOT_FOUND");
+      return client.emit("error", { error: "GAME_NOT_FOUND" });
+    }
+    if (state.phase !== "LOBBY") {
+      console.log("LOBBY_CLOSED");
+      return client.emit("error", { error: "LOBBY_CLOSED" });
+    }
+
     const room = `lobby:${data.gameId}`;
     void client.join(room);
 
@@ -164,7 +175,8 @@ export class WsGateway {
       displayName: p.name,
     }));
 
-    const host = playersWithNames.find(p => p.id === state.hostId);
+    // Normalize both sides to string to ensure correct host resolution.
+    const host = playersWithNames.find(p => String(p.id) === String(state.hostId));
 
     // Emit to the lobby room
     this.sendToRoom(`lobby:${gameId}`, 'lobbyUpdate', {
