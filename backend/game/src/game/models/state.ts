@@ -13,7 +13,6 @@ export interface PlayerState {
   y: number;                      // current Y position
   hasMoved: boolean;              // did the player already move this turn?
   skipsLeft: number;              // how many skips the player has left
-  moveStartedAt?: number;         // timestamp when player's turn started (for move timer)
   // stunned?: boolean;           // future-proof: player cannot act
 }
 
@@ -72,6 +71,7 @@ export interface GameState {
   board: Board;                       // board tiles
   currentPlayerIndex: number;         // whose turn in players[]
   currentPlayerId: string | number;   // for WS notifications
+  moveStartedAt?: number;             // timestamp when current player's turn started (for move timer)
   lastBoardAction?: BoardAction;      // last action performed
   boardActionsPending: boolean;       // true until board action performed
   turnActions: {                      // per-turn counters

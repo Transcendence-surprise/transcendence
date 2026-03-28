@@ -1,6 +1,7 @@
 // src/game/models/privateState.ts
 
 import { Board } from "./board";
+import { Level } from "./level";
 import { PlayerProgress, PlayerState } from "./state";
 
 export interface PrivateGameState {
@@ -10,6 +11,7 @@ export interface PrivateGameState {
   // -----------------------
 
   levelId: string;                    // which level is being played
+  level: Level;                       // level details (optional, for display)
   hostName: string;                   // game owner nickname
   phase: "LOBBY" | "PLAY" | "END";
   board: Board;                        // board tiles, collected items
@@ -20,6 +22,7 @@ export interface PrivateGameState {
   objectives: string[];                // for display: what to achieve
   gameStartedAt?: number;              // timestamp when game started (for total timer)
   moveStartedAt?: number;              // timestamp when current player's turn started (for move timer)
+  moveLimitPerTurnSec?: number;        // move time limit in seconds (optional, for timer display)
 
   // -----------------------
   // Personal / Private info

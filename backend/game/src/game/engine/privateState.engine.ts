@@ -10,15 +10,13 @@ export function getPrivateState(
 
   const progress = state.playerProgress[playerId.toString()];
   const objectives = state.level.objectives.map((o) => JSON.stringify(o));
-  const currentPlayerMoveStartedAt = state.players
-  .find(p => p.id.toString() === state.currentPlayerId.toString())
-  ?.moveStartedAt;
   const spectatorNames: string[] = state.spectators.map(s => s.id.toString());
 
   return {
     ok: true,
     state: {
       levelId: state.level.id,
+      level: state.level,
       hostName: state.hostName,
       phase: state.phase,
       board: state.board,
@@ -28,7 +26,8 @@ export function getPrivateState(
       spectators: spectatorNames,
       objectives: objectives,
       gameStartedAt: state.gameStartedAt,
-      moveStartedAt: currentPlayerMoveStartedAt,
+      moveStartedAt: state.moveStartedAt,
+      moveLimitPerTurnSec: state.rules.moveLimitPerTurnSec,
       boardActionsPending: state.boardActionsPending,
       playerProgress: progress,
       skipsLeft: state.players.find(p => p.id.toString() === playerId.toString())?.skipsLeft ?? 0,

@@ -70,6 +70,7 @@ export class GameController {
     if (result.ok) {
       this.wsGateway.sendMultiplayerListUpdate();
       this.wsGateway.sendLobbyUpdate(body.gameId);
+      this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
     }
 
     return result.ok ? { ok: true } : { ok: false, error: result.error };
