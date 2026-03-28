@@ -1,6 +1,5 @@
 // src/components/game/sidebar/PlayerList.tsx
-import React from "react";
-import { PrivateGameState, PlayerState } from "../../../game/models/privatState";
+import { PlayerState } from "../../../game/models/privatState";
 import { mockPlayerProfile } from "../../../types/mockPlayer";
 
 interface PlayerListProps {
