@@ -11,7 +11,6 @@ import {
   StartResponseDto,
   JoinGameDto,
   JoinResponseDto,
-  BoardMoveDto,
   BoardResponseDto,
   LeaveGameDto,
   LeaveResponseDto,
@@ -23,6 +22,7 @@ import { MultiGame } from '../models/gameInfo';
 import { CheckPlayerAvailabilityDto } from '../dtos/checkPlayer.dto';
 import { CurrentUser } from '../dtos/playerContext.dto';
 import type { PlayerContext } from '../dtos/playerContext.dto';
+import { BoardMoveDto } from '../dtos/board-move.dto';
 
 @Controller('game')
 export class GameController {
@@ -104,11 +104,10 @@ export class GameController {
     @Body() body: BoardMoveDto,
     @CurrentUser() user: PlayerContext
   ) : BoardResponseDto {
-
+    console.log(`Board move request for game ${body.gameId} from user ${user.id}:`, body.action);
     if (!user.id) {
       throw new UnauthorizedException('User id missing');
     }
-    console.log(`Received board move for game ${body.gameId} from user ${user.id}:`, body.action);
     const result = this.engine.boardModification(body.gameId, body.action, user.id);
     
     if (result.ok) {

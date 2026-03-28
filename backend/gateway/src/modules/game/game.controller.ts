@@ -64,6 +64,6 @@ export class GameController {
   @Auth(AuthType.JWT)
   @UseGuards(AuthGuard)
   boardMove(@Body() body: unknown, @Req() req: FastifyRequest) {
-     return this.gameClient.boardMove(body, req);
+    return this.gameClient.boardMove(body, req);
   }
 }
