@@ -6,6 +6,7 @@ export interface PositionedTile {
   x: number;
   y: number;
   collectableId?: string;
+  fixed?: boolean;
 }
 
 export interface Board {
