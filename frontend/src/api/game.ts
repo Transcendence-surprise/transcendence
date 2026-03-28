@@ -3,6 +3,7 @@
 import { SingleLevel } from "../game/models/singleLevel";
 import { MultiGame } from "../game/models/multiGames";
 import { BoardAction } from "../game/models/boardAction";
+import { PrivateGameState } from "../game/models/privatState";
 
 export type GameSettings =
   | ({ mode: 'SINGLE'; allowSpectators?: false; levelId?: string })
@@ -83,7 +84,7 @@ export async function boardModification(gameId: string, action: BoardAction) {
   return data;
 }
 
-export async function getGameState(gameId: string) {
+export async function getGameState(gameId: string): Promise<PrivateGameState> {
   const res = await fetch(`/api/game/${gameId}`, { credentials: 'include' });
   const data = await res.json();
 

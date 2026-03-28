@@ -2,18 +2,20 @@
 
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getGameState } from "../../api/game";
-import BoardView from "../../components/game/Board";
 import { connectSocket } from "../../services/socket";
 import { useAuth } from '../../hooks/useAuth';
+import GamePage from "../../pages/GamePage";
+import { PrivateGameState } from "../models/privatState";
+import { getGameState } from "../../api/game";
 
 export default function GameRoute() {
   const { id } = useParams<{ id: string }>();
-  const [game, setGame] = useState<any>(null);
+  if (!id) throw new Error("Game ID is required");
+  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
-
+  const [game, setGame] = useState<PrivateGameState | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,11 +32,11 @@ export default function GameRoute() {
     socket.emit("joinPlay", { gameId: id, userId: user.id });
 
     // listen for updates
-    const handlePlayUpdate = (data: any) => {
-      setGame((prev: any) => ({
-        ...prev,
-        ...data,
-      }));
+    const handlePlayUpdate = (data: Partial<PrivateGameState>) => {
+       setGame((prev) => {
+        if (!prev) return prev;
+        return { ...prev, ...data };
+      });
     };
     socket.on("playUpdate", handlePlayUpdate);
 
@@ -69,15 +71,7 @@ export default function GameRoute() {
   if (!game) return <div>Game not found</div>;
 
   if (game.phase === "PLAY") {
-    return (
-      <BoardView
-        board={game.board}
-        players={game.players}
-        progress={game.playerProgress}
-        gameId={id || ""}
-      />
-    );
+    return <GamePage game={game} gameId={id} />;
   }
-
   return <div>Game ended</div>;
 }
