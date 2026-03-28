@@ -108,7 +108,7 @@ export class GameController {
     if (!user.id) {
       throw new UnauthorizedException('User id missing');
     }
-
+    console.log(`Received board move for game ${body.gameId} from user ${user.id}:`, body.action);
     const result = this.engine.boardModification(body.gameId, body.action, user.id);
     
     if (result.ok) {
