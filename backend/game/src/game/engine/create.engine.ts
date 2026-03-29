@@ -34,6 +34,7 @@ export function createGame(
     state.hostName = nickname;
     // console.log(`${state.hostName} created new game!`);
     state.currentPlayerIndex = 0;
+    state.currentPlayerId = state.players[state.currentPlayerIndex].id;
 
     state.playerProgress[hostId] = {
       collectedItems: [],
@@ -66,10 +67,14 @@ export function createGame(
   state.hostName = nickname;
   // console.log(`${state.hostName} created new game!`);
   state.currentPlayerIndex = 0;
+  state.currentPlayerId = state.players[state.currentPlayerIndex].id;
 
   // Initialize host progress
   const firstCollectible = level.collectibles?.find(c => c.ownerSlotId === spawn.slotId);
-  state.playerProgress[hostId] = {
+
+  const key = hostId.toString();
+
+  state.playerProgress[key] = {
     collectedItems: [],
     currentCollectibleId: firstCollectible?.id,
     objectives: level.objectives.map(obj => ({

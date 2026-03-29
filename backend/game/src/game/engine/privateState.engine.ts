@@ -8,7 +8,13 @@ export function getPrivateState(
   playerId: number | string
 ): PrivateGameStateResult {
 
-  const progress = state.playerProgress[playerId.toString()];
+  const key = playerId.toString();
+
+  const progress = state.playerProgress[key] ?? {
+    collectedItems: [],
+    currentCollectibleId: undefined,
+    objectives: [],
+  };
   const objectives = state.level.objectives.map((o) => JSON.stringify(o));
   const spectatorNames: string[] = state.spectators.map(s => s.id.toString());
 

@@ -7,7 +7,11 @@ interface PlayerPrivatePanelProps {
 
 export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
   const { playerProgress, skipsLeft, boardActionsPending } = game;
-  const { collectedItems, currentCollectibleId, objectives } = playerProgress;
+  const {
+    collectedItems = [],
+    currentCollectibleId,
+    objectives = [],
+  } = playerProgress ?? {};
 
   return (
     <div className="flex flex-col gap-4 w-full bg-bg-sidebar p-4 rounded-lg">
