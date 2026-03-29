@@ -75,10 +75,22 @@ export async function boardModification(gameId: string, action: BoardAction) {
     body: JSON.stringify({ gameId, action }),
     credentials: 'include',
   });
-  const data = await res.json();
+  let data: any = {};
+  try {
+    data = await res.json();
+  } catch (e) {
+    // Backend returned invalid JSON (e.g., rate limit or server error)
+    return {
+      ok: false,
+      error: `Server error: ${res.status} ${res.statusText}`,
+    };
+  }
 
   if (!res.ok || !data.ok) {
-    throw new Error(data?.error || data?.message || 'Failed to perform board action');
+    return {
+      ok: false,
+      error: data?.error || data?.message || `Failed to perform board action: ${res.statusText}`,
+    };
   }
 
   return data;
@@ -98,20 +110,6 @@ export async function getGameState(gameId: string): Promise<PrivateGameState> {
 
   return data.state; // full game object
 }
-
-// export async function makeMove(
-//   gameId: string,
-//   playerId: string,
-//   boardAction?: any,
-//   moveAction?: any
-// ) {
-//   const res = await fetch('api/game/move', {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({ gameId, playerId, boardAction, moveAction }),
-//   });
-//   return res.json();
-// }
 
 export async function leaveGame(gameId: string ) {
   const res = await fetch('/api/game/leave', {
