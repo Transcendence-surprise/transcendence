@@ -41,6 +41,7 @@ import {
   FindOneByEmailDocs,
   UpdateUserDocs,
   UpdateUserPartialDocs,
+  UploadAvatarDocs,
 } from './users.controller.docs';
 import { CurrentUser } from '../../decorators/current-user.decorator';
 import type { JwtPayload } from '../../decorators/current-user.decorator';
@@ -105,6 +106,7 @@ export class UsersController {
   }
 
   @Post('me/avatar')
+  @UploadAvatarDocs()
   async uploadAvatar(
     @CurrentUser() user: JwtPayload,
     @Req() req: MaybeMultipartRequest,
