@@ -26,6 +26,8 @@ export default function BoardView({ board, players, gameId }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
+  console.log("Player State in BoardView:", players.map(p => ({ id: p.id, slot: p.slotId, x: p.x, y: p.y, hasMoved: p.hasMoved, skipsLeft: p.skipsLeft })));
+
   // --- Keyboard navigation ---
   const { selectedButton, setSelectedButton, handleKeyDown } =
     useKeyboardNavigation(board.width, board.height);

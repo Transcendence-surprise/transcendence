@@ -135,15 +135,37 @@ export function useDrawBoard(
       );
       if (!tile) return;
 
-      const id =
-        /^P(\d)$/.exec(player.slotId)?.[1] || String(player.id);
-      const img = playerImagesRef.current[id];
-      if (!img) return;
+      // Map slotId (P1, P2, ...) to correct image id in the set
+      const slotMatch = /^P(\d+)$/.exec(player.slotId);
+      let img;
+      if (slotMatch) {
+        const slotNum = Number(slotMatch[1]);
+        const playerIconSet = localStorage.getItem("settings.playerIconSet") || "star";
+        const imgId = playerIconSet === "star" ? String(slotNum) : String(slotNum + 4);
+        img = playerImagesRef.current[imgId];
+      }
+
+      // ...existing code...
 
       const cellX = tile.x * CELL_SIZE;
       const cellY = tile.y * CELL_SIZE;
 
-      ctx.drawImage(img, cellX + 10, cellY + 10, 48, 48);
+      if (img) {
+        ctx.drawImage(img, cellX + 10, cellY + 10, 48, 48);
+      } else {
+        // Draw fallback: colored circle with player initial
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cellX + CELL_SIZE / 2, cellY + CELL_SIZE / 2, 22, 0, 2 * Math.PI);
+        ctx.fillStyle = '#3498db';
+        ctx.fill();
+        ctx.font = 'bold 20px sans-serif';
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(player.name?.[0] || '?', cellX + CELL_SIZE / 2, cellY + CELL_SIZE / 2);
+        ctx.restore();
+      }
     });
   }, [board, players, swapTiles, imagesLoaded]);
 }
