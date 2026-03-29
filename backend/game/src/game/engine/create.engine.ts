@@ -57,6 +57,7 @@ export function createGame(
       }
       return obj;
     }),
+    totalMoves: 0,
   };
 
   // Final state setup

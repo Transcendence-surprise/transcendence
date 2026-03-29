@@ -60,8 +60,9 @@ export function joinGameEngine(
         if (obj.type === "RETURN_HOME") {
           return { ...obj, targetX: availableSlot.x, targetY: availableSlot.y };
         }
-      return obj;
-  }),
+        return obj;
+      }),
+      totalMoves: 0,
     };
 
     return { ok: true, role: "PLAYER" };

@@ -20,6 +20,7 @@ export interface PlayerProgress {
   collectedItems: string[];       // items collected
   currentCollectibleId?: string;  // the next collectible to collect (multi only)
   objectives: ObjectiveStatus[];  // per-objective progress
+  totalMoves: number;             // total moves made (for move limit constraint)
 }
 
 export interface Spectator {
