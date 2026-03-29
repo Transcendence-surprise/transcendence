@@ -5,10 +5,10 @@ export const Puzzle01Meta: LevelMeta = {
   name: "First",
 
   objectives: [
-    { type: "COLLECT_ALL" }
+    { type: "COLLECT_ALL", amount: 3 }
   ],
 
-  constraints: { maxMoves: 8, levelLimitSec: 120 },
+  constraints: { maxMoves: 8, levelLimitSec: 60 },
 
   startingPoints: [{ slotId: "P1", x: 0, y: 0 }],
 

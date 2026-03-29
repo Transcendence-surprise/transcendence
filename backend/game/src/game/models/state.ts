@@ -82,7 +82,6 @@ export interface GameState {
 
   playerProgress: Record<string, PlayerProgress>; // per-player objectives and collected items
 
-  collected: Record<string, boolean>; // globally collected items
   gameEnded: boolean;                 // has the game ended?
   gameResult?: {
     winnerId: string;

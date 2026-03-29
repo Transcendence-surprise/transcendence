@@ -9,7 +9,7 @@ export const Puzzle02Meta: LevelMeta = {
   exitPoints: [{ x: 2, y: 2 }],
 
   objectives: [
-    { type: "COLLECT_ALL" }
+    { type: "COLLECT_ALL", amount: 2 }
   ],
 
   constraints: { maxMoves: 8 },

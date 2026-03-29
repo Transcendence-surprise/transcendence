@@ -1,5 +1,6 @@
 import { GameState } from "../models/state";
 import { JoinResult, JoinError } from "../models/joinResult";
+import { compileObjectives } from "./compileObjectives.engine";
 
 export function joinGameEngine(
   state: GameState,
@@ -55,11 +56,12 @@ export function joinGameEngine(
     state.playerProgress[playerId] = {
       collectedItems: [],
       currentCollectibleId: firstCollectible?.id, 
-      objectives: state.level.objectives.map(obj => ({
-        type: obj.type,
-        done: false,
-        progress: obj.type === "COLLECT_N" ? 0 : undefined,
-      })),
+      objectives: compileObjectives(state.level, state.rules).map(obj => {
+        if (obj.type === "RETURN_HOME") {
+          return { ...obj, targetX: availableSlot.x, targetY: availableSlot.y };
+        }
+      return obj;
+  }),
     };
 
     return { ok: true, role: "PLAYER" };

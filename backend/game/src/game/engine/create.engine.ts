@@ -4,6 +4,7 @@ import { createGameState } from '../factories/gameState.factory';
 import { getSingleplayerLevelById } from '../factories/singleLevel.factory';
 import { createMultiplayerLevel } from '../factories/multiLevel.factory';
 import { compileRules } from "./compileRules.engine";
+import { compileObjectives } from "./compileObjectives.engine";
 
 
 export function createGame(
@@ -24,67 +25,39 @@ export function createGame(
   // Compile and attach rules
   state.rules = compileRules(settings);
 
-  // Single-player: inject host into slot
-  if (settings.mode === "SINGLE") {
-    const hostPlayer = state.players[0];
-    hostPlayer.id = hostId;
-    hostPlayer.name = nickname;
-
-    state.hostId = hostId;
-    state.hostName = nickname;
-    // console.log(`${state.hostName} created new game!`);
-    state.currentPlayerIndex = 0;
-    state.currentPlayerId = state.players[state.currentPlayerIndex].id;
-
-    state.playerProgress[hostId] = {
-      collectedItems: [],
-      currentCollectibleId: level.collectibles?.[0]?.id,
-      objectives: level.objectives.map(obj => ({
-        type: obj.type,
-        done: false,
-        progress: obj.type === "COLLECT_ALL" ? 0 : undefined,
-      })),
-    };
-
-    state.phase = "PLAY";
-    return state;
-  }
-
-  // Multiplayer: push host as first player
+  // Determine starting point for host player based on level config (or default to P1) 
   const spawn = level.startingPoints[0] ?? { x: 0, y: 0, slotId: "P1" };
 
-  state.players.push({
+  // Initialize host player
+  const hostPlayer = {
     id: hostId,
     slotId: spawn.slotId,
     name: nickname,
     x: spawn.x,
     y: spawn.y,
     hasMoved: false,
-    skipsLeft: 3,
-  });
+    skipsLeft: settings.mode === "MULTI" ? 3 : 0,
+  };
+  state.players.push(hostPlayer);
 
   state.hostId = hostId;
   state.hostName = nickname;
-  // console.log(`${state.hostName} created new game!`);
   state.currentPlayerIndex = 0;
-  state.currentPlayerId = state.players[state.currentPlayerIndex].id;
+  state.currentPlayerId = hostPlayer.id;
 
   // Initialize host progress
   const firstCollectible = level.collectibles?.find(c => c.ownerSlotId === spawn.slotId);
 
-  const key = hostId.toString();
-
-  state.playerProgress[key] = {
+  state.playerProgress[hostId.toString()] = {
     collectedItems: [],
     currentCollectibleId: firstCollectible?.id,
-    objectives: level.objectives.map(obj => ({
-      type: obj.type,
-      done: false,
-      progress: obj.type === "COLLECT_N" || obj.type === "COLLECT_ALL" ? 0 : undefined,
-    })),
+    objectives: compileObjectives(state.level, state.rules).map(obj => {
+      if (obj.type === "RETURN_HOME") {
+        return { ...obj, targetX: spawn.x, targetY: spawn.y };
+      }
+      return obj;
+    }),
   };
-
-  // console.log("CREATE GAME SPECTATORS:", state.rules.allowSpectators);
 
   // Final state setup
   state.spectators = [];

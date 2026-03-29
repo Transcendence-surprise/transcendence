@@ -18,7 +18,12 @@ export function createSingleplayerLevel(
     row.map((token, x) => createTile(token, x, y))
   );
 
-  const collectibles = meta.collectibles ?? [];
+  const playerSlotId = meta.startingPoints?.[0]?.slotId ?? "P1";
+
+  const collectibles = (meta.collectibles ?? []).map(c => ({
+    ...c,
+    ownerSlotId: playerSlotId,
+  }));
 
   // console.log("collectibles:", meta.collectibles);
 
@@ -40,7 +45,7 @@ export function createSingleplayerLevel(
     name: meta.name,
     board,
     startingPoints: (meta.startingPoints ?? []).map((sp, index) => ({
-      slotId: `P${index + 1}`,
+      slotId: sp.slotId ?? "P1",
       x: sp.x,
       y: sp.y,
     })),

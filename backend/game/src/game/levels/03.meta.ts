@@ -5,7 +5,7 @@ export const Puzzle03Meta: LevelMeta = {
   name: "Third",
 
   objectives: [
-    { type: "COLLECT_ALL" }
+    { type: "COLLECT_ALL", amount: 3 }
   ],
 
   constraints: { maxMoves: 12 },
