@@ -42,8 +42,8 @@ import {
   UpdateUserDocs,
   UpdateUserPartialDocs,
 } from './users.controller.docs';
-import { CurrentUser } from '../decorators/current-user.decorator';
-import type { JwtPayload } from '../decorators/current-user.decorator';
+import { CurrentUser } from '../../decorators/current-user.decorator';
+import type { JwtPayload } from '../../decorators/current-user.decorator';
 
 
 @UsersControllerDocs()
