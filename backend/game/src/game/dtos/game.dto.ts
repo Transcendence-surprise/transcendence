@@ -8,7 +8,6 @@ import {
   IsString,
   IsIn,
   IsNumber,
-  ValidateNested,
 } from 'class-validator';
 import { StartError } from '../models/startResult';
 import { JoinError } from '../models/joinResult';
@@ -18,7 +17,6 @@ import { BoardActionError } from '../models/boardAction';
 import type { Board } from '../models/board';
 import type { PlayerProgress } from '../models/state';
 import { PlayerStateDto } from './playerState.dto';
-import { Type } from 'class-transformer';
 
 export enum PlayerRole {
   PLAYER = 'PLAYER',
