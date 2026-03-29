@@ -3,7 +3,7 @@ import { Level } from "../models/level";
 import { LevelMeta } from "../models/levelMeta";
 import { createTile } from "./tile.factory";
 import { PositionedTile } from "../models/positionedTile";
-import { validateSingleLevelMeta, validateMapTokens } from "../validators/level.validator";
+import { validateSingleLevelMeta, validateMapTokens } from "../engine/helpers/level.validator";
 import { singlePlayerLevels } from "./mapRegistry";
 
 export function createSingleplayerLevel(
