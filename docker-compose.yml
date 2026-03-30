@@ -4,7 +4,8 @@ services:
     build: ./frontend
     container_name: frontend
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     networks:
       - transcendence_net
 
@@ -14,7 +15,8 @@ services:
     build: ./backend/gateway
     container_name: gateway
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     depends_on:
       core:
         condition: service_healthy
@@ -35,7 +37,8 @@ services:
     build: ./backend/core
     container_name: core
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     volumes:
       - images_data:/app/uploads
     depends_on:
@@ -54,7 +57,8 @@ services:
     build: ./backend/auth
     container_name: auth
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     depends_on:
       migration:
         condition: service_completed_successfully
@@ -71,7 +75,8 @@ services:
     build: ./backend/game
     container_name: game
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     depends_on:
       migration:
         condition: service_completed_successfully
@@ -90,7 +95,8 @@ services:
     image: postgres:17-alpine
     container_name: db
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     networks:
       - transcendence_net
     healthcheck:
@@ -104,7 +110,8 @@ services:
     build: ./backend/migration
     container_name: migration
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     depends_on:
       db:
         condition: service_healthy
@@ -115,7 +122,8 @@ services:
     build: ./nginx
     container_name: nginx
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     depends_on:
       - frontend
     networks:
