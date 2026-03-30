@@ -37,6 +37,7 @@ export function createGame(
     y: spawn.y,
     hasMoved: false,
     skipsLeft: settings.mode === "MULTI" ? 3 : 0,
+    totalMoves: 0,
   };
   state.players.push(hostPlayer);
 
@@ -57,7 +58,6 @@ export function createGame(
       }
       return obj;
     }),
-    totalMoves: 0,
   };
 
   // Final state setup

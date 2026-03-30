@@ -29,6 +29,9 @@ export function processBoardAction(
     return { ok: false, error: BoardActionError.INVALID_ACTION };
   }
 
+  const player = state.players[state.currentPlayerIndex];
+
+
   // Update game state
   state.board = board;
   state.lastBoardAction = action;
@@ -37,9 +40,7 @@ export function processBoardAction(
   if (state.rules.mode === "MULTI") {
     state.boardActionsPending = false;
   }
-
-  // SINGLE: boardActionsPending remain true
-
+  player.totalMoves += 1;
   return { ok: true, action };
 }
 

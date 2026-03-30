@@ -47,6 +47,7 @@ export function joinGameEngine(
       y: availableSlot.y,
       hasMoved: false,
       skipsLeft: 3,
+      totalMoves: 0,
     });
 
     // Initialize player progress
@@ -62,7 +63,6 @@ export function joinGameEngine(
         }
         return obj;
       }),
-      totalMoves: 0,
     };
 
     return { ok: true, role: "PLAYER" };
