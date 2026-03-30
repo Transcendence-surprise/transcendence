@@ -54,6 +54,10 @@ export class GameHttpService {
     return this.request<T>('post', '/api/game/boardmove', body, req);
   }
 
+  async playerMove<T = unknown>(body: unknown, req?: FastifyRequest): Promise<T> {
+    return this.request<T>('post', '/api/game/playermove', body, req);
+  }
+
   private async request<T>(
     method: 'get' | 'post' | 'delete' | 'put',
     path: string,
