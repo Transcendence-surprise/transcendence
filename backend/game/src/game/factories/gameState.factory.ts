@@ -52,7 +52,7 @@ export function createGameState(level: Level): GameState {
     playerProgress: {},   // EMPTY
 
     gameEnded: false,
-    boardActionsPending: true,
+    boardActionsPending: (level.startingPoints.length === 1 ? false : true),
 
     gameResult: undefined,
   };
