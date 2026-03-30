@@ -1,5 +1,4 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -9,8 +8,13 @@ import { ValidationPipe } from '@nestjs/common';
 import multipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import { mkdir } from 'fs/promises';
+import { loadVaultSecrets } from './vault';
 
 async function bootstrap() {
+  await loadVaultSecrets();
+
+  const { AppModule } = await import('./app.module.js');
+
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
