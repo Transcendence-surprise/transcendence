@@ -1,6 +1,7 @@
 // src/game/engine/helpers/move.validator.ts
 import { GameState, PlayerState } from "../../models/state";
 import { PlayerAction } from "../../models/playerAction";
+import { canMove } from "./canMove";
 
 export function validatePlayerAction(
   state: GameState,
@@ -19,12 +20,12 @@ export function validatePlayerAction(
   }
 
   if (state.rules.mode === "SINGLE") {
-    const progress = state.playerProgress[player.id.toString()];
+    const progress = state.players[player.id.toString()];
     const totalMoves = progress?.totalMoves ?? 0;
     if (state.level.constraints?.maxMoves && totalMoves >= state.level.constraints.maxMoves) {
       return { valid: false, reason: "Max moves reached for this level" };
+    }
   }
-}
 
   // Validate path exists & is inside board
   if (action.path) {
@@ -40,8 +41,18 @@ export function validatePlayerAction(
     }
   }
 
-  // 5️⃣ Optional: check wall collisions, special tiles, etc.
-  // (we can add this later in movement helper)
+  // Check wall collisions
+  let current = { x: player.x, y: player.y };
+
+  for (const step of action.path) {
+    // Check move is valid between tiles (walls / openings)
+    if (!canMove(state.board, current, step)) {
+      return { valid: false, reason: "Path blocked by walls" };
+    }
+
+    // Move forward (only in local variable!)
+    current = step;
+  }
 
   return { valid: true };
 }

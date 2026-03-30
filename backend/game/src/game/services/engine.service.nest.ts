@@ -18,6 +18,8 @@ import { BoardAction, BoardActionResult, BoardActionError } from '../models/boar
 import * as crypto from 'crypto';
 import { PrivateGameStateResult, PrivateStateError } from '../models/privatState';
 import { getPrivateState } from '../engine/privateState.engine';
+import { PlayerActionResult, PlayerActionError, PlayerAction } from '../models/playerAction';
+import { processPlayerAction } from '../engine/playerAction.engine';
 
 @Injectable()
 export class EngineService {
@@ -99,16 +101,52 @@ export class EngineService {
     }
 
     // Check turn
-    if (state.currentPlayerId.toString() !== playerId.toString()) {
+    if (state.rules.mode === "MULTI" &&
+        state.currentPlayerId.toString() !== playerId.toString()) {
       return { ok: false, error: BoardActionError.NOT_YOUR_TURN };
     }
+
     if (state.phase !== "PLAY") {
       return { ok: false, error: BoardActionError.INVALID_ACTION };
     }
     if (state.boardActionsPending === false) {
       return { ok: false, error: BoardActionError.BOARD_ACTION_ALREADY_PERFORMED };
     }
+
     return processBoardAction(state, boardAction);
+  }
+
+  playerAction(
+      gameId: string,
+      action: PlayerAction,
+      playerId: number | string,
+    ):  PlayerActionResult {
+      const state = this.getGameState(gameId);
+    if (!state) {
+      return { ok: false, error: PlayerActionError.GAME_NOT_FOUND };
+    }
+    // Check player exists
+    const playerExists = state.players.some(
+      p => p.id.toString() === playerId.toString()
+    );
+
+    if (!playerExists) {
+      return { ok: false, error: PlayerActionError.PLAYER_NOT_FOUND };
+    }
+
+    // Check turn
+    if (state.rules.mode === "MULTI" &&
+        state.currentPlayerId.toString() !== playerId.toString()) {
+      return { ok: false, error: PlayerActionError.NOT_YOUR_TURN };
+    }
+
+    if (state.phase !== "PLAY") {
+      return { ok: false, error: PlayerActionError.INVALID_ACTION };
+    }
+    if (state.boardActionsPending === true) {
+      return { ok: false, error: PlayerActionError.REQUIRED_BOARD_ACTION };
+    }
+    return processPlayerAction(state, action);
   }
 
   leaveGame(gameId: string, playerId: number | string): LeaveResult {

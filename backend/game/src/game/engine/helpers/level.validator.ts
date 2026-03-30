@@ -1,4 +1,4 @@
-
+// src/game/engine/helpers/level.validator.ts
 import { LevelMeta } from "../../models/levelMeta";
 
 export function validateMapTokens(
