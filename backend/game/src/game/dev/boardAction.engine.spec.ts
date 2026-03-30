@@ -35,7 +35,7 @@ function createMockState(overrides: Partial<GameState> = {}): GameState {
     phase: 'PLAY',
     hostId: 1,
     hostName: 'host',
-    players: [{ id: 1, slotId: 'P1', name: 'Player1', x: 0, y: 0, hasMoved: false }],
+    players: [{ id: 1, slotId: 'P1', name: 'Player1', x: 0, y: 0, hasMoved: false, skipsLeft: 0, totalMoves: 0 }],
     spectators: [],
     rules: { mode: 'MULTI', maxPlayers: 2, allowSpectators: false, requiresBoardActionPerTurn: true, fixedCorners: false },
     board: createMockBoard(),
@@ -45,7 +45,6 @@ function createMockState(overrides: Partial<GameState> = {}): GameState {
     boardActionsPending: true,
     turnActions: { rotateCount: {}, shiftDone: false, swapDone: false },
     playerProgress: {},
-    collected: {},
     gameEnded: false,
     ...overrides,
   };
