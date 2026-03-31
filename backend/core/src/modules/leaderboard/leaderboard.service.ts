@@ -6,7 +6,7 @@ import { LeaderboardEntryDto } from './dto/leaderboard.dto';
 export class LeaderboardService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async getDailyLeaderboard(limit = 10): Promise<LeaderboardEntryDto[]> {
+  async getAllTimeLeaderboard(limit = 10): Promise<LeaderboardEntryDto[]> {
     const qb = this.dataSource
       .createQueryBuilder()
       .select('g.winner_user_id', 'userId')
@@ -17,8 +17,6 @@ export class LeaderboardService {
       .where('g.phase = :phase', { phase: 'END' })
       .andWhere('g.type = :type', { type: 'MULTI' })
       .andWhere('g.winner_user_id IS NOT NULL')
-      .andWhere(`g.ended_at >= date_trunc('day', now() AT TIME ZONE 'UTC')`)
-      .andWhere(`g.ended_at < date_trunc('day', now() AT TIME ZONE 'UTC') + interval '1 day'`)
       .groupBy('g.winner_user_id')
       .addGroupBy('u.username')
       .orderBy('wins', 'DESC')

@@ -4,14 +4,14 @@ import { LeaderboardEntryDto } from './dto/leaderboard.dto';
 
 const LeaderboardControllerDocs = () => ApiTags('leaderboard');
 
-const GetDailyLeaderboardDocs = () =>
+const GetAllTimeLeaderboardDocs = () =>
   applyDecorators(
     ApiOperation({
-      summary: 'Get daily leaderboard',
-      description: 'Retrieve top daily leaderboard entries',
-      operationId: 'getDailyLeaderboard',
+      summary: 'Get all-time leaderboard',
+      description: 'Retrieve top all-time leaderboard entries',
+      operationId: 'getAllTimeLeaderboard',
     }),
     ApiOkResponse({ type: LeaderboardEntryDto, isArray: true }),
   );
 
-export { LeaderboardControllerDocs, GetDailyLeaderboardDocs };
+export { LeaderboardControllerDocs, GetAllTimeLeaderboardDocs };

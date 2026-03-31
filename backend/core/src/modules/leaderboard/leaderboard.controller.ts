@@ -3,7 +3,7 @@ import { LeaderboardService } from './leaderboard.service';
 import { LeaderboardEntryDto } from './dto/leaderboard.dto';
 import {
   LeaderboardControllerDocs,
-  GetDailyLeaderboardDocs,
+  GetAllTimeLeaderboardDocs,
 } from './leaderboard.controller.docs';
 
 @LeaderboardControllerDocs()
@@ -11,9 +11,9 @@ import {
 export class LeaderboardController {
   constructor(private readonly leaderboardService: LeaderboardService) {}
 
-  @Get('daily')
-  @GetDailyLeaderboardDocs()
-  async getDailyLeaderboard(): Promise<LeaderboardEntryDto[]> {
-    return this.leaderboardService.getDailyLeaderboard(10);
+  @Get('all-time')
+  @GetAllTimeLeaderboardDocs()
+  async getAllTimeLeaderboard(): Promise<LeaderboardEntryDto[]> {
+    return this.leaderboardService.getAllTimeLeaderboard(10);
   }
 }

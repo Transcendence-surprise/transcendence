@@ -6,9 +6,9 @@ import { LeaderboardHttpService } from './leaderboard.service';
 export class LeaderboardController {
   constructor(private readonly leaderboardClient: LeaderboardHttpService) {}
 
-  @Get('daily')
-  async getDailyLeaderboard(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
-    const result = await this.leaderboardClient.getDailyLeaderboard(req);
+  @Get('all-time')
+  async getAllTimeLeaderboard(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    const result = await this.leaderboardClient.getAllTimeLeaderboard(req);
     return res.status(result.statusCode).send(result.data);
   }
 }
