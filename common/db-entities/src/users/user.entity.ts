@@ -44,6 +44,18 @@ export class User {
   @Column({ name: 'two_factor_enabled', type: 'boolean', default: false })
   twoFactorEnabled: boolean;
 
+  @Column({ name: 'rank_number', type: 'int', default: 0 })
+  rankNumber: number;
+
+  @Column({ name: 'win_streak', type: 'int', default: 0 })
+  winStreak: number;
+
+  @Column({ name: 'total_games', type: 'int', default: 0 })
+  totalGames: number;
+
+  @Column({ name: 'total_wins', type: 'int', default: 0 })
+  totalWins: number;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
