@@ -1,7 +1,7 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
 import { createTransport, Transporter } from 'nodemailer';
-import mailConfig from '../config/mail.config';
+import mailConfig from '../../config/mail.config';
 import { SendMailDto } from './dto/send-mail.dto';
 import { SendMailResDto } from './dto/send-mail-res.dto';
 

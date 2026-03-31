@@ -27,4 +27,16 @@ export class GetUserResDto {
 
   @ApiProperty({ type: 'string', example: '2026-01-31T20:22:42.819Z' })
   updatedAt: string;
+
+  @ApiProperty({ type: 'number', example: 0 })
+  rankNumber: number;
+
+  @ApiProperty({ type: 'number', example: 0 })
+  winStreak: number;
+
+  @ApiProperty({ type: 'number', example: 0 })
+  totalGames: number;
+
+  @ApiProperty({ type: 'number', example: 0 })
+  totalWins: number;
 }

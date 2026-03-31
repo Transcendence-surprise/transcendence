@@ -18,8 +18,10 @@ interface RequestWithUser extends FastifyRequest {
 export class LeaderboardHttpService {
   constructor(private readonly http: HttpService) {}
 
-  async getDailyLeaderboard<T = unknown>(req?: FastifyRequest): Promise<{ statusCode: number; data: T }> {
-    return this.request<T>('/api/leaderboard/daily', 'get', undefined, req);
+  async getAllTimeLeaderboard<T = unknown>(
+    req?: FastifyRequest
+  ): Promise<{ statusCode: number; data: T }> {
+    return this.request<T>('/api/leaderboard/all-time', 'get', undefined, req);
   }
 
   private async request<T>(
