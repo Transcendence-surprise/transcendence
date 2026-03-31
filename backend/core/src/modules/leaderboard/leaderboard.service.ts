@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { LeaderboardEntryDto } from './leaderboard.dto';
+import { LeaderboardEntryDto } from './dto/leaderboard.dto';
 
 @Injectable()
 export class LeaderboardService {

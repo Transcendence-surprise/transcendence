@@ -31,18 +31,50 @@ export class MatchesHttpService {
     return this.request<T>('delete', `/api/matches/${id}`, undefined, req);
   }
 
+  private buildForwardHeaders(req?: FastifyRequest): Record<string, string> {
+    const headers: Record<string, string> = {};
+
+    if (req?.headers?.['content-type'] && typeof req.headers['content-type'] === 'string') {
+      headers['content-type'] = req.headers['content-type'];
+    }
+
+    const passThroughHeaders = [
+      'authorization',
+      'x-request-id',
+      'x-real-ip',
+      'x-forwarded-for',
+      'x-forwarded-proto',
+      'x-forwarded-host',
+    ];
+
+    passThroughHeaders.forEach((headerName) => {
+      const value = req?.headers?.[headerName];
+      if (typeof value === 'string' && value.trim().length > 0) {
+        headers[headerName] = value;
+      }
+    });
+
+    return headers;
+  }
+
   private async request<T>(
     method: 'get' | 'post' | 'delete' | 'put' | 'patch',
     path: string,
     body?: unknown,
     req?: FastifyRequest,
   ): Promise<T> {
-    const headers = req?.headers ? { ...req.headers } as Record<string, string> : {};
-    const config = Object.keys(headers).length ? { headers } : undefined;
+    const headers = this.buildForwardHeaders(req);
+    const hasBody = method !== 'get' && method !== 'delete';
 
-    const response = method === 'get' || method === 'delete'
-      ? await lastValueFrom(this.http[method]<T>(path, config))
-      : await lastValueFrom(this.http[method]<T>(path, body, config));
+    if (hasBody && !headers['content-type']) {
+      headers['content-type'] = 'application/json';
+    }
+
+    const config = { headers };
+
+    const response = hasBody
+      ? await lastValueFrom(this.http[method]<T>(path, body ?? {}, config))
+      : await lastValueFrom(this.http[method]<T>(path, config));
 
     return response.data;
   }
