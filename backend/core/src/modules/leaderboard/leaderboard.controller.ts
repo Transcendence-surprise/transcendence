@@ -1,15 +1,18 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { LeaderboardService } from './leaderboard.service';
-import { LeaderboardEntryDto } from './leaderboard.dto';
+import { LeaderboardEntryDto } from './dto/leaderboard.dto';
+import {
+  LeaderboardControllerDocs,
+  GetDailyLeaderboardDocs,
+} from './leaderboard.controller.docs';
 
-@ApiTags('leaderboard')
+@LeaderboardControllerDocs()
 @Controller('leaderboard')
 export class LeaderboardController {
   constructor(private readonly leaderboardService: LeaderboardService) {}
 
   @Get('daily')
-  @ApiOkResponse({ type: LeaderboardEntryDto, isArray: true })
+  @GetDailyLeaderboardDocs()
   async getDailyLeaderboard(): Promise<LeaderboardEntryDto[]> {
     return this.leaderboardService.getDailyLeaderboard(10);
   }
