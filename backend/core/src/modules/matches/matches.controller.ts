@@ -9,37 +9,45 @@ import {
   Body,
   ParseIntPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { MatchesService } from './matches.service';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { UpdateMatchDto } from './dto/update-match.dto';
 import { MatchDto } from './dto/match.dto';
+import {
+  MatchesControllerDocs,
+  FindAllMatchesDocs,
+  FindMatchByIdDocs,
+  CreateMatchDocs,
+  UpdateMatchDocs,
+  PartialUpdateMatchDocs,
+  DeleteMatchDocs,
+} from './matches.controller.docs';
 
-@ApiTags('matches')
+@MatchesControllerDocs()
 @Controller('matches')
 export class MatchesController {
   constructor(private readonly matchesService: MatchesService) {}
 
   @Get()
-  @ApiOkResponse({ type: MatchDto, isArray: true })
+  @FindAllMatchesDocs()
   async findAll(): Promise<MatchDto[]> {
     return this.matchesService.findAll();
   }
 
   @Get(':id')
-  @ApiOkResponse({ type: MatchDto })
+  @FindMatchByIdDocs()
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<MatchDto> {
     return this.matchesService.findOne(id);
   }
 
   @Post()
-  @ApiCreatedResponse({ type: MatchDto })
+  @CreateMatchDocs()
   async create(@Body() createMatchDto: CreateMatchDto): Promise<MatchDto> {
     return this.matchesService.create(createMatchDto);
   }
 
   @Put(':id')
-  @ApiOkResponse({ type: MatchDto })
+  @UpdateMatchDocs()
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateMatchDto: UpdateMatchDto,
@@ -48,7 +56,7 @@ export class MatchesController {
   }
 
   @Patch(':id')
-  @ApiOkResponse({ type: MatchDto })
+  @PartialUpdateMatchDocs()
   async partialUpdate(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateMatchDto: UpdateMatchDto,
@@ -57,7 +65,7 @@ export class MatchesController {
   }
 
   @Delete(':id')
-  @ApiOkResponse({ description: 'Match deleted' })
+  @DeleteMatchDocs()
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.matchesService.remove(id);
   }
