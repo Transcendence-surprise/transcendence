@@ -11,7 +11,7 @@ import { CreateMatchDto } from './dto/create-match.dto';
 import { UpdateMatchDto } from './dto/update-match.dto';
 import { MatchDto } from './dto/match.dto';
 
-const MatchesControllerDocs = () => ApiTags('matches');
+const MatchesControllerDocs = () => ApiTags('Matches');
 
 const FindAllMatchesDocs = () =>
   applyDecorators(
