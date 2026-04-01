@@ -109,7 +109,7 @@ export class EngineService {
     if (state.phase !== "PLAY") {
       return { ok: false, error: BoardActionError.INVALID_ACTION };
     }
-    if (state.boardActionsPending === false) {
+    if (state.rules.mode === "MULTI" && state.boardActionsPending === false) {
       return { ok: false, error: BoardActionError.BOARD_ACTION_ALREADY_PERFORMED };
     }
 
@@ -143,7 +143,7 @@ export class EngineService {
     if (state.phase !== "PLAY") {
       return { ok: false, error: PlayerActionError.INVALID_ACTION };
     }
-    if (state.boardActionsPending === true) {
+    if (state.rules.mode === "MULTI" && state.boardActionsPending === true) {
       return { ok: false, error: PlayerActionError.REQUIRED_BOARD_ACTION };
     }
     return processPlayerAction(state, action);
@@ -187,6 +187,10 @@ export class EngineService {
       const isSpectator = state.spectators.some(s => s.id.toString() === pid);
 
       if (isPlayer || isSpectator) {
+        if (state.phase === "END") {
+          continue;
+        }
+
         return {
           ok: false,
           gameId,
