@@ -71,6 +71,7 @@ export async function startGame(gameId: string) {
     const data = await res.json();
 
     if (!res.ok || !data.ok) {
+      console.error("Start game error:", res.status, data);
       throw new Error(data?.error || data?.message || 'Failed to start game');
     }
 
@@ -92,32 +93,26 @@ export async function boardModification(gameId: string, action: BoardAction) {
   try {
     data = await res.json();
   } catch (e) {
-    // Backend returned invalid JSON (e.g., rate limit or server error)
-    return {
-      ok: false,
-      error: `Server error: ${res.status} ${res.statusText}`,
-    };
+    // Backend returned invalid JSON
+    throw new Error(`Server error: ${res.status} ${res.statusText}`);
   }
 
   if (!res.ok || !data.ok) {
-    return {
-      ok: false,
-      error: data?.error || data?.message || `Failed to perform board action: ${res.statusText}`,
-    };
+      throw new Error(data?.error || data?.message || `Failed to perform board action: ${res.statusText}`);
   }
 
   return data;
   } catch (e: any) {
-    return { ok: false, error: `Network error: ${e.message}` };
+    throw new Error(`Network error: ${e.message}`);
   }
 }
 
-export async function playerMove(gameId: string, action: PlayerAction) {
+export async function playerMove(gameId: string, path: { x: number; y: number }[]) {
   try {
     const res = await fetch('/api/game/playermove', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ gameId, action }),
+       body: JSON.stringify({ gameId, path }),
       credentials: 'include',
     });
 
@@ -125,16 +120,16 @@ export async function playerMove(gameId: string, action: PlayerAction) {
     try {
       data = await res.json();
     } catch (e) {
-      return { ok: false, error: `Server error: ${res.status} ${res.statusText}` };
+      throw new Error(`Server error: ${res.status} ${res.statusText}`);
     }
 
     if (!res.ok || !data.ok) {
-      return { ok: false, error: data?.error || data?.message || `Failed to perform board action: ${res.statusText}` };
+      throw new Error(data?.error || data?.message || `Failed to perform player action: ${res.statusText}`);
     }
 
     return data;
   } catch (e: any) {
-    return { ok: false, error: `Network error: ${e.message}` };
+    throw new Error(`Network error: ${e.message}`);
   }
 }
 
@@ -171,22 +166,16 @@ export async function leaveGame(gameId: string ) {
       data = await res.json();
     } catch (e) {
       // Backend returned invalid JSON
-      return {
-        ok: false,
-        error: `Server error: ${res.status} ${res.statusText}`,
-      };
+      throw new Error(`Server error: ${res.status} ${res.statusText}`);
     }
 
     if (!res.ok || !data.ok) {
-      return {
-        ok: false,
-        error: data?.error || data?.message || `Failed to leave game: ${res.statusText}`,
-      };
+      throw new Error(data?.error || data?.message || `Failed to leave game: ${res.statusText}`);
     }
 
     return data;
   } catch (e: any) {
-    return { ok: false, error: `Network error: ${e.message}` };
+    throw new Error(`Network error: ${e.message}`);
   }
 }
 
