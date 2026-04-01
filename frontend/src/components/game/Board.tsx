@@ -1,19 +1,12 @@
 // src/components/game/BoardView.tsx
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  MdOutlineKeyboardArrowDown,
-  MdOutlineKeyboardArrowLeft,
-  MdOutlineKeyboardArrowRight,
-  MdOutlineKeyboardArrowUp,
-} from "react-icons/md";
 import { Board } from "../../game/models/board";
 import { useDrawBoard } from "../../hooks/useDrawBoard";
 import { useKeyboardNavigation } from "../../hooks/useKeyboardNavigation";
 import { useGameActions } from "../../hooks/useGameActions";
 import { PlayerState } from "../../game/models/privatState";
-import { ArrowButton } from "./utils/ArrowButton";
-import { CELL_SIZE } from "../../game/models/constants";
+import { BoardCanvas } from "./BoardCanvas";
 
 type Props = {
   board: Board;
@@ -41,6 +34,7 @@ export default function BoardView({ board, players, gameId }: Props) {
     handleColClick,
     handleRotateTile,
     handleSwapTiles,
+    handlePlayerAction,
     handleLeaveGame,
     handleSkip,
   } = useGameActions(gameId, setSelectedButton, navigate);
@@ -60,35 +54,7 @@ export default function BoardView({ board, players, gameId }: Props) {
 
   const [selectedTiles, setSelectedTiles] = useState<{ x: number; y: number }[]>([]);
 
-  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-
-  const x = Math.floor((e.clientX - rect.left) / CELL_SIZE);
-  const y = Math.floor((e.clientY - rect.top) / CELL_SIZE);
-
-    handleTileClick(x, y);
-  };
-
-  const handleTileClick = (x: number, y: number) => {
-    const tile = board.tiles[y]?.[x];
-    if (!tile) return;
-    if (tile.fixed) return;
-
-    setSelectedTiles((prev) => {
-      const exists = prev.some((t) => t.x === x && t.y === y);
-
-      // toggle OFF
-      if (exists) return prev.filter((t) => t.x !== x || t.y !== y);
-
-      // max 2 selections
-      if (prev.length >= 2) return prev;
-
-      return [...prev, { x, y }];
-    });
-  };
-
   // Swap button pressed
-
   const handleSwapButton = async () => {
     if (selectedTiles.length !== 2) {
       alert("Select two tiles to swap!");
@@ -125,75 +91,22 @@ export default function BoardView({ board, players, gameId }: Props) {
     setSelectedTiles([]);
   };
 
+  const handlePlayerMove = async (path: { x: number; y: number }[]) => {
+    // Backend validator starts from current player position and expects
+    // `path` to contain only destination steps (not the current position).
+    await handlePlayerAction(path);
+  };
+
   return (
     <div className="flex flex-col items-center gap-2" onKeyDown={(e) => handleKeyDown(e, buttonRefs)}>
-      {/* Top arrows (push from top, so arrow points down) */}
-      <div className="flex gap-1 justify-center">
-        {Array.from({ length: board.width }).map((_, colIndex) => (
-          <ArrowButton
-            key={`top-${colIndex}`}
-            axis="COL"
-            index={colIndex}
-            direction="DOWN"
-            onClick={handleArrowClick}
-          >
-            <MdOutlineKeyboardArrowDown />
-          </ArrowButton>
-        ))}
-      </div>
-
-      {/* Left + Canvas + Right */}
-      <div className="flex items-stretch gap-1">
-        {/* Left arrows (push from left, so arrow points right) */}
-        <div className="flex flex-col gap-2 justify-center">
-          {Array.from({ length: board.height }).map((_, rowIndex) => (
-            <ArrowButton
-              key={`left-${rowIndex}`}
-              axis="ROW"
-              index={rowIndex}
-              direction="RIGHT"
-              onClick={handleArrowClick}
-            >
-              <MdOutlineKeyboardArrowRight />
-            </ArrowButton>
-          ))}
-        </div>
-
-        {/* Canvas */}
-        <div className="border-gray-400 rounded-lg overflow-hidden flex-shrink-0">
-          <canvas ref={canvasRef} className="block" onClick={handleCanvasClick} />
-        </div>
-
-        {/* Right arrows (push from right, so arrow points left) */}
-        <div className="flex flex-col gap-2 justify-center">
-          {Array.from({ length: board.height }).map((_, rowIndex) => (
-            <ArrowButton
-              key={`right-${rowIndex}`}
-              axis="ROW"
-              index={rowIndex}
-              direction="LEFT"
-              onClick={handleArrowClick}
-            >
-              <MdOutlineKeyboardArrowLeft />
-            </ArrowButton>
-          ))}
-        </div>
-      </div>
-
-      {/* Bottom arrows (push from bottom, so arrow points up) */}
-      <div className="flex gap-1 justify-center">
-        {Array.from({ length: board.width }).map((_, colIndex) => (
-          <ArrowButton
-            key={`bottom-${colIndex}`}
-            axis="COL"
-            index={colIndex}
-            direction="UP"
-            onClick={handleArrowClick}
-          >
-            <MdOutlineKeyboardArrowUp />
-          </ArrowButton>
-        ))}
-      </div>
+      <BoardCanvas
+        board={board}
+        players={players}
+        selectedTiles={selectedTiles}
+        setSelectedTiles={setSelectedTiles}
+        onArrowClick={handleArrowClick}
+        onPlayerMove={handlePlayerMove}
+      />
 
       {/* Action buttons */}
       <div className="flex gap-4 mt-2">

@@ -1,6 +1,7 @@
 // src/hooks/useGameActions.tsx
 
-import { boardModification, leaveGame } from "../api/game";
+import { boardModification, leaveGame, playerMove } from "../api/game";
+import { PlayerAction } from "../game/models/playerAction";
 
 export function useGameActions(
   gameId: string,
@@ -42,17 +43,6 @@ export function useGameActions(
     }
   };
 
-  const handleLeaveGame = async () => {
-    try {
-      const result = await leaveGame(gameId);
-      if (!result.ok) alert("Error leaving game");
-    } catch {
-      alert("Error leaving game");
-    } finally {
-      navigate(-1);
-    }
-  };
-
   const handleRotateTile = async (x: number, y: number) => {
     try {
       await boardModification(gameId, {
@@ -85,14 +75,37 @@ export function useGameActions(
     }
   };
 
+  const handlePlayerAction = async (path: { x: number; y: number }[]) => {
+    try {
+      await playerMove(gameId, path);
+    } catch (err: any) {
+      if (err?.name !== 'AbortError') {
+        alert(err?.message || err);
+        console.error(err);
+      }
+    }
+  };
+  
   const handleSkip = () => console.log("Skip clicked (placeholder)");
+
+  const handleLeaveGame = async () => {
+    try {
+      const result = await leaveGame(gameId);
+      if (!result.ok) alert("Error leaving game");
+    } catch {
+      alert("Error leaving game");
+    } finally {
+      navigate(-1);
+    }
+  };
 
   return {
     handleRowClick,
     handleColClick,
     handleRotateTile,
     handleSwapTiles,
-    handleLeaveGame,
+    handlePlayerAction,
     handleSkip,
+    handleLeaveGame,
   };
 }                                                                                                       
