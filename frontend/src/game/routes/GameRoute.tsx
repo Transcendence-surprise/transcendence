@@ -66,9 +66,63 @@ export default function GameRoute() {
     };
   }, [id, navigate]);
 
+  useEffect(() => {
+    if (!id || game?.phase !== "END") return;
+
+    // Some play updates can arrive with phase only.
+    // Refetch final state to guarantee gameResult/winnerIds are present.
+    getGameState(id)
+      .then((finalState) => setGame(finalState))
+      .catch(() => {
+        // keep current state; popup will use fallbacks
+      });
+  }, [id, game?.phase]);
+
   if (loading) return <div>Loading game...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!game) return <div>Game not found</div>;
+
+  const rawResult = game.gameResult as { winnerIds?: (string | number)[]; winnerId?: string | number } | undefined;
+  const winnerIds = (
+    rawResult?.winnerIds?.map((winnerId) => winnerId.toString())
+    ?? (rawResult?.winnerId ? [rawResult.winnerId.toString()] : [])
+  );
+  const myId = user?.id?.toString();
+  const iWon = !!myId && winnerIds.includes(myId);
+  const mappedWinnerNames = game.players
+    .filter((p) => winnerIds.includes(p.id.toString()))
+    .map((p) => p.name)
+    .join(", ");
+  const winnerNames = mappedWinnerNames || (iWon ? user?.username ?? "You" : "");
+
+  if (game.phase === "END") {
+    return (
+      <div className="relative">
+        <GamePage game={game} gameId={id} />
+
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-md rounded-xl border border-gray-700 bg-gray-900 p-6 shadow-2xl">
+            <h2 className="text-2xl font-bold mb-2 text-center">
+              {iWon ? "🏆 You won!" : "Game finished"}
+            </h2>
+            <p className="text-center text-gray-300 mb-6">
+              {winnerNames ? `Winner: ${winnerNames}` : "No winner information"}
+            </p>
+
+            <div className="flex gap-3 justify-center">
+              <button
+                type="button"
+                onClick={() => navigate("/game")}
+                className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700"
+              >
+                Back to games
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (game.phase === "PLAY") {
     return <GamePage game={game} gameId={id} />;
