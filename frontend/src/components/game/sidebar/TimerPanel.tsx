@@ -5,10 +5,9 @@ import { PrivateGameState } from "../../../game/models/privatState";
 
 type Props = {
   game: PrivateGameState;
-  moveLimitPerTurnSec?: number; // pass from rules later
 };
 
-export default function TimerPanel({ game, moveLimitPerTurnSec = 180 }: Props) {
+export default function TimerPanel({ game }: Props) {
   const [now, setNow] = useState(Date.now());
 
   // tick every second
@@ -20,9 +19,17 @@ export default function TimerPanel({ game, moveLimitPerTurnSec = 180 }: Props) {
     return () => clearInterval(interval);
   }, []);
 
-  // ------------------------
-  // TOTAL GAME TIMER
-  // ------------------------
+  const singleLevelLimitSec = game.level?.constraints?.levelLimitSec;
+  const isSingleWithLevelTimer = typeof singleLevelLimitSec === "number";
+
+  // Single: countdown to level fail timeout.
+  const singleLevelRemaining = isSingleWithLevelTimer
+    ? game.gameStartedAt
+      ? Math.max(0, Math.floor((game.gameStartedAt + singleLevelLimitSec * 1000 - now) / 1000))
+      : singleLevelLimitSec
+    : 0;
+
+  // Multi (or fallback): elapsed game time.
   const totalSeconds = game.gameStartedAt
     ? Math.floor((now - game.gameStartedAt) / 1000)
     : 0;
@@ -30,11 +37,14 @@ export default function TimerPanel({ game, moveLimitPerTurnSec = 180 }: Props) {
   // ------------------------
   // TURN TIMER
   // ------------------------
-  const turnRemaining = game.moveStartedAt
+  const turnLimitSec = game.moveLimitPerTurnSec;
+  const showTurnTimer = !isSingleWithLevelTimer && typeof turnLimitSec === "number";
+
+  const turnRemaining = game.moveStartedAt && showTurnTimer
     ? Math.max(
         0,
         Math.floor(
-          (game.moveStartedAt + moveLimitPerTurnSec * 1000 - now) / 1000
+          (game.moveStartedAt + turnLimitSec * 1000 - now) / 1000
         )
       )
     : 0;
@@ -51,23 +61,33 @@ export default function TimerPanel({ game, moveLimitPerTurnSec = 180 }: Props) {
   return (
     <div className="flex flex-col gap-2 p-3 bg-gray-800 rounded-xl text-white w-full">
       
-      {/* TOTAL TIMER */}
+      {/* MAIN TIMER */}
       <div>
-        <div className="text-xs text-gray-400">Game Time</div>
-        <div className="text-lg font-bold">{format(totalSeconds)}</div>
-      </div>
-
-      {/* TURN TIMER */}
-      <div>
-        <div className="text-xs text-gray-400">Turn Time</div>
+        <div className="text-xs text-gray-400">
+          {isSingleWithLevelTimer ? "Level Time" : "Game Time"}
+        </div>
         <div
           className={`text-lg font-bold ${
-            turnRemaining <= 10 ? "text-red-400" : ""
+            isSingleWithLevelTimer && singleLevelRemaining <= 10 ? "text-red-400" : ""
           }`}
         >
-          {format(turnRemaining)}
+          {format(isSingleWithLevelTimer ? singleLevelRemaining : totalSeconds)}
         </div>
       </div>
+
+      {/* TURN TIMER (MULTI ONLY) */}
+      {showTurnTimer && (
+        <div>
+          <div className="text-xs text-gray-400">Turn Time</div>
+          <div
+            className={`text-lg font-bold ${
+              turnRemaining <= 10 ? "text-red-400" : ""
+            }`}
+          >
+            {format(turnRemaining)}
+          </div>
+        </div>
+      )}
 
     </div>
   );

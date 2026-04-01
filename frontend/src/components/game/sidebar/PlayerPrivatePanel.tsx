@@ -1,17 +1,30 @@
 // src/components/game/sidebar/PlayerPrivatePanel.tsx
 import { PrivateGameState } from "../../../game/models/privatState";
+import { useAuth } from "../../../hooks/useAuth";
 
 interface PlayerPrivatePanelProps {
   game: PrivateGameState;
 }
 
 export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
+  const { user } = useAuth();
   const { playerProgress, skipsLeft, boardActionsPending } = game;
   const {
     collectedItems = [],
     currentCollectibleId,
     objectives = [],
   } = playerProgress ?? {};
+
+  const myPlayer = game.players.find(
+    (p) => user?.id != null && p.id.toString() === user.id.toString()
+  );
+  const fallbackPlayer = game.players.find(
+    (p) => p.id.toString() === game.currentPlayerId.toString()
+  );
+  const playerForStats = myPlayer ?? fallbackPlayer;
+
+  const totalMoves = playerForStats?.totalMoves ?? 0;
+  const maxMoves = game.level?.constraints?.maxMoves;
 
   return (
     <div className="flex flex-col gap-4 w-full bg-bg-sidebar p-4 rounded-lg">
@@ -66,6 +79,14 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
       <div className="flex justify-between items-center mt-2">
         <span className="text-sm text-gray-400">Skips left</span>
         <span className="text-white font-bold">{skipsLeft}</span>
+      </div>
+
+      {/* Moves Used / Max Moves (single levels with move constraint) */}
+      <div className="flex justify-between items-center">
+        <span className="text-sm text-gray-400">Moves</span>
+        <span className="text-white font-bold">
+          {maxMoves != null ? `${totalMoves}/${maxMoves}` : totalMoves}
+        </span>
       </div>
 
       {/* Board Actions Pending */}

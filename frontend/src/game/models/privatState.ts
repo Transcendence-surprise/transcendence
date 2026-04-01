@@ -40,6 +40,12 @@ export interface PrivateGameState {
   // Common / Public info
   // -----------------------
   levelId: string;                    // which level is being played
+  level?: {
+    constraints?: {
+      maxMoves?: number;
+      levelLimitSec?: number;
+    };
+  };                                  // optional level details for single-player constraints display
   hostName: string;                   // game owner nickname
   phase: "LOBBY" | "PLAY" | "END";
   board: Board;                        // board tiles, collected items

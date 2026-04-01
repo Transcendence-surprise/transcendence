@@ -32,10 +32,31 @@ export default function GameRoute() {
     socket.emit("joinPlay", { gameId: id, userId: user.id });
 
     // listen for updates
-    const handlePlayUpdate = (data: Partial<PrivateGameState>) => {
-       setGame((prev) => {
+    const handlePlayUpdate = (data: Partial<PrivateGameState> & { playerProgress?: any }) => {
+      setGame((prev) => {
         if (!prev) return prev;
-        return { ...prev, ...data };
+
+        let nextPlayerProgress = prev.playerProgress;
+        const incomingProgress = data.playerProgress;
+
+        // WS can send either private `PlayerProgress` or full map keyed by playerId.
+        // Normalize to current user's private progress so sidebar objectives render correctly.
+        if (incomingProgress) {
+          if (Array.isArray(incomingProgress.objectives)) {
+            nextPlayerProgress = incomingProgress;
+          } else if (user?.id != null && typeof incomingProgress === "object") {
+            const mine = incomingProgress[user.id.toString()];
+            if (mine && Array.isArray(mine.objectives)) {
+              nextPlayerProgress = mine;
+            }
+          }
+        }
+
+        return {
+          ...prev,
+          ...data,
+          playerProgress: nextPlayerProgress,
+        };
       });
     };
     socket.on("playUpdate", handlePlayUpdate);
@@ -64,7 +85,7 @@ export default function GameRoute() {
       socket.off("gameDeleted");
       socket.off("error");
     };
-  }, [id, navigate]);
+  }, [id, navigate, user]);
 
   useEffect(() => {
     if (!id || game?.phase !== "END") return;
