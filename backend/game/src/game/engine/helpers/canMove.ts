@@ -18,10 +18,10 @@ export function getTileOpenings(tile: PositionedTile): Direction[] {
       return tile.rotation % 180 === 0 ? ["UP", "DOWN"] : ["LEFT", "RIGHT"];
     case "T":
       switch (tile.rotation) {
-        case 0: return ["UP", "LEFT", "RIGHT"];
-        case 90: return ["UP", "RIGHT", "DOWN"];
-        case 180: return ["RIGHT", "DOWN", "LEFT"];
-        case 270: return ["DOWN", "LEFT", "UP"];
+        case 0: return ["UP", "DOWN", "RIGHT"];
+        case 90: return ["LEFT", "RIGHT", "DOWN"];
+        case 180: return ["UP", "DOWN", "LEFT"];
+        case 270: return ["LEFT", "RIGHT", "UP"];
       }
     case "X":
       return ["UP", "DOWN", "LEFT", "RIGHT"];
