@@ -1,7 +1,7 @@
 // // shows BoardPage or LobbyPage depending on phase
 
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { connectSocket } from "../../services/socket";
 import { useAuth } from '../../hooks/useAuth';
 import GamePage from "../../pages/GamePage";
@@ -17,6 +17,7 @@ export default function GameRoute() {
   const { user } = useAuth();
   const [game, setGame] = useState<PrivateGameState | null>(null);
   const navigate = useNavigate();
+  const endStateRefetchedRef = useRef(false);
 
   useEffect(() => {
     if (!id || !user) return;
@@ -39,8 +40,6 @@ export default function GameRoute() {
         let nextPlayerProgress = prev.playerProgress;
         const incomingProgress = data.playerProgress;
 
-        // WS can send either private `PlayerProgress` or full map keyed by playerId.
-        // Normalize to current user's private progress so sidebar objectives render correctly.
         if (incomingProgress) {
           if (Array.isArray(incomingProgress.objectives)) {
             nextPlayerProgress = incomingProgress;
@@ -88,16 +87,15 @@ export default function GameRoute() {
   }, [id, navigate, user]);
 
   useEffect(() => {
-    if (!id || game?.phase !== "END") return;
+    if (!id || game?.phase !== "END" || game.gameResult || endStateRefetchedRef.current) return;
 
-    // Some play updates can arrive with phase only.
-    // Refetch final state to guarantee gameResult/winnerIds are present.
+    endStateRefetchedRef.current = true;
     getGameState(id)
       .then((finalState) => setGame(finalState))
-      .catch(() => {
-        // keep current state; popup will use fallbacks
+      .catch((err) => {
+        console.error("Failed to refresh final game state:", err);
       });
-  }, [id, game?.phase]);
+  }, [id, game?.phase, game?.gameResult]);
 
   if (loading) return <div>Loading game...</div>;
   if (error) return <div>Error: {error}</div>;

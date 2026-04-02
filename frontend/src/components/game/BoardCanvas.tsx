@@ -92,6 +92,12 @@ export function BoardCanvas({
   const [isSubmittingMove, setIsSubmittingMove] = useState(false);
   const getPlayerAt = (x: number, y: number) =>
     players.find((p) => p.x === x && p.y === y);
+  const boardHint =
+    selectedTiles.length === 1
+      ? "One tile selected: press Rotate, or select one more adjacent tile to swap."
+      : selectedTiles.length === 2
+        ? "Two tiles selected: press Swap, or click one to adjust the selection."
+        : "No selection: use arrows to shift rows/cols, click a tile to rotate/swap, or click a player to move.";
 
   const resetMoveSelection = () => {
     setSelectedPlayer(null);
@@ -332,6 +338,12 @@ export function BoardCanvas({
             </button>
           </div>
         </div>
+      )}
+
+      {!selectedPlayer && (
+        <p className="mt-2 text-xs text-gray-300 text-center max-w-xs">
+          {boardHint}
+        </p>
       )}
     </div>
   );

@@ -287,6 +287,8 @@ export class WsGateway {
       board: state.board,
       players: state.players,
       playerProgress: state.playerProgress,
+      currentPlayerId: state.currentPlayerId,
+      gameResult: state.gameResult ? { winnerIds: [state.gameResult.winnerId] } : undefined,
     });
   }
 
