@@ -8,7 +8,7 @@ export const Puzzle01Meta: LevelMeta = {
     { type: "COLLECT_ALL", amount: 3 }
   ],
 
-  constraints: { maxMoves: 8, levelLimitSec: 60 },
+  constraints: { maxMoves: 3, levelLimitSec: 60 },
 
   startingPoints: [{ slotId: "P1", x: 1, y: 0 }],
 
