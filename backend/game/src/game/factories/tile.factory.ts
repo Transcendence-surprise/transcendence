@@ -1,7 +1,7 @@
 import { PositionedTile } from "../models/positionedTile";
 import { TileType, Rotation } from "../models/positionedTile";
 
-const VALID_TYPES = ["L", "I", "T", "X"] as const;
+const VALID_TYPES = ["L", "I", "T", "X", "W"] as const;
 
 export function parseTile(
   token: string,

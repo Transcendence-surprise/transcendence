@@ -1,5 +1,5 @@
 // SVG strings for canvas rendering
-type TileType = 'I' | 'L' | 'T' | 'X';
+type TileType = 'I' | 'L' | 'T' | 'X' | 'W';
 export const TILE_SVGS: Record<TileType, string> = {
   I: `<svg width="68" height="68" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M1 68C0.447715 68 0 67.5523 0 67L0 1C0 0.447716 0.447715 0 1 0H5C5.55228 0 6 0.447715 6 1L6 67C6 67.5523 5.55228 68 5 68H1Z" fill="#fb85f3"/>
@@ -19,4 +19,17 @@ export const TILE_SVGS: Record<TileType, string> = {
         <path d="M0.0175781 6.01779L0.0175781 0.017786H6.01758V0.017786C6.01758 3.33149 3.33129 6.01779 0.0175781 6.01779V6.01779Z" fill="#D9D9D9"/>
         <path d="M6 68H3.57628e-07L3.57628e-07 62V62C3.31371 62 6 64.6863 6 68V68Z" fill="#D9D9D9"/>
       </svg>`,
+  W: `<svg width="68" height="68" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Left -->
+    <rect x="0" y="0" width="6" height="68" fill="#21e6c5"/>
+    
+    <!-- Right -->
+    <rect x="62" y="0" width="6" height="68" fill="#21e6c5"/>
+    
+    <!-- Top -->
+    <rect x="0" y="0" width="68" height="6" fill="#21e6c5"/>
+    
+    <!-- Bottom -->
+    <rect x="0" y="62" width="68" height="6" fill="#21e6c5"/>
+  </svg>`
 };

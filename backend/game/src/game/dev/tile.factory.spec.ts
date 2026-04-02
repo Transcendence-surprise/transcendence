@@ -13,6 +13,7 @@ describe('Tile Factory', () => {
         { token: 'I2', type: 'I', rotation: 180 },
         { token: 'T1', type: 'T', rotation: 90 },
         { token: 'X3', type: 'X', rotation: 270 },
+        { token: 'W0', type: 'W', rotation: 0 },
       ];
 
       cases.forEach(({ token, type, rotation }) => {

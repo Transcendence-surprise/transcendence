@@ -1,4 +1,4 @@
-export type TileType = "L" | "I" | "T" | "X";
+export type TileType = "L" | "I" | "T" | "X" | "W";
 
 export type Rotation = 0 | 90 | 180 | 270;
 

@@ -7,6 +7,8 @@ type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
 
 export function getTileOpenings(tile: PositionedTile): Direction[] {
   switch (tile.type) {
+    case "W":
+      return [];
     case "L":
       switch (tile.rotation) {
         case 0: return ["UP", "RIGHT"];

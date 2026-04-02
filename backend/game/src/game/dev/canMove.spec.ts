@@ -14,6 +14,7 @@ describe("canMove", () => {
   const I90 = { type: "I", rotation: 90 } as PositionedTile;
   const T0 = { type: "T", rotation: 0 } as PositionedTile;
   const X = { type: "X", rotation: 0 } as PositionedTile;
+  const W = { type: "W", rotation: 0 } as PositionedTile;
 
   it("allows movement between connected L tiles", () => {
     const board = makeBoard([
@@ -55,5 +56,15 @@ describe("canMove", () => {
       [X, X],
     ]);
     expect(canMove(board, { x: 0, y: 0 }, { x: 1, y: 1 })).toBe(false);
+  });
+
+  it("blocks movement into or out of walls", () => {
+    const board = makeBoard([
+      [X, W],
+      [W, X],
+    ]);
+
+    expect(canMove(board, { x: 0, y: 0 }, { x: 1, y: 0 })).toBe(false);
+    expect(canMove(board, { x: 1, y: 1 }, { x: 0, y: 1 })).toBe(false);
   });
 });

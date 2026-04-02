@@ -16,6 +16,8 @@ type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
 
 function getTileOpenings(tile: Board["tiles"][number][number]): Direction[] {
   switch (tile.type) {
+    case "W":
+      return [];
     case "L":
       switch (tile.rotation) {
         case 0:
