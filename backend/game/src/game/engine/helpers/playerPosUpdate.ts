@@ -7,7 +7,7 @@ import { PlayerState } from "src/game/models/state";
 export function updatePlayerPositionsAfterShift(
   players: PlayerState[],
   boardBefore: Board,
-  boardAfter: Board,
+  _boardAfter: Board,
   action: BoardAction
 ): void {
   // Only handle SHIFT actions
@@ -37,7 +37,6 @@ export function updatePlayerPositionsAfterShift(
       }
     }
 
-    console.log(`[SHIFT] Player ${player.id}: (${player.x}, ${player.y}) -> (${newX}, ${newY})`);
     player.x = newX;
     player.y = newY;
   }

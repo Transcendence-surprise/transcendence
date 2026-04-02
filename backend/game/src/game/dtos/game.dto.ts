@@ -182,6 +182,9 @@ export class PrivateGameStateDto {
   @ApiPropertyOptional()
   gameResult?: { winnerIds: string[] };
 
+  @ApiPropertyOptional({ enum: ['WIN', 'LOSE_MAX_MOVES', 'LOSE_TIME_LIMIT'] })
+  endReason?: 'WIN' | 'LOSE_MAX_MOVES' | 'LOSE_TIME_LIMIT';
+
   @ApiProperty({ type: [String], description: 'Who is watching' })
   spectators: string[];
 

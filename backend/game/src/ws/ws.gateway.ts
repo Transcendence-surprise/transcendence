@@ -10,6 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { EngineService } from '../game/services/engine.service.nest';
 import { ChatMessage, ChatService } from '../chat/chat.service';
 import jwt from 'jsonwebtoken';
+import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 
 interface AccessTokenPayload {
   sub: number;
@@ -34,14 +35,33 @@ type TypedSocket = Socket & { user?: WsUser };
   },
 })
 
-export class WsGateway {
+export class WsGateway implements OnModuleInit, OnModuleDestroy {
   @WebSocketServer()
   server: Server;
+
+  private timeoutTicker?: NodeJS.Timeout;
 
   constructor(
     private engine: EngineService,
     private chat: ChatService
   ) {}
+
+  onModuleInit(): void {
+    this.timeoutTicker = setInterval(() => {
+      const endedGames = this.engine.evaluateSinglePlayerTimeouts();
+      for (const game of endedGames) {
+        this.sendPlayUpdate(game.gameId);
+        game.playerIds.forEach((id) => this.sendPlayerStatusUpdate(id));
+        game.spectatorIds.forEach((id) => this.sendPlayerStatusUpdate(id));
+      }
+    }, 1000);
+  }
+
+  onModuleDestroy(): void {
+    if (this.timeoutTicker) {
+      clearInterval(this.timeoutTicker);
+    }
+  }
 
   private getJwtSecret(): string {
     const secret = process.env.JWT_SECRET;
@@ -289,6 +309,7 @@ export class WsGateway {
       playerProgress: state.playerProgress,
       currentPlayerId: state.currentPlayerId,
       gameResult: state.gameResult ? { winnerIds: [state.gameResult.winnerId] } : undefined,
+      endReason: state.endReason,
     });
   }
 

@@ -19,14 +19,6 @@ export function validatePlayerAction(
     return { valid: false, reason: "Player already moved this turn" };
   }
 
-  if (state.rules.mode === "SINGLE") {
-    const progress = state.players[player.id.toString()];
-    const totalMoves = progress?.totalMoves ?? 0;
-    if (state.level.constraints?.maxMoves && totalMoves >= state.level.constraints.maxMoves) {
-      return { valid: false, reason: "Max moves reached for this level" };
-    }
-  }
-
   // Validate path exists & is inside board
   if (action.path) {
     for (const step of action.path) {

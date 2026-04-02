@@ -55,5 +55,6 @@ export function createGameState(level: Level): GameState {
     boardActionsPending: (level.startingPoints.length === 1 ? false : true),
 
     gameResult: undefined,
+    endReason: undefined,
   };
 }

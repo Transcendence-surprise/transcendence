@@ -6,6 +6,7 @@ import { collectItemsAlongPath } from "./helpers/collectItem";
 import { updatePlayerObjectives } from "./helpers/objectivesUpdate";
 import { checkWinCondition } from "./helpers/checkwin";
 import { advanceTurn } from "./helpers/turnHandler";
+import { applySinglePlayerLossIfNeeded } from "./helpers/endConditions";
 
 export function processPlayerAction(
   state: GameState,
@@ -34,6 +35,7 @@ export function processPlayerAction(
     player.y = finalStep.y;
   }
 
+  player.totalMoves += 1;
   player.hasMoved = true;
 
   // COLLECT ITEMS
@@ -61,8 +63,13 @@ export function processPlayerAction(
   if (win) {
     state.gameEnded = true;
     state.gameResult = { winnerId: player.id.toString() };
+    state.endReason = "WIN";
     state.phase = "END";
 
+    return { ok: true, action };
+  }
+
+  if (applySinglePlayerLossIfNeeded(state, player)) {
     return { ok: true, action };
   }
 

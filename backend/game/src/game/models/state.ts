@@ -4,6 +4,7 @@ import { ObjectiveStatus } from "./objective";
 import { BoardAction } from "./boardAction";
 
 export type GamePhase = "LOBBY" | "PLAY" | "END";
+export type GameEndReason = "WIN" | "LOSE_MAX_MOVES" | "LOSE_TIME_LIMIT";
 
 export interface PlayerState {
   id: number | string;            // unique player identifier (number for users, string UUID for guests)
@@ -87,5 +88,6 @@ export interface GameState {
   gameResult?: {
     winnerId: string;
   };
+  endReason?: GameEndReason;
   gameStartedAt?: number;                    // total game timer
 }

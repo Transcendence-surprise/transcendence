@@ -125,6 +125,52 @@ describe("processPlayerAction", () => {
     expect(result).toEqual({ ok: true, action });
     expect(state.gameEnded).toBe(true);
     expect(state.gameResult?.winnerId).toBe("1");
+    expect(state.endReason).toBe("WIN");
     expect(state.phase).toBe("END");
+  });
+
+  it("ends single-player game as loss when maxMoves is exceeded", () => {
+    const players = [makePlayer(1, { totalMoves: 2 })];
+    const playerProgress = { "1": { collectedItems: [], objectives: [{ type: "COLLECT_ALL", done: false }] } };
+    const tiles = [[makeTile({ type: "I", rotation: 90 }), makeTile({ type: "I", rotation: 90 })]];
+    const state = makeState({
+      players,
+      playerProgress,
+      boardTiles: tiles,
+      constraints: { maxMoves: 2 },
+      mode: "SINGLE",
+    });
+
+    const action: PlayerAction = { path: [{ x: 1, y: 0 }] };
+    const result = processPlayerAction(state, action);
+
+    expect(result).toEqual({ ok: true, action });
+    expect(state.phase).toBe("END");
+    expect(state.gameEnded).toBe(true);
+    expect(state.gameResult).toBeUndefined();
+    expect(state.endReason).toBe("LOSE_MAX_MOVES");
+  });
+
+  it("ends single-player game as loss when level time limit is reached", () => {
+    const players = [makePlayer(1)];
+    const playerProgress = { "1": { collectedItems: [], objectives: [{ type: "COLLECT_ALL", done: false }] } };
+    const tiles = [[makeTile({ type: "I", rotation: 90 }), makeTile({ type: "I", rotation: 90 })]];
+    const state = makeState({
+      players,
+      playerProgress,
+      boardTiles: tiles,
+      constraints: { levelLimitSec: 1 },
+      mode: "SINGLE",
+    });
+    state.gameStartedAt = Date.now() - 5000;
+
+    const action: PlayerAction = { path: [{ x: 1, y: 0 }] };
+    const result = processPlayerAction(state, action);
+
+    expect(result).toEqual({ ok: true, action });
+    expect(state.phase).toBe("END");
+    expect(state.gameEnded).toBe(true);
+    expect(state.gameResult).toBeUndefined();
+    expect(state.endReason).toBe("LOSE_TIME_LIMIT");
   });
 });

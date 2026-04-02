@@ -112,6 +112,12 @@ export class GameController {
     console.log(`Board move request for game ${body.gameId} from user ${user.id}:`, body.action);    
     if (result.ok) {
       this.wsGateway.sendPlayUpdate(body.gameId);
+
+      const state = this.engine.getGameState(body.gameId);
+      if (state?.phase === 'END') {
+        state.players.forEach((p) => this.wsGateway.sendPlayerStatusUpdate(p.id));
+        state.spectators.forEach((s) => this.wsGateway.sendPlayerStatusUpdate(s.id));
+      }
     }
     return result;
   }

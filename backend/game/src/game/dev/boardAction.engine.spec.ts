@@ -207,4 +207,24 @@ describe('processBoardAction', () => {
     expect(state.players[0].x).toBe(0);
     expect(state.players[0].y).toBe(0);
   });
+
+  it('ends single-player game as loss when maxMoves is exceeded by board action', () => {
+    const state = createMockState({
+      rules: { mode: 'SINGLE', maxPlayers: 1, allowSpectators: false, requiresBoardActionPerTurn: false, fixedCorners: false },
+      level: { ...createMockLevel(), constraints: { maxMoves: 1 } } as any,
+      boardActionsPending: false,
+    });
+    state.players[0].totalMoves = 1;
+
+    state.players[0].x = 0;
+    state.players[0].y = 0;
+    const action: BoardAction = { type: 'ROTATE_TILE', x: 1, y: 1 };
+
+    const result = processBoardAction(state, action);
+    expect(result.ok).toBe(true);
+    expect(state.phase).toBe('END');
+    expect(state.gameEnded).toBe(true);
+    expect(state.gameResult).toBeUndefined();
+    expect(state.endReason).toBe('LOSE_MAX_MOVES');
+  });
 });

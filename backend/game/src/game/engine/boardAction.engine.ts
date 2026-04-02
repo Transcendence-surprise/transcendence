@@ -7,6 +7,7 @@ import { PositionedTile } from "../models/positionedTile";
 import { BoardActionResult } from "../models/boardAction";
 import { BoardActionError } from "../models/boardAction";
 import { updatePlayerPositionsAfterShift } from "./helpers/playerPosUpdate";
+import { applySinglePlayerLossIfNeeded } from "./helpers/endConditions";
 
 export function processBoardAction(
   state: GameState,
@@ -38,11 +39,6 @@ export function processBoardAction(
   // Copy board to avoid mutation (optional)
   const board = cloneBoard(state.board);
 
-  // Record player positions before the action (for shift tracking)
-  const playerPositionsBefore = new Map(
-    state.players.map(p => [p.id, { x: p.x, y: p.y }])
-  );
-
   // Apply action depending on type
   try {
     applyBoardAction(board, action);
@@ -53,14 +49,12 @@ export function processBoardAction(
 
   // If action is SHIFT, update player positions based on tile movement
   if (action.type === "SHIFT") {
-    console.log("[SHIFT] Before player update:", state.players.map(p => ({ id: p.id, x: p.x, y: p.y })));
     updatePlayerPositionsAfterShift(
       state.players,
       state.board,
       board,
       action
     );
-    console.log("[SHIFT] After player update:", state.players.map(p => ({ id: p.id, x: p.x, y: p.y })));
   }
 
   const player = state.players[state.currentPlayerIndex];
@@ -74,6 +68,7 @@ export function processBoardAction(
     state.boardActionsPending = false;
   }
   player.totalMoves += 1;
+  applySinglePlayerLossIfNeeded(state, player);
   return { ok: true, action };
 }
 

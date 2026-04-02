@@ -25,6 +25,47 @@ import { processPlayerAction } from '../engine/playerAction.engine';
 export class EngineService {
   private games = new Map<string, GameState>();
 
+  evaluateSinglePlayerTimeouts(now = Date.now()): Array<{
+    gameId: string;
+    playerIds: Array<string | number>;
+    spectatorIds: Array<string | number>;
+  }> {
+    const endedGames: Array<{
+      gameId: string;
+      playerIds: Array<string | number>;
+      spectatorIds: Array<string | number>;
+    }> = [];
+
+    for (const [gameId, state] of this.games.entries()) {
+      if (state.phase !== "PLAY") continue;
+      if (state.rules.mode !== "SINGLE") continue;
+
+      const levelLimitSec = state.level.constraints?.levelLimitSec;
+      if (
+        typeof levelLimitSec !== "number" ||
+        typeof state.gameStartedAt !== "number"
+      ) {
+        continue;
+      }
+
+      const timedOut = now - state.gameStartedAt >= levelLimitSec * 1000;
+      if (!timedOut) continue;
+
+      state.gameEnded = true;
+      state.phase = "END";
+      state.gameResult = undefined;
+      state.endReason = "LOSE_TIME_LIMIT";
+
+      endedGames.push({
+        gameId,
+        playerIds: state.players.map((p) => p.id),
+        spectatorIds: state.spectators.map((s) => s.id),
+      });
+    }
+
+    return endedGames;
+  }
+
   createGame(hostId: number | string, nickname:string, settings: GameSettings) {
     const state = createGameEngine(hostId, nickname, settings); // from create.engine.ts
     const gameId = crypto.randomUUID();

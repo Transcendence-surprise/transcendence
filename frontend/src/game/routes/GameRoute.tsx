@@ -113,6 +113,11 @@ export default function GameRoute() {
     .map((p) => p.name)
     .join(", ");
   const winnerNames = mappedWinnerNames || (iWon ? user?.username ?? "You" : "");
+  const endReasonText = game.endReason === "LOSE_MAX_MOVES"
+    ? "You lost: move limit reached."
+    : game.endReason === "LOSE_TIME_LIMIT"
+      ? "You lost: time limit reached."
+      : null;
 
   if (game.phase === "END") {
     return (
@@ -122,10 +127,10 @@ export default function GameRoute() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="w-full max-w-md rounded-xl border border-gray-700 bg-gray-900 p-6 shadow-2xl">
             <h2 className="text-2xl font-bold mb-2 text-center">
-              {iWon ? "🏆 You won!" : "Game finished"}
+              {iWon ? "🏆 You won!" : endReasonText ? "You lost" : "Game finished"}
             </h2>
             <p className="text-center text-gray-300 mb-6">
-              {winnerNames ? `Winner: ${winnerNames}` : "No winner information"}
+              {winnerNames ? `Winner: ${winnerNames}` : endReasonText ?? "No winner information"}
             </p>
 
             <div className="flex gap-3 justify-center">
