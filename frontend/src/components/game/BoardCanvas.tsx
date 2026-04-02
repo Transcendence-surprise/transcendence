@@ -11,6 +11,7 @@ import {
   MdOutlineKeyboardArrowUp,
 } from "react-icons/md";
 import { CELL_SIZE } from "../../game/models/constants";
+import SimpleButton from "../UI/SimpleButton";
 
 type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
 
@@ -74,6 +75,11 @@ export type BoardCanvasProps = {
   setSelectedTiles: React.Dispatch<React.SetStateAction<{ x: number; y: number }[]>>;
   onArrowClick: (axis: "ROW" | "COL", index: number, direction: "UP" | "DOWN" | "LEFT" | "RIGHT") => void;
   onPlayerMove: (path: { x: number; y: number }[]) => Promise<void>;
+  onRotateClick: () => void;
+  onSwapClick: () => void;
+  onSkipClick: () => void;
+  canRotate: boolean;
+  canSwap: boolean;
 };
 
 export function BoardCanvas({
@@ -83,6 +89,11 @@ export function BoardCanvas({
   setSelectedTiles,
   onArrowClick,
   onPlayerMove,
+  onRotateClick,
+  onSwapClick,
+  onSkipClick,
+  canRotate,
+  canSwap,
 }: BoardCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -211,22 +222,42 @@ export function BoardCanvas({
   };
 
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-5">
+      <div className="w-[600px] max-w-full min-h-[44px] mb-3 px-3 py-2 rounded-md border border-gray-600 bg-gray-800/70 text-center text-base text-gray-200 flex items-center justify-center">
+        {boardHint}
+      </div>
+
       {/* Top arrows */}
-      <div className="flex gap-1 justify-center">
+      <div
+        className="flex justify-center -mb-2"
+        style={{ width: board.width * CELL_SIZE }}
+      >
         {Array.from({ length: board.width }).map((_, colIndex) => (
-          <ArrowButton key={`top-${colIndex}`} axis="COL" index={colIndex} direction="DOWN" onClick={onArrowClick}>
-            <MdOutlineKeyboardArrowDown />
-          </ArrowButton>
+          <div
+            key={`top-slot-${colIndex}`}
+            style={{ width: CELL_SIZE, display: "flex", justifyContent: "center" }}
+          >
+            <ArrowButton axis="COL" index={colIndex} direction="DOWN" onClick={onArrowClick}>
+              <MdOutlineKeyboardArrowDown />
+            </ArrowButton>
+          </div>
         ))}
       </div>
       {/* Left + Canvas + Right */}
-      <div className="flex items-stretch gap-1">
-        <div className="flex flex-col gap-2 justify-center">
+      <div className="flex items-stretch gap-0">
+        <div
+          className="flex flex-col"
+          style={{ height: board.height * CELL_SIZE, width: CELL_SIZE }}
+        >
           {Array.from({ length: board.height }).map((_, rowIndex) => (
-            <ArrowButton key={`left-${rowIndex}`} axis="ROW" index={rowIndex} direction="RIGHT" onClick={onArrowClick}>
-              <MdOutlineKeyboardArrowRight />
-            </ArrowButton>
+            <div
+              key={`left-slot-${rowIndex}`}
+              style={{ height: CELL_SIZE, display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 4 }}
+            >
+              <ArrowButton axis="ROW" index={rowIndex} direction="RIGHT" onClick={onArrowClick}>
+                <MdOutlineKeyboardArrowRight />
+              </ArrowButton>
+            </div>
           ))}
         </div>
         <div
@@ -297,56 +328,85 @@ export function BoardCanvas({
             style={{ position: "absolute", left: 0, top: 0, zIndex: 1 }}
           />
         </div>
-        <div className="flex flex-col gap-2 justify-center">
+        <div
+          className="flex flex-col"
+          style={{ height: board.height * CELL_SIZE, width: CELL_SIZE }}
+        >
           {Array.from({ length: board.height }).map((_, rowIndex) => (
-            <ArrowButton key={`right-${rowIndex}`} axis="ROW" index={rowIndex} direction="LEFT" onClick={onArrowClick}>
-              <MdOutlineKeyboardArrowLeft />
-            </ArrowButton>
+            <div
+              key={`right-slot-${rowIndex}`}
+              style={{ height: CELL_SIZE, display: "flex", alignItems: "center", justifyContent: "flex-start", paddingLeft: 4 }}
+            >
+              <ArrowButton axis="ROW" index={rowIndex} direction="LEFT" onClick={onArrowClick}>
+                <MdOutlineKeyboardArrowLeft />
+              </ArrowButton>
+            </div>
           ))}
         </div>
       </div>
       {/* Bottom arrows */}
-      <div className="flex gap-1 justify-center">
+      <div
+        className="flex justify-center -mt-2"
+        style={{ width: board.width * CELL_SIZE }}
+      >
         {Array.from({ length: board.width }).map((_, colIndex) => (
-          <ArrowButton key={`bottom-${colIndex}`} axis="COL" index={colIndex} direction="UP" onClick={onArrowClick}>
-            <MdOutlineKeyboardArrowUp />
-          </ArrowButton>
+          <div
+            key={`bottom-slot-${colIndex}`}
+            style={{ width: CELL_SIZE, display: "flex", justifyContent: "center" }}
+          >
+            <ArrowButton axis="COL" index={colIndex} direction="UP" onClick={onArrowClick}>
+              <MdOutlineKeyboardArrowUp />
+            </ArrowButton>
+          </div>
         ))}
       </div>
 
-      {selectedPlayer && (
-        <div className="mt-2 flex flex-col items-center gap-2">
-          <p className="text-xs text-gray-300">
-            {movePath.length > 0
-              ? "Path ready. Click selected player again or press Confirm Move."
-              : "Move mode: click adjacent tiles to build path."}
-          </p>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={submitMovePath}
-              disabled={movePath.length === 0 || isSubmittingMove}
-              className="px-3 py-1 rounded bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Confirm Move
-            </button>
-            <button
-              type="button"
-              onClick={resetMoveSelection}
-              disabled={isSubmittingMove}
-              className="px-3 py-1 rounded bg-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Cancel Path
-            </button>
-          </div>
-        </div>
-      )}
+      <div className="mt-4 flex flex-wrap justify-center gap-3">
+        <SimpleButton
+          title="Rotate"
+          onClick={onRotateClick}
+          disabled={!canRotate || isSubmittingMove}
+          className="w-auto px-3 py-1"
+          textClassName="text-sm mb-0"
+        />
+        <SimpleButton
+          title="Swap"
+          onClick={onSwapClick}
+          disabled={!canSwap || isSubmittingMove}
+          className="w-auto px-3 py-1"
+          textClassName="text-sm mb-0"
+        />
+        <SimpleButton
+          title="Confirm Move"
+          onClick={submitMovePath}
+          disabled={!selectedPlayer || movePath.length === 0 || isSubmittingMove}
+          className="w-auto px-3 py-1"
+          textClassName="text-sm mb-0"
+        />
+        <SimpleButton
+          title="Cancel Path"
+          onClick={resetMoveSelection}
+          disabled={!selectedPlayer || isSubmittingMove}
+          className="w-auto px-3 py-1"
+          textClassName="text-sm mb-0"
+        />
+        <SimpleButton
+          title="Skip"
+          onClick={onSkipClick}
+          disabled={isSubmittingMove}
+          className="w-auto px-3 py-1"
+          textClassName="text-sm mb-0"
+        />
+      </div>
 
-      {!selectedPlayer && (
-        <p className="mt-2 text-xs text-gray-300 text-center max-w-xs">
-          {boardHint}
+      {selectedPlayer && (
+        <p className="mt-3 text-xs text-gray-300 text-center max-w-xs">
+          {movePath.length > 0
+            ? "Path ready. Click selected player again or press Confirm Move."
+            : "Move mode: click adjacent tiles to build path."}
         </p>
       )}
+
     </div>
   );
 }

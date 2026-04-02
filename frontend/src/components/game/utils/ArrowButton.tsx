@@ -20,7 +20,7 @@ export function ArrowButton({ axis, index, direction, onClick, children }: Arrow
         console.log("Arrow clicked", axis, index, direction);
         onClick(axis, index, direction);
       }}
-      className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-2xl"
+      className="p-0 text-3xl text-white bg-transparent border-0 shadow-none hover:text-cyan-300 transition-colors"
       aria-label={`Shift ${axis.toLowerCase()} ${index} ${direction.toLowerCase()}`}
     >
       {children}

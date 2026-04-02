@@ -106,48 +106,30 @@ export default function BoardView({ board, players, gameId }: Props) {
         setSelectedTiles={setSelectedTiles}
         onArrowClick={handleArrowClick}
         onPlayerMove={handlePlayerMove}
+        onRotateClick={handleRotateButton}
+        onSwapClick={handleSwapButton}
+        onSkipClick={handleSkip}
+        canRotate={selectedTiles.length === 1}
+        canSwap={selectedTiles.length === 2}
       />
 
-      {/* Action buttons */}
-      <div className="flex gap-4 mt-2">
+      {/* Navigation buttons */}
+      <div className="mt-2 flex gap-3">
         <button
           type="button"
-          onClick={handleRotateButton}
-          disabled={selectedTiles.length !== 1}
+          onClick={() => navigate(-2)}
+          className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
         >
-          Rotate
+          Back
         </button>
         <button
           type="button"
-          onClick={handleSwapButton}
-          disabled={selectedTiles.length !== 2}
+          onClick={handleLeaveGame}
+          className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
         >
-          Swap
-        </button>
-        <button
-          type="button"
-          onClick={handleSkip}
-          className="px-3 py-1 rounded bg-red-300 hover:bg-red-400"
-        >
-          Skip
+          Leave Game
         </button>
       </div>
-
-      {/* Navigation buttons */}
-      <button
-        type="button"
-        onClick={() => navigate(-2)}
-        className="mt-2 text-sm underline text-blue-300"
-      >
-        Back
-      </button>
-      <button
-        type="button"
-        onClick={handleLeaveGame}
-        className="mt-2 text-sm underline text-blue-300"
-      >
-        Leave Game
-      </button>
     </div>
   );
 }
