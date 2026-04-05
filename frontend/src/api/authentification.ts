@@ -12,7 +12,7 @@ export interface User {
 export async function signup(
   username: string,
   email: string,
-  password: string
+  password: string,
 ): Promise<User> {
   const res = await fetch("/api/auth/signup", {
     method: "POST",
@@ -29,7 +29,10 @@ export async function signup(
   return getCurrentUser();
 }
 
-export async function login(identifier: string, password: string): Promise<User> {
+export async function login(
+  identifier: string,
+  password: string,
+): Promise<User> {
   const res = await fetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -75,4 +78,41 @@ export async function createGuestToken(nickname: string): Promise<User> {
   }
 
   return getCurrentUser();
+}
+
+export async function requestPasswordReset(
+  email: string,
+): Promise<{ ok: boolean }> {
+  const res = await fetch("/api/auth/password-reset", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error?.message || "Failed to request password reset");
+  }
+
+  return res.json();
+}
+
+export async function confirmPasswordReset(
+  token: string,
+  password: string,
+): Promise<{ message: string }> {
+  const res = await fetch("/api/auth/password-reset/confirm", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, password }),
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error?.message || "Failed to confirm password reset");
+  }
+
+  return res.json();
 }

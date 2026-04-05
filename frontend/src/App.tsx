@@ -12,6 +12,7 @@ import GameRoute from "./game/routes/GameRoute";
 import Profile from "./pages/Profile";
 import Leaderboard from "./pages/Leaderboard";
 import Settings from "./pages/Settings";
+import ResetPassword from "./pages/ResetPassword";
 import Chat from "./pages/Chat";
 import Friends from "./pages/Friends";
 import AdminPanel from "./pages/AdminPanel";
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="/500" element={<ServerErrorPage />} />
           <Route path="/502" element={<BadGatewayPage />} />
           <Route path="/503" element={<ServiceUnavailablePage />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Layout wraps all routes */}
           <Route path="/" element={<Layout />}>
