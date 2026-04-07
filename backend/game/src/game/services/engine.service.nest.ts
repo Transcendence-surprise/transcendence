@@ -20,6 +20,7 @@ import { PrivateGameStateResult, PrivateStateError } from '../models/privatState
 import { getPrivateState } from '../engine/privateState.engine';
 import { PlayerActionResult, PlayerActionError, PlayerAction } from '../models/playerAction';
 import { processPlayerAction } from '../engine/playerAction.engine';
+import { advanceTurn, beginCurrentTurn } from '../engine/helpers/turnHandler';
 
 @Injectable()
 export class EngineService {
@@ -64,6 +65,105 @@ export class EngineService {
     }
 
     return endedGames;
+  }
+
+  evaluateMultiPlayerTimeouts(now = Date.now()): Array<
+    | {
+        type: "PLAY_UPDATE";
+        gameId: string;
+      }
+    | {
+        type: "PLAYER_REMOVED";
+        gameId: string;
+        removedPlayerIds: Array<string | number>;
+        playerIds: Array<string | number>;
+        spectatorIds: Array<string | number>;
+        deleteGame: boolean;
+      }
+  > {
+    const events: Array<
+      | {
+          type: "PLAY_UPDATE";
+          gameId: string;
+        }
+      | {
+          type: "PLAYER_REMOVED";
+          gameId: string;
+          removedPlayerIds: Array<string | number>;
+          playerIds: Array<string | number>;
+          spectatorIds: Array<string | number>;
+          deleteGame: boolean;
+        }
+    > = [];
+
+    for (const [gameId, state] of this.games.entries()) {
+      if (state.phase !== "PLAY") continue;
+      if (state.rules.mode !== "MULTI") continue;
+
+      const turnLimitSec = state.rules.moveLimitPerTurnSec;
+      if (
+        typeof turnLimitSec !== "number" ||
+        typeof state.moveStartedAt !== "number"
+      ) {
+        continue;
+      }
+
+      const timedOut = now - state.moveStartedAt >= turnLimitSec * 1000;
+      if (!timedOut) continue;
+
+      const currentPlayer = state.players[state.currentPlayerIndex];
+      if (!currentPlayer) continue;
+
+      if (currentPlayer.skipsLeft > 0) {
+        currentPlayer.skipsLeft -= 1;
+      }
+
+      if (currentPlayer.skipsLeft <= 0) {
+        const removedPlayerId = currentPlayer.id;
+        const playerSnapshot = state.players.map((player) => player.id);
+        const spectatorSnapshot = state.spectators.map((spectator) => spectator.id);
+        const result = leaveGameEngine(state, removedPlayerId);
+
+        if (!result.ok) {
+          continue;
+        }
+
+        if (result.deleteGame) {
+          this.games.delete(gameId);
+          events.push({
+            type: "PLAYER_REMOVED",
+            gameId,
+            removedPlayerIds: [removedPlayerId],
+            playerIds: playerSnapshot,
+            spectatorIds: spectatorSnapshot,
+            deleteGame: true,
+          });
+          continue;
+        }
+
+        const nextPlayer = state.players[state.currentPlayerIndex];
+        if (nextPlayer) {
+          beginCurrentTurn(state, now);
+        }
+
+        events.push({
+          type: "PLAYER_REMOVED",
+          gameId,
+          removedPlayerIds: [removedPlayerId],
+          playerIds: state.players.map((player) => player.id),
+          spectatorIds: state.spectators.map((spectator) => spectator.id),
+          deleteGame: false,
+        });
+        continue;
+      }
+
+      advanceTurn(state);
+      state.moveStartedAt = now;
+
+      events.push({ type: "PLAY_UPDATE", gameId });
+    }
+
+    return events;
   }
 
   createGame(hostId: number | string, nickname:string, settings: GameSettings) {

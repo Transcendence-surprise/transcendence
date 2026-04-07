@@ -138,7 +138,7 @@ describe("processPlayerAction", () => {
     expect(state.phase).toBe("END");
   });
 
-  it("ends single-player game as loss when maxMoves is exceeded", () => {
+  it("does not end single-player game by maxMoves on player movement", () => {
     const players = [makePlayer(1, { totalMoves: 2 })];
     const playerProgress = { "1": { collectedItems: [], objectives: [{ type: "COLLECT_ALL", done: false }] } };
     const tiles = [[makeTile({ type: "I", rotation: 90 }), makeTile({ type: "I", rotation: 90 })]];
@@ -154,10 +154,10 @@ describe("processPlayerAction", () => {
     const result = processPlayerAction(state, action);
 
     expect(result).toEqual({ ok: true, action });
-    expect(state.phase).toBe("END");
-    expect(state.gameEnded).toBe(true);
+    expect(state.phase).toBe("PLAY");
+    expect(state.gameEnded).toBe(false);
     expect(state.gameResult).toBeUndefined();
-    expect(state.endReason).toBe("LOSE_MAX_MOVES");
+    expect(state.endReason).toBeUndefined();
   });
 
   it("ends single-player game as loss when level time limit is reached", () => {

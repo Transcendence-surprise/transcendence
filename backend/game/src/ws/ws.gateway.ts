@@ -49,10 +49,28 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
   onModuleInit(): void {
     this.timeoutTicker = setInterval(() => {
       const endedGames = this.engine.evaluateSinglePlayerTimeouts();
+      const multiTimeoutEvents = this.engine.evaluateMultiPlayerTimeouts();
       for (const game of endedGames) {
         this.sendPlayUpdate(game.gameId);
         game.playerIds.forEach((id) => this.sendPlayerStatusUpdate(id));
         game.spectatorIds.forEach((id) => this.sendPlayerStatusUpdate(id));
+      }
+
+      for (const event of multiTimeoutEvents) {
+        if (event.type === "PLAY_UPDATE") {
+          this.sendPlayUpdate(event.gameId);
+          continue;
+        }
+
+        if (event.deleteGame) {
+          event.playerIds.forEach((id) => this.sendPlayerStatusUpdate(id));
+          event.spectatorIds.forEach((id) => this.sendPlayerStatusUpdate(id));
+          this.sendGameDeleted(event.gameId);
+          continue;
+        }
+
+        event.removedPlayerIds.forEach((id) => this.sendPlayerStatusUpdate(id));
+        this.sendPlayUpdate(event.gameId);
       }
     }, 1000);
   }
@@ -308,6 +326,10 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
       players: state.players,
       playerProgress: state.playerProgress,
       currentPlayerId: state.currentPlayerId,
+      gameStartedAt: state.gameStartedAt,
+      moveStartedAt: state.moveStartedAt,
+      moveLimitPerTurnSec: state.rules.moveLimitPerTurnSec,
+      boardActionsPending: state.boardActionsPending,
       gameResult: state.gameResult ? { winnerIds: [state.gameResult.winnerId] } : undefined,
       endReason: state.endReason,
     });

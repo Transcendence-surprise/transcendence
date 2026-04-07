@@ -20,7 +20,6 @@ export function createGame(
       : createMultiplayerLevel(settings);
   // Create base state
   const state = createGameState(level);
-  state.gameStartedAt = Date.now();  
 
   // Compile and attach rules
   state.rules = compileRules(settings);

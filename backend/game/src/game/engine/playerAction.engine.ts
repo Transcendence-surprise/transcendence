@@ -61,7 +61,6 @@ export function processPlayerAction(
     player.y = finalStep.y;
   }
 
-  player.totalMoves += 1;
   player.hasMoved = true;
 
   // COLLECT ITEMS
