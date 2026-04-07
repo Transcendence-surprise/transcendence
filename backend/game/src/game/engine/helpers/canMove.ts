@@ -38,7 +38,6 @@ export function canMove(board: Board, from: { x: number; y: number }, to: { x: n
   
   const fromOpenings = getTileOpenings(fromTile);
   const toOpenings = getTileOpenings(toTile);
-  console.log(`canMove from (${from.x},${from.y}) to (${to.x},${to.y}):`, fromOpenings, toOpenings);
   // Determine direction from 'from' → 'to'
   const dx = to.x - from.x;
   const dy = to.y - from.y;

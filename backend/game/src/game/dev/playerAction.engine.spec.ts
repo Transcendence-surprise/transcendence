@@ -105,7 +105,7 @@ describe("processPlayerAction", () => {
     const tiles = [
       [
         makeTile({ type: "T", rotation: 90 }),   // (0,0) UP, RIGHT, DOWN
-        makeTile({ type: "T", rotation: 270 }),  // (1,0) LEFT, DOWN, UP
+        makeTile({ type: "T", rotation: 90 }),   // (1,0) LEFT, RIGHT, DOWN
       ],
       [
         makeTile({ type: "T", rotation: 90 }),   // (0,1)
@@ -139,13 +139,15 @@ describe("processPlayerAction", () => {
   });
 
   it("does not end single-player game by maxMoves on player movement", () => {
-    const players = [makePlayer(1, { totalMoves: 2 })];
+    const players = [makePlayer(1, { totalMoves: 1 })];
     const playerProgress = { "1": { collectedItems: [], objectives: [{ type: "COLLECT_ALL", done: false }] } };
     const tiles = [[makeTile({ type: "I", rotation: 90 }), makeTile({ type: "I", rotation: 90 })]];
+    const collectibles: Collectible[] = [{ id: "still-missing", x: 0, y: 0 }];
     const state = makeState({
       players,
       playerProgress,
       boardTiles: tiles,
+      collectibles,
       constraints: { maxMoves: 2 },
       mode: "SINGLE",
     });
@@ -164,10 +166,12 @@ describe("processPlayerAction", () => {
     const players = [makePlayer(1)];
     const playerProgress = { "1": { collectedItems: [], objectives: [{ type: "COLLECT_ALL", done: false }] } };
     const tiles = [[makeTile({ type: "I", rotation: 90 }), makeTile({ type: "I", rotation: 90 })]];
+    const collectibles: Collectible[] = [{ id: "still-missing", x: 0, y: 0 }];
     const state = makeState({
       players,
       playerProgress,
       boardTiles: tiles,
+      collectibles,
       constraints: { levelLimitSec: 1 },
       mode: "SINGLE",
     });
