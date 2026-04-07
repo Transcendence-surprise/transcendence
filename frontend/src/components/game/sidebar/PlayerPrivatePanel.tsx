@@ -9,7 +9,7 @@ interface PlayerPrivatePanelProps {
 
 export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
   const { user } = useAuth();
-  const { playerProgress, skipsLeft, boardActionsPending } = game;
+  const { playerProgress, boardActionsPending } = game;
   const {
     collectedItems = [],
     currentCollectibleId,
@@ -47,6 +47,11 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
     ? collectibleImagesRef.current[collectibleImageId]
     : undefined;
 
+  const getCollectibleImage = (id: string) => {
+    const numericId = String(parseInt(id.slice(1), 10));
+    return collectibleImagesRef.current[numericId];
+  };
+
   const myPlayer = game.players.find(
     (p) => user?.id != null && p.id.toString() === user.id.toString()
   );
@@ -56,6 +61,7 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
   const playerForStats = myPlayer ?? fallbackPlayer;
 
   const totalMoves = playerForStats?.totalMoves ?? 0;
+  const displaySkipsLeft = playerForStats?.skipsLeft ?? game.skipsLeft ?? 0;
   const maxMoves = game.level?.constraints?.maxMoves;
 
   return (
@@ -84,14 +90,26 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
         <span className="text-sm text-gray-400 mb-1">Collected Items</span>
         <div className="flex flex-wrap gap-2 mt-1">
           {collectedItems.length > 0 ? (
-            collectedItems.map((item) => (
-              <div
-                key={item}
-                className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center text-black font-bold text-xs"
-              >
-                {item}
-              </div>
-            ))
+            collectedItems.map((item) => {
+              const itemImage = getCollectibleImage(item);
+
+              return (
+                <div
+                  key={item}
+                  className="w-8 h-8 rounded-md flex items-center justify-center text-black font-bold text-xs overflow-hidden"
+                >
+                  {collectibleImagesLoaded && itemImage ? (
+                    <img
+                      src={itemImage.src}
+                      alt={`Collected ${item}`}
+                      className="w-full h-full object-contain p-0.5"
+                    />
+                  ) : (
+                    item
+                  )}
+                </div>
+              );
+            })
           ) : (
             <span className="text-xs text-gray-500">No items collected yet</span>
           )}
@@ -118,7 +136,7 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
       {/* Skips Left */}
       <div className="flex justify-between items-center mt-2">
         <span className="text-sm text-gray-400">Skips left</span>
-        <span className="text-white font-bold">{skipsLeft}</span>
+        <span className="text-white font-bold">{displaySkipsLeft}</span>
       </div>
 
       {/* Moves Used / Max Moves (single levels with move constraint) */}
