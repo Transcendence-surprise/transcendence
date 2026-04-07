@@ -135,7 +135,7 @@ export default function GameRoute() {
   if (game.phase === "END") {
     return (
       <div className="relative">
-        <GamePage game={game} gameId={id} />
+        <GamePage game={game} gameId={id} userId={user?.id} />
 
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="w-full max-w-md rounded-xl border border-gray-700 bg-gray-900 p-6 shadow-2xl">
@@ -162,7 +162,7 @@ export default function GameRoute() {
   }
 
   if (game.phase === "PLAY") {
-    return <GamePage game={game} gameId={id} />;
+    return <GamePage game={game} gameId={id} userId={user?.id} />;
   }
   return <div>Game ended</div>;
 }

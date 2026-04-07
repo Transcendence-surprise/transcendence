@@ -81,6 +81,7 @@ export type BoardCanvasProps = {
   onSkipClick: () => void;
   canRotate: boolean;
   canSwap: boolean;
+  isSpectator?: boolean;
 };
 
 export function BoardCanvas({
@@ -96,6 +97,7 @@ export function BoardCanvas({
   onSkipClick,
   canRotate,
   canSwap,
+  isSpectator = false,
 }: BoardCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -135,6 +137,8 @@ export function BoardCanvas({
   };
 
   const handleCanvasClick = async (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (isSpectator) return;
+
     const rect = e.currentTarget.getBoundingClientRect();
     const x = Math.floor((e.clientX - rect.left) / CELL_SIZE);
     const y = Math.floor((e.clientY - rect.top) / CELL_SIZE);
@@ -221,103 +225,113 @@ export function BoardCanvas({
 
   return (
     <div className="flex flex-col items-center gap-5">
-      <div className="w-[600px] max-w-full min-h-[44px] mb-3 px-3 py-2 rounded-md border border-gray-600 bg-gray-800/70 text-center text-base text-gray-200 flex items-center justify-center">
-        {boardHint}
-      </div>
+      {!isSpectator && (
+        <div className="w-[600px] max-w-full min-h-[44px] mb-3 px-3 py-2 rounded-md border border-gray-600 bg-gray-800/70 text-center text-base text-gray-200 flex items-center justify-center">
+          {boardHint}
+        </div>
+      )}
 
       {/* Top arrows */}
-      <div
-        className="flex justify-center -mb-2"
-        style={{ width: board.width * CELL_SIZE }}
-      >
-        {Array.from({ length: board.width }).map((_, colIndex) => (
-          <div
-            key={`top-slot-${colIndex}`}
-            style={{ width: CELL_SIZE, display: "flex", justifyContent: "center" }}
-          >
-            <ArrowButton axis="COL" index={colIndex} direction="DOWN" onClick={onArrowClick}>
-              <MdOutlineKeyboardArrowDown />
-            </ArrowButton>
-          </div>
-        ))}
-      </div>
-      {/* Left + Canvas + Right */}
-      <div className="flex items-stretch gap-0">
+      {!isSpectator && (
         <div
-          className="flex flex-col"
-          style={{ height: board.height * CELL_SIZE, width: CELL_SIZE }}
+          className="flex justify-center -mb-2"
+          style={{ width: board.width * CELL_SIZE }}
         >
-          {Array.from({ length: board.height }).map((_, rowIndex) => (
+          {Array.from({ length: board.width }).map((_, colIndex) => (
             <div
-              key={`left-slot-${rowIndex}`}
-              style={{ height: CELL_SIZE, display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 4 }}
+              key={`top-slot-${colIndex}`}
+              style={{ width: CELL_SIZE, display: "flex", justifyContent: "center" }}
             >
-              <ArrowButton axis="ROW" index={rowIndex} direction="RIGHT" onClick={onArrowClick}>
-                <MdOutlineKeyboardArrowRight />
+              <ArrowButton axis="COL" index={colIndex} direction="DOWN" onClick={onArrowClick}>
+                <MdOutlineKeyboardArrowDown />
               </ArrowButton>
             </div>
           ))}
         </div>
+      )}
+      {/* Left + Canvas + Right */}
+      <div className="flex items-stretch gap-0">
+        {!isSpectator && (
+          <div
+            className="flex flex-col"
+            style={{ height: board.height * CELL_SIZE, width: CELL_SIZE }}
+          >
+            {Array.from({ length: board.height }).map((_, rowIndex) => (
+              <div
+                key={`left-slot-${rowIndex}`}
+                style={{ height: CELL_SIZE, display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 4 }}
+              >
+                <ArrowButton axis="ROW" index={rowIndex} direction="RIGHT" onClick={onArrowClick}>
+                  <MdOutlineKeyboardArrowRight />
+                </ArrowButton>
+              </div>
+            ))}
+          </div>
+        )}
         <div
           className="relative border-gray-400 rounded-lg overflow-hidden flex-shrink-0"
           style={{ width: board.width * CELL_SIZE, height: board.height * CELL_SIZE }}
         >
-          {/* Highlight selected tiles */}
-          {selectedTiles.map(({ x, y }: { x: number; y: number }) => (
-            <div
-              key={`selected-${x}-${y}`}
-              style={{
-                position: "absolute",
-                left: x * CELL_SIZE,
-                top: y * CELL_SIZE,
-                width: CELL_SIZE,
-                height: CELL_SIZE,
-                background: "rgba(59, 130, 246, 0.4)", // Tailwind blue-500/40
-                border: "2px solid #2563eb", // Tailwind blue-600
-                borderRadius: 6,
-                pointerEvents: "none",
-                zIndex: 2,
-              }}
-            />
-          ))}
+          {!isSpectator && (
+            <>
+              {/* Highlight selected tiles */}
+              {selectedTiles.map(({ x, y }: { x: number; y: number }) => (
+                <div
+                  key={`selected-${x}-${y}`}
+                  style={{
+                    position: "absolute",
+                    left: x * CELL_SIZE,
+                    top: y * CELL_SIZE,
+                    width: CELL_SIZE,
+                    height: CELL_SIZE,
+                    background: "rgba(59, 130, 246, 0.4)", // Tailwind blue-500/40
+                    border: "2px solid #2563eb", // Tailwind blue-600
+                    borderRadius: 6,
+                    pointerEvents: "none",
+                    zIndex: 2,
+                  }}
+                />
+              ))}
 
-          {/* Highlight selected player (yellow) */}
-          {selectedPlayer && (
-            <div
-              key={`player-selected-${selectedPlayer.x}-${selectedPlayer.y}`}
-              style={{
-                position: "absolute",
-                left: selectedPlayer.x * CELL_SIZE,
-                top: selectedPlayer.y * CELL_SIZE,
-                width: CELL_SIZE,
-                height: CELL_SIZE,
-                border: "3px solid #facc15", // Tailwind yellow-400
-                borderRadius: 6,
-                boxShadow: "0 0 0 2px #fde68a", // subtle yellow glow
-                pointerEvents: "none",
-                zIndex: 3,
-              }}
-            />
+              {/* Highlight selected player (yellow) */}
+              {selectedPlayer && (
+                <div
+                  key={`player-selected-${selectedPlayer.x}-${selectedPlayer.y}`}
+                  style={{
+                    position: "absolute",
+                    left: selectedPlayer.x * CELL_SIZE,
+                    top: selectedPlayer.y * CELL_SIZE,
+                    width: CELL_SIZE,
+                    height: CELL_SIZE,
+                    border: "3px solid #facc15", // Tailwind yellow-400
+                    borderRadius: 6,
+                    boxShadow: "0 0 0 2px #fde68a", // subtle yellow glow
+                    pointerEvents: "none",
+                    zIndex: 3,
+                  }}
+                />
+              )}
+
+              {/* Highlight move path (green) */}
+              {movePath.map((step, index) => (
+                <div
+                  key={`move-step-${step.x}-${step.y}-${index}`}
+                  style={{
+                    position: "absolute",
+                    left: step.x * CELL_SIZE,
+                    top: step.y * CELL_SIZE,
+                    width: CELL_SIZE,
+                    height: CELL_SIZE,
+                    background: "rgba(34,197,94,0.4)",
+                    border: "2px solid #22c55e",
+                    borderRadius: 6,
+                    pointerEvents: "none",
+                    zIndex: 4,
+                  }}
+                />
+              ))}
+            </>
           )}
-
-          {/* Highlight move path (green) */}
-          {movePath.map((step, index) => (
-            <div
-              key={`move-step-${step.x}-${step.y}-${index}`}
-              style={{
-                position: "absolute",
-                left: step.x * CELL_SIZE,
-                top: step.y * CELL_SIZE,
-                width: CELL_SIZE,
-                height: CELL_SIZE,
-                background: "rgba(34,197,94,0.4)",
-                border: "2px solid #22c55e",
-                borderRadius: 6,
-                pointerEvents: "none",
-                zIndex: 4,
-              }}
-            />
-          ))}
 
           <canvas
             ref={canvasRef}
@@ -326,83 +340,91 @@ export function BoardCanvas({
             style={{ position: "absolute", left: 0, top: 0, zIndex: 1 }}
           />
         </div>
+        {!isSpectator && (
+          <div
+            className="flex flex-col"
+            style={{ height: board.height * CELL_SIZE, width: CELL_SIZE }}
+          >
+            {Array.from({ length: board.height }).map((_, rowIndex) => (
+              <div
+                key={`right-slot-${rowIndex}`}
+                style={{ height: CELL_SIZE, display: "flex", alignItems: "center", justifyContent: "flex-start", paddingLeft: 4 }}
+              >
+                <ArrowButton axis="ROW" index={rowIndex} direction="LEFT" onClick={onArrowClick}>
+                  <MdOutlineKeyboardArrowLeft />
+                </ArrowButton>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      {/* Bottom arrows */}
+      {!isSpectator && (
         <div
-          className="flex flex-col"
-          style={{ height: board.height * CELL_SIZE, width: CELL_SIZE }}
+          className="flex justify-center -mt-2"
+          style={{ width: board.width * CELL_SIZE }}
         >
-          {Array.from({ length: board.height }).map((_, rowIndex) => (
+          {Array.from({ length: board.width }).map((_, colIndex) => (
             <div
-              key={`right-slot-${rowIndex}`}
-              style={{ height: CELL_SIZE, display: "flex", alignItems: "center", justifyContent: "flex-start", paddingLeft: 4 }}
+              key={`bottom-slot-${colIndex}`}
+              style={{ width: CELL_SIZE, display: "flex", justifyContent: "center" }}
             >
-              <ArrowButton axis="ROW" index={rowIndex} direction="LEFT" onClick={onArrowClick}>
-                <MdOutlineKeyboardArrowLeft />
+              <ArrowButton axis="COL" index={colIndex} direction="UP" onClick={onArrowClick}>
+                <MdOutlineKeyboardArrowUp />
               </ArrowButton>
             </div>
           ))}
         </div>
-      </div>
-      {/* Bottom arrows */}
-      <div
-        className="flex justify-center -mt-2"
-        style={{ width: board.width * CELL_SIZE }}
-      >
-        {Array.from({ length: board.width }).map((_, colIndex) => (
-          <div
-            key={`bottom-slot-${colIndex}`}
-            style={{ width: CELL_SIZE, display: "flex", justifyContent: "center" }}
-          >
-            <ArrowButton axis="COL" index={colIndex} direction="UP" onClick={onArrowClick}>
-              <MdOutlineKeyboardArrowUp />
-            </ArrowButton>
+      )}
+
+      {!isSpectator && (
+        <>
+          <div className="mt-4 flex flex-wrap justify-center gap-3">
+            <SimpleButton
+              title="Rotate"
+              onClick={onRotateClick}
+              disabled={!canRotate || isSubmittingMove}
+              className="w-auto px-3 py-1"
+              textClassName="text-sm mb-0"
+            />
+            <SimpleButton
+              title="Swap"
+              onClick={onSwapClick}
+              disabled={!canSwap || isSubmittingMove}
+              className="w-auto px-3 py-1"
+              textClassName="text-sm mb-0"
+            />
+            <SimpleButton
+              title="Confirm Move"
+              onClick={submitMovePath}
+              disabled={!selectedPlayer || movePath.length === 0 || isSubmittingMove}
+              className="w-auto px-3 py-1"
+              textClassName="text-sm mb-0"
+            />
+            <SimpleButton
+              title="Cancel Path"
+              onClick={resetMoveSelection}
+              disabled={!selectedPlayer || isSubmittingMove}
+              className="w-auto px-3 py-1"
+              textClassName="text-sm mb-0"
+            />
+            <SimpleButton
+              title="Skip move"
+              onClick={onSkipClick}
+              disabled={isSubmittingMove}
+              className="w-auto px-3 py-1"
+              textClassName="text-sm mb-0"
+            />
           </div>
-        ))}
-      </div>
 
-      <div className="mt-4 flex flex-wrap justify-center gap-3">
-        <SimpleButton
-          title="Rotate"
-          onClick={onRotateClick}
-          disabled={!canRotate || isSubmittingMove}
-          className="w-auto px-3 py-1"
-          textClassName="text-sm mb-0"
-        />
-        <SimpleButton
-          title="Swap"
-          onClick={onSwapClick}
-          disabled={!canSwap || isSubmittingMove}
-          className="w-auto px-3 py-1"
-          textClassName="text-sm mb-0"
-        />
-        <SimpleButton
-          title="Confirm Move"
-          onClick={submitMovePath}
-          disabled={!selectedPlayer || movePath.length === 0 || isSubmittingMove}
-          className="w-auto px-3 py-1"
-          textClassName="text-sm mb-0"
-        />
-        <SimpleButton
-          title="Cancel Path"
-          onClick={resetMoveSelection}
-          disabled={!selectedPlayer || isSubmittingMove}
-          className="w-auto px-3 py-1"
-          textClassName="text-sm mb-0"
-        />
-        <SimpleButton
-          title="Skip move"
-          onClick={onSkipClick}
-          disabled={isSubmittingMove}
-          className="w-auto px-3 py-1"
-          textClassName="text-sm mb-0"
-        />
-      </div>
-
-      {selectedPlayer && (
-        <p className="mt-3 text-xs text-gray-300 text-center max-w-xs">
-          {movePath.length > 0
-            ? "Path ready. Click selected player again or press Confirm Move."
-            : "Move mode: click adjacent tiles to build path."}
-        </p>
+          {selectedPlayer && (
+            <p className="mt-3 text-xs text-gray-300 text-center max-w-xs">
+              {movePath.length > 0
+                ? "Path ready. Click selected player again or press Confirm Move."
+                : "Move mode: click adjacent tiles to build path."}
+            </p>
+          )}
+        </>
       )}
 
     </div>

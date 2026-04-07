@@ -12,9 +12,10 @@ type Props = {
   players: PlayerState[];
   currentPlayerId: string | number;
   gameId: string;
+  isSpectator?: boolean;
 };
 
-export default function BoardView({ board, players, currentPlayerId, gameId }: Props) {
+export default function BoardView({ board, players, currentPlayerId, gameId, isSpectator = false }: Props) {
   const navigate = useNavigate();
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
@@ -107,6 +108,7 @@ export default function BoardView({ board, players, currentPlayerId, gameId }: P
         onSkipClick={handleSkip}
         canRotate={selectedTiles.length === 1}
         canSwap={selectedTiles.length === 2}
+        isSpectator={isSpectator}
       />
 
       {/* Navigation buttons */}

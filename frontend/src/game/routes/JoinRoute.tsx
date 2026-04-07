@@ -78,9 +78,20 @@ export default function MultiplayerJoinRoute() {
     }
   };
 
-  const handleSpectate = (gameId: string) => {
-    // await joinGame(gameId, currentUserId, "SPECTATOR");
-    void navigate(`/game/${gameId}`);
+  const handleSpectate = async (gameId: string) => {
+    const controller = new AbortController();
+    try {
+      setLoading(true);
+      await joinGame(gameId, "SPECTATOR", controller.signal);
+      navigate(`/game/${gameId}`);
+    } catch (err: any) {
+      if (err?.name !== "AbortError") {
+        setError(err.message || "Failed to join as spectator");
+      }
+    } finally {
+      controller.abort();
+      setLoading(false);
+    }
   };
 
   if (loading) return <div>Loading multiplayer games...</div>;

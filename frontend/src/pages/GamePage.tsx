@@ -6,9 +6,14 @@ import { PrivateGameState } from "../game/models/privatState";
 type GamePageProps = {
   game: PrivateGameState;
   gameId: string;
+  userId?: string | number;
 };
 
-export default function GamePage({ game, gameId }: GamePageProps) {
+export default function GamePage({ game, gameId, userId }: GamePageProps) {
+  const isSpectator = userId != null && !game.players.some(
+    (p) => p.id.toString() === userId.toString()
+  );
+
   return (
     <div className="flex w-full h-full items-start justify-center">
       {/* Board centered */}
@@ -18,11 +23,12 @@ export default function GamePage({ game, gameId }: GamePageProps) {
           players={game.players}
           currentPlayerId={game.currentPlayerId}
           gameId={gameId}
+          isSpectator={isSpectator}
         />
       </div>
       {/* Sidebar pushed right */}
       <div className="flex-shrink-0 self-start">
-        <Sidebar game={game} gameId={gameId} />
+        <Sidebar game={game} gameId={gameId} isSpectator={isSpectator} />
       </div>
     </div>
   );

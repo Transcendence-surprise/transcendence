@@ -5,9 +5,16 @@ import { mockPlayerProfile } from "../../../types/mockPlayer";
 interface PlayerListProps {
   players: PlayerState[];
   currentPlayerId: string | number;
+  playerProgress?: Record<string, { collectedItems?: string[] }>;
+  collectiblesPerPlayer?: number;
 }
 
-export default function PlayerList({ players, currentPlayerId }: PlayerListProps) {
+export default function PlayerList({ 
+  players, 
+  currentPlayerId, 
+  playerProgress = {},
+  collectiblesPerPlayer = 5
+}: PlayerListProps) {
   return (
     <div className="flex flex-col gap-3 w-full">
       {players.map((p) => {
@@ -30,7 +37,7 @@ export default function PlayerList({ players, currentPlayerId }: PlayerListProps
             <div className="flex flex-col">
               <span className="text-white font-medium">{p.name}</span>
               <span className="text-xs text-gray-400">
-                Skips left: {p.skipsLeft} • {p.hasMoved ? "Moved" : "Waiting"}
+                Skips left: {p.skipsLeft} • Collected {playerProgress[p.id.toString()]?.collectedItems?.length ?? 0}/{collectiblesPerPlayer}
               </span>
             </div>
 
