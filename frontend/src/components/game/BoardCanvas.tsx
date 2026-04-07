@@ -71,6 +71,7 @@ function canMoveOnBoard(board: Board, from: { x: number; y: number }, to: { x: n
 export type BoardCanvasProps = {
   board: Board;
   players: PlayerState[];
+  currentPlayerId: string | number;
   selectedTiles: { x: number; y: number }[];
   setSelectedTiles: React.Dispatch<React.SetStateAction<{ x: number; y: number }[]>>;
   onArrowClick: (axis: "ROW" | "COL", index: number, direction: "UP" | "DOWN" | "LEFT" | "RIGHT") => void;
@@ -85,6 +86,7 @@ export type BoardCanvasProps = {
 export function BoardCanvas({
   board,
   players,
+  currentPlayerId,
   selectedTiles,
   setSelectedTiles,
   onArrowClick,
@@ -105,6 +107,7 @@ export function BoardCanvas({
   const [isSubmittingMove, setIsSubmittingMove] = useState(false);
   const getPlayerAt = (x: number, y: number) =>
     players.find((p) => p.x === x && p.y === y);
+  const currentPlayer = players.find((player) => player.id.toString() === currentPlayerId.toString());
   const boardHint =
     selectedTiles.length === 1
       ? "One tile selected: press Rotate, or select one more adjacent tile to swap."
@@ -204,6 +207,12 @@ export function BoardCanvas({
 
     // --- SELECT PLAYER ---
     if (isPlayerTile) {
+      const playerAtTile = getPlayerAt(x, y);
+      if (playerAtTile && currentPlayer && playerAtTile.id.toString() !== currentPlayer.id.toString()) {
+        alert("That is not your player. Please click your own piece to move.");
+        return;
+      }
+
       setSelectedPlayer({ x, y });
       setMovePath([]);
       setSelectedTiles([]);

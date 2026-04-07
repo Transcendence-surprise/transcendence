@@ -11,10 +11,11 @@ import { BoardCanvas } from "./BoardCanvas";
 type Props = {
   board: Board;
   players: PlayerState[];
+  currentPlayerId: string | number;
   gameId: string;
 };
 
-export default function BoardView({ board, players, gameId }: Props) {
+export default function BoardView({ board, players, currentPlayerId, gameId }: Props) {
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -102,6 +103,7 @@ export default function BoardView({ board, players, gameId }: Props) {
       <BoardCanvas
         board={board}
         players={players}
+        currentPlayerId={currentPlayerId}
         selectedTiles={selectedTiles}
         setSelectedTiles={setSelectedTiles}
         onArrowClick={handleArrowClick}
