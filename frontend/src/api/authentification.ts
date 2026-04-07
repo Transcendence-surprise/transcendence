@@ -101,7 +101,7 @@ export async function requestPasswordReset(
 export async function confirmPasswordReset(
   token: string,
   password: string,
-): Promise<{ message: string }> {
+): Promise<{ ok: true }> {
   const res = await fetch("/api/auth/password-reset/confirm", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
