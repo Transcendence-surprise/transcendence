@@ -130,6 +130,11 @@ export class PlayerMoveDto {
   @ValidateNested({ each: true })
   @Type(() => PointDto)
   path!: PointDto[];
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  skip?: boolean;
 }
 
 export class PlayerActionResponseDto {

@@ -187,6 +187,7 @@ export class EngineService {
     if (state.rules.mode === "MULTI" && state.boardActionsPending === true) {
       return { ok: false, error: PlayerActionError.REQUIRED_BOARD_ACTION };
     }
+
     return processPlayerAction(state, action);
   }
 

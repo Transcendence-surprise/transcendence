@@ -2,6 +2,7 @@
 
 export type PlayerAction = {
   path: { x: number; y: number }[];
+  skip: boolean;
 }
 
 export type PlayerActionResult =

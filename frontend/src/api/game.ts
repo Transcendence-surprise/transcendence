@@ -118,16 +118,21 @@ export async function playerMove(gameId: string, path: { x: number; y: number }[
     const res = await fetch('/api/game/playermove', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({ gameId, path }),
+       body: JSON.stringify({ gameId, path, skip }),
       credentials: 'include',
       signal,
     });
 
     let data: any = {};
     try {
-      data = await res.json();
+      const text = await res.text();
+      data = text ? JSON.parse(text) : {};
     } catch (e) {
-      throw new Error(`Server error: ${res.status} ${res.statusText}`);
+      if (res.ok) {
+        data = { ok: true, action: { path, skip: skip ?? false } };
+      } else {
+        throw new Error(`Server error: ${res.status} ${res.statusText}`);
+      }
     }
 
     if (!res.ok || !data.ok) {

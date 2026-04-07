@@ -22,6 +22,32 @@ export function processPlayerAction(
     return { ok: false, error: PlayerActionError.PLAYER_NOT_FOUND };
   }
 
+  if (action.skip) {
+    if (state.rules.mode === "MULTI" && state.boardActionsPending === true) {
+      return { ok: false, error: PlayerActionError.REQUIRED_BOARD_ACTION };
+    }
+    player.hasMoved = true;
+
+    // CHECK WIN (for skip)
+    const win = checkWinCondition(state, player);
+    if (win) {
+      state.gameEnded = true;
+      state.gameResult = { winnerId: player.id.toString() };
+      state.endReason = "WIN";
+      state.phase = "END";
+
+      return { ok: true, action };
+    }
+
+    if (state.rules.mode === "MULTI") {
+      advanceTurn(state);
+    } else {
+      player.hasMoved = false;
+    }
+
+    return { ok: true, action };
+  }
+
   // VALIDATION
   const validation = validatePlayerAction(state, player, action);
   if (!validation.valid) {
@@ -58,7 +84,7 @@ export function processPlayerAction(
 
   updatePlayerObjectives(state, player);
 
-  // 7️⃣ CHECK WIN
+  // CHECK WIN
   const win = checkWinCondition(state, player);
   if (win) {
     state.gameEnded = true;
@@ -73,7 +99,7 @@ export function processPlayerAction(
     return { ok: true, action };
   }
 
-  // 8️⃣ TURN HANDLING
+  // TURN HANDLING
   if (state.rules.mode === "MULTI") {
     advanceTurn(state);
   } else {

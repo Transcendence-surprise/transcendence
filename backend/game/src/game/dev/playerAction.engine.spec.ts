@@ -54,14 +54,14 @@ describe("processPlayerAction", () => {
 
   it("returns error if no player at current index", () => {
     const state = makeState({ players: [], playerProgress: {}, boardTiles: [[]] });
-    const action: PlayerAction = { path: [] };
+    const action: PlayerAction = { path: [], skip: false };
     expect(processPlayerAction(state, action)).toEqual({ ok: false, error: PlayerActionError.PLAYER_NOT_FOUND });
   });
 
   it("returns error if no player progress", () => {
     const players = [makePlayer(1)];
     const state = makeState({ players, playerProgress: {}, boardTiles: [[makeTile()]] });
-    const action: PlayerAction = { path: [] };
+    const action: PlayerAction = { path: [], skip: false };
     expect(processPlayerAction(state, action)).toEqual({ ok: false, error: PlayerActionError.PLAYER_NOT_FOUND });
   });
 
@@ -69,8 +69,17 @@ describe("processPlayerAction", () => {
     const players = [makePlayer(1)];
     const playerProgress = { "1": { collectedItems: [], objectives: [] } };
     const state = makeState({ players, playerProgress, boardTiles: [[makeTile()]] });
-    const action: PlayerAction = { path: [{ x: 99, y: 99 }] };
+    const action: PlayerAction = { path: [{ x: 99, y: 99 }], skip: false };
     expect(processPlayerAction(state, action)).toEqual({ ok: false, error: PlayerActionError.INVALID_ACTION });
+  });
+
+  it("accepts skip without validating path", () => {
+    const players = [makePlayer(1)];
+    const playerProgress = { "1": { collectedItems: [], objectives: [] } };
+    const state = makeState({ players, playerProgress, boardTiles: [[makeTile()]] });
+    const action: PlayerAction = { path: [], skip: true };
+
+    expect(processPlayerAction(state, action)).toEqual({ ok: true, action });
   });
 
   it("moves player, collects items, and advances turn", () => {
@@ -82,7 +91,7 @@ describe("processPlayerAction", () => {
     ];
     const collectibles: Collectible[] = [{ id: "a", x: 1, y: 0 }];
     const state = makeState({ players, playerProgress, boardTiles: tiles, collectibles });
-    const action: PlayerAction = { path: [{ x: 1, y: 0 }] };
+    const action: PlayerAction = { path: [{ x: 1, y: 0 }], skip: false };
     const result = processPlayerAction(state, action);
     expect(result).toEqual({ ok: true, action });
     expect(players[0].x).toBe(1);
@@ -120,7 +129,7 @@ describe("processPlayerAction", () => {
     };
     const state = makeState({ players, playerProgress, boardTiles: tiles, exitPoints: [{ x: 1, y: 1 }] });
     state.level = level;
-    const action: PlayerAction = { path: [{ x: 1, y: 0 }, { x: 1, y: 1 }] };
+    const action: PlayerAction = { path: [{ x: 1, y: 0 }, { x: 1, y: 1 }], skip: false };
     const result = processPlayerAction(state, action);
     expect(result).toEqual({ ok: true, action });
     expect(state.gameEnded).toBe(true);
@@ -141,7 +150,7 @@ describe("processPlayerAction", () => {
       mode: "SINGLE",
     });
 
-    const action: PlayerAction = { path: [{ x: 1, y: 0 }] };
+    const action: PlayerAction = { path: [{ x: 1, y: 0 }], skip: false };
     const result = processPlayerAction(state, action);
 
     expect(result).toEqual({ ok: true, action });
@@ -164,7 +173,7 @@ describe("processPlayerAction", () => {
     });
     state.gameStartedAt = Date.now() - 5000;
 
-    const action: PlayerAction = { path: [{ x: 1, y: 0 }] };
+    const action: PlayerAction = { path: [{ x: 1, y: 0 }], skip: false };
     const result = processPlayerAction(state, action);
 
     expect(result).toEqual({ ok: true, action });

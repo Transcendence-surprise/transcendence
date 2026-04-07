@@ -137,6 +137,7 @@ export class GameController {
 
     const action: PlayerAction = {
       path: body.path,
+      skip: body.skip || false,
     };
 
     const result = this.engine.playerAction(body.gameId, action, user.id);
