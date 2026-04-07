@@ -16,6 +16,7 @@ export default function GamePage({ game, gameId }: GamePageProps) {
         <BoardView
           board={game.board}
           players={game.players}
+          currentPlayerId={game.currentPlayerId}
           gameId={gameId}
         />
       </div>

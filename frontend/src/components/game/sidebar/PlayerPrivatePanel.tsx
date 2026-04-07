@@ -1,4 +1,5 @@
 // src/components/game/sidebar/PlayerPrivatePanel.tsx
+import { useEffect, useRef, useState } from "react";
 import { PrivateGameState } from "../../../game/models/privatState";
 import { useAuth } from "../../../hooks/useAuth";
 
@@ -14,6 +15,37 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
     currentCollectibleId,
     objectives = [],
   } = playerProgress ?? {};
+  const collectibleImagesRef = useRef<Record<string, HTMLImageElement>>({});
+  const [collectibleImagesLoaded, setCollectibleImagesLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadCollectibleImages = async () => {
+      const collectableSet = localStorage.getItem("settings.collectableSet") || "gemstones";
+      const dir = collectableSet === "gemstones" ? "gems" : "numbers";
+
+      const entries = await Promise.all(
+        Array.from({ length: 24 }, async (_, index) => {
+          const id = String(index + 1);
+          const img = new Image();
+          img.src = `/assets/collectables/${dir}/${id}.svg`;
+          await img.decode();
+          return [id, img] as const;
+        })
+      );
+
+      collectibleImagesRef.current = Object.fromEntries(entries);
+      setCollectibleImagesLoaded(true);
+    };
+
+    loadCollectibleImages().catch(console.error);
+  }, []);
+
+  const collectibleImageId = currentCollectibleId
+    ? String(parseInt(currentCollectibleId.slice(1), 10))
+    : undefined;
+  const currentCollectibleImage = collectibleImageId
+    ? collectibleImagesRef.current[collectibleImageId]
+    : undefined;
 
   const myPlayer = game.players.find(
     (p) => user?.id != null && p.id.toString() === user.id.toString()
@@ -33,8 +65,16 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
       {currentCollectibleId && (
         <div className="flex flex-col items-center mb-4">
           <span className="text-sm text-gray-400">Next collectible</span>
-          <div className="w-12 h-12 bg-yellow-400 rounded-md flex items-center justify-center text-black font-bold mt-1">
-            {currentCollectibleId}
+          <div className="w-12 h-12 rounded-md flex items-center justify-center text-black font-bold mt-1 overflow-hidden">
+            {collectibleImagesLoaded && currentCollectibleImage ? (
+              <img
+                src={currentCollectibleImage.src}
+                alt={`Collectible ${currentCollectibleId}`}
+                className="w-full h-full object-contain p-1"
+              />
+            ) : (
+              currentCollectibleId
+            )}
           </div>
         </div>
       )}
