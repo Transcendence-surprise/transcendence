@@ -60,75 +60,97 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8 px-4">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-white mb-2">Reset Password</h1>
-        <p className="text-lightest-cyan">Enter your new password below</p>
-      </div>
+    <div className="min-h-screen bg-bg-dark px-4 py-8 sm:py-12 md:py-16 flex items-center justify-center">
+      <div className="w-full max-w-md relative bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 border border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-cyan-500/20">
+        <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
 
-      <div className="bg-bg-modal rounded-xl border border-[var(--color-border-subtle)] p-6 max-w-md w-full">
+        <div className="text-center mb-6 sm:mb-8">
+          <p className="text-xs uppercase tracking-[0.28em] text-cyan-300/80 mb-3">
+            Account Security
+          </p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
+            Reset Password
+          </h1>
+          <p className="text-gray-400">Choose a strong new password below.</p>
+        </div>
+
         {success && (
-          <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500 text-green-300 text-sm">
-            Password reset requested successfully! Check your email for further instructions.
+          <div className="mb-5 p-3.5 rounded-xl bg-green-500/10 border border-green-500/70 text-green-300 text-sm">
+            Password updated successfully. Redirecting you to home...
           </div>
         )}
 
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500 text-red-300 text-sm">
+          <div className="mb-5 p-3.5 rounded-xl bg-red-500/10 border border-red-500/70 text-red-300 text-sm">
             {error}
           </div>
         )}
 
         {!success && (
-          <div className="space-y-4">
+          <form
+            className="space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void handleResetPassword();
+            }}
+          >
             <div>
-              <label className="block text-sm text-gray-400 mb-2">
+              <label
+                htmlFor="new-password"
+                className="block text-sm font-medium text-white mb-2"
+              >
                 New Password
               </label>
               <input
+                id="new-password"
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 disabled={loading}
-                className="w-full px-3 py-2 rounded-lg bg-bg-dark-secondary border border-[var(--color-border-subtle)] text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors disabled:opacity-50"
+                className="w-full px-4 py-3 rounded-xl bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all disabled:opacity-50"
                 placeholder="Enter new password"
               />
-              <p className="text-xs text-gray-500 mt-1">Minimum 8 characters</p>
+              <p className="text-xs text-gray-500 mt-1.5">
+                Minimum 8 characters
+              </p>
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-2">
+              <label
+                htmlFor="confirm-password"
+                className="block text-sm font-medium text-white mb-2"
+              >
                 Confirm Password
               </label>
               <input
+                id="confirm-password"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={loading}
-                className="w-full px-3 py-2 rounded-lg bg-bg-dark-secondary border border-[var(--color-border-subtle)] text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors disabled:opacity-50"
+                className="w-full px-4 py-3 rounded-xl bg-gray-800/50 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all disabled:opacity-50"
                 placeholder="Confirm new password"
               />
             </div>
 
-            <div className="flex gap-3 pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => navigate("/")}
                 disabled={loading}
-                className="flex-1 px-4 py-2 rounded-lg border border-[var(--color-border-subtle)] text-gray-300 hover:border-gray-400 transition-colors disabled:opacity-50 cursor-pointer"
+                className="w-full px-4 py-3 rounded-xl border border-gray-700 text-gray-300 hover:border-gray-500 hover:text-white transition-all disabled:opacity-50 cursor-pointer"
               >
                 Cancel
               </button>
               <button
-                type="button"
-                onClick={handleResetPassword}
+                type="submit"
                 disabled={loading || !token}
-                className="flex-1 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-600 text-white font-semibold transition-colors disabled:opacity-50 cursor-pointer"
+                className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold transition-all shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 disabled:opacity-50 cursor-pointer"
               >
                 {loading ? "Resetting..." : "Reset Password"}
               </button>
             </div>
-          </div>
+          </form>
         )}
       </div>
     </div>
