@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthController } from './health/health.controller';
-import { UsersModule } from './users/users.module';
-import { MailModule } from './mail/mail.module';
-import { ImagesModule } from './images/images.module';
-import { LeaderboardModule } from './leaderboard/leaderboard.module';
+import { UsersModule } from './modules/users/users.module';
+import { MailModule } from './modules/mail/mail.module';
+import { ImagesModule } from './modules/images/images.module';
+import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
+import { MatchesModule } from './modules/matches/matches.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { LeaderboardModule } from './leaderboard/leaderboard.module';
     MailModule,
     ImagesModule,
     LeaderboardModule,
+    MatchesModule,
   ],
   controllers: [HealthController],
   providers: [],

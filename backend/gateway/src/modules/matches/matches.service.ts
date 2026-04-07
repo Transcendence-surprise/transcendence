@@ -1,0 +1,81 @@
+import { Injectable } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom } from 'rxjs';
+import type { FastifyRequest } from 'fastify';
+
+@Injectable()
+export class MatchesHttpService {
+  constructor(private readonly http: HttpService) {}
+
+  async findAll<T = unknown>(req?: FastifyRequest): Promise<T> {
+    return this.request<T>('get', '/api/matches', undefined, req);
+  }
+
+  async findOne<T = unknown>(id: number, req?: FastifyRequest): Promise<T> {
+    return this.request<T>('get', `/api/matches/${id}`, undefined, req);
+  }
+
+  async create<T = unknown>(body: unknown, req?: FastifyRequest): Promise<T> {
+    return this.request<T>('post', '/api/matches', body, req);
+  }
+
+  async update<T = unknown>(id: number, body: unknown, req?: FastifyRequest): Promise<T> {
+    return this.request<T>('put', `/api/matches/${id}`, body, req);
+  }
+
+  async partialUpdate<T = unknown>(id: number, body: unknown, req?: FastifyRequest): Promise<T> {
+    return this.request<T>('patch', `/api/matches/${id}`, body, req);
+  }
+
+  async remove<T = unknown>(id: number, req?: FastifyRequest): Promise<T> {
+    return this.request<T>('delete', `/api/matches/${id}`, undefined, req);
+  }
+
+  private buildForwardHeaders(req?: FastifyRequest): Record<string, string> {
+    const headers: Record<string, string> = {};
+
+    if (req?.headers?.['content-type'] && typeof req.headers['content-type'] === 'string') {
+      headers['content-type'] = req.headers['content-type'];
+    }
+
+    const passThroughHeaders = [
+      'authorization',
+      'x-request-id',
+      'x-real-ip',
+      'x-forwarded-for',
+      'x-forwarded-proto',
+      'x-forwarded-host',
+    ];
+
+    passThroughHeaders.forEach((headerName) => {
+      const value = req?.headers?.[headerName];
+      if (typeof value === 'string' && value.trim().length > 0) {
+        headers[headerName] = value;
+      }
+    });
+
+    return headers;
+  }
+
+  private async request<T>(
+    method: 'get' | 'post' | 'delete' | 'put' | 'patch',
+    path: string,
+    body?: unknown,
+    req?: FastifyRequest,
+  ): Promise<T> {
+    const headers = this.buildForwardHeaders(req);
+    const hasBody = method !== 'get' && method !== 'delete';
+
+    if (hasBody && !headers['content-type']) {
+      headers['content-type'] = 'application/json';
+    }
+
+    const config = { headers };
+
+    const response = hasBody
+      ? await lastValueFrom(this.http[method]<T>(path, body ?? {}, config))
+      : await lastValueFrom(this.http[method]<T>(path, config));
+
+    return response.data;
+  }
+}

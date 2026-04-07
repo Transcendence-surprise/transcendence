@@ -42,7 +42,7 @@ describe('AppController (e2e)', () => {
 
   it('/leaderboard/daily (GET)', async () => {
     const response = await request(app.getHttpServer())
-      .get('/leaderboard/daily')
+      .get('/leaderboard/all-time')
       .expect(200);
 
     expect(Array.isArray(response.body)).toBe(true);

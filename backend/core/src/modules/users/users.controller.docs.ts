@@ -301,4 +301,5 @@ export {
   FindOneByEmailDocs,
   UpdateUserDocs,
   UpdateUserPartialDocs,
+  UploadAvatarDocs,
 };

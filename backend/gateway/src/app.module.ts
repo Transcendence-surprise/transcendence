@@ -10,6 +10,7 @@ import { UsersHttpModule } from './modules/users/users.module';
 import { GameModule } from './modules/game/game.module';
 import { ImagesHttpModule } from './modules/images/images.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
+import { MatchesModule } from './modules/matches/matches.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
     GameModule,
     ImagesHttpModule,
     LeaderboardModule,
+    MatchesModule,
   ],
   controllers: [HealthController],
   providers: [
