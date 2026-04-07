@@ -189,7 +189,11 @@ export class EngineService {
       p => p.id.toString() === playerId.toString()
     );
 
-    if (!playerExists) {
+    const spectatorExists = state.spectators.some(
+      s => s.id.toString() === playerId.toString()
+    );
+
+    if (!playerExists && !spectatorExists) {
       return { ok: false, error: PrivateStateError.PLAYER_NOT_FOUND };
     }
 
