@@ -106,37 +106,49 @@ export async function createGuestToken(nickname: string, signal?: AbortSignal): 
 
 export async function requestPasswordReset(
   email: string,
+  signal?: AbortSignal,
 ): Promise<{ ok: boolean }> {
-  const res = await fetch("/api/auth/password-reset", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-    credentials: "include",
-  });
+  try {
+    const res = await fetch("/api/auth/password-reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+      credentials: "include",
+      signal,
+    });
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error?.message || "Failed to request password reset");
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error?.message || "Failed to request password reset");
+    }
+
+    return res.json();
+  } catch (e: any) {
+    rethrowAbortError(e);
   }
-
-  return res.json();
 }
 
 export async function confirmPasswordReset(
   token: string,
   password: string,
+  signal?: AbortSignal,
 ): Promise<{ ok: true }> {
-  const res = await fetch("/api/auth/password-reset/confirm", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token, password }),
-    credentials: "include",
-  });
+  try {
+    const res = await fetch("/api/auth/password-reset/confirm", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, password }),
+      credentials: "include",
+      signal,
+    });
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error?.message || "Failed to confirm password reset");
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error?.message || "Failed to confirm password reset");
+    }
+
+    return res.json();
+  } catch (e: any) {
+    rethrowAbortError(e);
   }
-
-  return res.json();
 }
