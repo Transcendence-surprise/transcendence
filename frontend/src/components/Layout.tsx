@@ -22,7 +22,19 @@ export default function Layout() {
         }
       });
 
+    // Poll health every 5 seconds to update status foe HEADER UPDATE (MOVE TO ADMIN PANEL LATER)
+    const interval = setInterval(() => {
+      checkHealth(controller.signal)
+        .then(data => setStatus(data.status))
+        .catch((err) => {
+          if (err?.name !== "AbortError") {
+            setStatus('error');
+          }
+        });
+    }, 60000);
+
     return () => {
+      clearInterval(interval);
       controller.abort();
     };
   }, []);
