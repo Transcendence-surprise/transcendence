@@ -43,7 +43,6 @@ export default function LobbyRoute() {
     const socket = getSocket() ?? connectSocket();
 
     const handleConnect = () => {
-      console.log("Socket connected -> now joining lobby");
       socket.emit("joinLobby", { gameId });
     };
 
@@ -54,7 +53,6 @@ export default function LobbyRoute() {
     }
 
     const handleLobbyUpdate = (data: any) => {
-      console.log("LOBBY UPDATE RECEIVED", data);
         setGame({
           id: data.gameId,
           hostName: data.host,
@@ -66,13 +64,11 @@ export default function LobbyRoute() {
         if (data.phase === "PLAY") {
           navigate(`/game/${data.gameId}`);
         }
-        console.log("Game after set:", game);
     };
 
     socket.on("lobbyUpdate", handleLobbyUpdate);
 
     const handleLobbyMessage = (msg: any) => {
-      console.log("LOBBY MESSAGE", msg);
       setMessages(prev => [...prev, msg]);
     };
 
@@ -88,7 +84,6 @@ export default function LobbyRoute() {
     socket.on("lobbyDeleted", handleLobbyDeleted);
 
     const handleError = (err: any) => {
-      console.log("LOBBY ERROR", err);
       setError(err.error || "Failed to join lobby");
     };
 

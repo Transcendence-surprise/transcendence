@@ -9,7 +9,6 @@ export default function PlayerList({
   hostId,
   maxPlayers,
 }: PlayerListProps) {
-  console.log("PlayerList received:", players);
   return (
     <div className="rounded-lg border border-[var(--color-border-subtle)] bg-bg-dark-secondary px-6 py-4">
       <h3 className="text-lg font-bold text-cyan-bright mb-3">Players</h3>

@@ -17,7 +17,6 @@ export function ArrowButton({ axis, index, direction, onClick, children }: Arrow
       // onClick={() => onClick(axis, index, direction)}
       onClick={(e) => {
         e.preventDefault();
-        console.log("Arrow clicked", axis, index, direction);
         onClick(axis, index, direction);
       }}
       className="p-0 text-3xl text-white bg-transparent border-0 shadow-none hover:text-cyan-300 transition-colors"

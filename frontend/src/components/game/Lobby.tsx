@@ -30,7 +30,6 @@ export default function Lobby({
   setInput,
   sendMessage,
 }: LobbyProps) {
-  console.log("Lobby received:", game);
 
   return (
     <div className="min-h-screen bg-bg-dark text-white font-sans flex items-start justify-center px-4 py-10">

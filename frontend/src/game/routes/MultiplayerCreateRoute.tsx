@@ -24,7 +24,6 @@ export default function MultiplayerCreateRoute() {
       navigate("/game");
       return;
     }
-    console.log("🔧 Multiplayer settings changed:", settings);
   }, [settings, user]);
 
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +49,6 @@ export default function MultiplayerCreateRoute() {
       const signal = nextSignal();
       const availability = await checkPlayerAvailability(signal);
 
-      console.log("🚀 Creating game with settings:", settings);
 
       if (!availability.ok) {
         if (!availability.gameId) {
@@ -65,7 +63,6 @@ export default function MultiplayerCreateRoute() {
         return;
       }
 
-      console.log("Player is available", settings);
 
       const game = await createGame({
         mode: 'MULTI',

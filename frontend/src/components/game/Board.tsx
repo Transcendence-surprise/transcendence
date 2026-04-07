@@ -2,7 +2,6 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Board } from "../../game/models/board";
-import { useDrawBoard } from "../../hooks/useDrawBoard";
 import { useKeyboardNavigation } from "../../hooks/useKeyboardNavigation";
 import { useGameActions } from "../../hooks/useGameActions";
 import { PlayerState } from "../../game/models/privatState";
@@ -17,17 +16,12 @@ type Props = {
 
 export default function BoardView({ board, players, currentPlayerId, gameId }: Props) {
   const navigate = useNavigate();
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-  console.log("Player State in BoardView:", players.map(p => ({ id: p.id, slot: p.slotId, x: p.x, y: p.y, hasMoved: p.hasMoved, skipsLeft: p.skipsLeft })));
 
   // --- Keyboard navigation ---
   const { selectedButton, setSelectedButton, handleKeyDown } =
     useKeyboardNavigation(board.width, board.height);
-
-  // --- Draw board (pure render from server state) ---
-  useDrawBoard(canvasRef, board, players);
 
   // --- Game actions (API driven) ---
   const {

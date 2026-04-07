@@ -3,7 +3,6 @@ import { Outlet } from 'react-router-dom';
 import { checkHealth } from '../api/health';
 import LoginForm from './auth/LoginForm';
 import SignupForm from './auth/SignupForm';
-import { useAuth } from '../hooks/useAuth';
 import Header from './UI/Header';
 import Footer from './UI/Footer';
 

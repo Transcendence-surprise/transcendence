@@ -179,17 +179,6 @@ export function BoardCanvas({
         const dxRaw = x - current.x;
         const dyRaw = y - current.y;
 
-        console.log("[MOVE DEBUG] blocked step", {
-          from: current,
-          to: { x, y },
-          delta: { dx: dxRaw, dy: dyRaw },
-          fromTile,
-          toTile,
-          fromOpenings,
-          toOpenings,
-          movePath,
-          selectedPlayer,
-        });
         alert("Path is blocked by walls between these tiles");
         return;
       }

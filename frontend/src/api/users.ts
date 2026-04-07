@@ -15,7 +15,6 @@ export async function getAllUsers(signal?: AbortSignal): Promise<User[]> {
     const res = await fetch("/api/users/", { credentials: "include", signal });
     if (!res.ok) throw new Error("Not logged in");
     const users = await res.json();
-    console.log("users", users);
     return users;
   } catch (e: any) {
     rethrowAbortError(e);

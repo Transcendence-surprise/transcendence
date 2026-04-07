@@ -21,7 +21,6 @@ export default function LoginForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", formData);
 
     try {
       await login(formData.identifier, formData.password);

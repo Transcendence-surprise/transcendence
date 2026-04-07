@@ -4,7 +4,6 @@ import { SingleLevel } from "../game/models/singleLevel";
 import { MultiGame } from "../game/models/multiGames";
 import { BoardAction } from "../game/models/boardAction";
 import { PrivateGameState } from "../game/models/privatState";
-import { PlayerAction } from "../game/models/playerAction";
 import { rethrowAbortError } from "./requestUtils";
 
 export type GameSettings =
@@ -216,7 +215,6 @@ export async function getMultiplayerGames(signal?: AbortSignal): Promise<MultiGa
     }
 
     const data = await res.json();
-    console.log("Multiplayer games:", data);
 
     return data;
   } catch (e: any) {
