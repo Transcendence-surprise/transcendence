@@ -290,8 +290,8 @@ export default function Settings() {
               <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500 text-green-300 text-sm">
                 <p className="font-semibold">✓ Reset link sent!</p>
                 <p className="text-xs mt-1">
-                  Check your email for the password reset link. You'll be
-                  redirected shortly...
+                  Check your email for the password reset link and follow it
+                  to set a new password.
                 </p>
               </div>
             )}
