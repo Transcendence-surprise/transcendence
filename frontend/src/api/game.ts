@@ -5,6 +5,7 @@ import { MultiGame } from "../game/models/multiGames";
 import { BoardAction } from "../game/models/boardAction";
 import { PrivateGameState } from "../game/models/privatState";
 import { PlayerAction } from "../game/models/playerAction";
+import { rethrowAbortError } from "./requestUtils";
 
 export type GameSettings =
   | ({ mode: 'SINGLE'; allowSpectators?: false; levelId?: string })
@@ -16,13 +17,14 @@ export type PlayerInfo = {
   y?: number;
 };
 
-export async function createGame(settings: GameSettings) {
+export async function createGame(settings: GameSettings, signal?: AbortSignal) {
   try {
     const res = await fetch('/api/game/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(settings),
       credentials: 'include',
+      signal,
     });
 
     const data = await res.json();
@@ -33,13 +35,14 @@ export async function createGame(settings: GameSettings) {
 
     return data;
   } catch (e: any) {
-    throw new Error(`Network error: ${e.message}`);
+    return rethrowAbortError(e);
   }
 }
 
 export async function joinGame(
   gameId: string,
-  role: "PLAYER" | "SPECTATOR" = "PLAYER"
+  role: "PLAYER" | "SPECTATOR" = "PLAYER",
+  signal?: AbortSignal,
 ) {
   try {
     const res = await fetch('/api/game/join', {
@@ -47,6 +50,7 @@ export async function joinGame(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ gameId, role }),
       credentials: 'include',
+      signal,
     });
     const data = await res.json();
 
@@ -56,17 +60,18 @@ export async function joinGame(
 
     return data;
   } catch (e: any) {
-    throw new Error(`Network error: ${e.message}`);
+    return rethrowAbortError(e);
   }
 }
 
-export async function startGame(gameId: string) {
+export async function startGame(gameId: string, signal?: AbortSignal) {
   try {
     const res = await fetch('/api/game/start', {
       method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ gameId }),
     credentials: 'include',
+    signal,
     });
     const data = await res.json();
 
@@ -77,17 +82,18 @@ export async function startGame(gameId: string) {
 
     return data;
   } catch (e: any) {
-    throw new Error(`Network error: ${e.message}`);
+    return rethrowAbortError(e);
   }
 }
 
-export async function boardModification(gameId: string, action: BoardAction) {
+export async function boardModification(gameId: string, action: BoardAction, signal?: AbortSignal) {
   try {
   const res = await fetch('/api/game/boardmove', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ gameId, action }),
     credentials: 'include',
+    signal,
   });
   let data: any = {};
   try {
@@ -103,17 +109,18 @@ export async function boardModification(gameId: string, action: BoardAction) {
 
   return data;
   } catch (e: any) {
-    throw new Error(`Network error: ${e.message}`);
+    return rethrowAbortError(e);
   }
 }
 
-export async function playerMove(gameId: string, path: { x: number; y: number }[]) {
+export async function playerMove(gameId: string, path: { x: number; y: number }[], skip?: boolean, signal?: AbortSignal) {
   try {
     const res = await fetch('/api/game/playermove', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
        body: JSON.stringify({ gameId, path }),
       credentials: 'include',
+      signal,
     });
 
     let data: any = {};
@@ -129,13 +136,13 @@ export async function playerMove(gameId: string, path: { x: number; y: number }[
 
     return data;
   } catch (e: any) {
-    throw new Error(`Network error: ${e.message}`);
+    return rethrowAbortError(e);
   }
 }
 
-export async function getGameState(gameId: string): Promise<PrivateGameState> {
+export async function getGameState(gameId: string, signal?: AbortSignal): Promise<PrivateGameState> {
   try {
-    const res = await fetch(`/api/game/${gameId}`, { credentials: 'include' });
+    const res = await fetch(`/api/game/${gameId}`, { credentials: 'include', signal });
     const data = await res.json();
 
     if (!res.ok || !data.ok) {
@@ -148,17 +155,18 @@ export async function getGameState(gameId: string): Promise<PrivateGameState> {
 
     return data.state; // full game object
   } catch (e: any) {
-    throw new Error(`Failed to load game state: ${e.message}`);
+    return rethrowAbortError(e);
   }
 }
 
-export async function leaveGame(gameId: string ) {
+export async function leaveGame(gameId: string, signal?: AbortSignal ) {
   try {
     const res = await fetch('/api/game/leave', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ gameId }),
       credentials: 'include',
+      signal,
     });
 
     let data: any = {};
@@ -175,13 +183,13 @@ export async function leaveGame(gameId: string ) {
 
     return data;
   } catch (e: any) {
-    throw new Error(`Network error: ${e.message}`);
+    rethrowAbortError(e);
   }
 }
 
-export async function getSingleLevels(): Promise<SingleLevel[]> {
+export async function getSingleLevels(signal?: AbortSignal): Promise<SingleLevel[]> {
   try {  
-    const res = await fetch("/api/game/single/levels", { credentials: "include" });
+    const res = await fetch("/api/game/single/levels", { credentials: "include", signal });
 
     if (!res.ok) {
       const errorText = await res.text();
@@ -190,13 +198,13 @@ export async function getSingleLevels(): Promise<SingleLevel[]> {
     }
     return res.json();
   } catch (e: any) {
-    throw new Error(`Network error: ${e.message}`);
+    rethrowAbortError(e);
   }
 }
 
-export async function getMultiplayerGames(): Promise<MultiGame[]> {
+export async function getMultiplayerGames(signal?: AbortSignal): Promise<MultiGame[]> {
   try {
-    const res = await fetch("/api/game/multi/games", { credentials: 'include' });
+    const res = await fetch("/api/game/multi/games", { credentials: 'include', signal });
 
     if (!res.ok) {
       throw new Error("Failed to load multiplayer games");
@@ -207,11 +215,11 @@ export async function getMultiplayerGames(): Promise<MultiGame[]> {
 
     return data;
   } catch (e: any) {
-    throw new Error(`Network error: ${e.message}`);
+    rethrowAbortError(e);
   }
 }
 
-export async function checkPlayerAvailability(): Promise<{
+export async function checkPlayerAvailability(signal?: AbortSignal): Promise<{
   ok: boolean;
   gameId?: string;
   phase: string;
@@ -220,6 +228,7 @@ export async function checkPlayerAvailability(): Promise<{
     const res = await fetch("/api/game/check-player", {
       method: "GET",
       credentials: 'include',
+      signal,
     });
 
     if (!res.ok) {
@@ -228,6 +237,6 @@ export async function checkPlayerAvailability(): Promise<{
 
     return res.json();
   } catch (e: any) {
-    throw new Error(`Network error: ${e.message}`);
+    return rethrowAbortError(e);
   }
 }

@@ -15,57 +15,68 @@ export default function MultiplayerJoinRoute() {
   const { user } = useAuth();
 
   useEffect(() => {
-
     if (!user?.id) return;
-  
+
+    const controller = new AbortController();
+
     setLoading(true);
-    getMultiplayerGames()
+    getMultiplayerGames(controller.signal)
       .then((data) => setGames(data))
-      .catch((err) => setError(err.message || "Failed to load games"))
+      .catch((err) => {
+        if (err?.name !== "AbortError") {
+          setError(err.message || "Failed to load games");
+        }
+      })
       .finally(() => setLoading(false));
 
-      const socket = getSocket() ?? connectSocket();
+    const socket = getSocket() ?? connectSocket();
 
-      socket.emit("joinMultiplayerList");
+    socket.emit("joinMultiplayerList");
 
-      const handleUpdate = (data: any) => {
-        setGames(data.games);
-      };
+    const handleUpdate = (data: any) => {
+      setGames(data.games);
+    };
 
-      socket.on("multiplayerListUpdate", handleUpdate);
+    socket.on("multiplayerListUpdate", handleUpdate);
 
-      return () => {
-        socket.off("multiplayerListUpdate", handleUpdate);
-      };
+    return () => {
+      socket.off("multiplayerListUpdate", handleUpdate);
+      controller.abort();
+    };
 
   }, [user]);
 
   const handleJoin = async (gameId: string) => {
+    const controller = new AbortController();
     try {
       setLoading(true);
 
-      const availability = await checkPlayerAvailability();
+      const availability = await checkPlayerAvailability(controller.signal);
 
       if (!availability.ok) {
         if (!availability.gameId) {
           setError("Player is busy but no game found.");
           return;
-          }
-          if (availability.phase === "PLAY") {
-            navigate(`/game/${availability.gameId}`);
-          } else {
-            navigate(`/multiplayer/lobby/${availability.gameId}`);
-          }
-          return;
         }
-        await joinGame(gameId, "PLAYER");
-        navigate(`/multiplayer/lobby/${gameId}`);
-      } catch (err: any) {
-        setError(err.message || "Failed to join game");
-      } finally {
-        setLoading(false);
+        if (availability.phase === "PLAY") {
+          navigate(`/game/${availability.gameId}`);
+        } else {
+          navigate(`/multiplayer/lobby/${availability.gameId}`);
+        }
+        return;
       }
-    };
+
+      await joinGame(gameId, "PLAYER", controller.signal);
+      navigate(`/multiplayer/lobby/${gameId}`);
+    } catch (err: any) {
+      if (err?.name !== "AbortError") {
+        setError(err.message || "Failed to join game");
+      }
+    } finally {
+      controller.abort();
+      setLoading(false);
+    }
+  };
 
   const handleSpectate = (gameId: string) => {
     // await joinGame(gameId, currentUserId, "SPECTATOR");
@@ -76,10 +87,11 @@ export default function MultiplayerJoinRoute() {
   if (error) return <div>Error: {error}</div>;
 
   return (
-      <JoinTable
-        games={games}
-        onJoin={handleJoin}
-        onSpectate={handleSpectate}
-        onBack={() => navigate("/multiplayer/setup")}/>
+    <JoinTable
+      games={games}
+      onJoin={handleJoin}
+      onSpectate={handleSpectate}
+      onBack={() => navigate("/multiplayer/setup")}
+    />
   );
 }

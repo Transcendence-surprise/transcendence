@@ -13,9 +13,19 @@ export default function Layout() {
   const [showSignup, setShowSignup] = useState(false);
 
   useEffect(() => {
-    checkHealth()
+    const controller = new AbortController();
+
+    checkHealth(controller.signal)
       .then(data => setStatus(data.status))
-      .catch(() => setStatus('error'));
+      .catch((err) => {
+        if (err?.name !== "AbortError") {
+          setStatus('error');
+        }
+      });
+
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   const handleSwitchToSignup = () => {

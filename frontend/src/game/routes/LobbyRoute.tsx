@@ -1,7 +1,7 @@
 // // multiplayer lobby
 
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { connectSocket, getSocket } from "../../services/socket";
 import { getGameState, startGame, leaveGame } from "../../api/game";
@@ -24,6 +24,13 @@ export default function LobbyRoute() {
   const [leaveError, setLeaveError] = useState<string | null>(null);
   const [startError, setStartError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
+  const requestControllerRef = useRef<AbortController | null>(null);
+
+  const nextSignal = () => {
+    requestControllerRef.current?.abort();
+    requestControllerRef.current = new AbortController();
+    return requestControllerRef.current.signal;
+  };
 
   // Websocket for update game state
   useEffect(() => {
@@ -88,6 +95,7 @@ export default function LobbyRoute() {
     socket.on("error", handleError);
 
     return () => {
+      requestControllerRef.current?.abort();
       socket.off("connect", handleConnect);
       socket.off("lobbyUpdate", handleLobbyUpdate);
       socket.off("lobbyMessage", handleLobbyMessage);
@@ -106,9 +114,11 @@ export default function LobbyRoute() {
     try {
       setError(null);
 
-      await startGame(gameId);
+      const signal = nextSignal();
 
-      const updatedGame = await getGameState(gameId);
+      await startGame(gameId, signal);
+
+      const updatedGame = await getGameState(gameId, signal);
       setGame(updatedGame);
 
       // backend switched phase → PLAY
@@ -116,6 +126,9 @@ export default function LobbyRoute() {
         navigate(`/game/${gameId}`);
       }
     } catch (err: any) {
+      if (err?.name === "AbortError") {
+        return;
+      }
       console.error(err);
       const errorMsg = err.message || "Cannot start game yet";
       if (errorMsg.includes("NOT_ENOUGH_PLAYERS")) {
@@ -134,8 +147,9 @@ export default function LobbyRoute() {
     if (!gameId) return;
 
     setLeaveError(null);
+    const signal = nextSignal();
 
-    const res = await leaveGame(gameId);
+    const res = await leaveGame(gameId, signal);
 
     if (res.ok) {
       navigate("/multiplayer/join");

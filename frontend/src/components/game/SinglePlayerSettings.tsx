@@ -25,9 +25,20 @@ export default function SinglePlayerSettingsForm({
   const [loadingLevels, setLoadingLevels] = useState(true);
 
   useEffect(() => {
-    getSingleLevels()
+    const controller = new AbortController();
+
+    getSingleLevels(controller.signal)
       .then(setLevels)
+      .catch((err) => {
+        if (err?.name !== "AbortError") {
+          console.error(err);
+        }
+      })
       .finally(() => setLoadingLevels(false));
+
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   if (loading) return <div>Loading levels...</div>;

@@ -26,11 +26,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Fetch current user on mount
   useEffect(() => {
+    const controller = new AbortController();
+
     authApi
-      .getCurrentUser()
+      .getCurrentUser(controller.signal)
       .then((u) => setUser(u))
-      .catch(() => setUser(null))
+      .catch((err) => {
+        if (err?.name !== "AbortError") {
+          setUser(null);
+        }
+      })
       .finally(() => setLoading(false));
+
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   useEffect(() => {

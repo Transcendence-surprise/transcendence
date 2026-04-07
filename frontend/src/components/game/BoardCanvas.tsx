@@ -400,7 +400,7 @@ export function BoardCanvas({
           textClassName="text-sm mb-0"
         />
         <SimpleButton
-          title="Skip"
+          title="Continue"
           onClick={onSkipClick}
           disabled={isSubmittingMove}
           className="w-auto px-3 py-1"

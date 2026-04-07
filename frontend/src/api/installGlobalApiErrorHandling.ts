@@ -27,6 +27,11 @@ function isApiRequest(input: RequestInfo | URL): boolean {
   return resolvePathFromRequest(input).startsWith("/api/");
 }
 
+function shouldRedirectForRequest(input: RequestInfo | URL): boolean {
+  const path = resolvePathFromRequest(input);
+  return path.startsWith("/api/") && path !== "/api/health";
+}
+
 function redirectToErrorPage(status: number): void {
   const target = STATUS_REDIRECTS[status];
   if (!target) {
@@ -53,13 +58,17 @@ export function installGlobalApiErrorHandling(): void {
     try {
       const response = await originalFetch(input, init);
 
-      if (isApiRequest(input)) {
+      if (shouldRedirectForRequest(input)) {
         redirectToErrorPage(response.status);
       }
 
       return response;
     } catch (error) {
-      if (isApiRequest(input)) {
+      if ((error as { name?: string })?.name === "AbortError") {
+        throw error;
+      }
+
+      if (shouldRedirectForRequest(input)) {
         redirectToErrorPage(503);
       }
 

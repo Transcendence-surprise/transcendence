@@ -22,10 +22,12 @@ export default function GameRoute() {
   useEffect(() => {
     if (!id || !user) return;
 
+    const controller = new AbortController();
+
     const socket = connectSocket();
 
     setLoading(true);
-    getGameState(id)
+    getGameState(id, controller.signal)
       .then((g) => {
         setGame(g);
 
@@ -74,12 +76,15 @@ export default function GameRoute() {
       setError(err.error || "Failed to join play");
     });
     })
-    .catch((err) =>
-      setError(err instanceof Error ? err.message : "Failed to load game")
-    )
+    .catch((err) => {
+      if (err?.name !== "AbortError") {
+        setError(err instanceof Error ? err.message : "Failed to load game");
+      }
+    })
     .finally(() => setLoading(false));
 
     return () => {
+      controller.abort();
       socket.off("playUpdate");
       socket.off("gameDeleted");
       socket.off("error");
@@ -89,12 +94,20 @@ export default function GameRoute() {
   useEffect(() => {
     if (!id || game?.phase !== "END" || game.gameResult || endStateRefetchedRef.current) return;
 
+    const controller = new AbortController();
+
     endStateRefetchedRef.current = true;
-    getGameState(id)
+    getGameState(id, controller.signal)
       .then((finalState) => setGame(finalState))
       .catch((err) => {
-        console.error("Failed to refresh final game state:", err);
+        if (err?.name !== "AbortError") {
+          console.error("Failed to refresh final game state:", err);
+        }
       });
+
+    return () => {
+      controller.abort();
+    };
   }, [id, game?.phase, game?.gameResult]);
 
   if (loading) return <div>Loading game...</div>;
