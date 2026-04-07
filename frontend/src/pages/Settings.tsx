@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import * as usersApi from "../api/users";
 import * as authApi from "../api/authentification";
 
 type CollectableSet = "gemstones" | "numbers";
