@@ -29,7 +29,7 @@ export enum PlayerRole {
 
 export class CreateGameDto {
   @ApiProperty({ enum: ['SINGLE', 'MULTI'] })
-  @IsEnum(['SINGLE', 'MULTI'])
+  @IsIn(['SINGLE', 'MULTI'])
   mode: 'SINGLE' | 'MULTI';
 
   // SINGLE

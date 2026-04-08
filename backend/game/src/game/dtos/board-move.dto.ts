@@ -8,7 +8,7 @@ import {
   IsUUID,
   IsNumber,
   Min,
-  IsEnum,
+  IsIn,
   ValidateNested,
 } from 'class-validator';
 import { plainToInstance, Type, Transform } from 'class-transformer';
@@ -18,11 +18,11 @@ import { plainToInstance, Type, Transform } from 'class-transformer';
 // SHIFT ROW
 export class ShiftRowDto {
   @ApiProperty({ enum: ['SHIFT'] })
-  @IsEnum(['SHIFT'])
+  @IsIn(['SHIFT'])
   type!: 'SHIFT';
 
   @ApiProperty({ enum: ['ROW'] })
-  @IsEnum(['ROW'])
+  @IsIn(['ROW'])
   axis!: 'ROW';
 
   @ApiProperty({ description: 'Row index (0-based)' })
@@ -31,18 +31,18 @@ export class ShiftRowDto {
   index!: number;
 
   @ApiProperty({ enum: ['LEFT', 'RIGHT'] })
-  @IsEnum(['LEFT', 'RIGHT'])
+  @IsIn(['LEFT', 'RIGHT'])
   direction!: 'LEFT' | 'RIGHT';
 }
 
 // SHIFT COL
 export class ShiftColDto {
   @ApiProperty({ enum: ['SHIFT'] })
-  @IsEnum(['SHIFT'])
+  @IsIn(['SHIFT'])
   type!: 'SHIFT';
 
   @ApiProperty({ enum: ['COL'] })
-  @IsEnum(['COL'])
+  @IsIn(['COL'])
   axis!: 'COL';
 
   @ApiProperty({ description: 'Column index (0-based)' })
@@ -51,14 +51,14 @@ export class ShiftColDto {
   index!: number;
 
   @ApiProperty({ enum: ['UP', 'DOWN'] })
-  @IsEnum(['UP', 'DOWN'])
+  @IsIn(['UP', 'DOWN'])
   direction!: 'UP' | 'DOWN';
 }
 
 // ROTATE TILE
 export class RotateTileDto {
   @ApiProperty({ enum: ['ROTATE_TILE'] })
-  @IsEnum(['ROTATE_TILE'])
+  @IsIn(['ROTATE_TILE'])
   type!: 'ROTATE_TILE';
 
   @ApiProperty({ description: 'X coordinate of tile' })
@@ -75,7 +75,7 @@ export class RotateTileDto {
 // SWAP TILES
 export class SwapTilesDto {
   @ApiProperty({ enum: ['SWAP_TILES'] })
-  @IsEnum(['SWAP_TILES'])
+  @IsIn(['SWAP_TILES'])
   type!: 'SWAP_TILES';
 
   @ApiProperty({ description: 'X1 coordinate of first tile' })
