@@ -14,7 +14,6 @@ export function ArrowButton({ axis, index, direction, onClick, children }: Arrow
   return (
     <button
       type="button"
-      // onClick={() => onClick(axis, index, direction)}
       onClick={(e) => {
         e.preventDefault();
         onClick(axis, index, direction);
