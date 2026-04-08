@@ -1,8 +1,7 @@
 // src/components/game/BoardView.tsx
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Board } from "../../game/models/board";
-import { useKeyboardNavigation } from "../../hooks/useKeyboardNavigation";
 import { useGameActions } from "../../hooks/useGameActions";
 import { PlayerState } from "../../game/models/privatState";
 import { BoardCanvas } from "./BoardCanvas";
@@ -17,12 +16,6 @@ type Props = {
 
 export default function BoardView({ board, players, currentPlayerId, gameId, isSpectator = false }: Props) {
   const navigate = useNavigate();
-  const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-
-
-  // --- Keyboard navigation ---
-  const { selectedButton, setSelectedButton, handleKeyDown } =
-    useKeyboardNavigation(board.width, board.height);
 
   // --- Game actions (API driven) ---
   const {
@@ -33,7 +26,7 @@ export default function BoardView({ board, players, currentPlayerId, gameId, isS
     handlePlayerAction,
     handleLeaveGame,
     handleSkip,
-  } = useGameActions(gameId, setSelectedButton, navigate);
+  } = useGameActions(gameId, undefined, navigate);
 
   // Actions
   const handleArrowClick = async (
@@ -94,7 +87,7 @@ export default function BoardView({ board, players, currentPlayerId, gameId, isS
   };
 
   return (
-    <div className="flex flex-col items-center gap-2" onKeyDown={(e) => handleKeyDown(e, buttonRefs)}>
+    <div className="flex flex-col items-center gap-2">
       <BoardCanvas
         board={board}
         players={players}

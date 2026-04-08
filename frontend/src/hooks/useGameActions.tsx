@@ -5,7 +5,7 @@ import { boardModification, leaveGame, playerMove } from "../api/game";
 
 export function useGameActions(
   gameId: string,
-  setSelectedButton: (id: string) => void,
+  setSelectedButton: ((id: string) => void) | undefined,
   navigate: (n: number) => void
 ) {
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -23,7 +23,7 @@ export function useGameActions(
   };
 
   const handleRowClick = async (rowIndex: number, direction: "left" | "right") => {
-    setSelectedButton(`${direction}-${rowIndex}`);
+    setSelectedButton?.(`${direction}-${rowIndex}`);
     try {
       const signal = nextAbortSignal();
       await boardModification(gameId, {
@@ -41,7 +41,7 @@ export function useGameActions(
   };
 
   const handleColClick = async (colIndex: number, direction: "up" | "down") => {
-    setSelectedButton(`${direction === "up" ? "top" : "bottom"}-${colIndex}`);
+    setSelectedButton?.(`${direction === "up" ? "top" : "bottom"}-${colIndex}`);
     try {
       const signal = nextAbortSignal();
       await boardModification(gameId, {
