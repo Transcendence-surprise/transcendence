@@ -1,16 +1,16 @@
 const STATUS_REDIRECTS: Record<number, string> = {
-  400: "/400",
-  403: "/403",
-  500: "/500",
-  502: "/502",
-  503: "/503",
+  400: '/400',
+  403: '/403',
+  500: '/500',
+  502: '/502',
+  503: '/503',
 };
 
 let isInstalled = false;
 
 function resolvePathFromRequest(input: RequestInfo | URL): string {
   const requestUrl =
-    typeof input === "string"
+    typeof input === 'string'
       ? input
       : input instanceof URL
         ? input.toString()
@@ -19,12 +19,13 @@ function resolvePathFromRequest(input: RequestInfo | URL): string {
   try {
     return new URL(requestUrl, window.location.origin).pathname;
   } catch {
-    return "";
+    return '';
   }
 }
 
-function isApiRequest(input: RequestInfo | URL): boolean {
-  return resolvePathFromRequest(input).startsWith("/api/");
+function shouldRedirectForRequest(input: RequestInfo | URL): boolean {
+  const path = resolvePathFromRequest(input);
+  return path.startsWith('/api/') && path !== '/api/health';
 }
 
 function redirectToErrorPage(status: number): void {
@@ -43,6 +44,14 @@ export function installGlobalApiErrorHandling(): void {
     return;
   }
 
+  const enableRedirects =
+    import.meta.env.VITE_ENABLE_GLOBAL_API_ERROR_REDIRECTS !== 'false';
+
+  if (!enableRedirects) {
+    isInstalled = true;
+    return;
+  }
+
   isInstalled = true;
   const originalFetch = window.fetch.bind(window);
 
@@ -53,13 +62,17 @@ export function installGlobalApiErrorHandling(): void {
     try {
       const response = await originalFetch(input, init);
 
-      if (isApiRequest(input)) {
+      if (shouldRedirectForRequest(input)) {
         redirectToErrorPage(response.status);
       }
 
       return response;
     } catch (error) {
-      if (isApiRequest(input)) {
+      if ((error as { name?: string })?.name === 'AbortError') {
+        throw error;
+      }
+
+      if (shouldRedirectForRequest(input)) {
         redirectToErrorPage(503);
       }
 

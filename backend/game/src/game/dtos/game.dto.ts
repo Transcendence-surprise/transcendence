@@ -8,6 +8,7 @@ import {
   IsString,
   IsIn,
   IsNumber,
+  ValidateNested,
 } from 'class-validator';
 import { StartError } from '../models/startResult';
 import { JoinError } from '../models/joinResult';
@@ -17,6 +18,9 @@ import { BoardActionError } from '../models/boardAction';
 import type { Board } from '../models/board';
 import type { PlayerProgress } from '../models/state';
 import { PlayerStateDto } from './playerState.dto';
+import type { PlayerAction } from '../models/playerAction';
+import { PlayerActionError } from '../models/playerAction';
+import { Type } from 'class-transformer';
 
 export enum PlayerRole {
   PLAYER = 'PLAYER',
@@ -25,7 +29,7 @@ export enum PlayerRole {
 
 export class CreateGameDto {
   @ApiProperty({ enum: ['SINGLE', 'MULTI'] })
-  @IsEnum(['SINGLE', 'MULTI'])
+  @IsIn(['SINGLE', 'MULTI'])
   mode: 'SINGLE' | 'MULTI';
 
   // SINGLE
@@ -96,15 +100,6 @@ export class JoinResponseDto {
   error?: JoinError;
 }
 
-export class BoardMoveDto {
-  @ApiProperty()
-  @IsUUID()
-  gameId!: string;
-
-  @ApiProperty({ description: 'The board action to perform' })
-  action: BoardAction;
-}
-
 export class BoardResponseDto {
   @ApiProperty()
   ok: boolean;
@@ -116,12 +111,48 @@ export class BoardResponseDto {
   error?: BoardActionError;
 }
 
+class PointDto {
+  @ApiProperty()
+  @IsNumber()
+  x!: number;
+
+  @ApiProperty()
+  @IsNumber()
+  y!: number;
+}
+
+export class PlayerMoveDto {
+  @ApiProperty()
+  @IsUUID()
+  gameId!: string;
+
+  @ApiProperty({ type: [PointDto] })
+  @ValidateNested({ each: true })
+  @Type(() => PointDto)
+  path!: PointDto[];
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  skip?: boolean;
+}
+
+export class PlayerActionResponseDto {
+  @ApiProperty()
+  ok: boolean;
+
+  @ApiPropertyOptional()
+  action?: PlayerAction;
+
+  @ApiPropertyOptional({ enum: PlayerActionError })
+  error?: PlayerActionError;
+}
+
 export class LeaveGameDto {
   @ApiProperty({ description: 'ID of the game to leave' })
   @IsUUID()
   gameId: string;
 }
-
 
 export class LeaveResponseDto {
   @ApiProperty()
@@ -155,6 +186,9 @@ export class PrivateGameStateDto {
 
   @ApiPropertyOptional()
   gameResult?: { winnerIds: string[] };
+
+  @ApiPropertyOptional({ enum: ['WIN', 'LOSE_MAX_MOVES', 'LOSE_TIME_LIMIT'] })
+  endReason?: 'WIN' | 'LOSE_MAX_MOVES' | 'LOSE_TIME_LIMIT';
 
   @ApiProperty({ type: [String], description: 'Who is watching' })
   spectators: string[];

@@ -11,8 +11,9 @@ import {
   StartResponseDto,
   JoinGameDto,
   JoinResponseDto,
-  BoardMoveDto,
   BoardResponseDto,
+  PlayerMoveDto,
+  PlayerActionResponseDto,
   LeaveGameDto,
   LeaveResponseDto,
   GameStateResponseDto,
@@ -23,6 +24,8 @@ import { MultiGame } from '../models/gameInfo';
 import { CheckPlayerAvailabilityDto } from '../dtos/checkPlayer.dto';
 import { CurrentUser } from '../dtos/playerContext.dto';
 import type { PlayerContext } from '../dtos/playerContext.dto';
+import { BoardMoveDto } from '../dtos/board-move.dto';
+import { PlayerAction } from '../models/playerAction';
 
 @Controller('game')
 export class GameController {
@@ -51,7 +54,7 @@ export class GameController {
       user.username,
       settings
     );
-    console.log(`Game created with ID: ${gameId} in phase ${this.engine.getGameState(gameId)?.phase || 'IDK'} by user ${user.id}`);
+    // console.log(`Game created with ID: ${gameId} in phase ${this.engine.getGameState(gameId)?.phase || 'IDK'} by user ${user.id}`);
     this.wsGateway.sendMultiplayerListUpdate();
     this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
     return { ok: true, gameId };
@@ -70,6 +73,7 @@ export class GameController {
     if (result.ok) {
       this.wsGateway.sendMultiplayerListUpdate();
       this.wsGateway.sendLobbyUpdate(body.gameId);
+      this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
     }
 
     return result.ok ? { ok: true } : { ok: false, error: result.error };
@@ -93,8 +97,6 @@ export class GameController {
     return result;
   }
 
-  // Make move
-
   //Board modification
   @Post('boardmove')
   @ApiBody({ type: BoardMoveDto })
@@ -103,19 +105,53 @@ export class GameController {
     @Body() body: BoardMoveDto,
     @CurrentUser() user: PlayerContext
   ) : BoardResponseDto {
-
     if (!user.id) {
       throw new UnauthorizedException('User id missing');
     }
-
     const result = this.engine.boardModification(body.gameId, body.action, user.id);
-    
+    // console.log(`Board move request for game ${body.gameId} from user ${user.id}:`, body.action);    
     if (result.ok) {
       this.wsGateway.sendPlayUpdate(body.gameId);
+
+      const state = this.engine.getGameState(body.gameId);
+      if (state?.phase === 'END') {
+        state.players.forEach((p) => this.wsGateway.sendPlayerStatusUpdate(p.id));
+        state.spectators.forEach((s) => this.wsGateway.sendPlayerStatusUpdate(s.id));
+      }
     }
     return result;
   }
 
+  //Player move
+  @Post('playermove')
+  @ApiBody({ type: PlayerMoveDto })
+  @ApiResponse({ status: 201, type: PlayerActionResponseDto })
+  playerMove(
+    @Body() body: PlayerMoveDto,
+    @CurrentUser() user: PlayerContext
+  ) : PlayerActionResponseDto {
+      if (!user.id) {
+      throw new UnauthorizedException('User id missing');
+    }
+
+    const action: PlayerAction = {
+      path: body.path,
+      skip: body.skip || false,
+    };
+
+    const result = this.engine.playerAction(body.gameId, action, user.id);
+    
+    if (result.ok) {
+      this.wsGateway.sendPlayUpdate(body.gameId);
+
+      const state = this.engine.getGameState(body.gameId);
+      if (state?.phase === 'END') {
+        state.players.forEach((p) => this.wsGateway.sendPlayerStatusUpdate(p.id));
+        state.spectators.forEach((s) => this.wsGateway.sendPlayerStatusUpdate(s.id));
+      }
+    }
+    return result;
+  }
 
   // Leave game
   @Post('leave')

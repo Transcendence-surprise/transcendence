@@ -19,8 +19,8 @@ describe("leaveGameEngine", () => {
   beforeEach(() => {
     state = createGame(1, "HOST1", multiSettings());
 
-    state.players.push({ id: 2, slotId: "P2", name: "2", x: 0, y: 0, hasMoved: false });
-    state.players.push({ id: 3, slotId: "P3", name: "3", x: 0, y: 0, hasMoved: false });
+    state.players.push({ id: 2, slotId: "P2", name: "2", x: 0, y: 0, hasMoved: false, skipsLeft: 0, totalMoves: 0 });
+    state.players.push({ id: 3, slotId: "P3", name: "3", x: 0, y: 0, hasMoved: false, skipsLeft: 0, totalMoves: 0 });
 
     state.spectators.push({ id: 11 });
     state.spectators.push({ id: 22 });

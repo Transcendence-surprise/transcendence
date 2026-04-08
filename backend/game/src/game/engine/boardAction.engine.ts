@@ -6,6 +6,8 @@ import { applyBoardAction } from "../logic/boardMove.logic";
 import { PositionedTile } from "../models/positionedTile";
 import { BoardActionResult } from "../models/boardAction";
 import { BoardActionError } from "../models/boardAction";
+import { updatePlayerPositionsAfterShift } from "./helpers/playerPosUpdate";
+import { applySinglePlayerLossIfNeeded } from "./helpers/endConditions";
 
 export function processBoardAction(
   state: GameState,
@@ -16,6 +18,22 @@ export function processBoardAction(
   // Check if board action is allowed
   if (state.rules.mode === "MULTI" && !state.boardActionsPending) {
     return { ok: false, error: BoardActionError.BOARD_ACTION_ALREADY_PERFORMED };
+  }
+
+  // Validate that rotating/swapping tiles don't have players on them
+  if (action.type === "ROTATE_TILE") {
+    const hasPlayer = state.players.some(p => p.x === action.x && p.y === action.y);
+    if (hasPlayer) {
+      return { ok: false, error: BoardActionError.INVALID_ACTION };
+    }
+  }
+
+  if (action.type === "SWAP_TILES") {
+    const hasPlayerOnTile1 = state.players.some(p => p.x === action.x1 && p.y === action.y1);
+    const hasPlayerOnTile2 = state.players.some(p => p.x === action.x2 && p.y === action.y2);
+    if (hasPlayerOnTile1 || hasPlayerOnTile2) {
+      return { ok: false, error: BoardActionError.INVALID_ACTION };
+    }
   }
 
   // Copy board to avoid mutation (optional)
@@ -29,6 +47,18 @@ export function processBoardAction(
     return { ok: false, error: BoardActionError.INVALID_ACTION };
   }
 
+  // If action is SHIFT, update player positions based on tile movement
+  if (action.type === "SHIFT") {
+    updatePlayerPositionsAfterShift(
+      state.players,
+      state.board,
+      board,
+      action
+    );
+  }
+
+  const player = state.players[state.currentPlayerIndex];
+
   // Update game state
   state.board = board;
   state.lastBoardAction = action;
@@ -37,9 +67,8 @@ export function processBoardAction(
   if (state.rules.mode === "MULTI") {
     state.boardActionsPending = false;
   }
-
-  // SINGLE: boardActionsPending remain true
-
+  player.totalMoves += 1;
+  applySinglePlayerLossIfNeeded(state, player);
   return { ok: true, action };
 }
 
@@ -54,3 +83,4 @@ function cloneBoard(board: Board): Board {
     tiles: tilesCopy,
   };
 }
+

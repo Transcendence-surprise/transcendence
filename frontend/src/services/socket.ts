@@ -14,11 +14,9 @@ export function connectSocket() {
   });
 
   socket.on('connect', () => {
-    console.log('WS connected', socket?.id);
   });
 
   socket.on('disconnect', (reason) => {
-    console.log('WS disconnected', reason);
   });
 
   return socket;

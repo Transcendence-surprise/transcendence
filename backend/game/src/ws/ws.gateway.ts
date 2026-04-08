@@ -10,6 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { EngineService } from '../game/services/engine.service.nest';
 import { ChatMessage, ChatService } from '../chat/chat.service';
 import jwt from 'jsonwebtoken';
+import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 
 interface AccessTokenPayload {
   sub: number;
@@ -34,14 +35,51 @@ type TypedSocket = Socket & { user?: WsUser };
   },
 })
 
-export class WsGateway {
+export class WsGateway implements OnModuleInit, OnModuleDestroy {
   @WebSocketServer()
   server: Server;
+
+  private timeoutTicker?: NodeJS.Timeout;
 
   constructor(
     private engine: EngineService,
     private chat: ChatService
   ) {}
+
+  onModuleInit(): void {
+    this.timeoutTicker = setInterval(() => {
+      const endedGames = this.engine.evaluateSinglePlayerTimeouts();
+      const multiTimeoutEvents = this.engine.evaluateMultiPlayerTimeouts();
+      for (const game of endedGames) {
+        this.sendPlayUpdate(game.gameId);
+        game.playerIds.forEach((id) => this.sendPlayerStatusUpdate(id));
+        game.spectatorIds.forEach((id) => this.sendPlayerStatusUpdate(id));
+      }
+
+      for (const event of multiTimeoutEvents) {
+        if (event.type === "PLAY_UPDATE") {
+          this.sendPlayUpdate(event.gameId);
+          continue;
+        }
+
+        if (event.deleteGame) {
+          event.playerIds.forEach((id) => this.sendPlayerStatusUpdate(id));
+          event.spectatorIds.forEach((id) => this.sendPlayerStatusUpdate(id));
+          this.sendGameDeleted(event.gameId);
+          continue;
+        }
+
+        event.removedPlayerIds.forEach((id) => this.sendPlayerStatusUpdate(id));
+        this.sendPlayUpdate(event.gameId);
+      }
+    }, 1000);
+  }
+
+  onModuleDestroy(): void {
+    if (this.timeoutTicker) {
+      clearInterval(this.timeoutTicker);
+    }
+  }
 
   private getJwtSecret(): string {
     const secret = process.env.JWT_SECRET;
@@ -56,7 +94,7 @@ export class WsGateway {
     try {
       const cookieHeader = client.handshake.headers.cookie;
       if (!cookieHeader) {
-        console.log('WS auth failed: no cookies');
+        // console.log('WS auth failed: no cookies');
         client.disconnect(true);
         return;
       }
@@ -73,7 +111,7 @@ export class WsGateway {
       // Check access_token FIRST - logged-in users take precedence over guest
       const jwtToken = cookies['access_token'];
       if (!jwtToken) {
-        console.log('WS auth failed: no access_token');
+        // console.log('WS auth failed: no access_token');
         client.disconnect(true);
         return;
       }
@@ -91,16 +129,16 @@ export class WsGateway {
         roles: decoded.roles ?? ['user'],
       };
 
-      console.log('WS connected user', decoded.username);
+      // console.log('WS connected user', decoded.username);
 
       // Attach the user to the client
       client.user = user;
       // Join per-user room for playerStatus updates
       void client.join(`user:${user.sub.toString()}`);
-      console.log(`User ${user.username} joined room: user:${user.sub.toString()}`);
+      // console.log(`User ${user.username} joined room: user:${user.sub.toString()}`);
 
     } catch (error) {
-      console.error('WS auth failed', error instanceof Error ? error.message : error);
+      // console.error('WS auth failed', error instanceof Error ? error.message : error);
       client.disconnect(true);
     }
 
@@ -145,18 +183,18 @@ export class WsGateway {
     // Validate user
     const user = client.user;
     if (!user) {
-      console.log("!!!WE HAVE NO USER!!!: ");
+      // console.log("!!!WE HAVE NO USER!!!: ");
       return client.disconnect(true);
     }
 
     // Validate game existence and phase before joining lobby
     const state = this.engine.getGameState(data.gameId);
     if (!state) {
-      console.log("GAME_NOT_FOUND");
+      // console.log("GAME_NOT_FOUND");
       return client.emit("error", { error: "GAME_NOT_FOUND" });
     }
     if (state.phase !== "LOBBY") {
-      console.log("LOBBY_CLOSED");
+      // console.log("LOBBY_CLOSED");
       return client.emit("error", { error: "LOBBY_CLOSED" });
     }
 
@@ -194,7 +232,7 @@ export class WsGateway {
     // Emit to the lobby room so everyone sees it
     this.sendToRoom(`lobby:${gameId}`, "lobbyDeleted", { gameId });
     this.sendToRoom(`play:${gameId}`, "gameDeleted", { gameId });
-    console.log(`Game ${gameId} deleted, all clients notified`);
+    // console.log(`Game ${gameId} deleted, all clients notified`);
   }
 
 // MULTIPLAYER GAMES TABLE
@@ -227,7 +265,7 @@ export class WsGateway {
     const user = client.user;
     if (!user) return client.disconnect(true);
 
-    console.log("CHAT_USER: ", user.username);
+    // console.log("CHAT_USER: ", user.username);
 
     const state = this.engine.getGameState(payload.gameId);
 
@@ -287,6 +325,13 @@ export class WsGateway {
       board: state.board,
       players: state.players,
       playerProgress: state.playerProgress,
+      currentPlayerId: state.currentPlayerId,
+      gameStartedAt: state.gameStartedAt,
+      moveStartedAt: state.moveStartedAt,
+      moveLimitPerTurnSec: state.rules.moveLimitPerTurnSec,
+      boardActionsPending: state.boardActionsPending,
+      gameResult: state.gameResult ? { winnerIds: [state.gameResult.winnerId] } : undefined,
+      endReason: state.endReason,
     });
   }
 
@@ -347,12 +392,12 @@ export class WsGateway {
   @SubscribeMessage("checkPlayerStatus")
   handleCheckPlayerStatus(@ConnectedSocket() client: TypedSocket) {
     const user = client.user;
-    console.log(`Checking player status for user: ${user?.username}`);
+    // console.log(`Checking player status for user: ${user?.username}`);
     if (!user) return client.disconnect(true);
-    console.log(`Second try Checking player status for user: ${user.username}`);
+    // console.log(`Second try Checking player status for user: ${user.username}`);
     try {
       const result = this.engine.checkPlayerAvailability(user.sub);
-      console.log(`Player status for ${user.username}:`, result);
+      // console.log(`Player status for ${user.username}:`, result);
       client.emit("playerStatus", {
         ok: result.ok,
         gameId: result.gameId,
@@ -374,10 +419,10 @@ export class WsGateway {
       phase: result.phase || "LOBBY",
     });
 
-    console.log(`Sent playerStatus update to user:${playerId}`, {
-      ok: result.ok,
-      gameId: result.gameId,
-      phase: result.phase,
-    });
+    // console.log(`Sent playerStatus update to user:${playerId}`, {
+    //   ok: result.ok,
+    //   gameId: result.gameId,
+    //   phase: result.phase,
+    // });
   }
 }

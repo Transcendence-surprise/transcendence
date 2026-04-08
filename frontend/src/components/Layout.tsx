@@ -3,7 +3,6 @@ import { Outlet } from 'react-router-dom';
 import { checkHealth } from '../api/health';
 import LoginForm from './auth/LoginForm';
 import SignupForm from './auth/SignupForm';
-import { useAuth } from '../hooks/useAuth';
 import Header from './UI/Header';
 import Footer from './UI/Footer';
 
@@ -13,9 +12,31 @@ export default function Layout() {
   const [showSignup, setShowSignup] = useState(false);
 
   useEffect(() => {
-    checkHealth()
+    const controller = new AbortController();
+
+    checkHealth(controller.signal)
       .then(data => setStatus(data.status))
-      .catch(() => setStatus('error'));
+      .catch((err) => {
+        if (err?.name !== "AbortError") {
+          setStatus('error');
+        }
+      });
+
+    // Poll health every 60s seconds to update status for HEADER UPDATE (MOVE TO ADMIN PANEL LATER)
+    const interval = setInterval(() => {
+      checkHealth(controller.signal)
+        .then(data => setStatus(data.status))
+        .catch((err) => {
+          if (err?.name !== "AbortError") {
+            setStatus('error');
+          }
+        });
+    }, 60000);
+
+    return () => {
+      clearInterval(interval);
+      controller.abort();
+    };
   }, []);
 
   const handleSwitchToSignup = () => {

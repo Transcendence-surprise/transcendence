@@ -1,5 +1,6 @@
 import { GameState } from "../models/state";
 import { StartResult, StartError } from "../models/startResult";
+import { beginCurrentTurn } from "./helpers/turnHandler";
 
 /**
  * Starts the game if rules are satisfied.
@@ -28,10 +29,12 @@ export function startGameEngine(
 
   // Everything OK → start
   state.phase = "PLAY";
+  state.gameStartedAt = Date.now();
 
   // For multi: set first player as current
   if (state.players.length > 0) {
     state.currentPlayerIndex = 0;
+    beginCurrentTurn(state);
   }
 
   return { ok: true };

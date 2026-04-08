@@ -59,4 +59,18 @@ export class GameController {
   checkPlayer(@Req() req: FastifyRequest) {
     return this.gameClient.checkPlayerAvailability(req);
   }
+
+  @Post('boardmove')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
+  boardMove(@Body() body: unknown, @Req() req: FastifyRequest) {
+    return this.gameClient.boardMove(body, req);
+  }
+
+  @Post('playermove')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
+  playerMove(@Body() body: unknown, @Req() req: FastifyRequest) {
+      return this.gameClient.playerMove(body, req);
+    }
 }

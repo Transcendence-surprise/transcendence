@@ -12,6 +12,7 @@ export function createGameState(level: Level): GameState {
           y: p.y,
           hasMoved: false,
           skipsLeft: 3,
+          totalMoves: 0,
         }))
       : [];  // multiplayer starts empty, host will join later
 
@@ -51,12 +52,9 @@ export function createGameState(level: Level): GameState {
     playerProgress: {},   // EMPTY
 
     gameEnded: false,
-    boardActionsPending: true,
-
-    collected: Object.fromEntries(
-      (level.collectibles ?? []).map(c => [c.id, false])
-    ),
+    boardActionsPending: (level.startingPoints.length === 1 ? false : true),
 
     gameResult: undefined,
+    endReason: undefined,
   };
 }

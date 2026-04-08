@@ -9,12 +9,22 @@ export default function AdminPanel() {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     if(isAdmin) {
-      getAllUsers()
+      getAllUsers(controller.signal)
       .then(setUsers)
-      .catch(console.error);
+      .catch((err) => {
+        if (err?.name !== "AbortError") {
+          console.error(err);
+        }
+      });
 
     }
+
+    return () => {
+      controller.abort();
+    };
   }, [isAdmin]);
 
   if (!isAdmin) {

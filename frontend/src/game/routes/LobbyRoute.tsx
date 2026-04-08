@@ -1,7 +1,7 @@
 // // multiplayer lobby
 
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { connectSocket, getSocket } from "../../services/socket";
 import { getGameState, startGame, leaveGame } from "../../api/game";
@@ -24,6 +24,13 @@ export default function LobbyRoute() {
   const [leaveError, setLeaveError] = useState<string | null>(null);
   const [startError, setStartError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
+  const requestControllerRef = useRef<AbortController | null>(null);
+
+  const nextSignal = () => {
+    requestControllerRef.current?.abort();
+    requestControllerRef.current = new AbortController();
+    return requestControllerRef.current.signal;
+  };
 
   // Websocket for update game state
   useEffect(() => {
@@ -36,7 +43,6 @@ export default function LobbyRoute() {
     const socket = getSocket() ?? connectSocket();
 
     const handleConnect = () => {
-      console.log("Socket connected -> now joining lobby");
       socket.emit("joinLobby", { gameId });
     };
 
@@ -47,7 +53,6 @@ export default function LobbyRoute() {
     }
 
     const handleLobbyUpdate = (data: any) => {
-      console.log("LOBBY UPDATE RECEIVED", data);
         setGame({
           id: data.gameId,
           hostName: data.host,
@@ -59,13 +64,11 @@ export default function LobbyRoute() {
         if (data.phase === "PLAY") {
           navigate(`/game/${data.gameId}`);
         }
-        console.log("Game after set:", game);
     };
 
     socket.on("lobbyUpdate", handleLobbyUpdate);
 
     const handleLobbyMessage = (msg: any) => {
-      console.log("LOBBY MESSAGE", msg);
       setMessages(prev => [...prev, msg]);
     };
 
@@ -81,13 +84,13 @@ export default function LobbyRoute() {
     socket.on("lobbyDeleted", handleLobbyDeleted);
 
     const handleError = (err: any) => {
-      console.log("LOBBY ERROR", err);
       setError(err.error || "Failed to join lobby");
     };
 
     socket.on("error", handleError);
 
     return () => {
+      requestControllerRef.current?.abort();
       socket.off("connect", handleConnect);
       socket.off("lobbyUpdate", handleLobbyUpdate);
       socket.off("lobbyMessage", handleLobbyMessage);
@@ -106,9 +109,11 @@ export default function LobbyRoute() {
     try {
       setError(null);
 
-      await startGame(gameId);
+      const signal = nextSignal();
 
-      const updatedGame = await getGameState(gameId);
+      await startGame(gameId, signal);
+
+      const updatedGame = await getGameState(gameId, signal);
       setGame(updatedGame);
 
       // backend switched phase → PLAY
@@ -116,6 +121,9 @@ export default function LobbyRoute() {
         navigate(`/game/${gameId}`);
       }
     } catch (err: any) {
+      if (err?.name === "AbortError") {
+        return;
+      }
       console.error(err);
       const errorMsg = err.message || "Cannot start game yet";
       if (errorMsg.includes("NOT_ENOUGH_PLAYERS")) {
@@ -134,8 +142,9 @@ export default function LobbyRoute() {
     if (!gameId) return;
 
     setLeaveError(null);
+    const signal = nextSignal();
 
-    const res = await leaveGame(gameId);
+    const res = await leaveGame(gameId, signal);
 
     if (res.ok) {
       navigate("/multiplayer/join");

@@ -4,6 +4,7 @@ import { ObjectiveStatus } from "./objective";
 import { BoardAction } from "./boardAction";
 
 export type GamePhase = "LOBBY" | "PLAY" | "END";
+export type GameEndReason = "WIN" | "LOSE_MAX_MOVES" | "LOSE_TIME_LIMIT";
 
 export interface PlayerState {
   id: number | string;            // unique player identifier (number for users, string UUID for guests)
@@ -13,7 +14,7 @@ export interface PlayerState {
   y: number;                      // current Y position
   hasMoved: boolean;              // did the player already move this turn?
   skipsLeft: number;              // how many skips the player has left
-  moveStartedAt?: number;         // timestamp when player's turn started (for move timer)
+  totalMoves: number;             // total moves made (for move limit constraint)
   // stunned?: boolean;           // future-proof: player cannot act
 }
 
@@ -72,6 +73,7 @@ export interface GameState {
   board: Board;                       // board tiles
   currentPlayerIndex: number;         // whose turn in players[]
   currentPlayerId: string | number;   // for WS notifications
+  moveStartedAt?: number;             // timestamp when current player's turn started (for move timer)
   lastBoardAction?: BoardAction;      // last action performed
   boardActionsPending: boolean;       // true until board action performed
   turnActions: {                      // per-turn counters
@@ -82,10 +84,10 @@ export interface GameState {
 
   playerProgress: Record<string, PlayerProgress>; // per-player objectives and collected items
 
-  collected: Record<string, boolean>; // globally collected items
   gameEnded: boolean;                 // has the game ended?
   gameResult?: {
     winnerId: string;
   };
+  endReason?: GameEndReason;
   gameStartedAt?: number;                    // total game timer
 }

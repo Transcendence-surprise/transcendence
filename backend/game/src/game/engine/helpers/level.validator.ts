@@ -1,5 +1,5 @@
-
-import { LevelMeta } from "../models/levelMeta";
+// src/game/engine/helpers/level.validator.ts
+import { LevelMeta } from "../../models/levelMeta";
 
 export function validateMapTokens(
   map: string[][],

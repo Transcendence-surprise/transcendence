@@ -1,9 +1,11 @@
-export async function checkHealth(): Promise<{ status: string }> {
+import { rethrowAbortError } from "./requestUtils";
+
+export async function checkHealth(signal?: AbortSignal): Promise<{ status: string }> {
   try {
-    const res = await fetch('/api/health');
+    const res = await fetch('/api/health', { signal });
     if (!res.ok) throw new Error('Network error');
     return res.json();
-  } catch {
-    return { status: 'error' };
+  } catch (e: any) {
+    rethrowAbortError(e);
   }
 }

@@ -12,7 +12,7 @@ export default function GameStatusDot({ user }: GameStatusDotProps) {
   const [activeGame, setActiveGame] = useState<{ gameId: string; phase: string } | null>(null);
 
   useEffect(() => {
-    let ignore = false;
+    const controller = new AbortController();
     // Fallback: HTTP check on mount/user change
     const check = async () => {
       if (!user) {
@@ -20,16 +20,16 @@ export default function GameStatusDot({ user }: GameStatusDotProps) {
         return;
       }
       try {
-        const availability = await checkPlayerAvailability();
-        if (!ignore) {
-          if (!availability.ok && availability.gameId) {
-            setActiveGame({ gameId: availability.gameId, phase: availability.phase });
-          } else {
-            setActiveGame(null);
-          }
+        const availability = await checkPlayerAvailability(controller.signal);
+        if (!availability.ok && availability.gameId) {
+          setActiveGame({ gameId: availability.gameId, phase: availability.phase });
+        } else {
+          setActiveGame(null);
         }
-      } catch {
-        if (!ignore) setActiveGame(null);
+      } catch (err: any) {
+        if (err?.name !== "AbortError") {
+          setActiveGame(null);
+        }
       }
     };
     check();
@@ -37,7 +37,6 @@ export default function GameStatusDot({ user }: GameStatusDotProps) {
     // Real-time: listen for playerStatus/playerGameStatus events
     const socket = getSocket() ?? connectSocket();
     const handleStatus = (data: any) => {
-      if (ignore) return;
       if (data && !data.ok && data.gameId) {
         setActiveGame({ gameId: data.gameId, phase: data.phase });
       } else {
@@ -47,7 +46,7 @@ export default function GameStatusDot({ user }: GameStatusDotProps) {
     socket.on("playerStatus", handleStatus);
     socket.on("playerGameStatus", handleStatus);
     return () => {
-      ignore = true;
+      controller.abort();
       socket.off("playerStatus", handleStatus);
       socket.off("playerGameStatus", handleStatus);
     };

@@ -13,7 +13,7 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
   const [loadingGame, setLoadingGame] = useState(false);
 
   useEffect(() => {
-    let ignore = false;
+    const controller = new AbortController();
 
     const checkActive = async () => {
       if (!user) {
@@ -22,17 +22,17 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
       }
 
       try {
-        const availability = await checkPlayerAvailability();
+        const availability = await checkPlayerAvailability(controller.signal);
 
-        if (!ignore) {
-          if (!availability.ok && availability.gameId) {
-            setActiveGameIds([availability.gameId]);
-          } else {
-            setActiveGameIds([]);
-          }
+        if (!availability.ok && availability.gameId) {
+          setActiveGameIds([availability.gameId]);
+        } else {
+          setActiveGameIds([]);
         }
-      } catch {
-        if (!ignore) setActiveGameIds([]);
+      } catch (err: any) {
+        if (err?.name !== "AbortError") {
+          setActiveGameIds([]);
+        }
       }
     };
 
@@ -41,8 +41,6 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
     const socket = getSocket() ?? connectSocket();
 
     const handleStatus = (data: any) => {
-      if (ignore) return;
-
       if (!data.ok && data.gameId) {
         setActiveGameIds([data.gameId]);
       } else {
@@ -53,7 +51,7 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
     socket.on("playerStatus", handleStatus);
 
     return () => {
-      ignore = true;
+      controller.abort();
       socket.off("playerStatus", handleStatus);
     };
   }, [user]);
@@ -87,9 +85,10 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
                   </div>
                   <button
                     onClick={async () => {
+                      const controller = new AbortController();
                       setLoadingGame(true);
                       try {
-                        const availability = await checkPlayerAvailability();
+                        const availability = await checkPlayerAvailability(controller.signal);
                         if (!availability.ok && availability.gameId) {
                           navigate(
                             availability.phase === "PLAY"
@@ -99,7 +98,12 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
                         } else {
                           navigate(`/game/${gameId}`);
                         }
+                      } catch (err: any) {
+                        if (err?.name !== "AbortError") {
+                          console.error(err);
+                        }
                       } finally {
+                        controller.abort();
                         setLoadingGame(false);
                       }
                     }}

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/platform-fastify';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AllExceptionsFilter } from './all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -24,6 +25,9 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  // **Register global exception filter**
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   app.setGlobalPrefix('api');
 
