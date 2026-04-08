@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
@@ -17,13 +17,29 @@ import { RealtimeModule } from './modules/realtime/realtime.module';
 import { PresenceModule } from './modules/presence/presence.module';
 import { ChatHttpModule } from './modules/chat/chat.module';
 import { GuardModule } from './common/guards/internal.guard.module';
+import { loadVaultSecrets } from './vault';
+
+@Module({})
+class VaultConfigModule {
+  static async forRootAsync(): Promise<DynamicModule> {
+    await loadVaultSecrets();
+
+    return {
+      module: VaultConfigModule,
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true,
+          load: [gatewayConfig],
+        }),
+      ],
+      exports: [ConfigModule],
+    };
+  }
+}
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [gatewayConfig],
-    }),
+    VaultConfigModule.forRootAsync(),
     ThrottlerModule.forRoot({
       throttlers: [
         {

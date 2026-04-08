@@ -11,13 +11,9 @@ import {
 } from '@nestjs/swagger';
 import fastifyCookie from '@fastify/cookie';
 import { AxiosExceptionFilter } from './common/filters/axios-exception.filter';
-import { loadVaultSecrets } from './vault';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-  await loadVaultSecrets();
-
-  const { AppModule } = await import('./app.module.js');
-
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
