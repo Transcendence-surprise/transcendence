@@ -29,6 +29,10 @@ jobs:
       - name: Prepare env file
         run: |
           cp .env.example .env
+      - name: Start vault container and import env
+        run: |
+          make vault-init &&
+          make vault-seed FILE=./.env
       - name: Build and run all containers
         run: |
           make dev-build
