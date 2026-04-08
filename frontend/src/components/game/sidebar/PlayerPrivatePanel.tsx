@@ -28,12 +28,20 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
           const id = String(index + 1);
           const img = new Image();
           img.src = `/assets/collectables/${dir}/${id}.svg`;
-          await img.decode();
-          return [id, img] as const;
+
+          try {
+            await img.decode();
+            return [id, img] as const;
+          } catch (error) {
+            console.warn(`Failed to load collectible image ${id} from ${img.src}`, error);
+            return null;
+          }
         })
       );
 
-      collectibleImagesRef.current = Object.fromEntries(entries);
+      collectibleImagesRef.current = Object.fromEntries(
+        entries.filter((entry): entry is readonly [string, HTMLImageElement] => entry !== null)
+      );
       setCollectibleImagesLoaded(true);
     };
 
