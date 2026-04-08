@@ -64,6 +64,7 @@ export interface PrivateGameState {
   // -----------------------
   boardActionsPending: boolean;        // if current player still needs to do board action
   playerProgress: PlayerProgress;      // collected items, next collectible, objectives
+  playerProgressById?: Record<string, PlayerProgress>; // per-player progress map for multiplayer displays
   skipsLeft: number;                   // how many skips the current player has left
 }  
 

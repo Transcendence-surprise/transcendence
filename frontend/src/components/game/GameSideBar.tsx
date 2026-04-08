@@ -19,7 +19,7 @@ export default function GameSideBar({ game, isSpectator = false }: GameSideBarPr
       <PlayerList
         players={game.players}
         currentPlayerId={game.currentPlayerId}
-        playerProgress={game.playerProgress as any}
+        playerProgress={game.playerProgressById}
         collectiblesPerPlayer={5}
       />
 

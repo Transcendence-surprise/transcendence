@@ -24,41 +24,61 @@ export function useDrawBoard(
 
   useEffect(() => {
     const loadImages = async () => {
+      const loadImage = async (src: string, label: string) => {
+        const img = new Image();
+        img.src = src;
+
+        try {
+          await img.decode();
+          return img;
+        } catch (error) {
+          console.warn(`Failed to load ${label} image: ${src}`, error);
+          return null;
+        }
+      };
+
       // Tiles
       const tileEntries = await Promise.all(
         Object.entries(TILE_SVGS).map(async ([type, svg]) => {
-          const img = new Image();
-          img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-          await img.decode();
-          return [type, img] as const;
+          const img = await loadImage(
+            `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`,
+            `tile ${type}`
+          );
+          return img ? ([type, img] as const) : null;
         })
       );
-      tileImagesRef.current = Object.fromEntries(tileEntries);
+      tileImagesRef.current = Object.fromEntries(
+        tileEntries.filter((entry): entry is readonly [string, HTMLImageElement] => entry !== null)
+      );
 
       // Players
       const playerIconSet = localStorage.getItem("settings.playerIconSet") || "star";
       const ids = playerIconSet === "star" ? [1, 2, 3, 4] : [5, 6, 7, 8];
       for (const id of ids) {
-        const img = new Image();
         const setName = playerIconSet === "star" ? "star" : "space_inv";
-        img.src = `/assets/player/${setName}/${id}.svg`;
-        await img.decode();
-        playerImagesRef.current[String(id)] = img;
+        const img = await loadImage(`/assets/player/${setName}/${id}.svg`, `player ${setName}/${id}`);
+        if (img) {
+          playerImagesRef.current[String(id)] = img;
+        }
       }
 
       // Collectibles
       const collectableSet = localStorage.getItem("settings.collectableSet") || "gemstones";
       const dir = collectableSet === "gemstones" ? "gems" : "numbers";
       for (let i = 1; i <= 24; i++) {
-        const img = new Image();
-        img.src = `/assets/collectables/${dir}/${i}.svg`;
-        await img.decode();
-        collectibleImagesRef.current[String(i)] = img;
+        const img = await loadImage(`/assets/collectables/${dir}/${i}.svg`, `collectible ${dir}/${i}`);
+        if (img) {
+          collectibleImagesRef.current[String(i)] = img;
+        }
       }
+
       setImagesLoaded(true);
     };
 
-    loadImages().catch(console.error);
+    loadImages().catch((error) => {
+      console.error(error);
+      setImagesLoaded(true);
+    });
   }, []);
 
   useEffect(() => {
@@ -144,8 +164,6 @@ export function useDrawBoard(
         const imgId = playerIconSet === "star" ? String(slotNum) : String(slotNum + 4);
         img = playerImagesRef.current[imgId];
       }
-
-      // ...existing code...
 
       const cellX = tile.x * CELL_SIZE;
       const cellY = tile.y * CELL_SIZE;

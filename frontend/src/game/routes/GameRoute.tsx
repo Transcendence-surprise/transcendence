@@ -5,8 +5,58 @@ import { useEffect, useRef, useState } from "react";
 import { connectSocket } from "../../services/socket";
 import { useAuth } from '../../hooks/useAuth';
 import GamePage from "../../pages/GamePage";
-import { PrivateGameState } from "../models/privatState";
+import { PlayerProgress, PrivateGameState } from "../models/privatState";
 import { getGameState } from "../../api/game";
+
+function isPlayerProgress(value: unknown): value is PlayerProgress {
+  return !!value && typeof value === "object" && Array.isArray((value as PlayerProgress).objectives);
+}
+
+function isPlayerProgressMap(value: unknown): value is Record<string, PlayerProgress> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+
+  return Object.values(value).every(isPlayerProgress);
+}
+
+function resolveProgressState(params: {
+  incomingPlayerProgress?: unknown;
+  incomingPlayerProgressById?: unknown;
+  previousPlayerProgress: PlayerProgress;
+  previousPlayerProgressById?: Record<string, PlayerProgress>;
+  currentUserId?: string | number;
+}) {
+  const {
+    incomingPlayerProgress,
+    incomingPlayerProgressById,
+    previousPlayerProgress,
+    previousPlayerProgressById,
+    currentUserId,
+  } = params;
+
+  let nextPlayerProgress = previousPlayerProgress;
+  let nextPlayerProgressById = previousPlayerProgressById;
+
+  if (isPlayerProgressMap(incomingPlayerProgressById)) {
+    nextPlayerProgressById = incomingPlayerProgressById;
+  }
+
+  if (isPlayerProgressMap(incomingPlayerProgress)) {
+    nextPlayerProgressById = incomingPlayerProgress;
+  } else if (isPlayerProgress(incomingPlayerProgress)) {
+    nextPlayerProgress = incomingPlayerProgress;
+  }
+
+  if (currentUserId != null && nextPlayerProgressById) {
+    const mine = nextPlayerProgressById[currentUserId.toString()];
+    if (isPlayerProgress(mine)) {
+      nextPlayerProgress = mine;
+    }
+  }
+
+  return { nextPlayerProgress, nextPlayerProgressById };
+}
 
 export default function GameRoute() {
   const { id } = useParams<{ id: string }>();
@@ -29,34 +79,41 @@ export default function GameRoute() {
     setLoading(true);
     getGameState(id, controller.signal)
       .then((g) => {
-        setGame(g);
+        const { nextPlayerProgress, nextPlayerProgressById } = resolveProgressState({
+          incomingPlayerProgress: g.playerProgress,
+          incomingPlayerProgressById: g.playerProgressById,
+          previousPlayerProgress: g.playerProgress,
+          previousPlayerProgressById: g.playerProgressById,
+          currentUserId: user?.id,
+        });
+
+        setGame({
+          ...g,
+          playerProgress: nextPlayerProgress,
+          playerProgressById: nextPlayerProgressById,
+        });
 
     // join play room
     socket.emit("joinPlay", { gameId: id, userId: user.id });
 
     // listen for updates
-    const handlePlayUpdate = (data: Partial<PrivateGameState> & { playerProgress?: any }) => {
+    const handlePlayUpdate = (data: Partial<PrivateGameState> & { playerProgress?: unknown }) => {
       setGame((prev) => {
         if (!prev) return prev;
 
-        let nextPlayerProgress = prev.playerProgress;
-        const incomingProgress = data.playerProgress;
-
-        if (incomingProgress) {
-          if (Array.isArray(incomingProgress.objectives)) {
-            nextPlayerProgress = incomingProgress;
-          } else if (user?.id != null && typeof incomingProgress === "object") {
-            const mine = incomingProgress[user.id.toString()];
-            if (mine && Array.isArray(mine.objectives)) {
-              nextPlayerProgress = mine;
-            }
-          }
-        }
+        const { nextPlayerProgress, nextPlayerProgressById } = resolveProgressState({
+          incomingPlayerProgress: data.playerProgress,
+          incomingPlayerProgressById: data.playerProgressById,
+          previousPlayerProgress: prev.playerProgress,
+          previousPlayerProgressById: prev.playerProgressById,
+          currentUserId: user?.id,
+        });
 
         return {
           ...prev,
           ...data,
           playerProgress: nextPlayerProgress,
+          playerProgressById: nextPlayerProgressById,
         };
       });
     };
@@ -98,7 +155,21 @@ export default function GameRoute() {
 
     endStateRefetchedRef.current = true;
     getGameState(id, controller.signal)
-      .then((finalState) => setGame(finalState))
+      .then((finalState) => {
+        const { nextPlayerProgress, nextPlayerProgressById } = resolveProgressState({
+          incomingPlayerProgress: finalState.playerProgress,
+          incomingPlayerProgressById: finalState.playerProgressById,
+          previousPlayerProgress: finalState.playerProgress,
+          previousPlayerProgressById: finalState.playerProgressById,
+          currentUserId: user?.id,
+        });
+
+        setGame({
+          ...finalState,
+          playerProgress: nextPlayerProgress,
+          playerProgressById: nextPlayerProgressById,
+        });
+      })
       .catch((err) => {
         if (err?.name !== "AbortError") {
           console.error("Failed to refresh final game state:", err);
@@ -108,7 +179,7 @@ export default function GameRoute() {
     return () => {
       controller.abort();
     };
-  }, [id, game?.phase, game?.gameResult]);
+  }, [id, game?.phase, game?.gameResult, user?.id]);
 
   if (loading) return <div>Loading game...</div>;
   if (error) return <div>Error: {error}</div>;
