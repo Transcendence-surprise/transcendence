@@ -43,7 +43,7 @@ export default function GameEntryRoute() {
   };
 
   return (
-    <div className="w-full bg-bg-dark text-white font-sans flex justify-center px-4 py-4">
+    <div className="w-full h-full min-h-0 bg-bg-dark text-white font-sans flex items-center justify-center px-4 py-2">
       <div className="w-full max-w-5xl flex flex-col items-center gap-8">
         <ActiveGamesSection user={user ? { username: user.username } : null} />
 

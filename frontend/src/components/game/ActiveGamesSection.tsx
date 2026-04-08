@@ -58,7 +58,7 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
 
   return (
     <>
-      <h2 className="text-4xl font-bold drop-shadow-lg m-0 mb-4">
+      <h2 className="text-4xl font-bold drop-shadow-lg m-0 mb-1">
         Active Games
       </h2>
 

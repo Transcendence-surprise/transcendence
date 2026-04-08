@@ -5,6 +5,8 @@ export default function Sidebar() {
   const location = useLocation();
   const { isAdmin } = useAuth();
   const isChatPage = location.pathname.startsWith("/chat");
+  const isGameEntryPage = location.pathname === "/game";
+  const isViewportLockedPage = isChatPage || isGameEntryPage;
 
   const navItems = [
     { path: "/", label: "Home", icon: "/assets/home_icon.svg" },
@@ -39,7 +41,7 @@ export default function Sidebar() {
   return (
     <aside
       className={
-        isChatPage
+        isViewportLockedPage
           ? "w-[280px] h-full overflow-y-auto bg-[background: rgba(26, 26, 31, 0.95)] border-r border-[var(--color-border-blue)] p-4"
           : "w-[280px] min-h-screen bg-[background: rgba(26, 26, 31, 0.95)] border-r border-[var(--color-border-blue)] p-4"
       }
