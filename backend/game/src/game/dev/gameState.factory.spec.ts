@@ -58,7 +58,7 @@ describe('Game Engine', () => {
     expect(state.rules.mode).toBe('MULTI');
     expect(state.hostId).toBe(123);
     expect(state.hostName).toBe("HOST1");
-    console.log("collectibles:", state.players);
+    // console.log("collectibles:", state.players);
     expect(state.players.length).toBe(1);
   });
 });

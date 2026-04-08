@@ -14,7 +14,7 @@ export function leaveGameEngine(
       // Remove host from players (always index 0)
       state.players.splice(0, 1);
       if (state.players.length === 0) {
-        console.log(`Host ${playerId} left the game. Game will be deleted (no players remain).`);
+        // console.log(`Host ${playerId} left the game. Game will be deleted (no players remain).`);
         return { ok: true, deleteGame: true };
       } else if (state.currentPlayerIndex === 0) {
         state.currentPlayerIndex = 0;
@@ -23,7 +23,7 @@ export function leaveGameEngine(
       }
       // If only one player remains, signal game deletion
       if (state.players.length === 1) {
-        console.log(`Only one player remains after host left ${playerId}. Game will be deleted.`);
+        // console.log(`Only one player remains after host left ${playerId}. Game will be deleted.`);
         return { ok: true, deleteGame: true };
       }
 
@@ -40,11 +40,11 @@ export function leaveGameEngine(
         }
       }
 
-      console.log(`Host ${playerId} left the game. Game continues.`);
+      // console.log(`Host ${playerId} left the game. Game continues.`);
       return { ok: true };
     }
     // Single mode or LOBBY: host leaves, game deleted
-    console.log(`Host ${playerId} left the game. Game will be deleted (single mode or LOBBY).`);
+    // console.log(`Host ${playerId} left the game. Game will be deleted (single mode or LOBBY).`);
     return { ok: true, deleteGame: true };
   }
 
@@ -55,12 +55,12 @@ export function leaveGameEngine(
     state.players.splice(playerIndex, 1);
     // If no players remain, reset index and delete game
       if (state.players.length === 0) {
-        console.log(`No players remains after player left ${playerId}`);
+        // console.log(`No players remains after player left ${playerId}`);
         return { ok: true, deleteGame: true };
       }
       // If only one player remains in multiplayer mode, delete game
       if (state.rules.mode === "MULTI" && state.players.length === 1) {
-        console.log(`Only one player remains after player left ${playerId}. Game will be deleted.`);
+        // console.log(`Only one player remains after player left ${playerId}. Game will be deleted.`);
         return { ok: true, deleteGame: true };
       }
       // Update current player if needed
@@ -85,7 +85,7 @@ export function leaveGameEngine(
       }
     }
 
-    console.log(`Player left ${playerId}`);
+    // console.log(`Player left ${playerId}`);
     return { ok: true };
   }
 

@@ -310,10 +310,10 @@ export class EngineService {
 
     if (result.deleteGame) {
       this.games.delete(gameId);
-      console.log(`Game ${gameId} deleted after player left ${playerId}`);
+      // console.log(`Game ${gameId} deleted after player left ${playerId}`);
       return { ok: true, deleteGame: true, previousPlayers, previousSpectators };
     }
-    console.log(`Player ${playerId} left game ${gameId}`);
+    // console.log(`Player ${playerId} left game ${gameId}`);
     return { ok: true, previousPlayers, previousSpectators };
   }
 

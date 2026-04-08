@@ -54,7 +54,7 @@ export class GameController {
       user.username,
       settings
     );
-    console.log(`Game created with ID: ${gameId} in phase ${this.engine.getGameState(gameId)?.phase || 'IDK'} by user ${user.id}`);
+    // console.log(`Game created with ID: ${gameId} in phase ${this.engine.getGameState(gameId)?.phase || 'IDK'} by user ${user.id}`);
     this.wsGateway.sendMultiplayerListUpdate();
     this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
     return { ok: true, gameId };
@@ -109,7 +109,7 @@ export class GameController {
       throw new UnauthorizedException('User id missing');
     }
     const result = this.engine.boardModification(body.gameId, body.action, user.id);
-    console.log(`Board move request for game ${body.gameId} from user ${user.id}:`, body.action);    
+    // console.log(`Board move request for game ${body.gameId} from user ${user.id}:`, body.action);    
     if (result.ok) {
       this.wsGateway.sendPlayUpdate(body.gameId);
 
@@ -130,8 +130,7 @@ export class GameController {
     @Body() body: PlayerMoveDto,
     @CurrentUser() user: PlayerContext
   ) : PlayerActionResponseDto {
-    console.log(`Player move request for game ${body.gameId} from user ${user.id}:`, body.path);
-    if (!user.id) {
+      if (!user.id) {
       throw new UnauthorizedException('User id missing');
     }
 

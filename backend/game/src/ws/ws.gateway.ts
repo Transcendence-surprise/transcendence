@@ -94,7 +94,7 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
     try {
       const cookieHeader = client.handshake.headers.cookie;
       if (!cookieHeader) {
-        console.log('WS auth failed: no cookies');
+        // console.log('WS auth failed: no cookies');
         client.disconnect(true);
         return;
       }
@@ -111,7 +111,7 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
       // Check access_token FIRST - logged-in users take precedence over guest
       const jwtToken = cookies['access_token'];
       if (!jwtToken) {
-        console.log('WS auth failed: no access_token');
+        // console.log('WS auth failed: no access_token');
         client.disconnect(true);
         return;
       }
@@ -129,16 +129,16 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
         roles: decoded.roles ?? ['user'],
       };
 
-      console.log('WS connected user', decoded.username);
+      // console.log('WS connected user', decoded.username);
 
       // Attach the user to the client
       client.user = user;
       // Join per-user room for playerStatus updates
       void client.join(`user:${user.sub.toString()}`);
-      console.log(`User ${user.username} joined room: user:${user.sub.toString()}`);
+      // console.log(`User ${user.username} joined room: user:${user.sub.toString()}`);
 
     } catch (error) {
-      console.error('WS auth failed', error instanceof Error ? error.message : error);
+      // console.error('WS auth failed', error instanceof Error ? error.message : error);
       client.disconnect(true);
     }
 
@@ -183,18 +183,18 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
     // Validate user
     const user = client.user;
     if (!user) {
-      console.log("!!!WE HAVE NO USER!!!: ");
+      // console.log("!!!WE HAVE NO USER!!!: ");
       return client.disconnect(true);
     }
 
     // Validate game existence and phase before joining lobby
     const state = this.engine.getGameState(data.gameId);
     if (!state) {
-      console.log("GAME_NOT_FOUND");
+      // console.log("GAME_NOT_FOUND");
       return client.emit("error", { error: "GAME_NOT_FOUND" });
     }
     if (state.phase !== "LOBBY") {
-      console.log("LOBBY_CLOSED");
+      // console.log("LOBBY_CLOSED");
       return client.emit("error", { error: "LOBBY_CLOSED" });
     }
 
@@ -232,7 +232,7 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
     // Emit to the lobby room so everyone sees it
     this.sendToRoom(`lobby:${gameId}`, "lobbyDeleted", { gameId });
     this.sendToRoom(`play:${gameId}`, "gameDeleted", { gameId });
-    console.log(`Game ${gameId} deleted, all clients notified`);
+    // console.log(`Game ${gameId} deleted, all clients notified`);
   }
 
 // MULTIPLAYER GAMES TABLE
@@ -265,7 +265,7 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
     const user = client.user;
     if (!user) return client.disconnect(true);
 
-    console.log("CHAT_USER: ", user.username);
+    // console.log("CHAT_USER: ", user.username);
 
     const state = this.engine.getGameState(payload.gameId);
 
@@ -392,12 +392,12 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
   @SubscribeMessage("checkPlayerStatus")
   handleCheckPlayerStatus(@ConnectedSocket() client: TypedSocket) {
     const user = client.user;
-    console.log(`Checking player status for user: ${user?.username}`);
+    // console.log(`Checking player status for user: ${user?.username}`);
     if (!user) return client.disconnect(true);
-    console.log(`Second try Checking player status for user: ${user.username}`);
+    // console.log(`Second try Checking player status for user: ${user.username}`);
     try {
       const result = this.engine.checkPlayerAvailability(user.sub);
-      console.log(`Player status for ${user.username}:`, result);
+      // console.log(`Player status for ${user.username}:`, result);
       client.emit("playerStatus", {
         ok: result.ok,
         gameId: result.gameId,
@@ -419,10 +419,10 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
       phase: result.phase || "LOBBY",
     });
 
-    console.log(`Sent playerStatus update to user:${playerId}`, {
-      ok: result.ok,
-      gameId: result.gameId,
-      phase: result.phase,
-    });
+    // console.log(`Sent playerStatus update to user:${playerId}`, {
+    //   ok: result.ok,
+    //   gameId: result.gameId,
+    //   phase: result.phase,
+    // });
   }
 }
