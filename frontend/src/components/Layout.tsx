@@ -22,7 +22,7 @@ export default function Layout() {
         }
       });
 
-    // Poll health every 5 seconds to update status foe HEADER UPDATE (MOVE TO ADMIN PANEL LATER)
+    // Poll health every 60s seconds to update status for HEADER UPDATE (MOVE TO ADMIN PANEL LATER)
     const interval = setInterval(() => {
       checkHealth(controller.signal)
         .then(data => setStatus(data.status))
