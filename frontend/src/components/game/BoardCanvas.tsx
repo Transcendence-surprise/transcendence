@@ -176,13 +176,6 @@ export function BoardCanvas({
       }
 
       if (!canMoveOnBoard(board, current, { x, y })) {
-        const fromTile = board.tiles[current.y]?.[current.x];
-        const toTile = board.tiles[y]?.[x];
-        const fromOpenings = fromTile ? getTileOpenings(fromTile) : [];
-        const toOpenings = toTile ? getTileOpenings(toTile) : [];
-        const dxRaw = x - current.x;
-        const dyRaw = y - current.y;
-
         alert("Path is blocked by walls between these tiles");
         return;
       }
