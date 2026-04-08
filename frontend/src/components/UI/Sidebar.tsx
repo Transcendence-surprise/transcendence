@@ -42,8 +42,8 @@ export default function Sidebar() {
     <aside
       className={
         isViewportLockedPage
-          ? "w-[280px] h-full overflow-y-auto bg-[background: rgba(26, 26, 31, 0.95)] border-r border-[var(--color-border-blue)] p-4"
-          : "w-[280px] min-h-screen bg-[background: rgba(26, 26, 31, 0.95)] border-r border-[var(--color-border-blue)] p-4"
+          ? "w-[280px] h-full overflow-y-auto bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4"
+          : "w-[280px] min-h-screen bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4"
       }
     >
       <nav className="flex flex-col gap-2">

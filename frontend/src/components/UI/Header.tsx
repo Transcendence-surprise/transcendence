@@ -11,7 +11,7 @@ export default function Header({ onLoginClick, onSignupClick }: HeaderProps) {
   const { user, logout } = useAuth();
 
   return (
-    <header className="p-4 border-b border-[var(--color-border-blue)]">
+    <header className="p-4 border-b border-gray-600">
       <div className="flex justify-between items-center">
         <a
           href="/"

@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="bg-bg-dark border-t border-border-blue shadow-lg">
+    <footer className="bg-bg-dark border-t border-border-gray shadow-lg">
       <div className="max-w-6xl mx-auto px-4 py-4">
         <p className="text-center text-sm text-gray-300 font-semibold tracking-wide mb-1">
           © 2026 Transcendence Game
