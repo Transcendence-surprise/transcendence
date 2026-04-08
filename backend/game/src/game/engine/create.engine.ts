@@ -61,6 +61,7 @@ export function createGame(
     };
 
     state.phase = "PLAY";
+    state.gameStartedAt = Date.now();
     state.spectators = [];
     return state;
   }
