@@ -8,6 +8,5 @@ export function rethrowAbortError(error: unknown): never {
     throw error;
   }
 
-  const message = error instanceof Error ? error.message : String(error);
-  throw new Error(`Network error: ${message}`);
+  throw error;
 }
