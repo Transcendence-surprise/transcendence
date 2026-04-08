@@ -64,7 +64,7 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
 
       {/* Active Games Section */}
       {activeGameIds.length > 0 ? (
-        <div className="w-full max-w-md px-4 mb-8">
+        <div className="w-full max-w-md px-4">
           <div className="space-y-2">
             {activeGameIds.map((gameId) => (
               <div
@@ -88,12 +88,14 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
                       const controller = new AbortController();
                       setLoadingGame(true);
                       try {
-                        const availability = await checkPlayerAvailability(controller.signal);
+                        const availability = await checkPlayerAvailability(
+                          controller.signal,
+                        );
                         if (!availability.ok && availability.gameId) {
                           navigate(
                             availability.phase === "PLAY"
                               ? `/game/${availability.gameId}`
-                              : `/multiplayer/lobby/${availability.gameId}`
+                              : `/multiplayer/lobby/${availability.gameId}`,
                           );
                         } else {
                           navigate(`/game/${gameId}`);
@@ -119,7 +121,7 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
         </div>
       ) : (
         // Gray box when no active games or not logged in
-        <div className="w-full max-w-md px-4 mb-8">
+        <div className="w-full max-w-md px-4">
           <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
             <p className="text-gray-400">
               {user
