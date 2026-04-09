@@ -1,16 +1,40 @@
 const RETRY_DELAY_MS = 2000;
-const MAX_RETRIES = 5;
+const MAX_RETRIES = parseInt(process.env.VAULT_MAX_RETRIES ?? '5');
+
+async function resolveToken(vaultAddr: string): Promise<string | null> {
+  const token = process.env.VAULT_TOKEN;
+  if (token) return token;
+
+  const roleId = process.env.VAULT_ROLE_ID;
+  const secretId = process.env.VAULT_SECRET_ID;
+  if (!roleId || !secretId) return null;
+
+  const res = await fetch(`${vaultAddr}/v1/auth/approle/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role_id: roleId, secret_id: secretId }),
+  });
+  if (!res.ok) throw new Error(`AppRole login failed: HTTP ${res.status}`);
+  const json = await res.json();
+  return json.auth.client_token as string;
+}
 
 export async function loadVaultSecrets(): Promise<void> {
   const vaultAddr = process.env.VAULT_ADDR;
-  const token = process.env.VAULT_TOKEN;
-  if (!vaultAddr || !token) return;
+  if (!vaultAddr) return;
+
+  const hasToken = !!process.env.VAULT_TOKEN;
+  const hasAppRole = !!(process.env.VAULT_ROLE_ID && process.env.VAULT_SECRET_ID);
+  if (!hasToken && !hasAppRole) return;
 
   const secretPath =
     process.env.VAULT_SECRET_PATH ?? 'secret/data/transcendence';
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
+      const token = await resolveToken(vaultAddr);
+      if (!token) return;
+
       const res = await fetch(`${vaultAddr}/v1/${secretPath}`, {
         headers: { 'X-Vault-Token': token },
       });
@@ -35,7 +59,7 @@ export async function loadVaultSecrets(): Promise<void> {
         );
       }
       console.log(
-        `Vault not ready (attempt ${attempt}/${MAX_RETRIES}), retrying in ${RETRY_DELAY_MS / 1000}s...`,
+        `Vault not ready (attempt ${attempt}/${MAX_RETRIES}): ${err}. Retrying in ${RETRY_DELAY_MS / 1000}s...`,
       );
       await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
     }

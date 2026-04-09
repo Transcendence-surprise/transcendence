@@ -67,4 +67,4 @@ curl -sf -X POST "${VAULT_ADDR}/v1/${SECRET_PATH}" \
 
 COUNT=$(echo "{${ENV_JSON}}" | jq 'length')
 echo "Imported ${COUNT} secrets into Vault from $(basename "$FILE")"
-echo "Vault UI: ${VAULT_ADDR}/ui (token: dev-root-token)"
+echo "Vault UI: ${VAULT_ADDR}/ui (token: ${VAULT_TOKEN})"
