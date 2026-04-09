@@ -57,4 +57,9 @@ instructions
 # VS Code settings
 .vscode/
 
+# Others
+CLAUDE.md
+
+.ilia_private/
+
 .ilia_private/
