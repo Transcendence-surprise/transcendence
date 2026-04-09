@@ -7,9 +7,6 @@ services:
     build:
       target: development
     container_name: frontend-dev
-    env_file:
-      - path: ./.env
-        required: false
     volumes:
       - ./frontend/package.json:/app/package.json:ro
       - ./frontend/tsconfig.json:/app/tsconfig.json:ro
@@ -25,9 +22,6 @@ services:
     build:
       target: development
     container_name: gateway-dev
-    env_file:
-      - path: ./.env
-        required: false
     environment:
       VAULT_ADDR: http://vault:8200
       VAULT_TOKEN: dev-root-token
@@ -46,9 +40,6 @@ services:
     build:
       target: development
     container_name: core-dev
-    env_file:
-      - path: ./.env
-        required: false
     environment:
       VAULT_ADDR: http://vault:8200
       VAULT_TOKEN: dev-root-token
@@ -68,9 +59,6 @@ services:
     build:
       target: development
     container_name: auth-dev
-    env_file:
-      - path: ./.env
-        required: false
     environment:
       VAULT_ADDR: http://vault:8200
       VAULT_TOKEN: dev-root-token
@@ -90,9 +78,6 @@ services:
     build:
       target: development
     container_name: game-dev
-    env_file:
-      - path: ./.env
-        required: false
     environment:
       VAULT_ADDR: http://vault:8200
       VAULT_TOKEN: dev-root-token
@@ -109,9 +94,6 @@ services:
 
   migration:
     container_name: migration-dev
-    env_file:
-      - path: ./.env
-        required: false
     environment:
       POSTGRES_HOST: db
       POSTGRES_PORT: "5432"
@@ -137,15 +119,10 @@ services:
 
   db:
     container_name: db-dev
-    env_file:
-      - path: ./.env
-        required: false
     environment:
       POSTGRES_USER: transcendence
       POSTGRES_PASSWORD: transcendence
       POSTGRES_DB: transcendence
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U transcendence -d transcendence || exit 1"]
     ports:
       - "5432:5432"
     volumes:
@@ -153,14 +130,9 @@ services:
 
   nginx:
     container_name: nginx-dev
-    env_file:
-      - path: ./.env
-        required: false
     environment:
       NODE_ENV: development
       FRONTEND_URL: http://localhost:8080
-    healthcheck:
-      test: ["CMD-SHELL", "wget -O /dev/null http://localhost:8080 || exit 1"]
     ports:
       # - "80:80" // comment out port for compatability with hive's computers
       - "8080:8080"
