@@ -88,7 +88,7 @@ compile-src:
 	cd backend/gateway && npm run build
 	cd backend/game && npm run build
 
-# =========== Vault commands ===========
+# =========== Vault commands (dev) ===========
 
 # Start Vault container (dev mode, token: dev-root-token)
 vault-init:
@@ -111,6 +111,28 @@ vault-stop:
 vault-ui:
 	@echo "$(CYAN)Vault UI: http://localhost:8200/ui$(RESET)"
 	@echo "$(CYAN)Token: dev-root-token$(RESET)"
+
+# =========== Vault commands (prod) ===========
+
+# Start only the prod Vault container
+vault-start-prod:
+	@echo "$(CYAN)Starting prod Vault...$(RESET)"
+	$(COMPOSE) -f docker-compose.prod.yml up -d vault
+
+# Initialize prod Vault: unseal keys, AppRole credentials, KV engine setup.
+# Run once on a brand-new Vault. Output includes unseal keys and VAULT_ROLE_ID/VAULT_SECRET_ID.
+vault-init-prod:
+	@VAULT_ADDR=http://127.0.0.1:8200 ./vault/scripts/vault-init-prod.sh
+
+# Apply one unseal key. Run 3 times with 3 different keys after every Vault restart.
+# Usage: make vault-unseal-prod KEY=<unseal-key>
+vault-unseal-prod:
+	@[ -n "$(KEY)" ] || (echo "$(RED)Usage: make vault-unseal-prod KEY=<unseal-key>$(RESET)"; exit 1)
+	@VAULT_ADDR=http://127.0.0.1:8200 ./vault/scripts/vault-unseal.sh $(KEY)
+
+# Show current seal status
+vault-status-prod:
+	@curl -sf http://127.0.0.1:8200/v1/sys/health | jq '{initialized,sealed,version}'
 
 # Start Vault, optionally seed, then start dev stack
 # Usage: make dev-vault [FILE=~/secrets.env]
@@ -212,3 +234,4 @@ ps:
 	re logs ps \
 	dev-build prune prod test test-back test-front ts-client \
 	vault-init vault-seed vault-stop vault-ui dev-vault \
+	vault-start-prod vault-init-prod vault-unseal-prod vault-status-prod \
