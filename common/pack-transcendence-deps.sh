@@ -4,7 +4,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 DB_ENTITIES_DIR="$REPO_ROOT/common/db-entities"
 
-services=("backend/core" "backend/auth" "backend/migration")
+services=("backend/core" "backend/auth" "backend/migration" "backend/game")
 
 err() { echo "pack-transcendence-deps.sh: Error: $*" >&2; }
 trap 'err "pack failed"; exit 1' ERR
@@ -28,4 +28,4 @@ for svc in "${services[@]}"; do
 	mv "$tmp" "$dest"
 done
 
-echo "✅ db-entities dist copied to core, auth, and migration."
+echo "✅ db-entities dist copied to core, auth, migration, and game."

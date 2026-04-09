@@ -1,4 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Game, GamePlayer } from '@transcendence/db-entities';
 import { GameState, GameSettings } from '../models/state';
 import { PlayerCheckResult } from '../models/payerCheckResult';
 import { createGame as  createGameEngine} from '../engine/create.engine';
@@ -24,6 +27,11 @@ import { advanceTurn, beginCurrentTurn } from '../engine/helpers/turnHandler';
 
 @Injectable()
 export class EngineService {
+  constructor(
+    @InjectRepository(Game) private readonly gameRepo: Repository<Game>,
+    @InjectRepository(GamePlayer) private readonly playerRepo: Repository<GamePlayer>,
+  ) {}
+
   private games = new Map<string, GameState>();
 
   evaluateSinglePlayerTimeouts(now = Date.now()): Array<{
