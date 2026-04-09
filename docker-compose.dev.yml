@@ -127,6 +127,14 @@ services:
 
   # === Infrastructure ===
 
+  vault:
+    container_name: vault-dev
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: dev-root-token
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    ports:
+      - "8200:8200"
+
   db:
     container_name: db-dev
     env_file:
@@ -156,27 +164,6 @@ services:
     ports:
       # - "80:80" // comment out port for compatability with hive's computers
       - "8080:8080"
-
-  # === Vault ===
-
-  vault:
-    image: hashicorp/vault:1.17
-    container_name: vault-dev
-    cap_add:
-      - IPC_LOCK
-    environment:
-      VAULT_DEV_ROOT_TOKEN_ID: dev-root-token
-      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
-    ports:
-      - "8200:8200"
-    networks:
-      - transcendence_net
-    healthcheck:
-      test: ["CMD", "sh", "-c", "wget -qO- http://127.0.0.1:8200/v1/sys/health 2>/dev/null | grep -q initialized"]
-      interval: 5s
-      timeout: 2s
-      start_period: 10s
-      retries: 3
 
 volumes:
   db_data_dev:
