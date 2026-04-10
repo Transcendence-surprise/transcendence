@@ -9,6 +9,7 @@ export async function checkHealth(
     return res.json();
   } catch (e: any) {
     rethrowAbortError(e);
+    throw e;
   }
 }
 
@@ -59,49 +60,45 @@ export async function checkAllServicesHealth(
     status: "loading",
   }));
 
-  try {
-    const healthChecks = services.map(async (service, index) => {
-      try {
-        const res = await fetch(service.endpoint, {
-          signal,
-          credentials: "include",
-          headers: {
-            Accept: "application/json",
-          },
-        });
-        if (res.ok) {
-          results[index] = {
-            name: service.name,
-            endpoint: service.endpoint,
-            status: "ok",
-            lastCheck: new Date(),
-          };
-        } else {
-          results[index] = {
-            name: service.name,
-            endpoint: service.endpoint,
-            status: "error",
-            error: `HTTP ${res.status}`,
-            lastCheck: new Date(),
-          };
-        }
-      } catch (err: any) {
+  const healthChecks = services.map(async (service, index) => {
+    try {
+      const res = await fetch(service.endpoint, {
+        signal,
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (res.ok) {
+        results[index] = {
+          name: service.name,
+          endpoint: service.endpoint,
+          status: "ok",
+          lastCheck: new Date(),
+        };
+      } else {
         results[index] = {
           name: service.name,
           endpoint: service.endpoint,
           status: "error",
-          error: err?.message || "Connection failed",
+          error: `HTTP ${res.status}`,
           lastCheck: new Date(),
         };
       }
-    });
+    } catch (err: any) {
+      rethrowAbortError(err);
 
-    await Promise.all(healthChecks);
-  } catch (e: any) {
-    if (e?.name !== "AbortError") {
-      console.error("Health check failed:", e);
+      results[index] = {
+        name: service.name,
+        endpoint: service.endpoint,
+        status: "error",
+        error: err?.message || "Connection failed",
+        lastCheck: new Date(),
+      };
     }
-  }
+  });
 
+  await Promise.all(healthChecks);
   return results;
 }
