@@ -31,6 +31,7 @@ export default function GamePage({
     !game.players.some((p) => p.id.toString() === userId.toString());
 
   return (
+    <div>
     <div className="flex w-full h-full items-start justify-center gap-4">
       {/* Board centered */}
       <div className="flex-1 flex justify-center self-start">
@@ -45,9 +46,10 @@ export default function GamePage({
       {/* Sidebar pushed right */}
       <div className="flex-shrink-0 self-start">
         <Sidebar game={game} gameId={gameId} isSpectator={isSpectator} />
-
-        {showChat && (
-          <div className="mt-4 w-80">
+      </div>
+    </div>
+      {showChat && (
+          <div className="mt-4 w-5/6 mx-auto">
             <LobbyChat
               messages={messages}
               input={input}
@@ -57,7 +59,6 @@ export default function GamePage({
             />
           </div>
         )}
-      </div>
     </div>
   );
 }
