@@ -3,20 +3,15 @@ import logoBolt from "/logo-bolt.svg";
 import GameStatusDot from "../game/GameStatusDot";
 
 interface HeaderProps {
-  status: string;
   onLoginClick: () => void;
   onSignupClick: () => void;
 }
 
-export default function Header({
-  status,
-  onLoginClick,
-  onSignupClick,
-}: HeaderProps) {
+export default function Header({ onLoginClick, onSignupClick }: HeaderProps) {
   const { user, logout } = useAuth();
 
   return (
-    <header className="p-4 border-b border-[var(--color-border-blue)]">
+    <header className="p-4 border-b border-gray-600">
       <div className="flex justify-between items-center">
         <a
           href="/"
@@ -38,7 +33,6 @@ export default function Header({
           </div>
         </a>
         <div className="flex items-center gap-2">
-          <p className="text-sm text-light-cyan">Backend status: {status}</p>
           <GameStatusDot user={user ? { id: user.id?.toString() } : null} />
         </div>
 
@@ -51,7 +45,7 @@ export default function Header({
 
               <button
                 onClick={logout}
-                className="px-4 py-1.5 text-sm bg-magenta hover:bg-pink-400 text-white border border-pink-300/40 font-medium rounded-lg transition-all"
+                className="px-4 py-1.5 text-sm bg-magenta hover:bg-pink-400 text-white font-medium rounded-lg transition-all"
               >
                 Logout
               </button>

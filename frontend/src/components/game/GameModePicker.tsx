@@ -1,5 +1,5 @@
 // src/components/game/GameModePicker.tsx
-import GameModeCard from '../UI/GameModeCard';
+import GameModeCard from "../UI/GameModeCard";
 
 type Props = {
   onSelectSingle: () => void;
@@ -7,9 +7,13 @@ type Props = {
   onBack?: () => void; // optional
 };
 
-export default function GameModePicker({ onSelectSingle, onSelectMulti, onBack }: Props) {
+export default function GameModePicker({
+  onSelectSingle,
+  onSelectMulti,
+  onBack,
+}: Props) {
   return (
-    <div className="min-h-screen bg-bg-dark text-white font-sans flex flex-col items-center justify-center space-y-8">
+    <div className="w-full bg-bg-dark text-white font-sans flex flex-col items-center gap-6">
       <h2 className="text-4xl font-bold drop-shadow-lg">Choose Game Mode</h2>
 
       <div className="flex gap-8 justify-center flex-wrap">

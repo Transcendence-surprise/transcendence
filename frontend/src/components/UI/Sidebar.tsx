@@ -1,9 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { useIsViewportLockedPage } from "../../hooks/useIsViewportLockedPage";
 
 export default function Sidebar() {
   const location = useLocation();
   const { isAdmin } = useAuth();
+  const isViewportLockedPage = useIsViewportLockedPage();
 
   const navItems = [
     { path: "/", label: "Home", icon: "/assets/home_icon.svg" },
@@ -11,11 +13,21 @@ export default function Sidebar() {
     { path: "/game", label: "Game", icon: "/assets/game_icon.svg" },
     { path: "/friends", label: "Friends", icon: "/assets/friends_icon.svg" },
     { path: "/chat", label: "Chat", icon: "/assets/chat_icon.svg" },
-    {path: "/leaderboard", label: "Leaderboard", icon: "/assets/tournament_icon.svg" },
+    {
+      path: "/leaderboard",
+      label: "Leaderboard",
+      icon: "/assets/tournament_icon.svg",
+    },
     { path: "/settings", label: "Settings", icon: "/assets/settings_icon.svg" },
-      ...(isAdmin
-    ? [{ path: "/admin", label: "Admin Panel", icon: "/assets/admin_icon.svg" }]
-    : []),
+    ...(isAdmin
+      ? [
+          {
+            path: "/admin",
+            label: "Admin Panel",
+            icon: "/assets/admin_icon.svg",
+          },
+        ]
+      : []),
   ];
 
   const isActive = (path: string) => {
@@ -26,7 +38,13 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className=" w-[280px] min-h-screen bg-[background: rgba(26, 26, 31, 0.95)] border-r border-[var(--color-border-blue)] p-4">
+    <aside
+      className={
+        isViewportLockedPage
+          ? "w-[280px] h-full overflow-y-auto bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4"
+          : "w-[280px] min-h-screen bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4"
+      }
+    >
       <nav className="flex flex-col gap-2">
         {navItems.map((item) => (
           <Link
@@ -59,7 +77,6 @@ export default function Sidebar() {
           </Link>
         ))}
       </nav>
-
     </aside>
   );
 }

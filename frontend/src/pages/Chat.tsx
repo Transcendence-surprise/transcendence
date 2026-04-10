@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from "../hooks/useAuth";
 import { getSocket, connectSocket } from "../services/socket";
 
 interface ChatMessage {
@@ -51,18 +51,18 @@ export default function Chat() {
 
   if (!user) {
     return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
         <h2 className="text-3xl font-bold mb-6 text-cyan-400">
-            Login required to access chat
+          Login required to access chat
         </h2>
 
         <button
-            onClick={() => navigate(-1)}
-            className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
+          onClick={() => navigate(-1)}
+          className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
         >
-            Back
+          Back
         </button>
-        </div>
+      </div>
     );
   }
 
@@ -86,7 +86,7 @@ export default function Chat() {
   }
 
   function scrollToBottom() {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }
 
   useEffect(() => {
@@ -94,21 +94,19 @@ export default function Chat() {
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-[80vh] max-w-2xl mx-auto bg-bg-dark text-white rounded-lg">
-
+    <div className="flex flex-col h-full min-h-0 max-w-2xl mx-auto bg-bg-dark text-white rounded-lg border border-[var(--color-border-subtle)]">
       {/* Header */}
       <div className="p-4 border-b border-[var(--color-border-gray)] text-xl font-bold text-blue-hero">
         Global Chat
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
         {messages.map((msg) => {
           const replyMsg = findMessage(msg.replyTo);
 
           return (
             <div key={msg.id} className="group">
-
               {replyMsg && (
                 <div className="text-xs text-gray-400 mb-1 ml-[7.75rem] truncate max-w-full">
                   Replying to {replyMsg.username}: {replyMsg.content}
@@ -116,20 +114,18 @@ export default function Chat() {
               )}
 
               <div className="flex items-start gap-3">
-
                 <div className="w-28 min-w-28 font-semibold text-blue-300 truncate text-right">
                   {msg.username}
                 </div>
 
                 <div className="flex-1">
-
                   <div className="bg-slate-800 p-2 rounded-md">
                     {msg.content}
                   </div>
 
                   {/* Hover actions */}
                   <div className="opacity-0 group-hover:opacity-100 text-xs text-gray-400 mt-1 flex gap-3">
-                    <button 
+                    <button
                       className="hover:text-blue-400 transition-colors"
                       onClick={() => {
                         setReplyTo(msg);
@@ -139,10 +135,8 @@ export default function Chat() {
                       Reply
                     </button>
                   </div>
-
                 </div>
               </div>
-
             </div>
           );
         })}
@@ -156,10 +150,7 @@ export default function Chat() {
             Replying to {replyTo.username}: {replyTo.content}
           </span>
 
-          <button
-            className="text-red-400"
-            onClick={() => setReplyTo(null)}
-          >
+          <button className="text-red-400" onClick={() => setReplyTo(null)}>
             Cancel
           </button>
         </div>
@@ -172,7 +163,7 @@ export default function Chat() {
           className="flex-1 bg-slate-800 p-2 rounded-md"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           placeholder="Write a message..."
         />
 
@@ -183,7 +174,6 @@ export default function Chat() {
           Send
         </button>
       </div>
-
     </div>
   );
 }
