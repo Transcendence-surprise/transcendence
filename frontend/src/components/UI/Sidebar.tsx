@@ -1,12 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { useIsViewportLockedPage } from "../../hooks/useIsViewportLockedPage";
 
 export default function Sidebar() {
   const location = useLocation();
   const { isAdmin } = useAuth();
-  const isChatPage = location.pathname.startsWith("/chat");
-  const isGameEntryPage = location.pathname === "/game";
-  const isViewportLockedPage = isChatPage || isGameEntryPage;
+  const isViewportLockedPage = useIsViewportLockedPage();
 
   const navItems = [
     { path: "/", label: "Home", icon: "/assets/home_icon.svg" },

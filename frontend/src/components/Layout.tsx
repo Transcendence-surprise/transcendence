@@ -1,18 +1,15 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { useLocation } from "react-router-dom";
 import LoginForm from "./auth/LoginForm";
 import SignupForm from "./auth/SignupForm";
 import Header from "./UI/Header";
 import Footer from "./UI/Footer";
+import { useIsViewportLockedPage } from "../hooks/useIsViewportLockedPage";
 
 export default function Layout() {
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
-  const location = useLocation();
-  const isChatPage = location.pathname.startsWith("/chat");
-  const isGameEntryPage = location.pathname === "/game";
-  const isViewportLockedPage = isChatPage || isGameEntryPage;
+  const isViewportLockedPage = useIsViewportLockedPage();
 
   const handleSwitchToSignup = () => {
     setShowLogin(false);
@@ -53,7 +50,9 @@ export default function Layout() {
         />
       )}
       {/* Main content - this is where child routes will render */}
-      <main className={isViewportLockedPage ? "flex-1 min-h-0 overflow-hidden" : ""}>
+      <main
+        className={isViewportLockedPage ? "flex-1 min-h-0 overflow-hidden" : ""}
+      >
         <Outlet />
       </main>
 

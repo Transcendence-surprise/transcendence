@@ -1,12 +1,9 @@
 import { Outlet } from "react-router-dom";
-import { useLocation } from "react-router-dom";
 import Sidebar from "./UI/Sidebar";
+import { useIsViewportLockedPage } from "../hooks/useIsViewportLockedPage";
 
 export default function LayoutWithSidebar() {
-  const location = useLocation();
-  const isChatPage = location.pathname.startsWith("/chat");
-  const isGameEntryPage = location.pathname === "/game";
-  const isViewportLockedPage = isChatPage || isGameEntryPage;
+  const isViewportLockedPage = useIsViewportLockedPage();
 
   return (
     <div
