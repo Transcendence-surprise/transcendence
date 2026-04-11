@@ -24,6 +24,8 @@ services:
         condition: service_healthy
       auth:
         condition: service_healthy
+      vault:
+        condition: service_healthy
     networks:
       - transcendence_net
     restart: unless-stopped
@@ -45,6 +47,8 @@ services:
     depends_on:
       migration:
         condition: service_completed_successfully
+      vault:
+        condition: service_healthy
     networks:
       - transcendence_net
     restart: unless-stopped
@@ -64,6 +68,8 @@ services:
     depends_on:
       migration:
         condition: service_completed_successfully
+      vault:
+        condition: service_healthy
     networks:
       - transcendence_net
     restart: unless-stopped
@@ -83,6 +89,8 @@ services:
     depends_on:
       migration:
         condition: service_completed_successfully
+      vault:
+        condition: service_healthy
     networks:
       - transcendence_net
     restart: unless-stopped
@@ -100,6 +108,9 @@ services:
     container_name: vault
     cap_add:
       - IPC_LOCK
+    env_file:
+      - path: ./.env
+        required: false
     networks:
       - transcendence_net
     healthcheck:

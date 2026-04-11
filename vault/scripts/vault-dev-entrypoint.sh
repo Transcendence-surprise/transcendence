@@ -1,30 +1,37 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
-VAULT_LISTEN_ADDRESS="${VAULT_DEV_LISTEN_ADDRESS:-0.0.0.0:8200}"
+VAULT_LISTEN_ADDRESS="0.0.0.0:8200"
 VAULT_ROOT_TOKEN_ID="${VAULT_DEV_ROOT_TOKEN_ID:-dev-root-token}"
-VAULT_SEED_FILE="${VAULT_SEED_FILE:-/vault/seeds/.env}"
+VAULT_SEED_FILE="/vault/seeds/.env"
 VAULT_ADDR="http://127.0.0.1:8200"
 
-for cmd in curl jq vault; do
-  if ! command -v "$cmd" &>/dev/null; then
-    echo "ERROR: '$cmd' is required."
-    exit 1
+if ! command -v vault >/dev/null 2>&1; then
+  echo "ERROR: 'vault' CLI is required."
+  exit 1
+fi
+
+BOOTSTRAP_PID=""
+
+cleanup_bootstrap() {
+  if [ -n "$BOOTSTRAP_PID" ]; then
+    kill "$BOOTSTRAP_PID" >/dev/null 2>&1 || true
+    wait "$BOOTSTRAP_PID" >/dev/null 2>&1 || true
+    BOOTSTRAP_PID=""
   fi
-done
+}
 
-start_vault() {
-  echo "Starting Vault dev server..."
+start_bootstrap_vault() {
+  echo "Starting temporary Vault dev process for setup..."
   vault server -dev -dev-root-token-id="$VAULT_ROOT_TOKEN_ID" -dev-listen-address="$VAULT_LISTEN_ADDRESS" &
-  VAULT_PID=$!
-
-  trap 'echo "Stopping Vault..."; kill "$VAULT_PID"; wait "$VAULT_PID" || true' EXIT
+  BOOTSTRAP_PID=$!
+  trap 'cleanup_bootstrap' EXIT INT TERM
 }
 
 wait_for_vault() {
   echo "Waiting for Vault to become available..."
-  for i in $(seq 1 30); do
-    if curl -sf "$VAULT_ADDR/v1/sys/health" >/dev/null 2>&1; then
+  for _ in $(seq 1 30); do
+    if VAULT_ADDR="$VAULT_ADDR" vault status >/dev/null 2>&1; then
       echo "Vault is available."
       return
     fi
@@ -43,11 +50,59 @@ seed_vault() {
   fi
 
   echo "Seeding Vault from $VAULT_SEED_FILE..."
-  VAULT_TOKEN="$VAULT_ROOT_TOKEN_ID" VAULT_ADDR="$VAULT_ADDR" "/vault/scripts/vault-seed.sh" "$VAULT_SEED_FILE"
+
+  export VAULT_ADDR
+  export VAULT_TOKEN="$VAULT_ROOT_TOKEN_ID"
+
+  # Ensure KV v2 engine exists at secret/
+  vault secrets enable -path=secret -version=2 kv >/dev/null 2>&1 || true
+
+  set --
+  while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in
+      ''|\#*) continue ;;
+    esac
+
+    case "$line" in
+      *=*) ;;
+      *) continue ;;
+    esac
+
+    key="${line%%=*}"
+    val="${line#*=}"
+    set -- "$@" "$key=$val"
+  done < "$VAULT_SEED_FILE"
+
+  if [ "$#" -eq 0 ]; then
+    echo "No valid KEY=VALUE entries found in seed file."
+    return
+  fi
+
+  vault kv put secret/transcendence "$@" >/dev/null
+  echo "Seeded $# entries into secret/transcendence"
 }
 
-start_vault
+start_main_seed_helper() {
+  (
+    echo "Waiting for main Vault PID 1 dev process..."
+    for _ in $(seq 1 30); do
+      if VAULT_ADDR="$VAULT_ADDR" vault status >/dev/null 2>&1; then
+        break
+      fi
+      sleep 1
+    done
+
+    seed_vault
+  ) &
+}
+
+start_bootstrap_vault
 wait_for_vault
 seed_vault
 
-wait "$VAULT_PID"
+cleanup_bootstrap
+
+start_main_seed_helper
+
+echo "Starting Vault dev server as PID 1..."
+exec vault server -dev -dev-root-token-id="$VAULT_ROOT_TOKEN_ID" -dev-listen-address="$VAULT_LISTEN_ADDRESS"
