@@ -16,14 +16,6 @@ services:
     build:
       target: production
     container_name: gateway-prod
-    environment:
-      VAULT_ADDR: http://vault:8200
-      VAULT_ROLE_ID: ${VAULT_ROLE_ID}
-      VAULT_SECRET_ID: ${VAULT_SECRET_ID}
-      VAULT_MAX_RETRIES: "30"
-    depends_on:
-      vault:
-        condition: service_healthy
     expose:
       - "3002"
 
@@ -31,14 +23,6 @@ services:
     build:
       target: production
     container_name: core-prod
-    environment:
-      VAULT_ADDR: http://vault:8200
-      VAULT_ROLE_ID: ${VAULT_ROLE_ID}
-      VAULT_SECRET_ID: ${VAULT_SECRET_ID}
-      VAULT_MAX_RETRIES: "30"
-    depends_on:
-      vault:
-        condition: service_healthy
     expose:
       - "3000"
 
@@ -46,14 +30,6 @@ services:
     build:
       target: production
     container_name: auth-prod
-    environment:
-      VAULT_ADDR: http://vault:8200
-      VAULT_ROLE_ID: ${VAULT_ROLE_ID}
-      VAULT_SECRET_ID: ${VAULT_SECRET_ID}
-      VAULT_MAX_RETRIES: "30"
-    depends_on:
-      vault:
-        condition: service_healthy
     expose:
       - "3001"
 
@@ -61,14 +37,6 @@ services:
     build:
       target: production
     container_name: game-prod
-    environment:
-      VAULT_ADDR: http://vault:8200
-      VAULT_ROLE_ID: ${VAULT_ROLE_ID}
-      VAULT_SECRET_ID: ${VAULT_SECRET_ID}
-      VAULT_MAX_RETRIES: "30"
-    depends_on:
-      vault:
-        condition: service_healthy
     expose:
       - "3003"
 
@@ -77,11 +45,12 @@ services:
   vault:
     container_name: vault-prod
     volumes:
-      - ./vault/config/vault.hcl:/vault/config/vault.hcl:ro
+      - ./vault:/vault
+      - ./.env:/vault/seeds/.env:ro
       - vault_data:/vault/file
     ports:
       - "127.0.0.1:8200:8200"
-    command: vault server -config=/vault/config/vault.hcl
+    command: ["/bin/sh", "/vault/scripts/vault-prod-entrypoint.sh"]
 
   db:
     container_name: db-prod
@@ -89,19 +58,6 @@ services:
       - "5432"
     volumes:
       - db_data_prod:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: transcendence
-      POSTGRES_PASSWORD: transcendence
-      POSTGRES_DB: transcendence
-
-  migration:
-    container_name: migration-prod
-    environment:
-      POSTGRES_HOST: db
-      POSTGRES_PORT: "5432"
-      POSTGRES_USER: transcendence
-      POSTGRES_PASSWORD: transcendence
-      POSTGRES_DB: transcendence
 
   nginx:
     container_name: nginx-prod
@@ -111,9 +67,6 @@ services:
     depends_on:
       frontend:
         condition: service_completed_successfully
-    environment:
-      NODE_ENV: production
-      FRONTEND_URL: https://valinor.ink
     volumes:
       - frontend_build:/usr/share/nginx/html:ro
       - ./nginx/cert:/etc/nginx/cert:ro

@@ -7,14 +7,14 @@ services:
     build:
       target: development
     container_name: frontend-dev
+    ports:
+      - "5173:5173"
     volumes:
       - ./frontend/package.json:/app/package.json:ro
       - ./frontend/tsconfig.json:/app/tsconfig.json:ro
       - ./frontend/vite.config.js:/app/vite.config.js:ro
       - ./frontend/public:/app/public:rw
       - ./frontend/src:/app/src:rw
-    ports:
-      - "5173:5173"
 
   # === Backend Microservices ===
 
@@ -22,12 +22,6 @@ services:
     build:
       target: development
     container_name: gateway-dev
-    environment:
-      VAULT_ADDR: http://vault:8200
-      VAULT_TOKEN: dev-root-token
-    depends_on:
-      vault:
-        condition: service_healthy
     ports:
       - "3002:3002"
     volumes:
@@ -40,31 +34,19 @@ services:
     build:
       target: development
     container_name: core-dev
-    environment:
-      VAULT_ADDR: http://vault:8200
-      VAULT_TOKEN: dev-root-token
-    depends_on:
-      vault:
-        condition: service_healthy
+    ports:
+      - "3000:3000"
     volumes:
       - ./backend/core/src:/app/src:ro
       - ./backend/core/package.json:/app/package.json:ro
       - ./backend/core/tsconfig.json:/app/tsconfig.json:ro
       - ./backend/core/nest-cli.json:/app/nest-cli.json:ro
       - ./common/db-entities/dist:/app/db-entities-dist:ro
-    ports:
-      - "3000:3000"
 
   auth:
     build:
       target: development
     container_name: auth-dev
-    environment:
-      VAULT_ADDR: http://vault:8200
-      VAULT_TOKEN: dev-root-token
-    depends_on:
-      vault:
-        condition: service_healthy
     ports:
       - "3001:3001"
     volumes:
@@ -78,12 +60,6 @@ services:
     build:
       target: development
     container_name: game-dev
-    environment:
-      VAULT_ADDR: http://vault:8200
-      VAULT_TOKEN: dev-root-token
-    depends_on:
-      vault:
-        condition: service_healthy
     ports:
       - "3003:3003"
     volumes:
@@ -94,12 +70,6 @@ services:
 
   migration:
     container_name: migration-dev
-    environment:
-      POSTGRES_HOST: db
-      POSTGRES_PORT: "5432"
-      POSTGRES_USER: transcendence
-      POSTGRES_PASSWORD: transcendence
-      POSTGRES_DB: transcendence
     volumes:
       - ./backend/migration/data-source.ts:/app/data-source.ts:ro
       - ./backend/migration/migrations:/app/migrations:ro
@@ -111,18 +81,15 @@ services:
 
   vault:
     container_name: vault-dev
-    environment:
-      VAULT_DEV_ROOT_TOKEN_ID: dev-root-token
-      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    volumes:
+      - ./vault/scripts:/vault/scripts:ro
+      - ./.env:/vault/seeds/.env:ro
     ports:
-      - "8200:8200"
+      - "127.0.0.1:8200:8200"
+    command: ["/bin/sh", "/vault/scripts/vault-dev-entrypoint.sh"]
 
   db:
     container_name: db-dev
-    environment:
-      POSTGRES_USER: transcendence
-      POSTGRES_PASSWORD: transcendence
-      POSTGRES_DB: transcendence
     ports:
       - "5432:5432"
     volumes:
@@ -130,9 +97,6 @@ services:
 
   nginx:
     container_name: nginx-dev
-    environment:
-      NODE_ENV: development
-      FRONTEND_URL: http://localhost:8080
     ports:
       # - "80:80" // comment out port for compatability with hive's computers
       - "8080:8080"
