@@ -2,8 +2,9 @@
 set -euo pipefail
 
 VAULT_ADDR="${VAULT_ADDR:-http://127.0.0.1:8200}"
-VAULT_TOKEN="${VAULT_TOKEN:-dev-root-token}"
-SECRET_PATH="secret/data/transcendence"
+VAULT_TOKEN="${VAULT_TOKEN:-}"
+TOKEN_SOURCE="environment"
+VAULT_SECRET_PATH="secret/data/transcendence"
 
 for cmd in curl jq; do
   if ! command -v "$cmd" &>/dev/null; then
@@ -27,16 +28,32 @@ if [ ! -f "$FILE" ]; then
   exit 1
 fi
 
+if [ -z "$VAULT_TOKEN" ] && grep -q '^VAULT_TOKEN=' "$FILE"; then
+  VAULT_TOKEN="$(grep -E '^VAULT_TOKEN=' "$FILE" | tail -n 1 | cut -d '=' -f2-)"
+  TOKEN_SOURCE="file"
+fi
+
+if [ -z "$VAULT_TOKEN" ]; then
+  VAULT_TOKEN="dev-root-token"
+  TOKEN_SOURCE="fallback"
+fi
+
+echo "Using VAULT_TOKEN from ${TOKEN_SOURCE}."
+
 echo "Waiting for Vault at ${VAULT_ADDR}..."
+READY=0
 for _ in $(seq 1 30); do
-  if curl -sf "${VAULT_ADDR}/v1/sys/health" >/dev/null 2>&1; then
+  HEALTH_JSON="$(curl -s "${VAULT_ADDR}/v1/sys/health" 2>/dev/null || true)"
+  if [ -n "$HEALTH_JSON" ] && echo "$HEALTH_JSON" | jq -e '.initialized == true and .sealed == false' >/dev/null 2>&1; then
+    READY=1
     break
   fi
   sleep 1
 done
 
-if ! curl -sf "${VAULT_ADDR}/v1/sys/health" >/dev/null 2>&1; then
-  echo "ERROR: Vault not available at ${VAULT_ADDR}"
+if [ "$READY" -ne 1 ]; then
+  echo "ERROR: Vault is not ready for writes at ${VAULT_ADDR} (must be initialized and unsealed)."
+  echo "Tip: run 'curl -s ${VAULT_ADDR}/v1/sys/health | jq'."
   exit 1
 fi
 
@@ -60,10 +77,24 @@ BEGIN { first = 1 }
   first = 0
 }' "$FILE")
 
-curl -sf -X POST "${VAULT_ADDR}/v1/${SECRET_PATH}" \
+WRITE_RESP="$(mktemp)"
+HTTP_CODE=$(curl -sS -o "$WRITE_RESP" -w "%{http_code}" -X POST "${VAULT_ADDR}/v1/${VAULT_SECRET_PATH}" \
   -H "X-Vault-Token: ${VAULT_TOKEN}" \
   -H "Content-Type: application/json" \
-  -d "{\"data\": {${ENV_JSON}}}" >/dev/null
+  -d "{\"data\": {${ENV_JSON}}}")
+
+if [ "$HTTP_CODE" -ge 400 ]; then
+  echo "ERROR: Failed to write secrets to ${VAULT_SECRET_PATH} (HTTP ${HTTP_CODE})."
+  cat "$WRITE_RESP"
+  echo ""
+  if [ "$VAULT_TOKEN" = "dev-root-token" ]; then
+    echo "Hint: dev-root-token works only with dev Vault. Set VAULT_TOKEN to your prod root token for prod Vault."
+  fi
+  rm -f "$WRITE_RESP"
+  exit 1
+fi
+
+rm -f "$WRITE_RESP"
 
 COUNT=$(echo "{${ENV_JSON}}" | jq 'length')
 echo "Imported ${COUNT} secrets into Vault from $(basename "$FILE")"
