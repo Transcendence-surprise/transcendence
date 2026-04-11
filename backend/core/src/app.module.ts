@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthController } from './health/health.controller';
@@ -7,21 +7,39 @@ import { MailModule } from './modules/mail/mail.module';
 import { ImagesModule } from './modules/images/images.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
 import { MatchesModule } from './modules/matches/matches.module';
+import { loadVaultSecrets } from './vault';
+
+@Module({})
+class VaultConfigModule {
+  static async forRootAsync(): Promise<DynamicModule> {
+    await loadVaultSecrets();
+
+    return {
+      module: VaultConfigModule,
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true,
+        }),
+      ],
+      exports: [ConfigModule],
+    };
+  }
+}
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.POSTGRES_HOST ?? 'localhost',
-      port: Number(process.env.POSTGRES_PORT ?? 5432),
-      username: process.env.POSTGRES_USER ?? 'transcendence',
-      password: process.env.POSTGRES_PASSWORD ?? 'transcendence',
-      database: process.env.POSTGRES_DB ?? 'transcendence',
-      autoLoadEntities: true,
-      synchronize: false,
+    VaultConfigModule.forRootAsync(),
+    TypeOrmModule.forRootAsync({
+      useFactory: () => ({
+          type: 'postgres',
+          host: process.env.POSTGRES_HOST ?? 'localhost',
+          port: Number(process.env.POSTGRES_PORT ?? 5432),
+          username: process.env.POSTGRES_USER ?? 'transcendence',
+          password: process.env.POSTGRES_PASSWORD ?? 'transcendence',
+          database: process.env.POSTGRES_DB ?? 'transcendence',
+          autoLoadEntities: true,
+          synchronize: false,
+      }),
     }),
     UsersModule,
     MailModule,

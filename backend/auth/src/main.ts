@@ -1,5 +1,4 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -12,6 +11,7 @@ import {
 } from '@nestjs/swagger';
 import fastifyCookie from '@fastify/cookie';
 import { AxiosExceptionFilter } from './common/filters/axios-exception.filter';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(

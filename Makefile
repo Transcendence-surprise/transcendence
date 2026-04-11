@@ -20,6 +20,7 @@ PROJECT = transcendence
 
 # Start prod
 prod:
+	make pack-deps
 	$(COMPOSE) -f docker-compose.prod.yml up -d --build
 
 # =========== Build commands ===========
@@ -88,6 +89,33 @@ compile-src:
 	cd backend/gateway && npm run build
 	cd backend/game && npm run build
 
+# =========== Vault commands (dev) ===========
+
+# Import secrets from an external file into Vault
+# Usage: make vault-seed FILE=~/secrets.env
+vault-seed:
+	@./vault/scripts/vault-seed.sh $(FILE)
+
+# Start only the prod Vault container
+vault-start-prod:
+	@echo "$(CYAN)Starting prod Vault...$(RESET)"
+	$(COMPOSE) -f docker-compose.prod.yml up -d vault
+
+# Initialize prod Vault: unseal keys, AppRole credentials, KV engine setup.
+# Run once on a brand-new Vault. Output includes unseal keys and VAULT_ROLE_ID/VAULT_SECRET_ID.
+vault-init-prod:
+	@VAULT_ADDR=http://127.0.0.1:8200 ./vault/scripts/vault-init-prod.sh
+
+# Apply one unseal key. Run 3 times with 3 different keys after every Vault restart.
+# Usage: make vault-unseal-prod KEY=<unseal-key>
+vault-unseal-prod:
+	@[ -n "$(KEY)" ] || (echo "$(RED)Usage: make vault-unseal-prod KEY=<unseal-key>$(RESET)"; exit 1)
+	@VAULT_ADDR=http://127.0.0.1:8200 ./vault/scripts/vault-unseal.sh $(KEY)
+
+# Show current seal status
+vault-status-prod:
+	@curl -sf http://127.0.0.1:8200/v1/sys/health | jq '{initialized,sealed,version}'
+
 # =========== Rebuild commands ===========
 
 # Build specific service
@@ -101,6 +129,7 @@ build-core:
 build-gateway:
 build-game:
 build-auth:
+build-vault:
 
 # =========== Test commands ===========
 
@@ -168,6 +197,7 @@ log-core:
 log-gateway:
 log-game:
 log-auth:
+log-vault:
 
 # Show running containers
 ps:
@@ -178,3 +208,5 @@ ps:
 	dev-front dev-back dev-migrate dev-seed dev-install dev-ci clean fclean \
 	re logs ps \
 	dev-build prune prod test test-back test-front ts-client \
+	vault-init vault-seed vault-stop vault-ui dev-vault \
+	vault-start-prod vault-init-prod vault-unseal-prod vault-status-prod \
