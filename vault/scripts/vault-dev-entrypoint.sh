@@ -2,7 +2,7 @@
 set -eu
 
 VAULT_LISTEN_ADDRESS="0.0.0.0:8200"
-VAULT_ROOT_TOKEN_ID="${VAULT_DEV_ROOT_TOKEN_ID:-dev-root-token}"
+VAULT_ROOT_TOKEN_ID="${VAULT_TOKEN:-dev-root-token}"
 VAULT_SEED_FILE="/vault/seeds/.env"
 VAULT_ADDR="http://127.0.0.1:8200"
 

@@ -4,7 +4,7 @@ set -eu
 VAULT_ADDR="${VAULT_ADDR:-http://127.0.0.1:8200}"
 VAULT_CONFIG_FILE="/vault/config/vault.hcl"
 VAULT_UNSEAL_KEYS_FILE="/vault/config/.unseal_keys"
-VAULT_SECRET_PATH="secret/transcendence"
+VAULT_SECRET_PATH="secret/data/transcendence"
 
 if ! command -v vault >/dev/null 2>&1; then
   echo "ERROR: 'vault' CLI is required."
@@ -37,6 +37,10 @@ status_field() {
   status_output | awk -v key="$field_name" '$1 == key { print $2 }' | tail -n 1
 }
 
+is_initialized() {
+  [ "$(status_field Initialized)" = "true" ]
+}
+
 wait_for_vault() {
   echo "Waiting for Vault to become available..."
   for _ in $(seq 1 60); do
@@ -53,15 +57,12 @@ wait_for_vault() {
 }
 
 initialize_if_needed() {
-  initialized="$(status_field Initialized)"
-
-  if [ "$initialized" = "true" ]; then
+  if is_initialized; then
     echo "Vault already initialized."
     return
   fi
 
-  echo "ERROR: Vault is not initialized. Initialize it manually before starting this stack."
-  exit 1
+  echo "Vault is not initialized yet. Starting server and skipping unseal/seed checks."
 }
 
 auto_unseal() {
@@ -110,7 +111,6 @@ require_seeded_secret() {
 
   echo "ERROR: Required Vault secret '$VAULT_SECRET_PATH' is missing."
   echo "Seed it manually before starting app services."
-  exit 1
 }
 
 start_main_unseal_helper() {
@@ -132,6 +132,13 @@ start_main_unseal_helper() {
 start_bootstrap_vault
 wait_for_vault
 initialize_if_needed
+
+if ! is_initialized; then
+  cleanup_bootstrap
+  echo "Starting Vault server mode as PID 1 (uninitialized)."
+  exec vault server -config="$VAULT_CONFIG_FILE"
+fi
+
 auto_unseal
 require_seeded_secret
 

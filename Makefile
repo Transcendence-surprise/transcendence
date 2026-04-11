@@ -94,7 +94,6 @@ compile-src:
 # Import secrets from an external file into Vault
 # Usage: make vault-seed FILE=~/secrets.env
 vault-seed:
-	@$(COMPOSE) -f docker-compose.dev.yml up -d vault
 	@./vault/scripts/vault-seed.sh $(FILE)
 
 # Start only the prod Vault container
