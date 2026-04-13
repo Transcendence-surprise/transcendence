@@ -85,6 +85,12 @@ export default function GameRoute() {
 
     const socket = connectSocket();
 
+    // Route param changes can reuse this component instance, so reset per-game UI state.
+    setMessages([]);
+    setInput("");
+    setError(null);
+    endStateRefetchedRef.current = false;
+
     const handlePlayUpdate = (
       data: Partial<PrivateGameState> & { playerProgress?: unknown },
     ) => {
