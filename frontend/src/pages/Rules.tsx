@@ -168,7 +168,7 @@ export default function Rules() {
 				</li>
 				<li className="flex gap-3">
 				  <span className="text-cyan-bright font-bold">✓</span>
-				  <span className="text-white">Completing all assigned objectives before other spaners (multiplayer)</span>
+				  <span className="text-white">Completing all assigned objectives before other players (multiplayer)</span>
 				</li>
 			  </ul>
       </div>
