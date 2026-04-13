@@ -322,15 +322,11 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
       state.spectators.some(s => s.id === user.sub);
 
     if (!isInGame) {
-      return this.server
-        .to(`play:${payload.gameId}`)
-        .emit("error", { error: "NOT_IN_GAME" });
+      return client.emit("error", { error: "NOT_IN_GAME" });
     }
 
     if (!payload.message.trim()) {
-      return this.server
-        .to(`play:${payload.gameId}`)
-        .emit("error", { error: "EMPTY_MESSAGE" });
+      return client.emit("error", { error: "EMPTY_MESSAGE" });
     }
 
     const chatMessage = {
