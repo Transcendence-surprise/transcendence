@@ -109,8 +109,10 @@ export default function GameRoute() {
       });
     };
 
+    const MAX_MESSAGES = 200;
+
     const handlePlayMessage = (msg: LobbyMessage) => {
-      setMessages((prev) => [...prev, msg]);
+      setMessages((prev) => [...prev, msg].slice(-MAX_MESSAGES));
     };
 
     const handleGameDeleted = (data: { gameId: string }) => {
