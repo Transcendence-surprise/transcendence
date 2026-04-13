@@ -57,6 +57,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libyajl2 \
     liblmdb0 \
     libcurl4 \
+    wget \
   && rm -rf /var/lib/apt/lists/*
 
 # ModSecurity shared library + nginx dynamic module
