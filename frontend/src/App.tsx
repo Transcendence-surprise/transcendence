@@ -14,7 +14,7 @@ import Leaderboard from "./pages/Leaderboard";
 import Settings from "./pages/Settings";
 import ResetPassword from "./pages/ResetPassword";
 import Chat from "./pages/Chat";
-import Friends from "./pages/Rules";
+import Rules from "./pages/Rules";
 import AdminPanel from "./pages/AdminPanel";
 import BadRequestPage from "./pages/error/400";
 import ForbiddenPage from "./pages/error/403";
@@ -82,7 +82,7 @@ export default function App() {
               {<Route path="settings" element={<Settings />} />}
               {<Route path="/admin" element={<AdminPanel />} />}
               {<Route path="chat" element={<Chat />} />}
-              {<Route path="friends" element={<Friends />} />}
+              {<Route path="rules" element={<Rules />} />}
             </Route>
 
             {/* Redirect unknown/obsolete routes to home */}
