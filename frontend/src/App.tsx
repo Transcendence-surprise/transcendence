@@ -14,7 +14,7 @@ import Leaderboard from "./pages/Leaderboard";
 import Settings from "./pages/Settings";
 import ResetPassword from "./pages/ResetPassword";
 import Chat from "./pages/Chat";
-import Friends from "./pages/Friends";
+import Friends from "./pages/Rules";
 import AdminPanel from "./pages/AdminPanel";
 import BadRequestPage from "./pages/error/400";
 import ForbiddenPage from "./pages/error/403";
