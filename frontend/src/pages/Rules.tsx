@@ -68,11 +68,7 @@ export default function Rules() {
 				</li>
 				<li className="flex gap-3">
 				  <span className="text-cyan-bright font-bold">✓</span>
-				  <span className="text-white">You move one tile per action during your turn</span>
-				</li>
-				<li className="flex gap-3">
-				  <span className="text-cyan-bright font-bold">✓</span>
-				  <span className="text-white">Multiple players can occupy the same tile</span>
+				  <span className="text-white">You can select path through several tiles during your turn</span>
 				</li>
 				<li className="flex gap-3">
 				  <span className="text-cyan-bright font-bold">✓</span>
@@ -97,7 +93,7 @@ export default function Rules() {
 			  </div>
 			  <div className="bg-bg-dark p-4 rounded border border-cyan-dark">
 				<p className="font-bold text-cyan-bright mb-2">Shift Row/Column</p>
-				<p className="text-sm text-white">Move an entire row or column left, right, up, or down. Tiles wrap around to the opposite side. Players on that row/column also shift with it.</p>
+				<p className="text-sm text-white">Move an entire row or column left, right, up, or down. Tiles wrap around to the opposite side. Players and collectibles on that row/column also shift with it.</p>
 			  </div>
 			</div>
 		  </section>
