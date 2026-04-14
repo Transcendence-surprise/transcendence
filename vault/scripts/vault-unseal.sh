@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Apply one unseal key to Vault. Run 3 times with 3 different keys to unseal.
 # Usage: ./vault-unseal.sh <unseal-key>
-#        make vault-unseal-prod KEY=<unseal-key>
+#        make vault-unseal KEY=<unseal-key>
 set -euo pipefail
 
 VAULT_ADDR="${VAULT_ADDR:-http://127.0.0.1:8200}"
