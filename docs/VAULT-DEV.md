@@ -57,6 +57,7 @@ Start  →  Sealed (1/3 keys provided)
 This is a security feature: if the server is stolen or compromised, the
 attacker gets only encrypted data — the key never exists on disk and only lives
 in memory while Vault is running.
+
 - Services authenticate to Vault via **AppRole** (role_id + secret_id). These
   credentials are set as environment variables on the VPS (Virtual Private Server) before starting the
   stack — they are never committed to git.
@@ -80,13 +81,7 @@ in memory while Vault is running.
 Do this once on a brand-new deployment (or after `make prod-fclean` which
 destroys the vault volume).
 
-### Step 1 — Install dependencies
-
-```bash
-make dev-install
-```
-
-### Step 2 — Prepare the secrets file on the VPS
+### Step 1 — Prepare the secrets file on the VPS
 
 ```bash
 cp .env.example ~/transcendence-secrets.env
@@ -94,7 +89,7 @@ cp .env.example ~/transcendence-secrets.env
 
 The file must stay outside the project directory and must never be committed.
 
-### Step 3 — Start the prod Vault container
+### Step 2 — Start the prod Vault container
 
 ```bash
 make vault-start
@@ -112,7 +107,7 @@ docker ps | grep vault-prod
 Expected output: container is `Up`, status is not yet `healthy` — that is
 normal, Vault is uninitialized and sealed.
 
-### Step 4 — Initialize Vault
+### Step 3 — Initialize Vault
 
 ```bash
 make vault-init
@@ -155,9 +150,9 @@ machine — never inside this project.
 After this step Vault is already unsealed (the script auto-unseals it using
 keys 1–3) and ready to use.
 
-### Step 5 — Seed secrets into Vault
+### Step 4 — Seed secrets into Vault
 
-Use the root token printed in Step 4:
+Use the root token printed in Step 3:
 
 ```bash
 VAULT_TOKEN=<root-token-from-step-4> make vault-seed FILE=~/transcendence-secrets.env
@@ -170,9 +165,9 @@ Imported 26 secrets into Vault from transcendence-secrets.env
 Vault UI: http://127.0.0.1:8200/ui (token: hvs.XXXX...)
 ```
 
-### Step 6 — Export the AppRole credentials
+### Step 5 — Export the AppRole credentials
 
-The `VAULT_ROLE_ID` and `VAULT_SECRET_ID` printed in Step 4 must be available
+The `VAULT_ROLE_ID` and `VAULT_SECRET_ID` printed in Step 3 must be available
 as environment variables when the prod stack starts. The simplest way on a VPS
 is to add them to the shell profile so they persist across sessions:
 
@@ -189,7 +184,7 @@ echo $VAULT_ROLE_ID
 echo $VAULT_SECRET_ID
 ```
 
-### Step 7 — Start the full prod stack
+### Step 6 — Start the full prod stack
 
 ```bash
 make prod
@@ -199,7 +194,7 @@ Docker Compose will start all services. The backend containers (core, auth,
 game, gateway) wait for Vault to report healthy before starting, then
 authenticate via AppRole and load all secrets.
 
-### Step 8 — Verify the app is running
+### Step 7 — Verify the app is running
 
 Check container status:
 
@@ -250,7 +245,7 @@ make vault-start
 ### Step 2 — Unseal Vault (3 keys required)
 
 Run this command three times, each time with a different unseal key from the
-set you saved in Part 1, Step 4:
+set you saved in Part 1, Step 3:
 
 ```bash
 make vault-unseal KEY=<key-1>
