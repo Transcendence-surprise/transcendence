@@ -97,7 +97,7 @@ The file must stay outside the project directory and must never be committed.
 ### Step 3 — Start the prod Vault container
 
 ```bash
-make vault-start-prod
+make vault-start
 ```
 
 This starts only the Vault container in server mode. The app services are not
@@ -115,7 +115,7 @@ normal, Vault is uninitialized and sealed.
 ### Step 4 — Initialize Vault
 
 ```bash
-make vault-init-prod
+make vault-init
 ```
 
 The script will print output similar to this:
@@ -237,14 +237,14 @@ until Vault is unsealed.
 ### Step 1 — Check Vault status
 
 ```bash
-make vault-status-prod
+make vault-status
 ```
 
 If Vault is sealed the output will show `"sealed": true`. If the container is
 not running, start it first:
 
 ```bash
-make vault-start-prod
+make vault-start
 ```
 
 ### Step 2 — Unseal Vault (3 keys required)
@@ -253,9 +253,9 @@ Run this command three times, each time with a different unseal key from the
 set you saved in Part 1, Step 4:
 
 ```bash
-make vault-unseal-prod KEY=<key-1>
-make vault-unseal-prod KEY=<key-2>
-make vault-unseal-prod KEY=<key-3>
+make vault-unseal KEY=<key-1>
+make vault-unseal KEY=<key-2>
+make vault-unseal KEY=<key-3>
 ```
 
 After the third key you will see:
@@ -267,7 +267,7 @@ Vault is UNSEALED and ready.
 Confirm with:
 
 ```bash
-make vault-status-prod
+make vault-status
 # expected: "sealed": false
 ```
 
@@ -339,15 +339,15 @@ Then repeat **Part 1** from Step 3 onward.
 ### Services fail to start with "Failed to load secrets from Vault"
 
 1. Check Vault is running: `docker ps | grep vault-prod`
-2. Check seal status: `make vault-status-prod`
+2. Check seal status: `make vault-status`
 3. If sealed: unseal with 3 keys (Part 2, Step 2)
 4. Check `VAULT_ROLE_ID` and `VAULT_SECRET_ID` are set: `echo $VAULT_ROLE_ID`
 5. Retry: `make prod`
 
-### "Vault is not reachable" from vault-init-prod
+### "Vault is not reachable" from vault-init
 
-The Vault container is not up. Run `make vault-start-prod` first, wait a few
-seconds, then retry `make vault-init-prod`.
+The Vault container is not up. Run `make vault-start` first, wait a few
+seconds, then retry `make vault-init`.
 
 ### Lost unseal keys
 
