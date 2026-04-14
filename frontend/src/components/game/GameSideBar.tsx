@@ -10,10 +10,12 @@ type GameSideBarProps = {
   isSpectator?: boolean;
 };
 
-export default function GameSideBar({ game, isSpectator = false }: GameSideBarProps) {
+export default function GameSideBar({
+  game,
+  isSpectator = false,
+}: GameSideBarProps) {
   return (
     <div className="w-80 flex flex-col gap-4 p-4">
-
       <TimerPanel game={game} />
 
       <PlayerList
@@ -21,14 +23,10 @@ export default function GameSideBar({ game, isSpectator = false }: GameSideBarPr
         currentPlayerId={game.currentPlayerId}
         playerProgress={game.playerProgressById}
         collectiblesPerPlayer={5}
+        spectatorIds={game.spectators}
       />
 
-      {!isSpectator && (
-        <PlayerPrivatePanel
-          game={game}
-        />
-      )}
-
+      {!isSpectator && <PlayerPrivatePanel game={game} />}
     </div>
   );
 }
