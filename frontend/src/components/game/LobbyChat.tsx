@@ -5,6 +5,7 @@ type Props = {
   input: string;
   setInput: (v: string) => void;
   onSend: () => void;
+  title?: string;
 };
 
 export default function LobbyChat({
@@ -12,10 +13,11 @@ export default function LobbyChat({
   input,
   setInput,
   onSend,
+  title = "Lobby Chat",
 }: Props) {
   return (
     <div className="rounded-lg border border-[var(--color-border-subtle)] bg-bg-dark-secondary px-6 py-4 flex flex-col h-96">
-      <h3 className="text-lg font-bold text-cyan-bright mb-3">Lobby Chat</h3>
+      <h3 className="text-lg font-bold text-cyan-bright mb-3">{title}</h3>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
@@ -26,7 +28,9 @@ export default function LobbyChat({
         ) : (
           messages.map((msg, i) => (
             <div key={i} className="text-sm">
-              <span className="text-cyan-400 font-semibold">{msg.userName}</span>
+              <span className="text-cyan-400 font-semibold">
+                {msg.userName}
+              </span>
               <span className="text-lightest-cyan">: {msg.message}</span>
             </div>
           ))
