@@ -9,7 +9,7 @@ interface PlayerPrivatePanelProps {
 
 export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
   const { user } = useAuth();
-  const { playerProgress, boardActionsPending } = game;
+  const { playerProgress } = game;
   const {
     collectedItems = [],
     currentCollectibleId,
@@ -20,7 +20,8 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
 
   useEffect(() => {
     const loadCollectibleImages = async () => {
-      const collectableSet = localStorage.getItem("settings.collectableSet") || "gemstones";
+      const collectableSet =
+        localStorage.getItem("settings.collectableSet") || "gemstones";
       const dir = collectableSet === "gemstones" ? "gems" : "numbers";
 
       const entries = await Promise.all(
@@ -33,14 +34,20 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
             await img.decode();
             return [id, img] as const;
           } catch (error) {
-            console.warn(`Failed to load collectible image ${id} from ${img.src}`, error);
+            console.warn(
+              `Failed to load collectible image ${id} from ${img.src}`,
+              error,
+            );
             return null;
           }
-        })
+        }),
       );
 
       collectibleImagesRef.current = Object.fromEntries(
-        entries.filter((entry): entry is readonly [string, HTMLImageElement] => entry !== null)
+        entries.filter(
+          (entry): entry is readonly [string, HTMLImageElement] =>
+            entry !== null,
+        ),
       );
       setCollectibleImagesLoaded(true);
     };
@@ -61,10 +68,10 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
   };
 
   const myPlayer = game.players.find(
-    (p) => user?.id != null && p.id.toString() === user.id.toString()
+    (p) => user?.id != null && p.id.toString() === user.id.toString(),
   );
   const fallbackPlayer = game.players.find(
-    (p) => p.id.toString() === game.currentPlayerId.toString()
+    (p) => p.id.toString() === game.currentPlayerId.toString(),
   );
   const playerForStats = myPlayer ?? fallbackPlayer;
 
@@ -74,7 +81,6 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
 
   return (
     <div className="flex flex-col gap-4 w-full bg-bg-sidebar p-4 rounded-lg">
-      
       {/* Current Collectible */}
       {currentCollectibleId && (
         <div className="flex flex-col items-center mb-4">
@@ -119,7 +125,9 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
               );
             })
           ) : (
-            <span className="text-xs text-gray-500">No items collected yet</span>
+            <span className="text-xs text-gray-500">
+              No items collected yet
+            </span>
           )}
         </div>
       </div>
@@ -135,7 +143,8 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
                   obj.done ? "bg-green-400" : "bg-gray-500"
                 }`}
               />
-              {obj.type} {obj.amount ? `(${obj.progress ?? 0}/${obj.amount})` : ""}
+              {obj.type}{" "}
+              {obj.amount ? `(${obj.progress ?? 0}/${obj.amount})` : ""}
             </li>
           ))}
         </ul>
@@ -154,13 +163,6 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
           {maxMoves != null ? `${totalMoves}/${maxMoves}` : totalMoves}
         </span>
       </div>
-
-      {/* Board Actions Pending */}
-      {boardActionsPending && (
-        <div className="mt-2 p-2 bg-red-600/30 rounded-md text-xs text-red-100 font-semibold text-center">
-          Board action required!
-        </div>
-      )}
     </div>
   );
 }

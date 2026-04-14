@@ -11,10 +11,18 @@ type Props = {
   players: PlayerState[];
   currentPlayerId: string | number;
   gameId: string;
+  boardActionsPending?: boolean;
   isSpectator?: boolean;
 };
 
-export default function BoardView({ board, players, currentPlayerId, gameId, isSpectator = false }: Props) {
+export default function BoardView({
+  board,
+  players,
+  currentPlayerId,
+  gameId,
+  boardActionsPending = false,
+  isSpectator = false,
+}: Props) {
   const navigate = useNavigate();
 
   // --- Game actions (API driven) ---
@@ -32,7 +40,7 @@ export default function BoardView({ board, players, currentPlayerId, gameId, isS
   const handleArrowClick = async (
     axis: "ROW" | "COL",
     index: number,
-    direction: "UP" | "DOWN" | "LEFT" | "RIGHT"
+    direction: "UP" | "DOWN" | "LEFT" | "RIGHT",
   ) => {
     if (axis === "ROW") {
       await handleRowClick(index, direction === "LEFT" ? "left" : "right");
@@ -41,7 +49,9 @@ export default function BoardView({ board, players, currentPlayerId, gameId, isS
     }
   };
 
-  const [selectedTiles, setSelectedTiles] = useState<{ x: number; y: number }[]>([]);
+  const [selectedTiles, setSelectedTiles] = useState<
+    { x: number; y: number }[]
+  >([]);
 
   // Swap button pressed
   const handleSwapButton = async () => {
@@ -101,6 +111,7 @@ export default function BoardView({ board, players, currentPlayerId, gameId, isS
         onSkipClick={handleSkip}
         canRotate={selectedTiles.length === 1}
         canSwap={selectedTiles.length === 2}
+        boardActionsPending={boardActionsPending}
         isSpectator={isSpectator}
       />
 
