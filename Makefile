@@ -88,26 +88,32 @@ compile-src:
 	cd backend/gateway && npm run build
 	cd backend/game && npm run build
 
-# =========== Vault commands (prod) ===========
+# =========== Vault commands ===========
 
-# Start only the prod Vault container
-vault-start-prod:
-	@echo "$(CYAN)Starting prod Vault...$(RESET)"
+# Start only the Vault container
+vault-start:
+	@echo "$(CYAN)Starting Vault...$(RESET)"
 	$(COMPOSE) -f docker-compose.prod.yml up -d vault
 
-# Initialize prod Vault: unseal keys, AppRole credentials, KV engine setup.
+# Initialize Vault: unseal keys, AppRole credentials, KV engine setup.
 # Run once on a brand-new Vault. Output includes unseal keys and VAULT_ROLE_ID/VAULT_SECRET_ID.
-vault-init-prod:
+vault-init:
 	@VAULT_ADDR=http://127.0.0.1:8200 ./vault/scripts/vault-init-prod.sh
 
 # Apply one unseal key. Run 3 times with 3 different keys after every Vault restart.
-# Usage: make vault-unseal-prod KEY=<unseal-key>
-vault-unseal-prod:
-	@[ -n "$(KEY)" ] || (echo "$(RED)Usage: make vault-unseal-prod KEY=<unseal-key>$(RESET)"; exit 1)
+# Usage: make vault-unseal KEY=<unseal-key>
+vault-unseal:
+	@[ -n "$(KEY)" ] || (echo "$(RED)Usage: make vault-unseal KEY=<unseal-key>$(RESET)"; exit 1)
 	@VAULT_ADDR=http://127.0.0.1:8200 ./vault/scripts/vault-unseal.sh $(KEY)
 
+# Seed secrets from a file into Vault.
+# Usage: VAULT_TOKEN=<root-token> make vault-seed [FILE=~/transcendence-secrets.env]
+SECRETS_FILE ?= ~/transcendence-secrets.env
+vault-seed:
+	@VAULT_ADDR=http://127.0.0.1:8200 ./vault/scripts/vault-seed.sh $(SECRETS_FILE)
+
 # Show current seal status
-vault-status-prod:
+vault-status:
 	@curl -sf http://127.0.0.1:8200/v1/sys/health | jq '{initialized,sealed,version}'
 
 # =========== Rebuild commands ===========
@@ -201,4 +207,4 @@ ps:
 	dev-front dev-back dev-migrate dev-seed dev-install dev-ci clean fclean \
 	re logs ps \
 	dev-build prune prod test test-back test-front ts-client \
-	vault-start-prod vault-init-prod vault-unseal-prod vault-status-prod \
+	vault-start vault-init vault-unseal vault-seed vault-status \
