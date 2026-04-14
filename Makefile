@@ -88,30 +88,6 @@ compile-src:
 	cd backend/gateway && npm run build
 	cd backend/game && npm run build
 
-# =========== Vault commands (dev) ===========
-
-# Start Vault container (dev mode, token: dev-root-token)
-vault-init:
-	@echo "$(CYAN)Starting Vault...$(RESET)"
-	$(COMPOSE) -f docker-compose.dev.yml up -d vault
-	@echo "$(GREEN)Vault ready. UI: http://localhost:8200/ui (token: dev-root-token)$(RESET)"
-
-# Import secrets from an external file into Vault
-# Usage: make vault-seed FILE=~/secrets.env
-vault-seed:
-	@$(COMPOSE) -f docker-compose.dev.yml up -d vault
-	@./vault/scripts/vault-seed.sh $(FILE)
-
-# Stop Vault container
-vault-stop:
-	@echo "$(CYAN)Stopping Vault...$(RESET)"
-	$(COMPOSE) -f docker-compose.dev.yml stop vault
-
-# Print Vault UI URL and token
-vault-ui:
-	@echo "$(CYAN)Vault UI: http://localhost:8200/ui$(RESET)"
-	@echo "$(CYAN)Token: dev-root-token$(RESET)"
-
 # =========== Vault commands (prod) ===========
 
 # Start only the prod Vault container
@@ -133,13 +109,6 @@ vault-unseal-prod:
 # Show current seal status
 vault-status-prod:
 	@curl -sf http://127.0.0.1:8200/v1/sys/health | jq '{initialized,sealed,version}'
-
-# Start Vault, optionally seed, then start dev stack
-# Usage: make dev-vault [FILE=~/secrets.env]
-dev-vault:
-	@$(COMPOSE) -f docker-compose.dev.yml up -d vault
-	@if [ -n "$(FILE)" ]; then ./vault/scripts/vault-seed.sh $(FILE); fi
-	$(COMPOSE) -f docker-compose.dev.yml up -d
 
 # =========== Rebuild commands ===========
 
@@ -222,7 +191,6 @@ log-core:
 log-gateway:
 log-game:
 log-auth:
-log-vault:
 
 # Show running containers
 ps:
@@ -233,5 +201,4 @@ ps:
 	dev-front dev-back dev-migrate dev-seed dev-install dev-ci clean fclean \
 	re logs ps \
 	dev-build prune prod test test-back test-front ts-client \
-	vault-init vault-seed vault-stop vault-ui dev-vault \
 	vault-start-prod vault-init-prod vault-unseal-prod vault-status-prod \
