@@ -29,25 +29,14 @@ Builds the shared `db-entities` package and runs `npm install` in every service 
 
 ### Step 2 — Create your secrets file
 
-Copy the template to your home directory and fill in real values for all `SECRET` fields (mail credentials, OAuth keys, JWT secret, etc.):
+Copy the template to the project root and fill in real values:
 
 ```bash
-cp .env.example ~/transcendence-secrets.env
-# Edit ~/transcendence-secrets.env with your real values
+cp .env.example .env
+# Edit .env with your real values
 ```
 
-Keep this file **outside the project** — it is never committed.
-
-### Step 3 — Start Vault and seed your secrets
-
-```bash
-make vault-init                                   # start the Vault container
-make vault-seed FILE=~/transcendence-secrets.env  # import secrets into Vault
-```
-
-Vault runs in **dev mode**: data is in-memory, accessible at http://localhost:8200/ui with token `dev-root-token`.
-
-### Step 4 — Build and start the dev stack
+### Step 3 — Build and start the dev stack
 
 ```bash
 make dev-build
@@ -65,49 +54,12 @@ This builds all Docker images, runs DB migrations, and starts every service. The
 make dev
 ```
 
-### Stop Vault survives `make down`
-
-`make down` do not stop vault container, it keeps running — and its in-memory secrets are preserved — across normal restarts.
-
-After running `make down` command you may see:
-```bash
-! Network transcendence_transcendence_net Resource is still in use     
-```
-It means Vault is running and using the network (no need to seed Vault with secrets for starting app)
-
-If you need to stop Vault run:
-
-```bash
-make vault-stop
-```
-
-### After a Vault restart (secrets are lost on container restart)
-
-Re-seed before starting the stack:
-
-```bash
-make vault-seed FILE=~/transcendence-secrets.env
-make dev
-```
-
 ### Stop and start
 
 ```bash
 make down       # stop containers, keep volumes
 make restart    # stop + start (no rebuild)
 ```
-
----
-
-## Vault
-
-For Vault UI usage, editing secrets, and full details see `docs/VAULT-GUIDE.md`.
-
----
-
-## Without Vault
-
-If Vault is not running (no `VAULT_TOKEN` env var set), backend services fall back to a `.env` file in the project root — the old workflow still works.
 
 ---
 
@@ -139,15 +91,6 @@ make dev-front
 | `make dev-front` | Run frontend locally (outside Docker) |
 | `make dev-db` | Start only PostgreSQL |
 
-### Vault
-
-| Command | Description |
-|---------|-------------|
-| `make vault-init` | Start Vault container (dev mode) |
-| `make vault-seed FILE=<path>` | Import secrets from a file into Vault |
-| `make vault-stop` | Stop Vault container |
-| `make dev-vault [FILE=<path>]` | Start Vault, optionally seed, start dev stack |
-
 ### Rebuild a single service
 
 ```bash
@@ -163,8 +106,8 @@ make build-db
 ### Logs
 
 ```bash
-make logs          # all services
-make log-core      # single service (log-auth, log-gateway, log-game, log-nginx, log-db, log-vault)
+make logs       # all services
+make log-core   # single service (log-auth, log-gateway, log-game, log-nginx, log-db)
 ```
 
 ### Cleanup
@@ -207,7 +150,6 @@ make prod-fclean    # stop prod and remove volumes
 | Auth API | http://localhost:3001 |
 | Game API + WS | http://localhost:3003 |
 | PostgreSQL | localhost:5432 (user/pass/db: `transcendence`) |
-| Vault UI | http://localhost:8200/ui (token: `dev-root-token`) |
 
 ---
 
@@ -227,5 +169,4 @@ make prod-fclean    # stop prod and remove volumes
 - Nginx
 - PostgreSQL
 - Docker & Docker Compose
-- HashiCorp Vault (dev secrets)
 - Hetzner VPS
