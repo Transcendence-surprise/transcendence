@@ -1,43 +1,15 @@
-import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
-import { checkHealth } from '../api/health';
-import LoginForm from './auth/LoginForm';
-import SignupForm from './auth/SignupForm';
-import Header from './UI/Header';
-import Footer from './UI/Footer';
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
+import LoginForm from "./auth/LoginForm";
+import SignupForm from "./auth/SignupForm";
+import Header from "./UI/Header";
+import Footer from "./UI/Footer";
+import { useIsViewportLockedPage } from "../hooks/useIsViewportLockedPage";
 
 export default function Layout() {
-  const [status, setStatus] = useState('loading...');
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    checkHealth(controller.signal)
-      .then(data => setStatus(data.status))
-      .catch((err) => {
-        if (err?.name !== "AbortError") {
-          setStatus('error');
-        }
-      });
-
-    // Poll health every 60s seconds to update status for HEADER UPDATE (MOVE TO ADMIN PANEL LATER)
-    const interval = setInterval(() => {
-      checkHealth(controller.signal)
-        .then(data => setStatus(data.status))
-        .catch((err) => {
-          if (err?.name !== "AbortError") {
-            setStatus('error');
-          }
-        });
-    }, 60000);
-
-    return () => {
-      clearInterval(interval);
-      controller.abort();
-    };
-  }, []);
+  const isViewportLockedPage = useIsViewportLockedPage();
 
   const handleSwitchToSignup = () => {
     setShowLogin(false);
@@ -50,30 +22,37 @@ export default function Layout() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-dark text-blue-hero font-sans">
+    <div
+      className={
+        isViewportLockedPage
+          ? "h-screen overflow-hidden bg-bg-dark text-white font-sans flex flex-col"
+          : "min-h-screen bg-bg-dark text-white font-sans"
+      }
+    >
       {/* Header */}
-	  <Header 
-        status={status}
+      <Header
         onLoginClick={() => setShowLogin(true)}
         onSignupClick={() => setShowSignup(true)}
       />
       {/* Login Modal */}
       {showLogin && (
-        <LoginForm 
-          onClose={() => setShowLogin(false)} 
+        <LoginForm
+          onClose={() => setShowLogin(false)}
           onSwitchToSignup={handleSwitchToSignup}
         />
       )}
-      
+
       {/* Signup Modal */}
       {showSignup && (
-        <SignupForm 
+        <SignupForm
           onClose={() => setShowSignup(false)}
           onSwitchToLogin={handleSwitchToLogin}
         />
       )}
       {/* Main content - this is where child routes will render */}
-      <main>
+      <main
+        className={isViewportLockedPage ? "flex-1 min-h-0 overflow-hidden" : ""}
+      >
         <Outlet />
       </main>
 

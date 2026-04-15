@@ -300,6 +300,46 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
       .emit("lobbyMessage", chatMessage);
   }
 
+// PLAY CHAT
+
+  @SubscribeMessage("playMessage")
+  handlePlayMessage(
+    @MessageBody()
+    payload: { gameId: string; message: string },
+    @ConnectedSocket() client: TypedSocket,
+  ) {
+    const user = client.user;
+    if (!user) return client.disconnect(true);
+
+    const state = this.engine.getGameState(payload.gameId);
+
+    if (!state) {
+      return client.emit("error", { error: "GAME_NOT_FOUND" });
+    }
+
+    const isInGame =
+      state.players.some(p => p.id === user.sub) ||
+      state.spectators.some(s => s.id === user.sub);
+
+    if (!isInGame) {
+      return client.emit("error", { error: "NOT_IN_GAME" });
+    }
+
+    if (!payload.message.trim()) {
+      return client.emit("error", { error: "EMPTY_MESSAGE" });
+    }
+
+    const chatMessage = {
+      userName: user.username,
+      message: payload.message,
+      timestamp: Date.now(),
+    };
+
+    this.server
+      .to(`play:${payload.gameId}`)
+      .emit("playMessage", chatMessage);
+  }
+
 // START GAME - send initial game state to all players in the play room
 
   @SubscribeMessage('joinPlay')
