@@ -32,33 +32,34 @@ export default function GamePage({
 
   return (
     <div>
-    <div className="flex w-full h-full items-start justify-center gap-4">
-      {/* Board centered */}
-      <div className="flex-1 flex justify-center self-start">
-        <BoardView
-          board={game.board}
-          players={game.players}
-          currentPlayerId={game.currentPlayerId}
-          gameId={gameId}
-          isSpectator={isSpectator}
-        />
+      <div className="flex w-full h-full items-start justify-center gap-4">
+        {/* Board centered */}
+        <div className="flex-1 flex justify-center self-start">
+          <BoardView
+            board={game.board}
+            players={game.players}
+            currentPlayerId={game.currentPlayerId}
+            gameId={gameId}
+            boardActionsPending={game.boardActionsPending}
+            isSpectator={isSpectator}
+          />
+        </div>
+        {/* Sidebar pushed right */}
+        <div className="flex-shrink-0 self-start">
+          <Sidebar game={game} isSpectator={isSpectator} />
+        </div>
       </div>
-      {/* Sidebar pushed right */}
-      <div className="flex-shrink-0 self-start">
-        <Sidebar game={game} gameId={gameId} isSpectator={isSpectator} />
-      </div>
-    </div>
       {showChat && (
-          <div className="mt-4 w-5/6 mx-auto">
-            <LobbyChat
-              messages={messages}
-              input={input}
-              setInput={setInput}
-              onSend={sendMessage}
-              title="Game Chat"
-            />
-          </div>
-        )}
+        <div className="mt-4 w-5/6 mx-auto">
+          <LobbyChat
+            messages={messages}
+            input={input}
+            setInput={setInput}
+            onSend={sendMessage}
+            title="Game Chat"
+          />
+        </div>
+      )}
     </div>
   );
 }

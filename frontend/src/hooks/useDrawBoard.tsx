@@ -42,31 +42,42 @@ export function useDrawBoard(
         Object.entries(TILE_SVGS).map(async ([type, svg]) => {
           const img = await loadImage(
             `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`,
-            `tile ${type}`
+            `tile ${type}`,
           );
           return img ? ([type, img] as const) : null;
-        })
+        }),
       );
       tileImagesRef.current = Object.fromEntries(
-        tileEntries.filter((entry): entry is readonly [string, HTMLImageElement] => entry !== null)
+        tileEntries.filter(
+          (entry): entry is readonly [string, HTMLImageElement] =>
+            entry !== null,
+        ),
       );
 
       // Players
-      const playerIconSet = localStorage.getItem("settings.playerIconSet") || "star";
+      const playerIconSet =
+        localStorage.getItem("settings.playerIconSet") || "star";
       const ids = playerIconSet === "star" ? [1, 2, 3, 4] : [5, 6, 7, 8];
       for (const id of ids) {
         const setName = playerIconSet === "star" ? "star" : "space_inv";
-        const img = await loadImage(`/assets/player/${setName}/${id}.svg`, `player ${setName}/${id}`);
+        const img = await loadImage(
+          `/assets/player/${setName}/${id}.svg`,
+          `player ${setName}/${id}`,
+        );
         if (img) {
           playerImagesRef.current[String(id)] = img;
         }
       }
 
       // Collectibles
-      const collectableSet = localStorage.getItem("settings.collectableSet") || "gemstones";
+      const collectableSet =
+        localStorage.getItem("settings.collectableSet") || "gemstones";
       const dir = collectableSet === "gemstones" ? "gems" : "numbers";
       for (let i = 1; i <= 24; i++) {
-        const img = await loadImage(`/assets/collectables/${dir}/${i}.svg`, `collectible ${dir}/${i}`);
+        const img = await loadImage(
+          `/assets/collectables/${dir}/${i}.svg`,
+          `collectible ${dir}/${i}`,
+        );
         if (img) {
           collectibleImagesRef.current[String(i)] = img;
         }
@@ -92,6 +103,11 @@ export function useDrawBoard(
 
     const width = board.tiles[0]?.length ?? 0;
     const height = board.tiles.length;
+    const isFixedCornerTile = (x: number, y: number) =>
+      (x === 0 && y === 0) ||
+      (x === width - 1 && y === 0) ||
+      (x === 0 && y === height - 1) ||
+      (x === width - 1 && y === height - 1);
 
     const dpr = window.devicePixelRatio || 1;
     canvas.width = width * CELL_SIZE * dpr;
@@ -102,7 +118,7 @@ export function useDrawBoard(
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, width * CELL_SIZE, height * CELL_SIZE);
 
-     flatTiles.forEach((tile) => {
+    flatTiles.forEach((tile) => {
       const cellX = tile.x * CELL_SIZE;
       const cellY = tile.y * CELL_SIZE;
 
@@ -119,7 +135,7 @@ export function useDrawBoard(
         cellX + CELL_BORDER_WIDTH / 2,
         cellY + CELL_BORDER_WIDTH / 2,
         CELL_SIZE - CELL_BORDER_WIDTH,
-        CELL_SIZE - CELL_BORDER_WIDTH
+        CELL_SIZE - CELL_BORDER_WIDTH,
       );
 
       // Tile image
@@ -133,9 +149,16 @@ export function useDrawBoard(
           -CELL_SIZE / 2 + TILE_DRAW_INSET,
           -CELL_SIZE / 2 + TILE_DRAW_INSET,
           CELL_SIZE - TILE_DRAW_INSET * 2,
-          CELL_SIZE - TILE_DRAW_INSET * 2
+          CELL_SIZE - TILE_DRAW_INSET * 2,
         );
         ctx.restore();
+      }
+
+      // Slightly gray-out fixed corner tiles so players can quickly identify
+      // the immovable board anchors without hiding tile details.
+      if (tile.fixed && isFixedCornerTile(tile.x, tile.y)) {
+        ctx.fillStyle = "rgba(107, 114, 128, 0.28)";
+        ctx.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
       }
 
       // Collectible
@@ -150,9 +173,7 @@ export function useDrawBoard(
 
     // --- PLAYERS (separate layer) ---
     players.forEach((player) => {
-      const tile = flatTiles.find(
-        (t) => t.x === player.x && t.y === player.y
-      );
+      const tile = flatTiles.find((t) => t.x === player.x && t.y === player.y);
       if (!tile) return;
 
       // Map slotId (P1, P2, ...) to correct image id in the set
@@ -160,8 +181,10 @@ export function useDrawBoard(
       let img;
       if (slotMatch) {
         const slotNum = Number(slotMatch[1]);
-        const playerIconSet = localStorage.getItem("settings.playerIconSet") || "star";
-        const imgId = playerIconSet === "star" ? String(slotNum) : String(slotNum + 4);
+        const playerIconSet =
+          localStorage.getItem("settings.playerIconSet") || "star";
+        const imgId =
+          playerIconSet === "star" ? String(slotNum) : String(slotNum + 4);
         img = playerImagesRef.current[imgId];
       }
 
@@ -174,14 +197,24 @@ export function useDrawBoard(
         // Draw fallback: colored circle with player initial
         ctx.save();
         ctx.beginPath();
-        ctx.arc(cellX + CELL_SIZE / 2, cellY + CELL_SIZE / 2, 22, 0, 2 * Math.PI);
-        ctx.fillStyle = '#3498db';
+        ctx.arc(
+          cellX + CELL_SIZE / 2,
+          cellY + CELL_SIZE / 2,
+          22,
+          0,
+          2 * Math.PI,
+        );
+        ctx.fillStyle = "#3498db";
         ctx.fill();
-        ctx.font = 'bold 20px sans-serif';
-        ctx.fillStyle = '#fff';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(player.name?.[0] || '?', cellX + CELL_SIZE / 2, cellY + CELL_SIZE / 2);
+        ctx.font = "bold 20px sans-serif";
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(
+          player.name?.[0] || "?",
+          cellX + CELL_SIZE / 2,
+          cellY + CELL_SIZE / 2,
+        );
         ctx.restore();
       }
     });

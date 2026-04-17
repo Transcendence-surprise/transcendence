@@ -7,22 +7,57 @@ export default function Profile() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const displayName = user?.username ?? mockPlayerProfile.name;
-	if (!user || user.roles.includes("guest")) {
-	  return (
-		 <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+  const totalMatches = mockPlayerProfile.totalMatches;
+  const badges = [
+    {
+      id: "first-login",
+      name: "First login",
+      image: "/assets/badges/badge_first_login.svg",
+      unlocked: true,
+    },
+    {
+      id: "first-game",
+      name: "First game",
+      image: "/assets/badges/badge_first_game.svg",
+      unlocked: totalMatches >= 1,
+    },
+    {
+      id: "first-friend",
+      name: "First friend",
+      image: "/assets/badges/badge_first_friend.svg",
+      unlocked: true,
+    },
+    {
+      id: "games-20",
+      name: "20 games played",
+      image: "/assets/badges/badge_20_games.svg",
+      unlocked: totalMatches >= 20,
+    },
+    {
+      id: "games-50",
+      name: "50 games played",
+      image: "/assets/badges/badge_50_games.svg",
+      unlocked: totalMatches >= 50,
+    },
+  ];
+  const unlockedBadges = badges.filter((badge) => badge.unlocked);
+
+  if (!user || user.roles.includes("guest")) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
         <h2 className="text-3xl font-bold mb-6 text-cyan-400">
-            Login required to access profile
+          Login required to access profile
         </h2>
 
         <button
-            onClick={() => navigate(-1)}
-            className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
+          onClick={() => navigate(-1)}
+          className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
         >
-            Back
+          Back
         </button>
-        </div>
-	  );
-	}
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col min-h-[60vh]">
       <div className="flex items-center gap-4 mb-8">
@@ -107,6 +142,26 @@ export default function Profile() {
           title="Winrate"
           value={`${mockPlayerProfile.winrate}%`}
         />
+      </div>
+
+      {/* Badges */}
+      <div className="mb-8">
+        <h3 className="text-2xl font-bold text-white mb-4">Badges</h3>
+        {unlockedBadges.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 max-w-5xl">
+            {unlockedBadges.map((badge) => (
+              <div
+                key={badge.id}
+                className="rounded-lg border border-[var(--color-border-subtle)] bg-bg-modal p-3 flex flex-col items-center text-center gap-2"
+              >
+                <img src={badge.image} alt={badge.name} className="w-16 h-16" />
+                <p className="text-sm text-white">{badge.name}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-400">No badges unlocked yet.</p>
+        )}
       </div>
 
       {/* Recent Matches */}

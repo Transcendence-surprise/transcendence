@@ -51,7 +51,11 @@ function getTileOpenings(tile: Board["tiles"][number][number]): Direction[] {
   return [];
 }
 
-function canMoveOnBoard(board: Board, from: { x: number; y: number }, to: { x: number; y: number }): boolean {
+function canMoveOnBoard(
+  board: Board,
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+): boolean {
   const fromTile = board.tiles[from.y]?.[from.x];
   const toTile = board.tiles[to.y]?.[to.x];
   if (!fromTile || !toTile) return false;
@@ -61,10 +65,14 @@ function canMoveOnBoard(board: Board, from: { x: number; y: number }, to: { x: n
   const dx = to.x - from.x;
   const dy = to.y - from.y;
 
-  if (dx === 1 && dy === 0) return fromOpenings.includes("RIGHT") && toOpenings.includes("LEFT");
-  if (dx === -1 && dy === 0) return fromOpenings.includes("LEFT") && toOpenings.includes("RIGHT");
-  if (dx === 0 && dy === 1) return fromOpenings.includes("DOWN") && toOpenings.includes("UP");
-  if (dx === 0 && dy === -1) return fromOpenings.includes("UP") && toOpenings.includes("DOWN");
+  if (dx === 1 && dy === 0)
+    return fromOpenings.includes("RIGHT") && toOpenings.includes("LEFT");
+  if (dx === -1 && dy === 0)
+    return fromOpenings.includes("LEFT") && toOpenings.includes("RIGHT");
+  if (dx === 0 && dy === 1)
+    return fromOpenings.includes("DOWN") && toOpenings.includes("UP");
+  if (dx === 0 && dy === -1)
+    return fromOpenings.includes("UP") && toOpenings.includes("DOWN");
   return false;
 }
 
@@ -73,14 +81,21 @@ export type BoardCanvasProps = {
   players: PlayerState[];
   currentPlayerId: string | number;
   selectedTiles: { x: number; y: number }[];
-  setSelectedTiles: React.Dispatch<React.SetStateAction<{ x: number; y: number }[]>>;
-  onArrowClick: (axis: "ROW" | "COL", index: number, direction: "UP" | "DOWN" | "LEFT" | "RIGHT") => void;
+  setSelectedTiles: React.Dispatch<
+    React.SetStateAction<{ x: number; y: number }[]>
+  >;
+  onArrowClick: (
+    axis: "ROW" | "COL",
+    index: number,
+    direction: "UP" | "DOWN" | "LEFT" | "RIGHT",
+  ) => void;
   onPlayerMove: (path: { x: number; y: number }[]) => Promise<void>;
   onRotateClick: () => void;
   onSwapClick: () => void;
   onSkipClick: () => void;
   canRotate: boolean;
   canSwap: boolean;
+  boardActionsPending?: boolean;
   isSpectator?: boolean;
 };
 
@@ -97,6 +112,7 @@ export function BoardCanvas({
   onSkipClick,
   canRotate,
   canSwap,
+  boardActionsPending = false,
   isSpectator = false,
 }: BoardCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -104,12 +120,17 @@ export function BoardCanvas({
   // Draw board and players, highlight selected tiles
   useDrawBoard(canvasRef, board, players, selectedTiles);
 
-  const [selectedPlayer, setSelectedPlayer] = useState<{ x: number; y: number } | null>(null);
+  const [selectedPlayer, setSelectedPlayer] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const [movePath, setMovePath] = useState<{ x: number; y: number }[]>([]);
   const [isSubmittingMove, setIsSubmittingMove] = useState(false);
   const getPlayerAt = (x: number, y: number) =>
     players.find((p) => p.x === x && p.y === y);
-  const currentPlayer = players.find((player) => player.id.toString() === currentPlayerId.toString());
+  const currentPlayer = players.find(
+    (player) => player.id.toString() === currentPlayerId.toString(),
+  );
   const boardHint =
     selectedTiles.length === 1
       ? "One tile selected: press Rotate, or select one more adjacent tile to swap."
@@ -165,7 +186,8 @@ export function BoardCanvas({
         return;
       }
 
-      const current = movePath.length > 0 ? movePath[movePath.length - 1] : selectedPlayer;
+      const current =
+        movePath.length > 0 ? movePath[movePath.length - 1] : selectedPlayer;
       const dx = Math.abs(current.x - x);
       const dy = Math.abs(current.y - y);
       const isAdjacent = (dx === 1 && dy === 0) || (dx === 0 && dy === 1);
@@ -181,7 +203,9 @@ export function BoardCanvas({
       }
 
       setMovePath((prev) => {
-        const existingIndex = prev.findIndex((step) => step.x === x && step.y === y);
+        const existingIndex = prev.findIndex(
+          (step) => step.x === x && step.y === y,
+        );
         if (existingIndex >= 0) {
           return prev.slice(0, existingIndex + 1);
         }
@@ -194,7 +218,11 @@ export function BoardCanvas({
     // --- SELECT PLAYER ---
     if (isPlayerTile) {
       const playerAtTile = getPlayerAt(x, y);
-      if (playerAtTile && currentPlayer && playerAtTile.id.toString() !== currentPlayer.id.toString()) {
+      if (
+        playerAtTile &&
+        currentPlayer &&
+        playerAtTile.id.toString() !== currentPlayer.id.toString()
+      ) {
         alert("That is not your player. Please click your own piece to move.");
         return;
       }
@@ -219,8 +247,15 @@ export function BoardCanvas({
   return (
     <div className="flex flex-col items-center gap-5">
       {!isSpectator && (
-        <div className="w-[600px] max-w-full min-h-[44px] mb-3 px-3 py-2 rounded-md border border-gray-600 bg-gray-800/70 text-center text-base text-gray-200 flex items-center justify-center">
-          {boardHint}
+        <div className="w-[600px] max-w-full mb-3">
+          <div className="min-h-[44px] px-3 py-2 rounded-md border border-gray-600 bg-gray-800/70 text-center text-base text-gray-200 flex items-center justify-center">
+            {boardHint}
+          </div>
+          {boardActionsPending && (
+            <div className="mt-2 w-1/2 mx-auto p-2 bg-pink rounded-md text-xs text-black font-semibold text-center">
+              Board action required!
+            </div>
+          )}
         </div>
       )}
 
@@ -233,9 +268,18 @@ export function BoardCanvas({
           {Array.from({ length: board.width }).map((_, colIndex) => (
             <div
               key={`top-slot-${colIndex}`}
-              style={{ width: CELL_SIZE, display: "flex", justifyContent: "center" }}
+              style={{
+                width: CELL_SIZE,
+                display: "flex",
+                justifyContent: "center",
+              }}
             >
-              <ArrowButton axis="COL" index={colIndex} direction="DOWN" onClick={onArrowClick}>
+              <ArrowButton
+                axis="COL"
+                index={colIndex}
+                direction="DOWN"
+                onClick={onArrowClick}
+              >
                 <MdOutlineKeyboardArrowDown />
               </ArrowButton>
             </div>
@@ -252,9 +296,20 @@ export function BoardCanvas({
             {Array.from({ length: board.height }).map((_, rowIndex) => (
               <div
                 key={`left-slot-${rowIndex}`}
-                style={{ height: CELL_SIZE, display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 4 }}
+                style={{
+                  height: CELL_SIZE,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  paddingRight: 4,
+                }}
               >
-                <ArrowButton axis="ROW" index={rowIndex} direction="RIGHT" onClick={onArrowClick}>
+                <ArrowButton
+                  axis="ROW"
+                  index={rowIndex}
+                  direction="RIGHT"
+                  onClick={onArrowClick}
+                >
                   <MdOutlineKeyboardArrowRight />
                 </ArrowButton>
               </div>
@@ -263,7 +318,10 @@ export function BoardCanvas({
         )}
         <div
           className="relative border-gray-400 rounded-lg overflow-hidden flex-shrink-0"
-          style={{ width: board.width * CELL_SIZE, height: board.height * CELL_SIZE }}
+          style={{
+            width: board.width * CELL_SIZE,
+            height: board.height * CELL_SIZE,
+          }}
         >
           {!isSpectator && (
             <>
@@ -341,9 +399,20 @@ export function BoardCanvas({
             {Array.from({ length: board.height }).map((_, rowIndex) => (
               <div
                 key={`right-slot-${rowIndex}`}
-                style={{ height: CELL_SIZE, display: "flex", alignItems: "center", justifyContent: "flex-start", paddingLeft: 4 }}
+                style={{
+                  height: CELL_SIZE,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                  paddingLeft: 4,
+                }}
               >
-                <ArrowButton axis="ROW" index={rowIndex} direction="LEFT" onClick={onArrowClick}>
+                <ArrowButton
+                  axis="ROW"
+                  index={rowIndex}
+                  direction="LEFT"
+                  onClick={onArrowClick}
+                >
                   <MdOutlineKeyboardArrowLeft />
                 </ArrowButton>
               </div>
@@ -360,9 +429,18 @@ export function BoardCanvas({
           {Array.from({ length: board.width }).map((_, colIndex) => (
             <div
               key={`bottom-slot-${colIndex}`}
-              style={{ width: CELL_SIZE, display: "flex", justifyContent: "center" }}
+              style={{
+                width: CELL_SIZE,
+                display: "flex",
+                justifyContent: "center",
+              }}
             >
-              <ArrowButton axis="COL" index={colIndex} direction="UP" onClick={onArrowClick}>
+              <ArrowButton
+                axis="COL"
+                index={colIndex}
+                direction="UP"
+                onClick={onArrowClick}
+              >
                 <MdOutlineKeyboardArrowUp />
               </ArrowButton>
             </div>
@@ -390,7 +468,9 @@ export function BoardCanvas({
             <SimpleButton
               title="Confirm Move"
               onClick={submitMovePath}
-              disabled={!selectedPlayer || movePath.length === 0 || isSubmittingMove}
+              disabled={
+                !selectedPlayer || movePath.length === 0 || isSubmittingMove
+              }
               className="w-auto px-3 py-1"
               textClassName="text-sm mb-0"
             />
@@ -419,7 +499,6 @@ export function BoardCanvas({
           )}
         </>
       )}
-
     </div>
   );
 }
