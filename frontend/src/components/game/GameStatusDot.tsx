@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { checkPlayerAvailability } from "../../api/game";
 import { getSocket, connectSocket } from "../../services/socket";
+import StatusDot from "../UI/StatusDot";
 
 interface GameStatusDotProps {
   user: { id?: string } | null;
@@ -9,7 +10,10 @@ interface GameStatusDotProps {
 
 export default function GameStatusDot({ user }: GameStatusDotProps) {
   const navigate = useNavigate();
-  const [activeGame, setActiveGame] = useState<{ gameId: string; phase: string } | null>(null);
+  const [activeGame, setActiveGame] = useState<{
+    gameId: string;
+    phase: string;
+  } | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -22,7 +26,10 @@ export default function GameStatusDot({ user }: GameStatusDotProps) {
       try {
         const availability = await checkPlayerAvailability(controller.signal);
         if (!availability.ok && availability.gameId) {
-          setActiveGame({ gameId: availability.gameId, phase: availability.phase });
+          setActiveGame({
+            gameId: availability.gameId,
+            phase: availability.phase,
+          });
         } else {
           setActiveGame(null);
         }
@@ -55,21 +62,25 @@ export default function GameStatusDot({ user }: GameStatusDotProps) {
   if (!user) return null;
 
   return (
-    <span
+    <button
+      type="button"
       title={activeGame ? "Active game" : "No active game"}
-      style={{ cursor: activeGame ? "pointer" : "default", fontSize: "1.5em", lineHeight: 1 }}
+      className="inline-flex items-center gap-2 text-sm text-white disabled:cursor-default"
+      style={{ cursor: activeGame ? "pointer" : "default" }}
       onClick={() => {
         if (activeGame) {
           navigate(
             activeGame.phase === "PLAY"
               ? `/game/${activeGame.gameId}`
-              : `/multiplayer/lobby/${activeGame.gameId}`
+              : `/multiplayer/lobby/${activeGame.gameId}`,
           );
         }
       }}
+      disabled={!activeGame}
       aria-label={activeGame ? "Go to active game" : "No active game"}
     >
-      {activeGame ? "🟢 Continue game" : "⚪"}
-    </span>
+      <StatusDot active={Boolean(activeGame)} className="w-3 h-3" />
+      {activeGame ? <span>Continue game</span> : <span>No active game</span>}
+    </button>
   );
 }
