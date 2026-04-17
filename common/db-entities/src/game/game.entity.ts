@@ -20,6 +20,11 @@ export enum GamePhase {
   END = 'END',
 }
 
+export enum GameCompletionStatus {
+  FINISHED = 'FINISHED',
+  ABANDONED = 'ABANDONED',
+}
+
 @Entity({ name: 'games' })
 @Index('games_phase_idx', ['phase'])
 @Index('games_type_idx', ['type'])
@@ -42,6 +47,15 @@ export class Game {
 
   @Column({ name: 'winner_user_id', type: 'varchar', nullable: true })
   winnerUserId: string | null;
+
+  @Column({
+    name: 'completion_status',
+    type: 'enum',
+    enum: GameCompletionStatus,
+    enumName: 'game_completion_status',
+    default: GameCompletionStatus.FINISHED,
+  })
+  completionStatus: GameCompletionStatus;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

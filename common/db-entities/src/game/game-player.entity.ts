@@ -10,6 +10,18 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Game } from './game.entity';
+import { User } from '../users/user.entity';
+
+export enum PlayerRole {
+  PLAYER = 'PLAYER',
+  SPECTATOR = 'SPECTATOR',
+}
+
+export enum UserType {
+  USER = 'USER',
+  GUEST = 'GUEST',
+  ADMIN = 'ADMIN',
+}
 
 @Entity({ name: 'game_players' })
 @Index('game_players_game_user_unique', ['gameId', 'userId'], { unique: true })
@@ -17,7 +29,7 @@ export class GamePlayer {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'game_id' })
+  @Column({ name: 'game_id', type: 'uuid' })
   gameId: string;
 
   @ManyToOne(() => Game, {
@@ -27,14 +39,23 @@ export class GamePlayer {
   @JoinColumn({ name: 'game_id' })
   game: Game;
 
-  @Column({ name: 'user_id' })
-  userId: number;
+  // This stores both registered users (as string) and guest UUIDs
+  @Column({ name: 'user_id', type: 'varchar' })
+  userId: string;
 
-  @Column({ type: 'enum', enum: ['PLAYER', 'SPECTATOR'] })
-  role: 'PLAYER' | 'SPECTATOR';
+  // Only for registered users: FK to users table
+  @Column({ name: 'registered_user_id', type: 'int', nullable: true })
+  registeredUserId: number | null;
 
-  @Column({ type: 'enum', enum: ['USER', 'GUEST', 'ADMIN'] })
-  userType: 'USER' | 'GUEST' | 'ADMIN';
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'registered_user_id' })
+  registeredUser: User;
+
+  @Column({ type: 'enum', enum: PlayerRole, enumName: 'player_role' })
+  role: PlayerRole;
+
+  @Column({ name: 'user_type', type: 'enum', enum: UserType, enumName: 'user_type' })
+  userType: UserType;
 
   @CreateDateColumn({ name: 'joined_at', type: 'timestamptz' })
   joinedAt: Date;
