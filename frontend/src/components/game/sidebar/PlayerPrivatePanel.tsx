@@ -1,11 +1,39 @@
 // src/components/game/sidebar/PlayerPrivatePanel.tsx
 import { useEffect, useRef, useState } from "react";
-import { PrivateGameState } from "../../../game/models/privatState";
+import {
+  ObjectiveStatus,
+  PrivateGameState,
+} from "../../../game/models/privatState";
 import { useAuth } from "../../../hooks/useAuth";
+import StatusDot from "../../UI/StatusDot";
 
 interface PlayerPrivatePanelProps {
   game: PrivateGameState;
 }
+
+const formatObjectiveMessage = (objective: ObjectiveStatus): string => {
+  const progress = objective.progress ?? 0;
+  const rawType = objective.type as string;
+
+  switch (objective.type) {
+    case "COLLECT_ALL":
+      return `Collect all items (${progress})`;
+    case "COLLECT_N":
+      return objective.amount != null
+        ? `Collect ${objective.amount} items (${progress}/${objective.amount})`
+        : `Collect assigned items (${progress})`;
+    case "RETURN_HOME":
+      return "Return to your starting tile";
+    case "REACH_EXIT":
+      return "Reach the exit";
+    default:
+      return rawType
+        .toLowerCase()
+        .split("_")
+        .map((part: string) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+  }
+};
 
 export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
   const { user } = useAuth();
@@ -138,13 +166,8 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
         <ul className="flex flex-col gap-1 text-xs">
           {objectives.map((obj, idx) => (
             <li key={idx} className={`flex items-center gap-2`}>
-              <span
-                className={`w-3 h-3 rounded-full ${
-                  obj.done ? "bg-green-400" : "bg-gray-500"
-                }`}
-              />
-              {obj.type}{" "}
-              {obj.amount ? `(${obj.progress ?? 0}/${obj.amount})` : ""}
+              <StatusDot active={obj.done} className="w-3 h-3" />
+              <span>{formatObjectiveMessage(obj)}</span>
             </li>
           ))}
         </ul>
