@@ -6,7 +6,6 @@ import { PrivateGameState } from "../../game/models/privatState";
 
 type GameSideBarProps = {
   game: PrivateGameState;
-  gameId: string;
   isSpectator?: boolean;
 };
 

@@ -46,7 +46,7 @@ export default function GamePage({
         </div>
         {/* Sidebar pushed right */}
         <div className="flex-shrink-0 self-start">
-          <Sidebar game={game} gameId={gameId} isSpectator={isSpectator} />
+          <Sidebar game={game} isSpectator={isSpectator} />
         </div>
       </div>
       {showChat && (
