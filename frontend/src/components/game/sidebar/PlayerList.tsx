@@ -86,25 +86,3 @@ export default function PlayerList({
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                  {spectatorUsers[spectatorId]?.username || spectatorId}
