@@ -15,6 +15,7 @@ import Settings from "./pages/Settings";
 import ResetPassword from "./pages/ResetPassword";
 import Chat from "./pages/Chat";
 import Rules from "./pages/Rules";
+import Friends from "./pages/Friends";
 import AdminPanel from "./pages/AdminPanel";
 import BadRequestPage from "./pages/error/400";
 import ForbiddenPage from "./pages/error/403";
@@ -83,6 +84,7 @@ export default function App() {
               {<Route path="/admin" element={<AdminPanel />} />}
               {<Route path="chat" element={<Chat />} />}
               {<Route path="rules" element={<Rules />} />}
+              {<Route path="friends" element={<Friends />} />}
             </Route>
 
             {/* Redirect unknown/obsolete routes to home */}

@@ -12,6 +12,7 @@ export default function Sidebar() {
     { path: "/profile", label: "Profile", icon: "/assets/profile_icon.svg" },
     { path: "/game", label: "Game", icon: "/assets/game_icon.svg" },
     { path: "/rules", label: "Rules", icon: "/assets/rules_icon.svg" },
+    { path: "/friends", label: "Friends", icon: "/assets/friends_icon.svg" },
     { path: "/chat", label: "Chat", icon: "/assets/chat_icon.svg" },
     {
       path: "/leaderboard",
