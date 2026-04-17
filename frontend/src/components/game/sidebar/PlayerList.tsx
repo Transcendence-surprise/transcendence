@@ -1,8 +1,6 @@
 // src/components/game/sidebar/PlayerList.tsx
-import { useEffect, useState } from "react";
 import { PlayerState } from "../../../game/models/privatState";
 import { mockPlayerProfile } from "../../../types/mockPlayer";
-import * as usersApi from "../../../api/users";
 
 interface PlayerListProps {
   players: PlayerState[];
@@ -19,34 +17,6 @@ export default function PlayerList({
   collectiblesPerPlayer = 5,
   spectatorIds = [],
 }: PlayerListProps) {
-  const [spectatorUsers, setSpectatorUsers] = useState<
-    Record<string, usersApi.User>
-  >({});
-
-  useEffect(() => {
-    if (spectatorIds.length === 0) return;
-
-    const controller = new AbortController();
-    usersApi
-      .getAllUsers(controller.signal)
-      .then((users) => {
-        const spectatorMap: Record<string, usersApi.User> = {};
-        users.forEach((u) => {
-          if (spectatorIds.includes(u.id.toString())) {
-            spectatorMap[u.id.toString()] = u;
-          }
-        });
-        setSpectatorUsers(spectatorMap);
-      })
-      .catch((e) => {
-        if (!(e instanceof DOMException && e.name === "AbortError")) {
-          console.error("Failed to fetch spectator users:", e);
-        }
-      });
-
-    return () => controller.abort();
-  }, [spectatorIds]);
-
   return (
     <div className="flex flex-col gap-3 w-full">
       {players.map((p) => {
@@ -106,9 +76,7 @@ export default function PlayerList({
 
               {/* Spectator info */}
               <div className="flex flex-col">
-                <span className="text-gray-300 font-medium">
-                  {spectatorUsers[spectatorId]?.username || spectatorId} //TODO: replace with real username when available
-                </span>
+                <span className="text-gray-300 font-medium">{spectatorId}</span>
                 <span className="text-xs text-gray-500">Spectating</span>
               </div>
             </div>
