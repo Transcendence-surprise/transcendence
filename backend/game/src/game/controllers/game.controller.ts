@@ -38,10 +38,10 @@ export class GameController {
   @Post('create')
   @ApiBody({ type: CreateGameDto })
   @ApiResponse({ status: 201, type: CreateGameResponseDto })
-  createGame(
+  async createGame(
     @Body() body: CreateGameDto,
     @CurrentUser() user: PlayerContext,
-  ): CreateGameResponseDto {
+  ): Promise<CreateGameResponseDto> {
 
     if (!user.id) {
       throw new UnauthorizedException('User id missing');
@@ -49,14 +49,14 @@ export class GameController {
 
     const settings = body as GameSettings;
 
-    const { gameId } = this.engine.createGame(
+    const { gameId } = await this.engine.createGame(
       user.id,
       user.username,
       settings
     );
     // console.log(`Game created with ID: ${gameId} in phase ${this.engine.getGameState(gameId)?.phase || 'IDK'} by user ${user.id}`);
-    this.wsGateway.sendMultiplayerListUpdate();
-    this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
+    await this.wsGateway.sendMultiplayerListUpdate();
+    await this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
     return { ok: true, gameId };
   }
 
@@ -64,16 +64,16 @@ export class GameController {
   @Post('start')
   @ApiBody({ type: StartGameDto })
   @ApiResponse({ status: 201, type: StartResponseDto })
-  startGame(
+  async startGame(
     @Body() body: StartGameDto,
     @CurrentUser() user: PlayerContext
-   ): StartResponseDto {
-    const result = this.engine.startGame(body.gameId, user.id);
+   ): Promise<StartResponseDto> {
+    const result = await this.engine.startGame(body.gameId, user.id);
 
     if (result.ok) {
-      this.wsGateway.sendMultiplayerListUpdate();
-      this.wsGateway.sendLobbyUpdate(body.gameId);
-      this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
+      await this.wsGateway.sendMultiplayerListUpdate();
+      await this.wsGateway.sendLobbyUpdate(body.gameId);
+      await this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
     }
 
     return result.ok ? { ok: true } : { ok: false, error: result.error };
@@ -83,15 +83,15 @@ export class GameController {
   @Post('join')
   @ApiBody({ type: JoinGameDto })
   @ApiResponse({ status: 201, type: JoinResponseDto })
-  join(
+  async join(
     @Body() body: JoinGameDto,
     @CurrentUser() user: PlayerContext
-  ) : JoinResponseDto {
-    const result = this.engine.joinGame(body.gameId, user.id, user.username, body.role);
+  ) : Promise<JoinResponseDto> {
+    const result = await this.engine.joinGame(body.gameId, user.id, user.username, body.role);
 
     if (result.ok) {
-      this.wsGateway.sendMultiplayerListUpdate();
-      this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
+      await this.wsGateway.sendMultiplayerListUpdate();
+      await this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
     }
     // console.log("User Joined: ", body.playerId );
     return result;
@@ -101,22 +101,24 @@ export class GameController {
   @Post('boardmove')
   @ApiBody({ type: BoardMoveDto })
   @ApiResponse({ status: 201, type: BoardResponseDto })
-  boardMove(
+  async boardMove(
     @Body() body: BoardMoveDto,
     @CurrentUser() user: PlayerContext
-  ) : BoardResponseDto {
+  ) : Promise<BoardResponseDto> {
     if (!user.id) {
       throw new UnauthorizedException('User id missing');
     }
-    const result = this.engine.boardModification(body.gameId, body.action, user.id);
+    const result = await this.engine.boardModification(body.gameId, body.action, user.id);
     // console.log(`Board move request for game ${body.gameId} from user ${user.id}:`, body.action);    
     if (result.ok) {
-      this.wsGateway.sendPlayUpdate(body.gameId);
+      await this.wsGateway.sendPlayUpdate(body.gameId);
 
-      const state = this.engine.getGameState(body.gameId);
+      const state = await this.engine.getGameState(body.gameId);
       if (state?.phase === 'END') {
-        state.players.forEach((p) => this.wsGateway.sendPlayerStatusUpdate(p.id));
-        state.spectators.forEach((s) => this.wsGateway.sendPlayerStatusUpdate(s.id));
+        await Promise.all([
+          ...state.players.map((p) => this.wsGateway.sendPlayerStatusUpdate(p.id)),
+          ...state.spectators.map((s) => this.wsGateway.sendPlayerStatusUpdate(s.id)),
+        ]);
       }
     }
     return result;
@@ -126,10 +128,10 @@ export class GameController {
   @Post('playermove')
   @ApiBody({ type: PlayerMoveDto })
   @ApiResponse({ status: 201, type: PlayerActionResponseDto })
-  playerMove(
+  async playerMove(
     @Body() body: PlayerMoveDto,
     @CurrentUser() user: PlayerContext
-  ) : PlayerActionResponseDto {
+  ) : Promise<PlayerActionResponseDto> {
       if (!user.id) {
       throw new UnauthorizedException('User id missing');
     }
@@ -139,15 +141,17 @@ export class GameController {
       skip: body.skip || false,
     };
 
-    const result = this.engine.playerAction(body.gameId, action, user.id);
+    const result = await this.engine.playerAction(body.gameId, action, user.id);
     
     if (result.ok) {
-      this.wsGateway.sendPlayUpdate(body.gameId);
+      await this.wsGateway.sendPlayUpdate(body.gameId);
 
-      const state = this.engine.getGameState(body.gameId);
+      const state = await this.engine.getGameState(body.gameId);
       if (state?.phase === 'END') {
-        state.players.forEach((p) => this.wsGateway.sendPlayerStatusUpdate(p.id));
-        state.spectators.forEach((s) => this.wsGateway.sendPlayerStatusUpdate(s.id));
+        await Promise.all([
+          ...state.players.map((p) => this.wsGateway.sendPlayerStatusUpdate(p.id)),
+          ...state.spectators.map((s) => this.wsGateway.sendPlayerStatusUpdate(s.id)),
+        ]);
       }
     }
     return result;
@@ -157,25 +161,25 @@ export class GameController {
   @Post('leave')
   @ApiBody({ type: LeaveGameDto })
   @ApiResponse({ status: 201, type: LeaveResponseDto })
-  leaveGame(
+  async leaveGame(
     @Body() body: LeaveGameDto,
     @CurrentUser() user: PlayerContext
-  ) : LeaveResponseDto {
-    const result = this.engine.leaveGame(body.gameId, user.id);
+  ) : Promise<LeaveResponseDto> {
+    const result = await this.engine.leaveGame(body.gameId, user.id);
 
     if (result.ok) {
-      this.wsGateway.sendMultiplayerListUpdate();
-      this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
-      this.wsGateway.sendLobbyUpdate(body.gameId);
+      await this.wsGateway.sendMultiplayerListUpdate();
+      await this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
+      await this.wsGateway.sendLobbyUpdate(body.gameId);
 
       if (result.deleteGame) {
-        result.previousPlayers?.forEach(id =>
-          this.wsGateway.sendPlayerStatusUpdate(id)
+        await Promise.all(
+          (result.previousPlayers ?? []).map((id) => this.wsGateway.sendPlayerStatusUpdate(id)),
         );
-        this.wsGateway.sendGameDeleted(body.gameId);
+        await this.wsGateway.sendGameDeleted(body.gameId);
       } else {
         // If game not deleted, still notify play phase clients of player leaving
-        this.wsGateway.sendPlayUpdate(body.gameId);
+        await this.wsGateway.sendPlayUpdate(body.gameId);
       }
 
     }
@@ -187,15 +191,15 @@ export class GameController {
   @Get(':gameId')
   @ApiParam({ name: 'gameId', type: 'string' })
   @ApiOkResponse({ type: GameStateResponseDto })
-  getGameState(
+  async getGameState(
     @Param('gameId') gameId: string,
     @CurrentUser() user: PlayerContext
-  ): GameStateResponseDto {
+  ): Promise<GameStateResponseDto> {
     if (!user.id) {
       throw new UnauthorizedException('User id missing');
     }
 
-    const result = this.engine.getPrivateGameState(gameId, user.id);
+    const result = await this.engine.getPrivateGameState(gameId, user.id);
     if (!result.ok) {
       return { ok: false, error: result.error };
     }
@@ -210,7 +214,7 @@ export class GameController {
 
   @Get('multi/games')
   @ApiOkResponse({ type: MultiGameDto, isArray: true })
-  getMultiplayerGames(): MultiGame[] {
+  async getMultiplayerGames(): Promise<MultiGame[]> {
     return this.engine.getMultiGames();
   }
 
@@ -219,13 +223,13 @@ export class GameController {
     description: "Player availability result",
     type: CheckPlayerAvailabilityDto,
   })
-  checkPlayer(@CurrentUser() user: PlayerContext) {
+  async checkPlayer(@CurrentUser() user: PlayerContext) {
     if (!user || !user.id) {
       throw new UnauthorizedException("User not authenticated");
     }
 
     try {
-      const result = this.engine.checkPlayerAvailability(user.id);
+      const result = await this.engine.checkPlayerAvailability(user.id);
 
       return {
         ok: result.ok,

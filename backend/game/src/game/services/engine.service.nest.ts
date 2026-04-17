@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Game, GamePlayer } from '@transcendence/db-entities';
+import { GamePhase } from '@transcendence/db-entities';
 import { GameState, GameSettings } from '../models/state';
 import { PlayerCheckResult } from '../models/payerCheckResult';
 import { createGame as  createGameEngine} from '../engine/create.engine';
@@ -23,161 +21,92 @@ import { PrivateGameStateResult, PrivateStateError } from '../models/privatState
 import { getPrivateState } from '../engine/privateState.engine';
 import { PlayerActionResult, PlayerActionError, PlayerAction } from '../models/playerAction';
 import { processPlayerAction } from '../engine/playerAction.engine';
-import { advanceTurn, beginCurrentTurn } from '../engine/helpers/turnHandler';
+import { applySingleTimeout, applyMultiTimeout } from '../engine/timeout.engine';
+import { GamePersistenceService } from './gamePersistence.service';
+import { saveGameToDB } from '../engine/helpers/saveGameTo.database';
+import { PlayersPersistenceService } from './playersPersistence.service';
+import { savePlayersToDB } from '../engine/helpers/savePlayersTo.database';
+import { UserUpdateService } from './userStateUpdate.service';
 
 @Injectable()
 export class EngineService {
   constructor(
-    @InjectRepository(Game) private readonly gameRepo: Repository<Game>,
-    @InjectRepository(GamePlayer) private readonly playerRepo: Repository<GamePlayer>,
+    private readonly persistence: GamePersistenceService,
+    private readonly playersPersistence: PlayersPersistenceService,
+    private readonly userUpdateService: UserUpdateService,
   ) {}
 
   private games = new Map<string, GameState>();
 
-  evaluateSinglePlayerTimeouts(now = Date.now()): Array<{
-    gameId: string;
-    playerIds: Array<string | number>;
-    spectatorIds: Array<string | number>;
-  }> {
-    const endedGames: Array<{
-      gameId: string;
-      playerIds: Array<string | number>;
-      spectatorIds: Array<string | number>;
-    }> = [];
+
+  async evaluateSinglePlayerTimeouts(now = Date.now()) {
+    const endedGames: Array<any> = [];
+    const saves: Promise<void>[] = [];
 
     for (const [gameId, state] of this.games.entries()) {
-      if (state.phase !== "PLAY") continue;
-      if (state.rules.mode !== "SINGLE") continue;
-
-      const levelLimitSec = state.level.constraints?.levelLimitSec;
-      if (
-        typeof levelLimitSec !== "number" ||
-        typeof state.gameStartedAt !== "number"
-      ) {
-        continue;
-      }
-
-      const timedOut = now - state.gameStartedAt >= levelLimitSec * 1000;
-      if (!timedOut) continue;
-
-      state.gameEnded = true;
-      state.phase = "END";
-      state.gameResult = undefined;
-      state.endReason = "LOSE_TIME_LIMIT";
+      const ended = applySingleTimeout(state, now);
+      if (!ended) continue;
 
       endedGames.push({
         gameId,
-        playerIds: state.players.map((p) => p.id),
-        spectatorIds: state.spectators.map((s) => s.id),
+        playerIds: state.players.map(p => p.id),
+        spectatorIds: state.spectators.map(s => s.id),
       });
+
+      saves.push(saveGameToDB(gameId, state, this.persistence));
+      saves.push(this.userUpdateService.updateUserStats(state));
     }
+
+    await Promise.all(saves);
 
     return endedGames;
   }
 
-  evaluateMultiPlayerTimeouts(now = Date.now()): Array<
-    | {
-        type: "PLAY_UPDATE";
-        gameId: string;
-      }
-    | {
-        type: "PLAYER_REMOVED";
-        gameId: string;
-        removedPlayerIds: Array<string | number>;
-        playerIds: Array<string | number>;
-        spectatorIds: Array<string | number>;
-        deleteGame: boolean;
-      }
-  > {
-    const events: Array<
-      | {
-          type: "PLAY_UPDATE";
-          gameId: string;
-        }
-      | {
-          type: "PLAYER_REMOVED";
-          gameId: string;
-          removedPlayerIds: Array<string | number>;
-          playerIds: Array<string | number>;
-          spectatorIds: Array<string | number>;
-          deleteGame: boolean;
-        }
-    > = [];
+  async evaluateMultiPlayerTimeouts(now = Date.now()) {
+    const events: Array<any> = [];
 
     for (const [gameId, state] of this.games.entries()) {
-      if (state.phase !== "PLAY") continue;
-      if (state.rules.mode !== "MULTI") continue;
+      const result = applyMultiTimeout(state, now);
 
-      const turnLimitSec = state.rules.moveLimitPerTurnSec;
-      if (
-        typeof turnLimitSec !== "number" ||
-        typeof state.moveStartedAt !== "number"
-      ) {
-        continue;
-      }
+      if (!result) continue;
 
-      const timedOut = now - state.moveStartedAt >= turnLimitSec * 1000;
-      if (!timedOut) continue;
-
-      const currentPlayer = state.players[state.currentPlayerIndex];
-      if (!currentPlayer) continue;
-
-      if (currentPlayer.skipsLeft > 0) {
-        currentPlayer.skipsLeft -= 1;
-      }
-
-      if (currentPlayer.skipsLeft <= 0) {
-        const removedPlayerId = currentPlayer.id;
-        const playerSnapshot = state.players.map((player) => player.id);
-        const spectatorSnapshot = state.spectators.map((spectator) => spectator.id);
-        const result = leaveGameEngine(state, removedPlayerId);
-
-        if (!result.ok) {
-          continue;
-        }
-
+      if (result.type === 'PLAYER_REMOVED') {
         if (result.deleteGame) {
           this.games.delete(gameId);
-          events.push({
-            type: "PLAYER_REMOVED",
-            gameId,
-            removedPlayerIds: [removedPlayerId],
-            playerIds: playerSnapshot,
-            spectatorIds: spectatorSnapshot,
-            deleteGame: true,
-          });
-          continue;
         }
 
-        const nextPlayer = state.players[state.currentPlayerIndex];
-        if (nextPlayer) {
-          beginCurrentTurn(state, now);
+        if (!result.deleteGame) {
+          await saveGameToDB(gameId, state, this.persistence);
         }
 
         events.push({
-          type: "PLAYER_REMOVED",
+          type: 'PLAYER_REMOVED',
           gameId,
-          removedPlayerIds: [removedPlayerId],
-          playerIds: state.players.map((player) => player.id),
-          spectatorIds: state.spectators.map((spectator) => spectator.id),
-          deleteGame: false,
+          removedPlayerIds: result.removedPlayerIds,
+          playerIds: state.players.map(p => p.id),
+          spectatorIds: state.spectators.map(s => s.id),
+          deleteGame: result.deleteGame,
         });
+
         continue;
       }
 
-      advanceTurn(state);
-      state.moveStartedAt = now;
+      if (result.type === 'PLAY_UPDATE') {
+        await saveGameToDB(gameId, state, this.persistence);
 
-      events.push({ type: "PLAY_UPDATE", gameId });
+        events.push({ type: 'PLAY_UPDATE', gameId });
+      }
     }
 
     return events;
   }
 
-  createGame(hostId: number | string, nickname:string, settings: GameSettings) {
+  async createGame(hostId: number | string, nickname:string, settings: GameSettings) {
     const state = createGameEngine(hostId, nickname, settings); // from create.engine.ts
     const gameId = crypto.randomUUID();
     this.games.set(gameId, state);
+    await saveGameToDB(gameId, state, this.persistence);
+    await savePlayersToDB(gameId, state, this.playersPersistence);
     return { gameId };
   }
 
@@ -222,7 +151,7 @@ export class EngineService {
     }
   }
 
-  joinGame(
+  async joinGame(
     gameId: string,
     playerId: number | string,
     name: string,
@@ -232,7 +161,11 @@ export class EngineService {
     if (!state) {
       return { ok: false, error: JoinError.GAME_NOT_FOUND };
     }
-    return joinGameEngine(state, playerId, name, role);
+    const result = joinGameEngine(state, playerId, name, role);
+    if (result.ok && role === 'PLAYER') {
+      await savePlayersToDB(gameId, state, this.playersPersistence);
+    }
+    return result;
   }
 
   boardModification(
@@ -269,11 +202,11 @@ export class EngineService {
     return processBoardAction(state, boardAction);
   }
 
-  playerAction(
+  async playerAction(
       gameId: string,
       action: PlayerAction,
       playerId: number | string,
-    ):  PlayerActionResult {
+    ):  Promise<PlayerActionResult> {
       const state = this.getGameState(gameId);
     if (!state) {
       return { ok: false, error: PlayerActionError.GAME_NOT_FOUND };
@@ -300,10 +233,18 @@ export class EngineService {
       return { ok: false, error: PlayerActionError.REQUIRED_BOARD_ACTION };
     }
 
-    return processPlayerAction(state, action);
+    const result = processPlayerAction(state, action);
+
+    await saveGameToDB(gameId, state, this.persistence);
+
+    if (result.ok && state.gameEnded) {
+      await this.userUpdateService.updateUserStats(state);
+    }
+
+    return result;
   }
 
-  leaveGame(gameId: string, playerId: number | string): LeaveResult {
+  async leaveGame(gameId: string, playerId: number | string): Promise<LeaveResult> {
     const state = this.getGameState(gameId);
 
     if (!state) {
@@ -316,7 +257,17 @@ export class EngineService {
     const result = leaveGameEngine(state, playerId);
     if (!result.ok) return result;
 
+    if (state.phase === GamePhase.LOBBY && !result.deleteGame && state.hostId !== playerId) {
+      await this.playersPersistence.deletePlayer(gameId, playerId);
+    }
+
     if (result.deleteGame) {
+      state.gameEnded = true;
+      state.phase = GamePhase.END;
+      state.completionStatus = 'ABANDONED';
+      state.gameResult = undefined;
+      state.endReason = undefined;
+      await saveGameToDB(gameId, state, this.persistence);
       this.games.delete(gameId);
       // console.log(`Game ${gameId} deleted after player left ${playerId}`);
       return { ok: true, deleteGame: true, previousPlayers, previousSpectators };
