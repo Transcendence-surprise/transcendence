@@ -47,30 +47,34 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   onModuleInit(): void {
-    this.timeoutTicker = setInterval(() => {
-      const endedGames = this.engine.evaluateSinglePlayerTimeouts();
-      const multiTimeoutEvents = this.engine.evaluateMultiPlayerTimeouts();
+    this.timeoutTicker = setInterval(async () => {
+      const endedGames = await this.engine.evaluateSinglePlayerTimeouts();
+      const multiTimeoutEvents = await this.engine.evaluateMultiPlayerTimeouts();
       for (const game of endedGames) {
-        this.sendPlayUpdate(game.gameId);
-        game.playerIds.forEach((id) => this.sendPlayerStatusUpdate(id));
-        game.spectatorIds.forEach((id) => this.sendPlayerStatusUpdate(id));
+        await this.sendPlayUpdate(game.gameId);
+        await Promise.all([
+          ...game.playerIds.map((id) => this.sendPlayerStatusUpdate(id)),
+          ...game.spectatorIds.map((id) => this.sendPlayerStatusUpdate(id)),
+        ]);
       }
 
       for (const event of multiTimeoutEvents) {
-        if (event.type === "PLAY_UPDATE") {
-          this.sendPlayUpdate(event.gameId);
+        if (event.type === 'PLAY_UPDATE') {
+          await this.sendPlayUpdate(event.gameId);
           continue;
         }
 
         if (event.deleteGame) {
-          event.playerIds.forEach((id) => this.sendPlayerStatusUpdate(id));
-          event.spectatorIds.forEach((id) => this.sendPlayerStatusUpdate(id));
-          this.sendGameDeleted(event.gameId);
+          await Promise.all([
+            ...event.playerIds.map((id) => this.sendPlayerStatusUpdate(id)),
+            ...event.spectatorIds.map((id) => this.sendPlayerStatusUpdate(id)),
+          ]);
+          await this.sendGameDeleted(event.gameId);
           continue;
         }
 
-        event.removedPlayerIds.forEach((id) => this.sendPlayerStatusUpdate(id));
-        this.sendPlayUpdate(event.gameId);
+        await Promise.all(event.removedPlayerIds.map((id) => this.sendPlayerStatusUpdate(id)));
+        await this.sendPlayUpdate(event.gameId);
       }
     }, 1000);
   }
@@ -176,7 +180,7 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
   // --------------------
 
   @SubscribeMessage('joinLobby')
-  handleJoinLobby(
+  async handleJoinLobby(
       @MessageBody() data: { gameId: string },
       @ConnectedSocket() client: TypedSocket,
   ) {
@@ -188,7 +192,7 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
     }
 
     // Validate game existence and phase before joining lobby
-    const state = this.engine.getGameState(data.gameId);
+    const state = await this.engine.getGameState(data.gameId);
     if (!state) {
       // console.log("GAME_NOT_FOUND");
       return client.emit("error", { error: "GAME_NOT_FOUND" });
@@ -201,11 +205,11 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
     const room = `lobby:${data.gameId}`;
     void client.join(room);
 
-    this.sendLobbyUpdate(data.gameId);
+    await this.sendLobbyUpdate(data.gameId);
   }
 
-  sendLobbyUpdate(gameId: string) {
-    const state = this.engine.getGameState(gameId);
+  async sendLobbyUpdate(gameId: string) {
+    const state = await this.engine.getGameState(gameId);
     if (!state) return;
 
     const playersWithNames = state.players.map(p => ({
@@ -238,18 +242,18 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
 // MULTIPLAYER GAMES TABLE
 
   @SubscribeMessage('joinMultiplayerList')
-  handleJoinMultiplayerList(
+  async handleJoinMultiplayerList(
     @ConnectedSocket() client: TypedSocket,
   ) {
     void client.join('multiplayer:list');
-      this.server.to(client.id).emit("multiplayerListUpdate", {
-      games: this.engine.getMultiGames(),
+      this.server.to(client.id).emit('multiplayerListUpdate', {
+      games: await this.engine.getMultiGames(),
       });
   }
 
-  sendMultiplayerListUpdate() {
-    const games = this.engine.getMultiGames();
-    this.server.to("multiplayer:list").emit("multiplayerListUpdate", {
+  async sendMultiplayerListUpdate() {
+    const games = await this.engine.getMultiGames();
+    this.server.to('multiplayer:list').emit('multiplayerListUpdate', {
       games,
     });
   }
@@ -257,7 +261,7 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
 // LOBBY CHAT
 
   @SubscribeMessage("lobbyMessage")
-  handleLobbyMessage(
+  async handleLobbyMessage(
     @MessageBody()
     payload: { gameId: string; message: string },
     @ConnectedSocket() client: TypedSocket,
@@ -267,7 +271,7 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
 
     // console.log("CHAT_USER: ", user.username);
 
-    const state = this.engine.getGameState(payload.gameId);
+    const state = await this.engine.getGameState(payload.gameId);
 
     if (!state) {
       return client.emit("error", { error: "GAME_NOT_FOUND" });
@@ -343,7 +347,7 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
 // START GAME - send initial game state to all players in the play room
 
   @SubscribeMessage('joinPlay')
-  handleJoinPlay(
+  async handleJoinPlay(
     @MessageBody() data: { gameId: string },
     @ConnectedSocket() client: TypedSocket,
   ) {
@@ -353,11 +357,11 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
     
 
     // Send initial state immediately
-    this.sendPlayUpdate(data.gameId);
+    await this.sendPlayUpdate(data.gameId);
   }
 
-  sendPlayUpdate(gameId: string) {
-    const state = this.engine.getGameState(gameId);
+  async sendPlayUpdate(gameId: string) {
+    const state = await this.engine.getGameState(gameId);
     if (!state) return;
 
     this.sendToRoom(`play:${gameId}`, "playUpdate", {
@@ -430,13 +434,13 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
   // PLAYER STATUS CHECK (for game entry/lobby and status dot)
 
   @SubscribeMessage("checkPlayerStatus")
-  handleCheckPlayerStatus(@ConnectedSocket() client: TypedSocket) {
+  async handleCheckPlayerStatus(@ConnectedSocket() client: TypedSocket) {
     const user = client.user;
     // console.log(`Checking player status for user: ${user?.username}`);
     if (!user) return client.disconnect(true);
     // console.log(`Second try Checking player status for user: ${user.username}`);
     try {
-      const result = this.engine.checkPlayerAvailability(user.sub);
+      const result = await this.engine.checkPlayerAvailability(user.sub);
       // console.log(`Player status for ${user.username}:`, result);
       client.emit("playerStatus", {
         ok: result.ok,
@@ -449,8 +453,8 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  sendPlayerStatusUpdate(playerId: string | number) {
-    const result = this.engine.checkPlayerAvailability(playerId);
+  async sendPlayerStatusUpdate(playerId: string | number) {
+    const result = await this.engine.checkPlayerAvailability(playerId);
 
     // 🔹 Emit to per-user room instead of using sockets.get()
     this.server.to(`user:${playerId.toString()}`).emit("playerStatus", {
