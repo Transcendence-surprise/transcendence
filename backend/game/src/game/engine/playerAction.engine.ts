@@ -7,6 +7,7 @@ import { updatePlayerObjectives } from "./helpers/objectivesUpdate";
 import { checkWinCondition } from "./helpers/checkwin";
 import { advanceTurn } from "./helpers/turnHandler";
 import { applySinglePlayerLossIfNeeded } from "./helpers/endConditions";
+import { GamePhase } from '@transcendence/db-entities';
 
 export function processPlayerAction(
   state: GameState,
@@ -34,7 +35,7 @@ export function processPlayerAction(
       state.gameEnded = true;
       state.gameResult = { winnerId: player.id.toString() };
       state.endReason = "WIN";
-      state.phase = "END";
+      state.phase = GamePhase.END;
 
       return { ok: true, action };
     }
@@ -89,7 +90,7 @@ export function processPlayerAction(
     state.gameEnded = true;
     state.gameResult = { winnerId: player.id.toString() };
     state.endReason = "WIN";
-    state.phase = "END";
+    state.phase = GamePhase.END;
 
     return { ok: true, action };
   }

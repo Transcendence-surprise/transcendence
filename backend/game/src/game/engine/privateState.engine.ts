@@ -30,6 +30,7 @@ export function getPrivateState(
       currentPlayerId: state.currentPlayerId,
       gameResult: state.gameResult ? { winnerIds: [state.gameResult.winnerId] } : undefined,
       endReason: state.endReason,
+      completionStatus: state.completionStatus,
       spectators: spectatorNames,
       objectives: objectives,
       gameStartedAt: state.gameStartedAt,
