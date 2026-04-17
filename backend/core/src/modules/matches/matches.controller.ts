@@ -7,7 +7,6 @@ import {
   Delete,
   Param,
   Body,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { CreateMatchDto } from './dto/create-match.dto';
@@ -36,7 +35,7 @@ export class MatchesController {
 
   @Get(':id')
   @FindMatchByIdDocs()
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<MatchDto> {
+  async findOne(@Param('id') id: string): Promise<MatchDto> {
     return this.matchesService.findOne(id);
   }
 
@@ -49,7 +48,7 @@ export class MatchesController {
   @Put(':id')
   @UpdateMatchDocs()
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() updateMatchDto: UpdateMatchDto,
   ): Promise<MatchDto> {
     return this.matchesService.update(id, updateMatchDto);
@@ -58,7 +57,7 @@ export class MatchesController {
   @Patch(':id')
   @PartialUpdateMatchDocs()
   async partialUpdate(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() updateMatchDto: UpdateMatchDto,
   ): Promise<MatchDto> {
     return this.matchesService.update(id, updateMatchDto);
@@ -66,7 +65,7 @@ export class MatchesController {
 
   @Delete(':id')
   @DeleteMatchDocs()
-  async remove(@Param('id', ParseIntPipe) id: number) {
+  async remove(@Param('id') id: string) {
     return this.matchesService.remove(id);
   }
 }

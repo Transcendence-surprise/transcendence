@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { LeaderboardService } from './leaderboard.service';
 import { LeaderboardEntryDto } from './dto/leaderboard.dto';
 import {
@@ -15,5 +15,10 @@ export class LeaderboardController {
   @GetAllTimeLeaderboardDocs()
   async getAllTimeLeaderboard(): Promise<LeaderboardEntryDto[]> {
     return this.leaderboardService.getAllTimeLeaderboard(10);
+  }
+
+  @Get('user-ranking/:userId')
+  async getUserRanking(@Param('userId') userId: number): Promise<number | null> {
+    return this.leaderboardService.getUserRanking(userId);
   }
 }

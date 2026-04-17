@@ -32,9 +32,9 @@ const FindMatchByIdDocs = () =>
     }),
     ApiParam({
       name: 'id',
-      type: Number,
+      type: String,
       description: 'Match ID',
-      example: 1,
+      example: 'match-uuid',
     }),
     ApiOkResponse({ type: MatchDto }),
   );
@@ -59,9 +59,9 @@ const UpdateMatchDocs = () =>
     }),
     ApiParam({
       name: 'id',
-      type: Number,
+      type: String,
       description: 'Match ID',
-      example: 1,
+      example: 'match-uuid',
     }),
     ApiBody({ type: UpdateMatchDto }),
     ApiOkResponse({ type: MatchDto }),
@@ -76,9 +76,9 @@ const PartialUpdateMatchDocs = () =>
     }),
     ApiParam({
       name: 'id',
-      type: Number,
+      type: String,
       description: 'Match ID',
-      example: 1,
+      example: 'match-uuid',
     }),
     ApiBody({ type: UpdateMatchDto }),
     ApiOkResponse({ type: MatchDto }),
@@ -93,9 +93,9 @@ const DeleteMatchDocs = () =>
     }),
     ApiParam({
       name: 'id',
-      type: Number,
+      type: String,
       description: 'Match ID',
-      example: 1,
+      example: 'match-uuid',
     }),
     ApiOkResponse({ description: 'Match deleted successfully' }),
   );

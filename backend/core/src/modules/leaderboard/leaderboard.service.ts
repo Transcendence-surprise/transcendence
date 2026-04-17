@@ -58,4 +58,24 @@ export class LeaderboardService {
       wins: Number(row.wins),
     }));
   }
+
+  async getUserRanking(userId: number): Promise<number | null> {
+      const result = await this.dataSource.query(`
+      SELECT rank FROM (
+        SELECT 
+          g.winner_user_id AS "userId",
+          RANK() OVER (ORDER BY COUNT(*) DESC) AS rank
+        FROM games g
+        WHERE g.phase = 'END'
+          AND g.type = 'MULTI'
+          AND g.winner_user_id IS NOT NULL
+        GROUP BY g.winner_user_id
+      ) ranked
+      WHERE "userId" = $1
+    `, [userId]);
+
+    if (result.length === 0) return null;
+
+    return Number(result[0].rank);
+  }
 }
