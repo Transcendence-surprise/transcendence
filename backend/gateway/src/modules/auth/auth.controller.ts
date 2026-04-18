@@ -80,9 +80,7 @@ export class AuthController {
     @Query('code') code: string,
     @Res() reply: FastifyReply,
   ) {
-    console.log('gateway before res, code', code);
     const res = await this.authClient.googleAuthCallback(code);
-    console.log('gateway after res');
 
     this.forwardCookies(reply, res.cookies);
 
