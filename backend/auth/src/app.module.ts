@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -7,13 +7,29 @@ import { AuthModule } from './modules/auth/auth.module';
 import { OAuthModule } from './modules/oauth/oauth.module';
 import { ApiKeyModule } from './modules/api-keys/api-key.module';
 import { HealthController } from './health/health.controller';
+import { loadVaultSecrets } from './vault';
+
+@Module({})
+class VaultConfigModule {
+  static async forRootAsync(): Promise<DynamicModule> {
+    await loadVaultSecrets();
+
+    return {
+      module: VaultConfigModule,
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true,
+          load: [authConfig],
+        }),
+      ],
+      exports: [ConfigModule],
+    };
+  }
+}
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [authConfig],
-    }),
+    VaultConfigModule.forRootAsync(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [authConfig.KEY],

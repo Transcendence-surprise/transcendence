@@ -13,87 +13,176 @@
 
 - Docker and Docker Compose v5
 
-## Installation (backend + frontend)
+---
 
-Run once to install dependencies:
+## First-Time Setup
+
+Follow these steps in order the very first time you run the project.
+
+### Step 1 — Install dependencies
+
 ```bash
 make dev-install
 ```
 
-Build and start the development stack + db migration:
+Builds the shared `db-entities` package and runs `npm install` in every service and the frontend.
+
+### Step 2 — Create your secrets file
+
+Copy the template to your home directory and fill in real values for all `SECRET` fields (mail credentials, OAuth keys, JWT secret, etc.):
+
+```bash
+cp .env.example ~/transcendence-secrets.env
+# Edit ~/transcendence-secrets.env with your real values
+```
+
+Keep this file **outside the project** — it is never committed.
+
+### Step 3 — Start Vault and seed your secrets
+
+```bash
+make vault-init                                   # start the Vault container
+make vault-seed FILE=~/transcendence-secrets.env  # import secrets into Vault
+```
+
+Vault runs in **dev mode**: data is in-memory, accessible at http://localhost:8200/ui with token `dev-root-token`.
+
+### Step 4 — Build and start the dev stack
+
 ```bash
 make dev-build
 ```
 
-Start the development services (no rebuild):
+This builds all Docker images, runs DB migrations, and starts every service. The app is available at **http://localhost:8080**.
+
+---
+
+## Daily Usage
+
+### Start the stack (no rebuild)
+
 ```bash
 make dev
 ```
 
-## Frontend (local)
+### Stop Vault survives `make down`
 
-Start only frontend
+`make down` do not stop vault container, it keeps running — and its in-memory secrets are preserved — across normal restarts.
+
+After running `make down` command you may see:
+```bash
+! Network transcendence_transcendence_net Resource is still in use     
+```
+It means Vault is running and using the network (no need to seed Vault with secrets for starting app)
+
+If you need to stop Vault run:
+
+```bash
+make vault-stop
+```
+
+### After a Vault restart (secrets are lost on container restart)
+
+Re-seed before starting the stack:
+
+```bash
+make vault-seed FILE=~/transcendence-secrets.env
+make dev
+```
+
+### Stop and start
+
+```bash
+make down       # stop containers, keep volumes
+make restart    # stop + start (no rebuild)
+```
+
+---
+
+## Vault
+
+For Vault UI usage, editing secrets, and full details see `docs/VAULT-GUIDE.md`.
+
+---
+
+## Without Vault
+
+If Vault is not running (no `VAULT_TOKEN` env var set), backend services fall back to a `.env` file in the project root — the old workflow still works.
+
+---
+
+## Frontend (local, outside Docker)
+
 ```bash
 make dev-front
 ```
 
-## Backend
+## Backend docs
 
-1. If you need to run backend, read:
-```bash
-/docs/BACKEND-DEV.md
-```
-2. API documentation, read:
-```bash
-/docs/API-DOCS.md
-```
-3. If you need to check db inside docker container, read:
-```bash
-/docs/DATABESE-DEV.md
-```
+1. Backend dev guide: `docs/BACKEND-DEV.md`
+2. API documentation: `docs/API-DOCS.md`
+3. DB access inside Docker: `docs/DATABESE-DEV.md`
 
-### 🔹 clean
+---
 
-Stop containers (keeps volumes).
+## Makefile Reference
 
-```bash
-make clean
-```
+### Dev workflow
 
-### 🔹 fclean
+| Command | Description |
+|---------|-------------|
+| `make dev-install` | Install all deps (pack-deps + npm install in each service) |
+| `make dev-build` | Build images, run migrations, start dev stack |
+| `make dev` | Start dev containers (no rebuild) |
+| `make down` | Stop containers (keep volumes) |
+| `make restart` | Stop + start |
+| `make dev-front` | Run frontend locally (outside Docker) |
+| `make dev-db` | Start only PostgreSQL |
 
-Stop containers and remove volumes (full reset).
+### Vault
 
-```bash
-make fclean
-```
+| Command | Description |
+|---------|-------------|
+| `make vault-init` | Start Vault container (dev mode) |
+| `make vault-seed FILE=<path>` | Import secrets from a file into Vault |
+| `make vault-stop` | Stop Vault container |
+| `make dev-vault [FILE=<path>]` | Start Vault, optionally seed, start dev stack |
 
-### 🔹 make build-[image-name]
-
-Rebuild of separate service:
+### Rebuild a single service
 
 ```bash
-make build-core  # rebuild core
-make build-frontend  # rebuild frontend
-make build-nginx  # rebuild nginx
-make build-db  # rebuild PostgreSQL
+make build-core
+make build-auth
+make build-gateway
+make build-game
+make build-frontend
+make build-nginx
+make build-db
 ```
 
-### 🔹 prune
-
-Clean dangling images
+### Logs
 
 ```bash
-make prune
+make logs          # all services
+make log-core      # single service (log-auth, log-gateway, log-game, log-nginx, log-db, log-vault)
 ```
 
-### 🔹 prod
+### Cleanup
 
-Start production stack (build + detached).
+| Command | Description |
+|---------|-------------|
+| `make clean` | Stop containers, keep volumes |
+| `make fclean` | Stop containers, remove volumes |
+| `make prune` | fclean + prune dangling images |
+
+### Production
 
 ```bash
-make prod
+make prod           # build and start prod stack
+make prod-fclean    # stop prod and remove volumes
 ```
+
+---
 
 ## Frontend ↔ Backend Communication
 
@@ -104,6 +193,23 @@ make prod
   ```
 - Frontend fetches data using relative paths (e.g. `/api/health`)
 - This allows Nginx to proxy requests in production without changing frontend code
+
+---
+
+## Dev Ports
+
+| Service | URL |
+|---------|-----|
+| App (via Nginx) | http://localhost:8080 |
+| Frontend (Vite HMR) | http://localhost:5173 |
+| Gateway API | http://localhost:3002 |
+| Core API + Swagger | http://localhost:3000/api/docs |
+| Auth API | http://localhost:3001 |
+| Game API + WS | http://localhost:3003 |
+| PostgreSQL | localhost:5432 (user/pass/db: `transcendence`) |
+| Vault UI | http://localhost:8200/ui (token: `dev-root-token`) |
+
+---
 
 ## Tech Stack
 
@@ -121,4 +227,5 @@ make prod
 - Nginx
 - PostgreSQL
 - Docker & Docker Compose
+- HashiCorp Vault (dev secrets)
 - Hetzner VPS

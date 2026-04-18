@@ -4,7 +4,8 @@ services:
     build: ./frontend
     container_name: frontend
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     networks:
       - transcendence_net
 
@@ -14,13 +15,16 @@ services:
     build: ./backend/gateway
     container_name: gateway
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     depends_on:
       core:
         condition: service_healthy
       game:
         condition: service_healthy
       auth:
+        condition: service_healthy
+      vault:
         condition: service_healthy
     networks:
       - transcendence_net
@@ -35,12 +39,15 @@ services:
     build: ./backend/core
     container_name: core
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     volumes:
       - images_data:/app/uploads
     depends_on:
       migration:
         condition: service_completed_successfully
+      vault:
+        condition: service_healthy
     networks:
       - transcendence_net
     healthcheck:
@@ -54,10 +61,13 @@ services:
     build: ./backend/auth
     container_name: auth
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     depends_on:
       migration:
         condition: service_completed_successfully
+      vault:
+        condition: service_healthy
     networks:
       - transcendence_net
     healthcheck:
@@ -71,10 +81,13 @@ services:
     build: ./backend/game
     container_name: game
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     depends_on:
       migration:
         condition: service_completed_successfully
+      vault:
+        condition: service_healthy
     networks:
       - transcendence_net
     healthcheck:
@@ -86,11 +99,29 @@ services:
 
   # === Infrastructure ===
 
+  vault:
+    image: hashicorp/vault:1.17
+    container_name: vault
+    cap_add:
+      - IPC_LOCK
+    env_file:
+      - path: ./.env
+        required: false
+    networks:
+      - transcendence_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8200/v1/sys/health 2>/dev/null | grep -q '\"sealed\":false'"]
+      interval: 5s
+      timeout: 3s
+      start_period: 10s
+      retries: 5
+
   db:
     image: postgres:17-alpine
     container_name: db
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     networks:
       - transcendence_net
     healthcheck:
@@ -104,7 +135,8 @@ services:
     build: ./backend/migration
     container_name: migration
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     depends_on:
       db:
         condition: service_healthy
@@ -115,13 +147,16 @@ services:
     build: ./nginx
     container_name: nginx
     env_file:
-      - ./.env
+      - path: ./.env
+        required: false
     depends_on:
       - frontend
+    volumes:
+      - ./nginx/logs/modsecurity:/var/log/modsecurity
     networks:
       - transcendence_net
     healthcheck:
-      test: ["CMD-SHELL", "wget -O /dev/null ${FRONTEND_URL} || exit 1"]
+      test: ["CMD-SHELL", "wget -O /dev/null http://127.0.0.1:8080/healthz || exit 1"]
       interval: 5s
       timeout: 2s
       start_period: 120s
