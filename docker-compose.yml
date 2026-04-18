@@ -161,6 +161,8 @@ services:
       - auth
       - game
       - db
+    volumes:
+      - ./nginx/logs/modsecurity:/var/log/modsecurity
     networks:
       - transcendence_net
     restart: unless-stopped
