@@ -38,6 +38,7 @@ FROM nginx:latest
 ARG MODSEC
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget \
     libxml2 \
     libyajl2 \
     liblmdb0 \
