@@ -151,6 +151,8 @@ services:
         required: false
     depends_on:
       - frontend
+    volumes:
+      - ./nginx/logs/modsecurity:/var/log/modsecurity
     networks:
       - transcendence_net
     healthcheck:
