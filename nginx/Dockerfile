@@ -46,6 +46,7 @@ RUN wget -O nginx.tar.gz http://nginx.org/download/nginx-1.27.3.tar.gz \
 FROM nginx:1.27.3
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget \
     libpcre3 \
     libpcre2-8-0 \
     libxml2 \
