@@ -23,6 +23,7 @@ describe('AuthHttpService', () => {
     const mockHttpService = {
       get: jest.fn(),
       post: jest.fn(),
+      delete: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -80,6 +81,30 @@ describe('AuthHttpService', () => {
       httpService.post.mockReturnValue(throwError(() => axiosError));
 
       await expect(service.login(dto)).rejects.toThrow('error');
+    });
+  });
+
+  describe('loginWith2FA', () => {
+    it('should call post and return data', async () => {
+      const dto = { email: 'test@example.com', code: '447944' };
+      const response: any = { access_token: 'jwt' };
+      const axiosResponse: AxiosResponse = {
+        data: response,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {} as any,
+      };
+
+      httpService.post.mockReturnValue(of(axiosResponse));
+
+      const result = await service.loginWith2FA(dto);
+
+      expect(httpService.post).toHaveBeenCalledWith(
+        '/api/auth/login/2fa',
+        dto,
+      );
+      expect(result).toEqual({ data: response, cookies: [] });
     });
   });
 

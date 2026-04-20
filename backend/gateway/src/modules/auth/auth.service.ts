@@ -16,6 +16,10 @@ export class AuthHttpService {
     return this.requestWithCookies<T>('post', '/api/auth/login', body);
   }
 
+  async loginWith2FA<T = unknown>(body: unknown) {
+    return this.requestWithCookies<T>('post', '/api/auth/login/2fa', body);
+  }
+
   async signup<T = unknown>(body: unknown) {
     return this.requestWithCookies<T>('post', '/api/auth/signup', body);
   }

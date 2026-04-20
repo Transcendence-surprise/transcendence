@@ -28,6 +28,16 @@ export class AuthController {
     return res.data;
   }
 
+  @Post('login/2fa')
+  async loginWith2FA(
+    @Body() body: unknown,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const res = await this.authClient.loginWith2FA(body);
+    this.forwardCookies(reply, res.cookies);
+    return res.data;
+  }
+
   @Post('signup')
   async signup(
     @Body() body: unknown,

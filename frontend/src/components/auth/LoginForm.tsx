@@ -13,21 +13,47 @@ export default function LoginForm({
   const [formData, setFormData] = useState({
     identifier: "",
     password: "",
+    code: "",
     rememberMe: false,
   });
   const [guestNickname, setGuestNickname] = useState("");
+  const [isTwoFactorStep, setIsTwoFactorStep] = useState(false);
+  const [twoFactorEmail, setTwoFactorEmail] = useState("");
+  const [authError, setAuthError] = useState<string | null>(null);
 
-  const { login, continueAsGuest } = useAuth();
+  const { login, loginWith2FA, continueAsGuest, loading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAuthError(null);
 
     try {
-      await login(formData.identifier, formData.password);
+      if (isTwoFactorStep) {
+        if (!twoFactorEmail) {
+          throw new Error("Missing verification email");
+        }
+
+        await loginWith2FA(twoFactorEmail, formData.code.trim());
+        onClose();
+        return;
+      }
+
+      const result = await login(formData.identifier, formData.password);
+      if ("twoFactorRequired" in result) {
+        setIsTwoFactorStep(true);
+        setTwoFactorEmail(result.email);
+        setAuthError(result.message);
+        setFormData((currentForm) => ({ ...currentForm, code: "" }));
+        return;
+      }
+
       onClose();
     } catch (err: any) {
+      if (err?.name === "AbortError") {
+        return;
+      }
       console.error("Login error:", err.message);
-      alert(`Login failed: ${err.message}`);
+      setAuthError(err.message || "Login failed");
     }
   };
 
@@ -62,6 +88,13 @@ export default function LoginForm({
     }
   };
 
+  const handleBackToPassword = () => {
+    setIsTwoFactorStep(false);
+    setTwoFactorEmail("");
+    setAuthError(null);
+    setFormData((currentForm) => ({ ...currentForm, code: "" }));
+  };
+
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-purple-900/50 via-black/90 to-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="relative bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 border border-cyan-500/30 rounded-3xl p-10 w-full max-w-md shadow-2xl shadow-cyan-500/20 max-h-[90vh] overflow-y-auto">
@@ -78,6 +111,12 @@ export default function LoginForm({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {authError && (
+            <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              {authError}
+            </div>
+          )}
+
           <div>
             <label
               htmlFor="login-email"
@@ -148,6 +187,50 @@ export default function LoginForm({
             </div>
           </div>
 
+          {isTwoFactorStep && (
+            <div>
+              <label
+                htmlFor="login-code"
+                className="block text-sm font-medium text-white mb-2"
+              >
+                Verification code
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4l3 3m5-3a8 8 0 11-16 0 8 8 0 0116 0z"
+                    />
+                  </svg>
+                </span>
+                <input
+                  id="login-code"
+                  type="text"
+                  name="code"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  value={formData.code}
+                  onChange={handleChange}
+                  required={isTwoFactorStep}
+                  maxLength={6}
+                  className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all tracking-[0.35em] text-center"
+                  placeholder="123456"
+                />
+              </div>
+              <p className="mt-2 text-xs text-gray-400">
+                Enter the 6-digit code sent to {twoFactorEmail}.
+              </p>
+            </div>
+          )}
+
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center cursor-pointer">
               <input
@@ -169,10 +252,21 @@ export default function LoginForm({
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50"
           >
-            Login
+            {loading ? "Please wait..." : isTwoFactorStep ? "Verify code" : "Login"}
           </button>
+
+          {isTwoFactorStep && (
+            <button
+              type="button"
+              onClick={handleBackToPassword}
+              className="w-full text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+            >
+              Back to password
+            </button>
+          )}
         </form>
 
         <div className="mt-6">

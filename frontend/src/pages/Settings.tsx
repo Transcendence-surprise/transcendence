@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import * as authApi from "../api/authentification";
+import { toggleTwoFactorAuth } from "../api/users";
 
 type CollectableSet = "gemstones" | "numbers";
 type PlayerIconSet = "star" | "space_inv";
@@ -26,12 +27,13 @@ const spaceInvPlayerPreview = Array.from({ length: 4 }, (_, index) => ({
 }));
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const navigate = useNavigate();
   const [selectedCollectableSet, setSelectedCollectableSet] =
     useState<CollectableSet>("gemstones");
   const [selectedPlayerIconSet, setSelectedPlayerIconSet] =
     useState<PlayerIconSet>("star");
+  const [twoFactorLoading, setTwoFactorLoading] = useState(false);
 
   // Password change state
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -106,6 +108,24 @@ export default function Settings() {
     }
   };
 
+  const handleToggleTwoFactor = async () => {
+    if (!user) return;
+
+    setTwoFactorLoading(true);
+    try {
+      const updatedUser = await toggleTwoFactorAuth(
+        !(user.twoFactorEnabled ?? false),
+      );
+      updateUser(updatedUser);
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setTwoFactorLoading(false);
+    }
+  };
+
+  const twoFactorEnabled = user?.twoFactorEnabled ?? false;
+
   return (
     <div className="flex flex-col min-h-[60vh] gap-8 max-w-4xl">
       <div>
@@ -116,12 +136,11 @@ export default function Settings() {
       <section className="bg-bg-modal rounded-xl border border-[var(--color-border-subtle)] p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-2xl font-bold text-white">Security</h3>
-          <span className="text-xs px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-300">
-            2FA API Pending
+          <span className="text-xs px-2 py-1 rounded-full bg-cyan-500/20 text-cyan-300">
+            {twoFactorEnabled ? "2FA Enabled" : "2FA Disabled"}
           </span>
         </div>
         <div className="space-y-3">
-          {/* Two-Factor Authentication - Placeholder */}
           <div className="flex items-center justify-between gap-4 rounded-lg border border-[var(--color-border-subtle)] px-4 py-3">
             <div>
               <p className="text-white font-semibold">
@@ -134,10 +153,15 @@ export default function Settings() {
             </div>
             <button
               type="button"
-              disabled
-              className="px-3 py-1.5 rounded-md text-sm font-bold border border-[var(--color-border-subtle)] text-gray-500 cursor-not-allowed"
+              onClick={handleToggleTwoFactor}
+              disabled={twoFactorLoading}
+              className="px-3 py-1.5 rounded-md text-sm font-bold border border-[var(--color-border-subtle)] text-gray-300 hover:border-cyan-500/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Enable / Disable
+              {twoFactorLoading
+                ? "Saving..."
+                : twoFactorEnabled
+                  ? "Disable"
+                  : "Enable"}
             </button>
           </div>
 

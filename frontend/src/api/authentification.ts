@@ -31,7 +31,16 @@ export interface User {
   roles: string[];
   createdAt?: string;
   updatedAt?: string;
+  twoFactorEnabled?: boolean;
 }
+
+export interface TwoFactorRequiredResponse {
+  twoFactorRequired: true;
+  email: string;
+  message: string;
+}
+
+export type LoginResponse = User | TwoFactorRequiredResponse;
 
 export async function signup(
   username: string,
@@ -61,7 +70,17 @@ export async function signup(
   }
 }
 
-export async function login(identifier: string, password: string, signal?: AbortSignal): Promise<User> {
+export function isTwoFactorRequiredResponse(
+  response: LoginResponse,
+): response is TwoFactorRequiredResponse {
+  return "twoFactorRequired" in response && response.twoFactorRequired;
+}
+
+export async function login(
+  identifier: string,
+  password: string,
+  signal?: AbortSignal,
+): Promise<LoginResponse> {
   try {
     const res = await fetch("/api/auth/login", {
       method: "POST",
@@ -76,7 +95,41 @@ export async function login(identifier: string, password: string, signal?: Abort
       throw new Error(error?.message || "Login failed");
     }
 
-    const user = await getCurrentUser(signal);
+    const data = await res.json();
+
+    if (data?.twoFactorRequired) {
+      return data as TwoFactorRequiredResponse;
+    }
+
+    const user = (data?.user ?? data) as User;
+    setAuthHint(true);
+    return user;
+  } catch (e: any) {
+    rethrowAbortError(e);
+  }
+}
+
+export async function loginWith2FA(
+  email: string,
+  code: string,
+  signal?: AbortSignal,
+): Promise<User> {
+  try {
+    const res = await fetch("/api/auth/login/2fa", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code }),
+      credentials: "include",
+      signal,
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error?.message || "Verification code failed");
+    }
+
+    const data = await res.json();
+    const user = (data?.user ?? data) as User;
     setAuthHint(true);
     return user;
   } catch (e: any) {
