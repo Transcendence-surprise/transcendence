@@ -26,10 +26,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Fetch current user on mount
   useEffect(() => {
+    if (!authApi.hasAuthHint()) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     const controller = new AbortController();
 
     authApi
-      .getCurrentUser(controller.signal)
+      .getCurrentUser(controller.signal, { allowUnauthorized: true })
       .then((u) => setUser(u))
       .catch((err) => {
         if (err?.name !== "AbortError") {
