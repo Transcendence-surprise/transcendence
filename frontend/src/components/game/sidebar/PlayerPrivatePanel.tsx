@@ -106,6 +106,7 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
   const totalMoves = playerForStats?.totalMoves ?? 0;
   const displaySkipsLeft = playerForStats?.skipsLeft ?? game.skipsLeft ?? 0;
   const maxMoves = game.level?.constraints?.maxMoves;
+  const spectators = game.spectators ?? [];
 
   return (
     <div className="flex flex-col gap-4 w-full bg-bg-sidebar p-4 rounded-lg">
@@ -185,6 +186,30 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
         <span className="text-white font-bold">
           {maxMoves != null ? `${totalMoves}/${maxMoves}` : totalMoves}
         </span>
+      </div>
+
+      {/* Spectators */}
+      <div>
+          <div className="text-xs font-semibold text-gray-400 uppercase">
+            Spectators
+          </div>
+        {spectators.length > 0 ? (
+          <ul className="mt-1 flex flex-col gap-1 text-xs text-gray-300">
+            {spectators.map((spectatorName, index) => (
+              <li
+                key={`${spectatorName}-${index}`}
+                className="flex items-center justify-between"
+              >
+                <span>{spectatorName}</span>
+                <span className="text-gray-500">👀</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <span className="text-xs text-gray-500 block mt-1">
+            No spectators
+          </span>
+        )}
       </div>
     </div>
   );

@@ -4,8 +4,8 @@ export class MultiGameDto {
   @ApiProperty({ description: 'Unique game ID' })
   id: string;
 
-  @ApiProperty({ description: 'Host ID (or nickname later)' })
-  hostId: string;
+  @ApiProperty({ description: 'Host nickname' })
+  hostName: string;
 
   @ApiProperty({ description: 'Current phase of the game', enum: ['LOBBY', 'PLAY'] })
   phase: 'LOBBY' | 'PLAY';

@@ -28,6 +28,7 @@ export interface PlayerProgress {
 
 export interface Spectator {
   id: number | string;
+  name?: string;
 }
 
 export interface SinglePlayerSettings {

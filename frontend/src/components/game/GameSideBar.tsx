@@ -22,7 +22,6 @@ export default function GameSideBar({
         currentPlayerId={game.currentPlayerId}
         playerProgress={game.playerProgressById}
         collectiblesPerPlayer={5}
-        spectatorIds={game.spectators}
       />
 
       {!isSpectator && <PlayerPrivatePanel game={game} />}

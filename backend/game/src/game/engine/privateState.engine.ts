@@ -16,7 +16,9 @@ export function getPrivateState(
     objectives: [],
   };
   const objectives = state.level.objectives.map((o) => JSON.stringify(o));
-  const spectatorNames: string[] = state.spectators.map(s => s.id.toString());
+  const spectatorNames: string[] = state.spectators.map(
+    (spectator) => spectator.name ?? spectator.id.toString(),
+  );
 
   return {
     ok: true,
