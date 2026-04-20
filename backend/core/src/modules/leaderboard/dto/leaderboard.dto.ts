@@ -21,5 +21,4 @@ export class LeaderboardEntryDto {
 
   @ApiProperty({ description: 'Avatar URL for the user', nullable: true })
   avatarUrl: string | null;
-
 }
