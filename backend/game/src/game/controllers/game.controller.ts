@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, HttpCode } from '@nestjs/common';
 import { EngineService } from '../services/engine.service.nest';
 import { UnauthorizedException } from '@nestjs/common';
 import { GameSettings } from '../models/state';
@@ -160,7 +160,8 @@ export class GameController {
   // Leave game
   @Post('leave')
   @ApiBody({ type: LeaveGameDto })
-  @ApiResponse({ status: 201, type: LeaveResponseDto })
+  @HttpCode(200)
+  @ApiResponse({ status: 200, type: LeaveResponseDto })
   async leaveGame(
     @Body() body: LeaveGameDto,
     @CurrentUser() user: PlayerContext
