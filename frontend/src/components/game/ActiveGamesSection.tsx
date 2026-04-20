@@ -13,14 +13,14 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
   const [loadingGame, setLoadingGame] = useState(false);
 
   useEffect(() => {
+    if (!user) {
+      setActiveGameIds([]);
+      return;
+    }
+
     const controller = new AbortController();
 
     const checkActive = async () => {
-      if (!user) {
-        setActiveGameIds([]);
-        return;
-      }
-
       try {
         const availability = await checkPlayerAvailability(controller.signal);
 
