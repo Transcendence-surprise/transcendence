@@ -3,6 +3,7 @@ import { createGame } from '../engine/create.engine';
 import { GameSettings } from '../models/state';
 import { LeaveError } from '../models/leaveResult';
 import { MultiplayerSettings } from '../models/state';
+import { GamePhase } from '@transcendence/db-entities';
 
 const multiSettings = (overrides?: Partial<MultiplayerSettings>): GameSettings => ({
   mode: "MULTI",
@@ -27,7 +28,7 @@ describe("leaveGameEngine", () => {
 
     state.currentPlayerIndex = 0;
 
-    state.phase = "LOBBY";
+    state.phase = GamePhase.LOBBY;
   });
 
   it("allows a normal player to leave", () => {
@@ -43,7 +44,7 @@ describe("leaveGameEngine", () => {
   });
 
   it("prevents host from leaving in PLAY", () => {
-    state.phase = "PLAY";
+    state.phase = GamePhase.PLAY;
     const result = leaveGameEngine(state, 1);
     expect(result.ok).toBe(true);
     expect(result.deleteGame).toBeUndefined();
@@ -53,7 +54,7 @@ describe("leaveGameEngine", () => {
   });
 
   it("allows host to leave in LOBBY and triggers deleteGame", () => {
-    state.phase = "LOBBY";
+    state.phase = GamePhase.LOBBY;
     const result = leaveGameEngine(state, 1);
     expect(result.ok).toBe(true);
     expect(result.deleteGame).toBe(true);
@@ -82,30 +83,30 @@ describe("leaveGameEngine", () => {
     expect(state.spectators.length).toBe(0);
   });
 
-  it("handles leaving until all players gone except host", () => {
+  it("keeps lobby alive when non-host players leave and only host remains", () => {
     let r = leaveGameEngine(state, 2);
     expect(r.ok).toBe(true);
     // After player 2 leaves, game should not be deleted
     expect(r.deleteGame).toBeUndefined();
     r = leaveGameEngine(state, 3);
     expect(r.ok).toBe(true);
-    // After player 3 leaves, only host remains, so game should be deleted
-    expect(r.deleteGame).toBe(true);
+    // In LOBBY, only host leaving can delete the game
+    expect(r.deleteGame).toBeUndefined();
     expect(state.players.length).toBe(1);
     expect(state.players[0].id).toBe(1);
     expect(state.currentPlayerIndex).toBe(0);
     expect(state.players[state.currentPlayerIndex].id).toBe(1);
   });
 
-  it("handles leaving until all players gone except host (multi mode)", () => {
+  it("keeps lobby alive when non-host players leave (multi mode)", () => {
     // Remove player 2 (3 players remain)
     let r = leaveGameEngine(state, 2);
     expect(r.ok).toBe(true);
     expect(r.deleteGame).toBeUndefined();
-    // Remove player 3 (now only host remains, so game should be deleted)
+    // Remove player 3 (now only host remains, lobby should still stay)
     r = leaveGameEngine(state, 3);
     expect(r.ok).toBe(true);
-    expect(r.deleteGame).toBe(true);
+    expect(r.deleteGame).toBeUndefined();
     expect(state.players.length).toBe(1);
     expect(state.players[0].id).toBe(1);
     expect(state.currentPlayerIndex).toBe(0);
@@ -139,12 +140,12 @@ describe("leaveGameEngine", () => {
   });
 
   it("host cannot leave in PLAY but can in LOBBY", () => {
-    state.phase = "PLAY";
+    state.phase = GamePhase.PLAY;
     let r = leaveGameEngine(state, 1);
     expect(r.ok).toBe(true);
     expect(r.deleteGame).toBeUndefined();
     expect(state.players.some(p => p.id === 1)).toBe(false);
-    state.phase = "LOBBY";
+    state.phase = GamePhase.LOBBY;
     r = leaveGameEngine(state, 1);
     expect(r.ok).toBe(true);
     expect(r.deleteGame).toBe(true);

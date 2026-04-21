@@ -1,5 +1,7 @@
+//src/game/factories/gameState.factory.ts
 import { Level } from "../models/level";
 import { GameState, PlayerState } from "../models/state";
+import { GamePhase } from '@transcendence/db-entities';
 
 export function createGameState(level: Level): GameState {
   const initialPlayers: PlayerState[] =
@@ -20,7 +22,7 @@ export function createGameState(level: Level): GameState {
     levelId: level.id,
     level,
 
-    phase: "LOBBY",       // default
+    phase: GamePhase.LOBBY,       // default
 
     hostId: 0,            // temporary placeholder
     hostName: "",

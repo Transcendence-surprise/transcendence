@@ -87,26 +87,35 @@ export async function startGame(gameId: string, signal?: AbortSignal) {
 
 export async function boardModification(gameId: string, action: BoardAction, signal?: AbortSignal) {
   try {
-  const res = await fetch('/api/game/boardmove', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ gameId, action }),
-    credentials: 'include',
-    signal,
-  });
-  let data: any = {};
-  try {
-    data = await res.json();
-  } catch (e) {
-    // Backend returned invalid JSON
-    throw new Error(`Server error: ${res.status} ${res.statusText}`);
-  }
+    const res = await fetch('/api/game/boardmove', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gameId, action }),
+      credentials: 'include',
+      signal,
+    });
 
-  if (!res.ok || !data.ok) {
-      throw new Error(data?.error || data?.message || `Failed to perform board action: ${res.statusText}`);
-  }
+    let data: any = {};
+    try {
+      const text = await res.text();
+      data = text ? JSON.parse(text) : {};
+    } catch (e) {
+      if (res.ok) {
+        data = { ok: true, action };
+      } else {
+        throw new Error(`Server error: ${res.status} ${res.statusText}`);
+      }
+    }
 
-  return data;
+    if (!res.ok || !data.ok) {
+      throw new Error(
+        data?.error ||
+          data?.message ||
+          `Failed to perform board action: ${res.statusText}`,
+      );
+    }
+
+    return data;
   } catch (e: any) {
     return rethrowAbortError(e);
   }

@@ -79,7 +79,7 @@ export default function JoinTable({
               <tbody>
                 {games.map((game) => (
                   <tr key={game.id} className="odd:bg-bg-dark-secondary">
-                    <td className={tableCellClass}>{game.hostId}</td>
+                    <td className={tableCellClass}>{game.hostName}</td>
                     <td className={tableCellClass}>{game.joinedPlayers}</td>
                     <td className={tableCellClass}>{game.maxPlayers}</td>
                     <td className={tableCellClass}>{game.phase}</td>

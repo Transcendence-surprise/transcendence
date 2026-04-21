@@ -11,6 +11,7 @@ import { GameModule } from './modules/game/game.module';
 import { ImagesHttpModule } from './modules/images/images.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
 import { MatchesModule } from './modules/matches/matches.module';
+import { BadgeModule } from './modules/badges/badge.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { MatchesModule } from './modules/matches/matches.module';
     ImagesHttpModule,
     LeaderboardModule,
     MatchesModule,
+    BadgeModule,
   ],
   controllers: [HealthController],
   providers: [

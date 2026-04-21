@@ -16,13 +16,14 @@ export default function GameStatusDot({ user }: GameStatusDotProps) {
   } | null>(null);
 
   useEffect(() => {
+    if (!user) {
+      setActiveGame(null);
+      return;
+    }
+
     const controller = new AbortController();
     // Fallback: HTTP check on mount/user change
     const check = async () => {
-      if (!user) {
-        setActiveGame(null);
-        return;
-      }
       try {
         const availability = await checkPlayerAvailability(controller.signal);
         if (!availability.ok && availability.gameId) {

@@ -1,11 +1,19 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useCallback, useContext, useState, useEffect } from "react";
 import * as authApi from "../api/authentification";
 import { connectSocket, disconnectSocket } from "../services/socket";
 
 export interface AuthContextType {
   user: authApi.User | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<authApi.User>;
+  refreshUser: () => Promise<authApi.User | null>;
+  login: (
+    username: string,
+    password: string,
+  ) => Promise<authApi.LoginResponse>;
+  loginWith2FA: (
+    email: string,
+    code: string,
+  ) => Promise<authApi.User>;
   signup: (
     username: string,
     email: string,
@@ -13,6 +21,7 @@ export interface AuthContextType {
   ) => Promise<authApi.User>;
   logout: () => Promise<void>;
   continueAsGuest: (nickname: string) => Promise<authApi.User>;
+  updateUser: (updates: Partial<authApi.User>) => void;
   isAdmin: boolean;
   isUser: boolean;
   hasRole: (role: string) => boolean;
@@ -29,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const controller = new AbortController();
 
     authApi
-      .getCurrentUser(controller.signal)
+      .getCurrentUser(controller.signal, { allowUnauthorized: true })
       .then((u) => setUser(u))
       .catch((err) => {
         if (err?.name !== "AbortError") {
@@ -48,10 +57,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     else disconnectSocket();
   }, [user]);
 
+  const refreshUser = useCallback(async (): Promise<authApi.User | null> => {
+    const refreshedUser = await authApi.getCurrentUser(undefined, {
+      allowUnauthorized: true,
+    });
+    setUser(refreshedUser);
+    return refreshedUser;
+  }, []);
+
   const login = async (username: string, password: string) => {
     try {
       setLoading(true);
       const u = await authApi.login(username, password);
+      if (authApi.isTwoFactorRequiredResponse(u)) {
+        return u;
+      }
+
+      alert(`Welcome, ${u.username}!`);
+      setUser(u);
+      return u;
+    } catch (err: any) {
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loginWith2FA = async (email: string, code: string) => {
+    try {
+      setLoading(true);
+      const u = await authApi.loginWith2FA(email, code);
       alert(`Welcome, ${u.username}!`);
       setUser(u);
       return u;
@@ -95,6 +130,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return guestUser;
   };
 
+  const updateUser = (updates: Partial<authApi.User>) => {
+    setUser((currentUser) =>
+      currentUser ? { ...currentUser, ...updates } : currentUser,
+    );
+  };
+
+
+
   // Role-based computed values
   const isAdmin = user?.roles?.includes("admin") ?? false;
   const isUser = user?.roles?.includes("user") ?? false;
@@ -105,10 +148,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         loading,
+        refreshUser,
         login,
+        loginWith2FA,
         signup,
         logout,
         continueAsGuest,
+        updateUser,
         isAdmin,
         isUser,
         hasRole,

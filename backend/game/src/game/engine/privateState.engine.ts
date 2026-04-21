@@ -16,7 +16,9 @@ export function getPrivateState(
     objectives: [],
   };
   const objectives = state.level.objectives.map((o) => JSON.stringify(o));
-  const spectatorNames: string[] = state.spectators.map(s => s.id.toString());
+  const spectatorNames: string[] = state.spectators.map(
+    (spectator) => spectator.name ?? spectator.id.toString(),
+  );
 
   return {
     ok: true,
@@ -30,6 +32,7 @@ export function getPrivateState(
       currentPlayerId: state.currentPlayerId,
       gameResult: state.gameResult ? { winnerIds: [state.gameResult.winnerId] } : undefined,
       endReason: state.endReason,
+      completionStatus: state.completionStatus,
       spectators: spectatorNames,
       objectives: objectives,
       gameStartedAt: state.gameStartedAt,

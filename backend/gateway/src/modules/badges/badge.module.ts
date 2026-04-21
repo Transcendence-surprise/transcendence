@@ -1,0 +1,26 @@
+import { Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
+import { ConfigType } from '@nestjs/config';
+
+import gatewayConfig from '../../common/config/gateway.config';
+import { BadgeController } from './badge.controller';
+import { BadgeHttpService } from './badge.service';
+import { AuthHttpModule } from '../auth/auth.module';
+
+@Module({
+	imports: [
+		HttpModule.registerAsync({
+			inject: [gatewayConfig.KEY],
+			useFactory: (config: ConfigType<typeof gatewayConfig>) => ({
+				baseURL: config.core.baseUrl,
+				timeout: 5000,
+				maxRedirects: 5,
+			}),
+		}),
+		AuthHttpModule,
+	],
+	controllers: [BadgeController],
+	providers: [BadgeHttpService],
+	exports: [BadgeHttpService],
+})
+export class BadgeModule {}

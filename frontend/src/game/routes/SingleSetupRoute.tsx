@@ -1,6 +1,6 @@
 // select level → create single player game
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { createGame } from "../../api/game";
 import { SinglePlayerSettings } from "../models/gameSettings";
@@ -9,6 +9,7 @@ import { useAuth } from "../../hooks/useAuth";
 
 export default function SingleSetupRoute() {
   const navigate = useNavigate();
+  const requestControllerRef = useRef<AbortController | null>(null);
   const [settings, setSettings] = useState<SinglePlayerSettings>({
     levelId: undefined,
     allowSpectators: false,
@@ -25,6 +26,18 @@ export default function SingleSetupRoute() {
     }
   }, [user, navigate]);
 
+  useEffect(() => {
+    return () => {
+      requestControllerRef.current?.abort();
+    };
+  }, []);
+
+  const nextSignal = () => {
+    requestControllerRef.current?.abort();
+    requestControllerRef.current = new AbortController();
+    return requestControllerRef.current.signal;
+  };
+
   const handleCreate = async (settings: SinglePlayerSettings) => {
 
     if (!user) {
@@ -40,16 +53,19 @@ export default function SingleSetupRoute() {
     try {
       setError(null);
       setLoading(true);
+      const signal = nextSignal();
 
       const game = await createGame({
         mode: "SINGLE",
         ...settings,
-      });
+      }, signal);
 
       navigate(`/game/${game.gameId}`);
     } catch (err: any) {
-      console.error("Failed to create game:", err);
-      setError(err.message || "Unknown error occurred");
+      if (err?.name !== "AbortError") {
+        console.error("Failed to create game:", err);
+        setError(err.message || "Unknown error occurred");
+      }
     } finally {
       setLoading(false);
     }

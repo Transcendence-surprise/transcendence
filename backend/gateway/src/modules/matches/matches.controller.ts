@@ -11,6 +11,9 @@ import {
 } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import { MatchesHttpService } from './matches.service';
+import { Auth, AuthType } from 'src/common/decorator/auth-type.decorator';
+import { AuthGuard } from 'src/common/guards/auth.guard';
+import { UseGuards } from '@nestjs/common';
 
 @Controller('matches')
 export class MatchesController {
@@ -21,9 +24,16 @@ export class MatchesController {
     return this.matchesClient.findAll(req);
   }
 
+  @Get('latest')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
+  async getUserLatestGames(@Req() req: FastifyRequest) {
+    return this.matchesClient.getUserLatestGames(req);
+  }
+
   @Get(':id')
   async getMatch(@Param('id') id: string, @Req() req: FastifyRequest) {
-    return this.matchesClient.findOne(Number(id), req);
+    return this.matchesClient.findOne(id, req);
   }
 
   @Post()
@@ -37,7 +47,7 @@ export class MatchesController {
     @Body() body: unknown,
     @Req() req: FastifyRequest,
   ) {
-    return this.matchesClient.update(Number(id), body, req);
+    return this.matchesClient.update(id, body, req);
   }
 
   @Patch(':id')
@@ -46,11 +56,11 @@ export class MatchesController {
     @Body() body: unknown,
     @Req() req: FastifyRequest,
   ) {
-    return this.matchesClient.partialUpdate(Number(id), body, req);
+    return this.matchesClient.partialUpdate(id, body, req);
   }
 
   @Delete(':id')
   async removeMatch(@Param('id') id: string, @Req() req: FastifyRequest) {
-    return this.matchesClient.remove(Number(id), req);
+    return this.matchesClient.remove(id, req);
   }
 }

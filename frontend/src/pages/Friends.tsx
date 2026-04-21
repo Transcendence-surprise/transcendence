@@ -1,8 +1,12 @@
-import { FormEvent, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import StatusDot from "../components/UI/StatusDot";
 import { mockLeaderboard } from "../types/mockPlayer";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Friends() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [friendName, setFriendName] = useState("");
   const [lastSentRequest, setLastSentRequest] = useState<string | null>(null);
   const [pendingRequests, setPendingRequests] = useState(() =>
@@ -24,9 +28,7 @@ export default function Friends() {
     [],
   );
 
-  const handleSendRequest = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
+  const handleSendRequest = () => {
     const trimmedName = friendName.trim();
     if (!trimmedName) return;
 
@@ -40,6 +42,23 @@ export default function Friends() {
     );
   };
 
+  if (!user || user.roles.includes("guest")) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <h2 className="text-3xl font-bold mb-6 text-cyan-400">
+          Login required to access friends
+        </h2>
+
+        <button
+          onClick={() => navigate(-1)}
+          className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
+        >
+          Back
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto w-full max-w-5xl min-h-[60vh] px-4 py-8">
       <h2 className="mb-8 text-4xl font-bold text-white">Friends</h2>
@@ -52,7 +71,10 @@ export default function Friends() {
           </p>
 
           <form
-            onSubmit={handleSendRequest}
+            onSubmit={(event) => {
+              event.preventDefault();
+              handleSendRequest();
+            }}
             className="mt-4 flex flex-col gap-3 sm:flex-row"
           >
             <input

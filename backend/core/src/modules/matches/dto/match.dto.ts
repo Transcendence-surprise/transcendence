@@ -2,8 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { GamePhase, GameType } from '@transcendence/db-entities';
 
 export class MatchDto {
-  @ApiProperty({ type: Number, description: 'Game ID' })
-  id: number;
+  @ApiProperty({ type: String, description: 'Game ID' })
+  id: string;
 
   @ApiProperty({ enum: GameType })
   type: GameType;
@@ -11,26 +11,14 @@ export class MatchDto {
   @ApiProperty({ enum: GamePhase })
   phase: GamePhase;
 
-  @ApiProperty({ type: Number })
-  numCollectables: number;
-
-  @ApiProperty({ type: Number })
-  numPlayers: number;
-
-  @ApiProperty({ type: Number, description: 'Level (1 or 2)' })
-  level: 1 | 2;
-
-  @ApiProperty({ type: Number })
-  boardSize: number;
-
-  @ApiProperty({ type: Number })
-  hostUserId: number;
-
-  @ApiProperty({ type: Number, required: false, nullable: true })
-  winnerUserId?: number | null;
+  @ApiProperty({ type: String })
+  hostUserId: string;
 
   @ApiProperty({ type: String, format: 'date-time', required: false, nullable: true })
-  startedAt?: Date | null;
+  winnerUserId?: string | null;
+
+  @ApiProperty({ type: Object })
+  state: Record<string, any>;
 
   @ApiProperty({ type: String, format: 'date-time', required: false, nullable: true })
   endedAt?: Date | null;

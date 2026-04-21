@@ -2,9 +2,11 @@ import { Board } from "./board";
 import { Level } from "./level";
 import { ObjectiveStatus } from "./objective";
 import { BoardAction } from "./boardAction";
+import { GamePhase } from '@transcendence/db-entities';
 
-export type GamePhase = "LOBBY" | "PLAY" | "END";
+// export type GamePhase = "LOBBY" | "PLAY" | "END";
 export type GameEndReason = "WIN" | "LOSE_MAX_MOVES" | "LOSE_TIME_LIMIT";
+export type GameCompletionStatus = "FINISHED" | "ABANDONED";
 
 export interface PlayerState {
   id: number | string;            // unique player identifier (number for users, string UUID for guests)
@@ -26,6 +28,7 @@ export interface PlayerProgress {
 
 export interface Spectator {
   id: number | string;
+  name?: string;
 }
 
 export interface SinglePlayerSettings {
@@ -84,10 +87,11 @@ export interface GameState {
 
   playerProgress: Record<string, PlayerProgress>; // per-player objectives and collected items
 
-  gameEnded: boolean;                 // has the game ended?
+  gameEnded: boolean;                  // has the game ended?
   gameResult?: {
-    winnerId: string;
+    winnerId: string;         // winner's player ID (null if draw)
   };
   endReason?: GameEndReason;
-  gameStartedAt?: number;                    // total game timer
+  completionStatus?: GameCompletionStatus;
+  gameStartedAt?: number;              // total game timer
 }

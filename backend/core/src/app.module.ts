@@ -7,6 +7,7 @@ import { MailModule } from './modules/mail/mail.module';
 import { ImagesModule } from './modules/images/images.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
 import { MatchesModule } from './modules/matches/matches.module';
+import { BadgeModule } from './modules/badges/badge.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { MatchesModule } from './modules/matches/matches.module';
     ImagesModule,
     LeaderboardModule,
     MatchesModule,
+    BadgeModule,
   ],
   controllers: [HealthController],
   providers: [],

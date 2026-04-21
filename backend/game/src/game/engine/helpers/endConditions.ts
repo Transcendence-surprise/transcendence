@@ -1,4 +1,5 @@
 import { GameState, PlayerState } from "../../models/state";
+import { GamePhase } from '@transcendence/db-entities';
 
 export function applySinglePlayerLossIfNeeded(
   state: GameState,
@@ -9,7 +10,7 @@ export function applySinglePlayerLossIfNeeded(
   const maxMoves = state.level.constraints?.maxMoves;
   if (typeof maxMoves === "number" && player.totalMoves > maxMoves) {
     state.gameEnded = true;
-    state.phase = "END";
+    state.phase = GamePhase.END;
     state.gameResult = undefined;
     state.endReason = "LOSE_MAX_MOVES";
     return true;
@@ -22,7 +23,7 @@ export function applySinglePlayerLossIfNeeded(
     Date.now() - state.gameStartedAt >= levelLimitSec * 1000
   ) {
     state.gameEnded = true;
-    state.phase = "END";
+    state.phase = GamePhase.END;
     state.gameResult = undefined;
     state.endReason = "LOSE_TIME_LIMIT";
     return true;

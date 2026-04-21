@@ -5,7 +5,7 @@ import { getSingleplayerLevelById } from '../factories/singleLevel.factory';
 import { createMultiplayerLevel } from '../factories/multiLevel.factory';
 import { compileRules } from "./compileRules.engine";
 import { compileObjectives } from "./compileObjectives.engine";
-
+import { GamePhase } from '@transcendence/db-entities';
 
 export function createGame(
   hostId: number | string,
@@ -60,7 +60,7 @@ export function createGame(
       }),
     };
 
-    state.phase = "PLAY";
+    state.phase = GamePhase.PLAY;
     state.gameStartedAt = Date.now();
     state.spectators = [];
     return state;
@@ -99,7 +99,7 @@ export function createGame(
 
   // Final state setup
   state.spectators = [];
-  state.phase = "LOBBY";
+  state.phase = GamePhase.LOBBY;
   
   return state;
 }

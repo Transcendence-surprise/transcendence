@@ -15,6 +15,7 @@ describe('AuthController', () => {
   beforeEach(async () => {
     const mockService = {
       login: jest.fn(),
+      loginWith2FA: jest.fn(),
       signup: jest.fn(),
       logout: jest.fn(),
       requestPasswordReset: jest.fn(),
@@ -53,6 +54,22 @@ describe('AuthController', () => {
       const result = await controller.login(dto, mockReply);
 
       expect(service.login).toHaveBeenCalledWith(dto);
+      expect(result).toEqual(response);
+    });
+  });
+
+  describe('loginWith2FA', () => {
+    it('should call service.loginWith2FA and return result', async () => {
+      const dto = { email: 'test@example.com', code: '447944' };
+      const response: any = { access_token: 'jwt' };
+
+      service.loginWith2FA.mockResolvedValue({ data: response, cookies: [] });
+
+      const mockReply: any = { header: jest.fn().mockReturnThis() };
+
+      const result = await controller.loginWith2FA(dto, mockReply);
+
+      expect(service.loginWith2FA).toHaveBeenCalledWith(dto);
       expect(result).toEqual(response);
     });
   });

@@ -72,4 +72,15 @@ export class LeaderboardHttpService {
 
     return headers;
   }
+
+  async getUserRanking<T = unknown>(req?: FastifyRequest): Promise<T> {
+    const { data } = await this.request<T>(
+      '/api/leaderboard/user-ranking',
+      'get',
+      undefined,
+      req,
+      true,
+    );
+    return data;
+  }
 }

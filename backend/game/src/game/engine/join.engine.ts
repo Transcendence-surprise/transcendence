@@ -68,7 +68,7 @@ export function joinGameEngine(
     return { ok: true, role: "PLAYER" };
   } else {
     // Spectator
-    state.spectators.push({ id: playerId });
+    state.spectators.push({ id: playerId, name: nickname });
     return { ok: true, role: "SPECTATOR" };
   }
 }

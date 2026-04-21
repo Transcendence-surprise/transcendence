@@ -1,48 +1,123 @@
-import { mockPlayerProfile } from "../types/mockPlayer";
 import StatCard from "../components/UI/StatCard";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { useEffect, useState } from "react";
+import { getUserBadges, type UserBadge } from "../api/badges";
+import { getUserLatestGames, type LatestGames } from "../api/matches";
+import { getUserRanking } from "../api/leaderboard";
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
-  const displayName = user?.username ?? mockPlayerProfile.name;
-  const totalMatches = mockPlayerProfile.totalMatches;
-  const badges = [
-    {
-      id: "first-login",
-      name: "First login",
-      image: "/assets/badges/badge_first_login.svg",
-      unlocked: true,
-    },
-    {
-      id: "first-game",
-      name: "First game",
-      image: "/assets/badges/badge_first_game.svg",
-      unlocked: totalMatches >= 1,
-    },
-    {
-      id: "first-friend",
-      name: "First friend",
-      image: "/assets/badges/badge_first_friend.svg",
-      unlocked: true,
-    },
-    {
-      id: "games-20",
-      name: "20 games played",
-      image: "/assets/badges/badge_20_games.svg",
-      unlocked: totalMatches >= 20,
-    },
-    {
-      id: "games-50",
-      name: "50 games played",
-      image: "/assets/badges/badge_50_games.svg",
-      unlocked: totalMatches >= 50,
-    },
-  ];
-  const unlockedBadges = badges.filter((badge) => badge.unlocked);
+  const displayName = user?.username ?? "Player";
+  const avatarSrc = user?.avatarUrl ?? "/assets/profile_icon.svg";
+  const [userRanking, setUserRanking] = useState<number | null>(null);
+  const rankNumber = userRanking ?? user?.rankNumber ?? 0;
+  const winStreak = user?.winStreak ?? 0;
+  const totalGames = user?.totalGames ?? 0;
+  const totalWins = user?.totalWins ?? 0;
+  const winRate = totalGames > 0 ? Math.round((totalWins / totalGames) * 100) : 0;
+  const [unlockedBadges, setUnlockedBadges] = useState<UserBadge[]>([]);
+  const [badgesLoading, setBadgesLoading] = useState(false);
+  const [badgesError, setBadgesError] = useState<string | null>(null);
+  const [latestGames, setLatestGames] = useState<LatestGames[]>([]);
+  const [latestGamesLoading, setLatestGamesLoading] = useState(false);
+  const [latestGamesError, setLatestGamesError] = useState<string | null>(null);
+  const userId = user?.id;
+  const isGuest = !user || user.roles.includes("guest");
 
-  if (!user || user.roles.includes("guest")) {
+  useEffect(() => {
+    if (isGuest) return;
+
+    refreshUser().catch(() => {
+      // Ignore transient refresh errors; UI can still render existing context state
+    });
+
+    const onFocus = () => {
+      refreshUser().catch(() => {
+        // Ignore transient refresh errors on focus refresh
+      });
+    };
+
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [isGuest, userId, refreshUser]);
+
+  useEffect(() => {
+    if (isGuest) return;
+
+    const controller = new AbortController();
+
+    const loadUserRanking = async () => {
+      try {
+        const ranking = await getUserRanking(controller.signal);
+        setUserRanking(ranking);
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        setUserRanking(null);
+      }
+    };
+
+    loadUserRanking();
+
+    return () => controller.abort();
+  }, [isGuest, userId]);
+
+  useEffect(() => {
+    if (isGuest) return;
+
+    const controller = new AbortController();
+
+    const loadBadges = async () => {
+      try {
+        setBadgesLoading(true);
+        setBadgesError(null);
+        const badges = await getUserBadges(controller.signal);
+        setUnlockedBadges(badges);
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        const message = error instanceof Error ? error.message : "Failed to load badges";
+        setBadgesError(message);
+      } finally {
+        if (!controller.signal.aborted) {
+          setBadgesLoading(false);
+        }
+      }
+    };
+
+    loadBadges();
+
+    return () => controller.abort();
+  }, [isGuest, userId]);
+
+  useEffect(() => {
+    if (isGuest) return;
+
+    const controller = new AbortController();
+
+    const loadLatestGames = async () => {
+      try {
+        setLatestGamesLoading(true);
+        setLatestGamesError(null);
+        const games = await getUserLatestGames(controller.signal);
+        setLatestGames(games ?? []);
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        const message = error instanceof Error ? error.message : "Failed to load recent games";
+        setLatestGamesError(message);
+      } finally {
+        if (!controller.signal.aborted) {
+          setLatestGamesLoading(false);
+        }
+      }
+    };
+
+    loadLatestGames();
+
+    return () => controller.abort();
+  }, [isGuest, userId]);
+
+  if (isGuest) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
         <h2 className="text-3xl font-bold mb-6 text-cyan-400">
@@ -62,14 +137,14 @@ export default function Profile() {
     <div className="flex flex-col min-h-[60vh]">
       <div className="flex items-center gap-4 mb-8">
         <img
-          src={mockPlayerProfile.avatar}
+          src={avatarSrc}
           alt={displayName}
           className="w-24 h-24 rounded-full object-cover border-2 border-blue-400"
         />
         <div>
           <h2 className="text-4xl font-bold text-white">{displayName}</h2>
           <p className="text-base text-gray-400 mt-1">
-            Rank {mockPlayerProfile.rank} • {mockPlayerProfile.winstreak} wins
+            Rank {rankNumber} • {winStreak} wins
             streak
           </p>
         </div>
@@ -100,7 +175,7 @@ export default function Profile() {
             </svg>
           }
           title="Total Games"
-          value={mockPlayerProfile.totalMatches}
+          value={totalGames}
         />
 
         <StatCard
@@ -120,7 +195,7 @@ export default function Profile() {
             </svg>
           }
           title="Total Wins"
-          value={mockPlayerProfile.totalWins}
+          value={totalWins}
         />
 
         <StatCard
@@ -140,21 +215,25 @@ export default function Profile() {
             </svg>
           }
           title="Winrate"
-          value={`${mockPlayerProfile.winrate}%`}
+          value={`${winRate}%`}
         />
       </div>
 
       {/* Badges */}
       <div className="mb-8">
         <h3 className="text-2xl font-bold text-white mb-4">Badges</h3>
-        {unlockedBadges.length > 0 ? (
+        {badgesLoading ? (
+          <p className="text-sm text-gray-400">Loading badges...</p>
+        ) : badgesError ? (
+          <p className="text-sm text-red-400">{badgesError}</p>
+        ) : unlockedBadges.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 max-w-5xl">
             {unlockedBadges.map((badge) => (
               <div
-                key={badge.id}
+                key={badge.key}
                 className="rounded-lg border border-[var(--color-border-subtle)] bg-bg-modal p-3 flex flex-col items-center text-center gap-2"
               >
-                <img src={badge.image} alt={badge.name} className="w-16 h-16" />
+                <img src={badge.imageUrl} alt={badge.name} className="w-16 h-16" />
                 <p className="text-sm text-white">{badge.name}</p>
               </div>
             ))}
@@ -168,28 +247,38 @@ export default function Profile() {
       <div>
         <h3 className="text-2xl font-bold text-white mb-4">Recent Games</h3>
         <div className="bg-bg-modal rounded-lg border border-[var(--color-border-subtle)] p-4 max-w-2xl">
-          {mockPlayerProfile.recentGames.slice(0, 4).map((match) => (
-            <div
-              key={match.id}
-              className="flex items-center justify-between py-3 border-b border-[var(--color-border-gray)] last:border-b-0"
-            >
-              <div className="flex items-center gap-3">
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-bold ${
-                    match.result === "Win"
-                      ? "bg-green-500/20 text-green-400"
-                      : "bg-red-500/20 text-red-400"
-                  }`}
-                >
-                  {match.result}
+          {latestGamesLoading ? (
+            <p className="text-sm text-gray-400">Loading recent games...</p>
+          ) : latestGamesError ? (
+            <p className="text-sm text-red-400">{latestGamesError}</p>
+          ) : latestGames.length > 0 ? (
+            latestGames.slice(0, 4).map((game, index) => (
+              <div
+                key={`${game.createdAt}-${index}`}
+                className="flex items-center justify-between py-3 border-b border-[var(--color-border-gray)] last:border-b-0"
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-bold ${
+                      game.result === "win"
+                        ? "bg-green-500/20 text-green-400"
+                        : "bg-red-500/20 text-red-400"
+                    }`}
+                  >
+                    {game.result === "win" ? "Win" : "Lose"}
+                  </span>
+                  <span className="text-gray-300">
+                    vs {game.opponents?.length ? game.opponents.join(", ") : "Unknown"}
+                  </span>
+                </div>
+                <span className="text-xs text-gray-500">
+                  {new Date(game.createdAt).toLocaleDateString()}
                 </span>
-                <span className="text-gray-300">vs {match.opponent.name}</span>
               </div>
-              <span className="text-xs text-gray-500">
-                {match.date.toLocaleDateString()}
-              </span>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-sm text-gray-400">No recent games yet.</p>
+          )}
         </div>
       </div>
     </div>

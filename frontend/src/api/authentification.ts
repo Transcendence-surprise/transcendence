@@ -2,14 +2,51 @@
 
 import { rethrowAbortError } from "./requestUtils";
 
+const AUTH_HINT_KEY = "transcendence.auth.hasSession";
+
+function setAuthHint(hasSession: boolean): void {
+  try {
+    if (hasSession) {
+      localStorage.setItem(AUTH_HINT_KEY, "1");
+    } else {
+      localStorage.removeItem(AUTH_HINT_KEY);
+    }
+  } catch {
+    // Ignore storage errors (private mode, disabled storage, etc.)
+  }
+}
+
+export function hasAuthHint(): boolean {
+  try {
+    return localStorage.getItem(AUTH_HINT_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 export interface User {
   id: number | string;
   username: string;
   email: string;
+  avatarImageId?: number | null;
+  avatarUrl?: string | null;
   roles: string[];
+  rankNumber?: number;
+  winStreak?: number;
+  totalGames?: number;
+  totalWins?: number;
   createdAt?: string;
   updatedAt?: string;
+  twoFactorEnabled?: boolean;
 }
+
+export interface TwoFactorRequiredResponse {
+  twoFactorRequired: true;
+  email: string;
+  message: string;
+}
+
+export type LoginResponse = User | TwoFactorRequiredResponse;
 
 export async function signup(
   username: string,
@@ -31,13 +68,25 @@ export async function signup(
       throw new Error(error?.message || "Signup failed");
     }
 
-    return getCurrentUser(signal);
+    const user = await getCurrentUser(signal);
+    setAuthHint(true);
+    return user;
   } catch (e: any) {
     rethrowAbortError(e);
   }
 }
 
-export async function login(identifier: string, password: string, signal?: AbortSignal): Promise<User> {
+export function isTwoFactorRequiredResponse(
+  response: LoginResponse,
+): response is TwoFactorRequiredResponse {
+  return "twoFactorRequired" in response && response.twoFactorRequired;
+}
+
+export async function login(
+  identifier: string,
+  password: string,
+  signal?: AbortSignal,
+): Promise<LoginResponse> {
   try {
     const res = await fetch("/api/auth/login", {
       method: "POST",
@@ -52,17 +101,68 @@ export async function login(identifier: string, password: string, signal?: Abort
       throw new Error(error?.message || "Login failed");
     }
 
-    return getCurrentUser(signal);
+    const data = await res.json();
+
+    if (data?.twoFactorRequired) {
+      return data as TwoFactorRequiredResponse;
+    }
+
+    const user = (data?.user ?? data) as User;
+    setAuthHint(true);
+    return user;
   } catch (e: any) {
     rethrowAbortError(e);
   }
 }
 
-export async function getCurrentUser(signal?: AbortSignal): Promise<User> {
+export async function loginWith2FA(
+  email: string,
+  code: string,
+  signal?: AbortSignal,
+): Promise<User> {
+  try {
+    const res = await fetch("/api/auth/login/2fa", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code }),
+      credentials: "include",
+      signal,
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error?.message || "Verification code failed");
+    }
+
+    const data = await res.json();
+    const user = (data?.user ?? data) as User;
+    setAuthHint(true);
+    return user;
+  } catch (e: any) {
+    rethrowAbortError(e);
+  }
+}
+
+export async function getCurrentUser(signal?: AbortSignal): Promise<User>;
+export async function getCurrentUser(
+  signal: AbortSignal | undefined,
+  options: { allowUnauthorized: true },
+): Promise<User | null>;
+export async function getCurrentUser(
+  signal?: AbortSignal,
+  options?: { allowUnauthorized?: boolean },
+): Promise<User | null> {
   try {
     const res = await fetch("/api/users/me", { credentials: "include", signal });
-    if (!res.ok) throw new Error("Not logged in");
+    if (!res.ok) {
+      if (res.status === 401 && options?.allowUnauthorized) {
+        setAuthHint(false);
+        return null;
+      }
+      throw new Error("Not logged in");
+    }
     const data = await res.json();
+    setAuthHint(true);
     return data;
   } catch (e: any) {
     rethrowAbortError(e);
@@ -78,6 +178,7 @@ export async function logout(signal?: AbortSignal): Promise<void> {
     });
 
     if (!res.ok) throw new Error("Logout failed");
+    setAuthHint(false);
   } catch (e: any) {
     rethrowAbortError(e);
   }
@@ -98,7 +199,9 @@ export async function createGuestToken(nickname: string, signal?: AbortSignal): 
       throw new Error(error?.message || "Guest token creation failed");
     }
 
-    return getCurrentUser(signal);
+    const user = await getCurrentUser(signal);
+    setAuthHint(true);
+    return user;
   } catch (e: any) {
     rethrowAbortError(e);
   }

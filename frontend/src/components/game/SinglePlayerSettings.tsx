@@ -41,7 +41,7 @@ export default function SinglePlayerSettingsForm({
     };
   }, []);
 
-  if (loading) return <div>Loading levels...</div>;
+  if (loadingLevels) return <div>Loading levels...</div>;
 
   return (
     <div className="min-h-screen bg-bg-dark text-white font-sans flex flex-col items-center justify-center space-y-10">
@@ -64,7 +64,7 @@ export default function SinglePlayerSettingsForm({
           ))}
         </select>
       </label>
-		  <SimpleButton title="Create Game" onClick={onCreate} />
+      <SimpleButton title="Create Game" onClick={onCreate} disabled={loading} />
       <button
         className="mt-2 text-sm underline text-blue-300"
         onClick={onBack}

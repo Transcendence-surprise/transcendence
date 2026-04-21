@@ -10,6 +10,7 @@ import {
 import { CreateMatchDto } from './dto/create-match.dto';
 import { UpdateMatchDto } from './dto/update-match.dto';
 import { MatchDto } from './dto/match.dto';
+import { LatestGamesDto } from './dto/latest-games.dto';
 
 const MatchesControllerDocs = () => ApiTags('Matches');
 
@@ -32,9 +33,9 @@ const FindMatchByIdDocs = () =>
     }),
     ApiParam({
       name: 'id',
-      type: Number,
+      type: String,
       description: 'Match ID',
-      example: 1,
+      example: 'match-uuid',
     }),
     ApiOkResponse({ type: MatchDto }),
   );
@@ -59,9 +60,9 @@ const UpdateMatchDocs = () =>
     }),
     ApiParam({
       name: 'id',
-      type: Number,
+      type: String,
       description: 'Match ID',
-      example: 1,
+      example: 'match-uuid',
     }),
     ApiBody({ type: UpdateMatchDto }),
     ApiOkResponse({ type: MatchDto }),
@@ -76,9 +77,9 @@ const PartialUpdateMatchDocs = () =>
     }),
     ApiParam({
       name: 'id',
-      type: Number,
+      type: String,
       description: 'Match ID',
-      example: 1,
+      example: 'match-uuid',
     }),
     ApiBody({ type: UpdateMatchDto }),
     ApiOkResponse({ type: MatchDto }),
@@ -93,12 +94,23 @@ const DeleteMatchDocs = () =>
     }),
     ApiParam({
       name: 'id',
-      type: Number,
+      type: String,
       description: 'Match ID',
-      example: 1,
+      example: 'match-uuid',
     }),
     ApiOkResponse({ description: 'Match deleted successfully' }),
   );
+
+const LatestMatchesDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Get user latest matches',
+      description: 'Retrieve the latest matches of the authenticated user',
+      operationId: 'getUserLatestMatches',
+    }),
+    ApiOkResponse({ type: LatestGamesDto, isArray: true }),
+  );
+
 
 export {
   MatchesControllerDocs,
@@ -108,4 +120,5 @@ export {
   UpdateMatchDocs,
   PartialUpdateMatchDocs,
   DeleteMatchDocs,
+  LatestMatchesDocs,
 };

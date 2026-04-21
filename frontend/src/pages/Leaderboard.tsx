@@ -24,7 +24,7 @@ export default function Leaderboard() {
               />
               <div>
                 <h3 className="text-white font-semibold">{player.name}</h3>
-                <p className="text-sm text-muted-500">Rank {player.rank}</p>
+                <p className="text-xs text-gray-400">Win streak: {player.winstreak}</p>
               </div>
             </div>
 

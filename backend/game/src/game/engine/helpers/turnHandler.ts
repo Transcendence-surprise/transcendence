@@ -3,6 +3,7 @@ import { GameState } from "../../models/state";
 import { collectItemsAlongPath } from "./collectItem";
 import { updatePlayerObjectives } from "./objectivesUpdate";
 import { checkWinCondition } from "./checkwin";
+import { GamePhase } from '@transcendence/db-entities';
 
 export function beginCurrentTurn(state: GameState, now = Date.now()) {
   const players = state.players;
@@ -50,7 +51,7 @@ export function beginCurrentTurn(state: GameState, now = Date.now()) {
     state.gameEnded = true;
     state.gameResult = { winnerId: currentPlayer.id.toString() };
     state.endReason = "WIN";
-    state.phase = "END";
+    state.phase = GamePhase.END;
   }
 }
 

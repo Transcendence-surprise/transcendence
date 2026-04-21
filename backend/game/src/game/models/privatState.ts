@@ -19,6 +19,7 @@ export interface PrivateGameState {
   currentPlayerId: string | number;    // whose turn it is
   gameResult?: { winnerIds: string[] };// winners if game ended
   endReason?: "WIN" | "LOSE_MAX_MOVES" | "LOSE_TIME_LIMIT";
+  completionStatus?: "FINISHED" | "ABANDONED";
   spectators: string[];                // who is watching
   objectives: string[];                // for display: what to achieve
   gameStartedAt?: number;              // timestamp when game started (for total timer)
