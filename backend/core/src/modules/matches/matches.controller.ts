@@ -8,7 +8,7 @@ import {
   Param,
   Body,
 } from '@nestjs/common';
-import { MatchesService } from './matches.service';
+import { LatestGames, MatchesService } from './matches.service';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { UpdateMatchDto } from './dto/update-match.dto';
 import { MatchDto } from './dto/match.dto';
@@ -20,7 +20,10 @@ import {
   UpdateMatchDocs,
   PartialUpdateMatchDocs,
   DeleteMatchDocs,
+  LatestMatchesDocs,
 } from './matches.controller.docs';
+import { CurrentUser } from './dto/playerContext.dto';
+import type { PlayerContext } from './dto/playerContext.dto';
 
 @MatchesControllerDocs()
 @Controller('matches')
@@ -67,5 +70,11 @@ export class MatchesController {
   @DeleteMatchDocs()
   async remove(@Param('id') id: string) {
     return this.matchesService.remove(id);
+  }
+
+  @Get('latest')
+  @LatestMatchesDocs()
+  async getUserLatestGames(@CurrentUser() user: PlayerContext): Promise<LatestGames[] | null > {
+    return this.matchesService.getUserLatestGames(Number(user.id));
   }
 }

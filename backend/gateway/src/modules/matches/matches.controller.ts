@@ -11,6 +11,9 @@ import {
 } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import { MatchesHttpService } from './matches.service';
+import { Auth, AuthType } from 'src/common/decorator/auth-type.decorator';
+import { AuthGuard } from 'src/common/guards/auth.guard';
+import { UseGuards } from '@nestjs/common';
 
 @Controller('matches')
 export class MatchesController {
@@ -19,6 +22,13 @@ export class MatchesController {
   @Get()
   async getMatches(@Req() req: FastifyRequest) {
     return this.matchesClient.findAll(req);
+  }
+
+  @Get('latest')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
+  async getUserLatestGames(@Req() req: FastifyRequest) {
+    return this.matchesClient.getUserLatestGames(req);
   }
 
   @Get(':id')

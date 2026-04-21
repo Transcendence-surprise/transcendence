@@ -100,6 +100,17 @@ const DeleteMatchDocs = () =>
     ApiOkResponse({ description: 'Match deleted successfully' }),
   );
 
+const LatestMatchesDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Get user latest matches',
+      description: 'Retrieve the latest matches of the authenticated user',
+      operationId: 'getUserLatestMatches',
+    }),
+    ApiOkResponse({ type: MatchDto, isArray: true }),
+  );
+
+
 export {
   MatchesControllerDocs,
   FindAllMatchesDocs,
@@ -108,4 +119,5 @@ export {
   UpdateMatchDocs,
   PartialUpdateMatchDocs,
   DeleteMatchDocs,
+  LatestMatchesDocs,
 };

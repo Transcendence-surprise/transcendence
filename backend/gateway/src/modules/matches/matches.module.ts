@@ -5,6 +5,7 @@ import { ConfigType } from '@nestjs/config';
 import gatewayConfig from '../../common/config/gateway.config';
 import { MatchesController } from './matches.controller';
 import { MatchesHttpService } from './matches.service';
+import { AuthHttpModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { MatchesHttpService } from './matches.service';
         maxRedirects: 5,
       }),
     }),
+    AuthHttpModule,
   ],
   controllers: [MatchesController],
   providers: [MatchesHttpService],

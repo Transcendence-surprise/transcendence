@@ -3,13 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useEffect, useState } from "react";
 import { getUserBadges, type UserBadge } from "../api/badges";
+import { getUserLatestGames, type LatestGames } from "../api/matches";
+import { getUserRanking } from "../api/leaderboard";
 
 export default function Profile() {
   const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
   const displayName = user?.username ?? "Player";
   const avatarSrc = user?.avatarUrl ?? "/assets/profile_icon.svg";
-  const rankNumber = user?.rankNumber ?? 0;
+  const [userRanking, setUserRanking] = useState<number | null>(null);
+  const rankNumber = userRanking ?? user?.rankNumber ?? 0;
   const winStreak = user?.winStreak ?? 0;
   const totalGames = user?.totalGames ?? 0;
   const totalWins = user?.totalWins ?? 0;
@@ -17,6 +20,9 @@ export default function Profile() {
   const [unlockedBadges, setUnlockedBadges] = useState<UserBadge[]>([]);
   const [badgesLoading, setBadgesLoading] = useState(false);
   const [badgesError, setBadgesError] = useState<string | null>(null);
+  const [latestGames, setLatestGames] = useState<LatestGames[]>([]);
+  const [latestGamesLoading, setLatestGamesLoading] = useState(false);
+  const [latestGamesError, setLatestGamesError] = useState<string | null>(null);
   const userId = user?.id;
   const isGuest = !user || user.roles.includes("guest");
 
@@ -42,6 +48,26 @@ export default function Profile() {
 
     const controller = new AbortController();
 
+    const loadUserRanking = async () => {
+      try {
+        const ranking = await getUserRanking(controller.signal);
+        setUserRanking(ranking);
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        setUserRanking(null);
+      }
+    };
+
+    loadUserRanking();
+
+    return () => controller.abort();
+  }, [isGuest, userId]);
+
+  useEffect(() => {
+    if (isGuest) return;
+
+    const controller = new AbortController();
+
     const loadBadges = async () => {
       try {
         setBadgesLoading(true);
@@ -60,6 +86,33 @@ export default function Profile() {
     };
 
     loadBadges();
+
+    return () => controller.abort();
+  }, [isGuest, userId]);
+
+  useEffect(() => {
+    if (isGuest) return;
+
+    const controller = new AbortController();
+
+    const loadLatestGames = async () => {
+      try {
+        setLatestGamesLoading(true);
+        setLatestGamesError(null);
+        const games = await getUserLatestGames(controller.signal);
+        setLatestGames(games ?? []);
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        const message = error instanceof Error ? error.message : "Failed to load recent games";
+        setLatestGamesError(message);
+      } finally {
+        if (!controller.signal.aborted) {
+          setLatestGamesLoading(false);
+        }
+      }
+    };
+
+    loadLatestGames();
 
     return () => controller.abort();
   }, [isGuest, userId]);
@@ -194,7 +247,38 @@ export default function Profile() {
       <div>
         <h3 className="text-2xl font-bold text-white mb-4">Recent Games</h3>
         <div className="bg-bg-modal rounded-lg border border-[var(--color-border-subtle)] p-4 max-w-2xl">
-          <p className="text-sm text-gray-400">No recent games yet.</p>
+          {latestGamesLoading ? (
+            <p className="text-sm text-gray-400">Loading recent games...</p>
+          ) : latestGamesError ? (
+            <p className="text-sm text-red-400">{latestGamesError}</p>
+          ) : latestGames.length > 0 ? (
+            latestGames.slice(0, 4).map((game, index) => (
+              <div
+                key={`${game.createdAt}-${index}`}
+                className="flex items-center justify-between py-3 border-b border-[var(--color-border-gray)] last:border-b-0"
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-bold ${
+                      game.result === "win"
+                        ? "bg-green-500/20 text-green-400"
+                        : "bg-red-500/20 text-red-400"
+                    }`}
+                  >
+                    {game.result === "win" ? "Win" : "Lose"}
+                  </span>
+                  <span className="text-gray-300">
+                    vs {game.opponents?.length ? game.opponents.join(", ") : "Unknown"}
+                  </span>
+                </div>
+                <span className="text-xs text-gray-500">
+                  {new Date(game.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-400">No recent games yet.</p>
+          )}
         </div>
       </div>
     </div>

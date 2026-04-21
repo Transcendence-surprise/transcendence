@@ -1,7 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import type { FastifyRequest } from 'fastify';
+
+interface JwtPayload {
+  sub: number;
+  username: string;
+  email: string;
+  roles: string[];
+}
+
+interface RequestWithUser extends FastifyRequest {
+  user?: JwtPayload;
+}
 
 @Injectable()
 export class MatchesHttpService {
@@ -31,8 +42,24 @@ export class MatchesHttpService {
     return this.request<T>('delete', `/api/matches/${id}`, undefined, req);
   }
 
-  private buildForwardHeaders(req?: FastifyRequest): Record<string, string> {
+  async getUserLatestGames<T = unknown>(req?: FastifyRequest): Promise<T> {
+    return this.request<T>('get', '/api/matches/latest', undefined, req, true);
+  }
+
+  private buildForwardHeaders(req?: FastifyRequest, requireUser = false): Record<string, string> {
     const headers: Record<string, string> = {};
+
+    const reqWithUser = req as RequestWithUser | undefined;
+    if (reqWithUser?.user) {
+      headers['x-user-id'] = String(reqWithUser.user.sub);
+      headers['x-user-username'] = reqWithUser.user.username;
+      headers['x-user-email'] = reqWithUser.user.email;
+      headers['x-user-roles'] = Array.isArray(reqWithUser.user.roles)
+        ? reqWithUser.user.roles.join(',')
+        : String(reqWithUser.user.roles);
+    } else if (requireUser) {
+      throw new UnauthorizedException('Missing authenticated user context');
+    }
 
     if (req?.headers?.['content-type'] && typeof req.headers['content-type'] === 'string') {
       headers['content-type'] = req.headers['content-type'];
@@ -62,8 +89,9 @@ export class MatchesHttpService {
     path: string,
     body?: unknown,
     req?: FastifyRequest,
+    requireUser = false,
   ): Promise<T> {
-    const headers = this.buildForwardHeaders(req);
+    const headers = this.buildForwardHeaders(req, requireUser);
     const hasBody = method !== 'get' && method !== 'delete';
 
     if (hasBody && !headers['content-type']) {
