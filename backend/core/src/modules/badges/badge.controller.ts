@@ -14,7 +14,7 @@ export class BadgeController {
     return this.badgeService.getBadges();
   }
 
-  @Get('badges/unlocked')
+  @Get('unlocked')
   @BadgeControllerDocs.getUserBadges()
   async getUserBadges(@CurrentUser() user: PlayerContext) {
     return this.badgeService.getUserBadges(Number(user.id));

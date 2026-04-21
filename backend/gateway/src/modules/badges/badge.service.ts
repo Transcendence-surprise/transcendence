@@ -26,7 +26,7 @@ export class BadgeHttpService {
 
 	async getUserBadges<T = unknown>(req?: FastifyRequest): Promise<T> {
 		const { data } = await this.request<T>(
-			'/api/badges/badges/unlocked',
+			'/api/badges/unlocked',
 			'get',
 			undefined,
 			req,
