@@ -15,8 +15,6 @@ export class UserUpdateService {
   async updateUserStats(state: GameState) {
     const winnerId = state.gameResult?.winnerId;
 
-    console.log(`Updating user stats for user `);
-
     if (state.rules.mode === "SINGLE") return;
     await this.userRepo.manager.transaction(async (manager) => {
       for (const p of state.players) {

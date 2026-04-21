@@ -74,7 +74,7 @@ export class MatchesController {
 
   @Get('latest')
   @LatestMatchesDocs()
-  async getUserLatestGames(@CurrentUser() user: PlayerContext): Promise<LatestGames[] | null > {
+  async getUserLatestGames(@CurrentUser() user: PlayerContext): Promise<LatestGames[] > {
     return this.matchesService.getUserLatestGames(Number(user.id));
   }
 }

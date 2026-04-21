@@ -8,7 +8,5 @@ export async function savePlayersToDB(
   state: GameState,
   persistence: PlayersPersistenceService,
 ) {
-  console.log(`Saving players for game ${gameId} to database...`);
   await persistence.savePlayer(gameId, state);
-  console.log(`Players for game ${gameId} saved to database.`);
 }

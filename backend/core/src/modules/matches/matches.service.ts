@@ -101,7 +101,7 @@ export class MatchesService {
     return { deleted: true, id };
   }
 
-  async getUserLatestGames(playerId: number): Promise<LatestGames[] | null > {
+  async getUserLatestGames(playerId: number): Promise<LatestGames[] > {
     const rows = await this.dataSource.query(`
       SELECT 
         g.id AS "gameId",
@@ -120,7 +120,7 @@ export class MatchesService {
         AND g.completion_status = 'FINISHED'
       GROUP BY g.id
       ORDER BY g.created_at DESC
-      LIMIT 10
+      LIMIT 7
     `, [playerId]);
 
     return rows.map((row) => ({

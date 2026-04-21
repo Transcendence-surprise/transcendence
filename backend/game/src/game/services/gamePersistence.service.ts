@@ -28,6 +28,5 @@ export class GamePersistenceService {
       ) as any,
       endedAt: state.phase === 'END' ? new Date() : null,
     });
-    console.log(`Game ${gameId} saved with phase ${state.phase} and completion status ${state.completionStatus}!!!`);
-  }
+   }
 }
