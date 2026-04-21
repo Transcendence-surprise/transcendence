@@ -1,4 +1,4 @@
-// src/bages/user-badge.entity.ts
+// src/badges/user-badge.entity.ts
 
 import {
   CreateDateColumn,

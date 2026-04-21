@@ -3,5 +3,5 @@ export { Game, GameCompletionStatus, GamePhase, GameType } from './game/game.ent
 export { GamePlayer } from './game/game-player.entity';
 export { User } from './users/user.entity';
 export { Image } from './media/image.entity';
-export { Badge } from './bages/badge.entity';
-export { UserBadge } from './bages/user-badge.entity';
+export { Badge } from './badges/badge.entity';
+export { UserBadge } from './badges/user-badge.entity';
