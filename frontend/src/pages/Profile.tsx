@@ -1,16 +1,22 @@
 import StatCard from "../components/UI/StatCard";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getUserBadges, type UserBadge } from "../api/badges";
 import { getUserLatestGames, type LatestGames } from "../api/matches";
 import { getUserRanking } from "../api/leaderboard";
+import { uploadMyAvatar } from "../api/users";
+import { FiEdit2 } from "react-icons/fi";
 
 export default function Profile() {
   const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
   const displayName = user?.username ?? "Player";
   const avatarSrc = user?.avatarUrl ?? "/assets/profile_icon.svg";
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
   const [userRanking, setUserRanking] = useState<number | null>(null);
   const rankNumber = userRanking ?? user?.rankNumber ?? 0;
   const winStreak = user?.winStreak ?? 0;
@@ -25,6 +31,78 @@ export default function Profile() {
   const [latestGamesError, setLatestGamesError] = useState<string | null>(null);
   const userId = user?.id;
   const isGuest = !user || user.roles.includes("guest");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    // Cleanup object URL when leaving the page or selecting another image.
+    return () => {
+      if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl);
+    };
+  }, [avatarPreviewUrl]);
+
+  const handleAvatarSelect = (file: File | null) => {
+    setAvatarError(null);
+    // Clear previous preview if any
+    if (avatarPreviewUrl) {
+      try {
+        URL.revokeObjectURL(avatarPreviewUrl);
+      } catch {
+        /* ignore */
+      }
+      setAvatarPreviewUrl(null);
+    }
+
+    setAvatarFile(file);
+
+    if (!file) return;
+
+    const preview = URL.createObjectURL(file);
+    setAvatarPreviewUrl(preview);
+
+    // Immediately upload the selected avatar so user doesn't need to click Save.
+    // We upload directly with the file so we don't rely on React state timing.
+    (async () => {
+      const controller = new AbortController();
+      setAvatarUploading(true);
+      setAvatarError(null);
+      try {
+        await uploadMyAvatar(file, controller.signal);
+        // Refresh user profile to pick up new avatarUrl
+        await refreshUser();
+        // clear preview and local file state
+        try {
+          URL.revokeObjectURL(preview);
+        } catch {}
+        setAvatarPreviewUrl(null);
+        setAvatarFile(null);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        console.error("Avatar upload failed:", err);
+        setAvatarError(message || "Failed to upload avatar");
+      } finally {
+        setAvatarUploading(false);
+      }
+    })();
+  };
+
+  const handleAvatarUpload = async () => {
+    if (!avatarFile) return;
+    const controller = new AbortController();
+
+    setAvatarUploading(true);
+    setAvatarError(null);
+    try {
+      await uploadMyAvatar(avatarFile, controller.signal);
+      // In case endpoint returns 204 or a minimal payload, re-fetch user.
+      await refreshUser();
+      handleAvatarSelect(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to upload avatar";
+      setAvatarError(message);
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
 
   useEffect(() => {
     if (isGuest) return;
@@ -136,11 +214,56 @@ export default function Profile() {
   return (
     <div className="flex flex-col min-h-[60vh]">
       <div className="flex items-center gap-4 mb-8">
-        <img
-          src={avatarSrc}
-          alt={displayName}
-          className="w-24 h-24 rounded-full object-cover border-2 border-blue-400"
-        />
+        <div className="relative shrink-0">
+          <img
+            src={avatarPreviewUrl ?? avatarSrc}
+            alt={displayName}
+            className="w-24 h-24 rounded-full object-cover border-2 border-blue-400"
+          />
+
+          <button
+            type="button"
+            aria-label="Edit avatar"
+            onClick={() => fileInputRef.current?.click()}
+            className="absolute bottom-0 right-0 -mb-1 -mr-1 bg-bg-dark-tertiary p-1.5 rounded-full border border-[var(--color-border-subtle)] hover:bg-bg-dark transition-colors"
+          >
+            <FiEdit2 className="w-4 h-4 text-cyan-300" />
+          </button>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => handleAvatarSelect(e.target.files?.[0] ?? null)}
+            disabled={avatarUploading}
+          />
+
+          {avatarPreviewUrl ? (
+            <div className="mt-3 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleAvatarUpload}
+                disabled={avatarUploading}
+                className="px-3 py-1.5 rounded-md text-sm font-bold bg-cyan-500/20 text-cyan-200 border border-cyan-500/30 hover:border-cyan-400/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {avatarUploading ? "Uploading..." : "Save"}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAvatarSelect(null)}
+                disabled={avatarUploading}
+                className="px-3 py-1.5 rounded-md text-sm font-bold border border-[var(--color-border-subtle)] text-gray-300 hover:border-gray-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : null}
+          {avatarError ? (
+            <p className="text-xs text-red-400 mt-2 max-w-[14rem]">{avatarError}</p>
+          ) : null}
+        </div>
+
         <div>
           <h2 className="text-4xl font-bold text-white">{displayName}</h2>
           <p className="text-base text-gray-400 mt-1">

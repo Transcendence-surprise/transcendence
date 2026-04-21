@@ -125,3 +125,60 @@ export async function setUserTwoFactor(
     throw e;
   }
 }
+
+export async function uploadMyAvatar(
+  file: File,
+  signal?: AbortSignal,
+): Promise<User> {
+  if (!file) throw new Error("Missing file");
+
+  // Basic client-side guardrails; backend should validate too.
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Avatar must be an image");
+  }
+  const maxBytes = 5 * 1024 * 1024;
+  if (file.size > maxBytes) {
+    throw new Error("Avatar must be <= 5MB");
+  }
+
+  const form = new FormData();
+  // Backend docs: multipart/form-data field name must be `file`
+  form.append("file", file);
+
+  try {
+    const res = await fetch("/api/users/me/avatar", {
+      method: "POST",
+      credentials: "include",
+      body: form,
+      signal,
+    });
+
+    if (!res.ok) {
+      // Some endpoints respond with JSON error, some plain text.
+      let message = "Failed to upload avatar";
+      try {
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const data = await res.json();
+          message = data?.message || message;
+        } else {
+          const text = await res.text();
+          if (text) message = text;
+        }
+      } catch {
+        // ignore parse errors
+      }
+      throw new Error(message);
+    }
+
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      return res.json();
+    }
+
+    // If backend returns 204 or non-json, caller can refresh user separately.
+    return {} as User;
+  } catch (e: any) {
+    rethrowAbortError(e);
+  }
+}
