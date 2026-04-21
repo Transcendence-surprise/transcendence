@@ -1,7 +1,7 @@
 // src/game/engine/helpers/savePlayersTo.database.ts
 
-import { GameState } from "../../models/state";
-import { PlayersPersistenceService } from "../../services/playersPersistence.service";
+import { GameState } from "../models/state";
+import { PlayersPersistenceService } from "../services/playersPersistence.service";
 
 export async function savePlayersToDB(
   gameId: string,

@@ -23,9 +23,9 @@ import { PlayerActionResult, PlayerActionError, PlayerAction } from '../models/p
 import { processPlayerAction } from '../engine/playerAction.engine';
 import { applySingleTimeout, applyMultiTimeout } from '../engine/timeout.engine';
 import { GamePersistenceService } from './gamePersistence.service';
-import { saveGameToDB } from '../engine/helpers/saveGameTo.database';
+import { saveGameToDB } from '../engine/saveGameTo.database';
 import { PlayersPersistenceService } from './playersPersistence.service';
-import { savePlayersToDB } from '../engine/helpers/savePlayersTo.database';
+import { savePlayersToDB } from '../engine/savePlayersTo.database';
 import { UserUpdateService } from './userStateUpdate.service';
 
 @Injectable()
