@@ -5,6 +5,7 @@ import { ConfigType } from '@nestjs/config';
 import gatewayConfig from '../../common/config/gateway.config';
 import { LeaderboardHttpService } from './leaderboard.service';
 import { LeaderboardController } from './leaderboard.controller';
+import { AuthHttpModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { LeaderboardController } from './leaderboard.controller';
         maxRedirects: 5,
       }),
     }),
+    AuthHttpModule,
   ],
   controllers: [LeaderboardController],
   providers: [LeaderboardHttpService],

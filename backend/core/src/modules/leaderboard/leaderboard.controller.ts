@@ -5,6 +5,8 @@ import {
   LeaderboardControllerDocs,
   GetAllTimeLeaderboardDocs,
 } from './leaderboard.controller.docs';
+import { CurrentUser } from './dto/playerContext.dto';
+import type { PlayerContext } from './dto/playerContext.dto';
 
 @LeaderboardControllerDocs()
 @Controller('leaderboard')
@@ -17,8 +19,10 @@ export class LeaderboardController {
     return this.leaderboardService.getAllTimeLeaderboard(10);
   }
 
-  @Get('user-ranking/:userId')    // AUTH // GATEWAY
-  async getUserRanking(@Param('userId') userId: number): Promise<number | null> {
-    return this.leaderboardService.getUserRanking(userId);
+  @Get('user-ranking')
+  async getUserRanking(
+    @CurrentUser() user: PlayerContext,
+  ): Promise<number | null> {
+    return this.leaderboardService.getUserRanking(Number(user.id));
   }
 }
