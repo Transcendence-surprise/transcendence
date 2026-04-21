@@ -69,14 +69,21 @@ signal?: AbortSignal,
   }
 }
 
-export async function deleteUser(id: number | string) {
+export async function deleteUser(id: number | string, signal?: AbortSignal) {
   const numId = typeof id === "string" ? Number(id) : id;
   if (isNaN(numId)) throw new Error("Invalid user id");
-  const res = await fetch(`/api/users/id/${numId}`, {
-    method: "DELETE",
-    headers: { accept: "*/*" },
-  });
-  if (!res.ok) throw new Error("Failed to delete user");
+
+  try {
+    const res = await fetch(`/api/users/id/${numId}`, {
+      method: "DELETE",
+      headers: { accept: "*/*" },
+      credentials: "include",
+      signal,
+    });
+    if (!res.ok) throw new Error("Failed to delete user");
+  } catch (e: any) {
+    rethrowAbortError(e);
+  }
 }
 
 // Admin: Set 2FA for any user (placeholder, backend endpoint needed)
