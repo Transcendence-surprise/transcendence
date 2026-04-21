@@ -68,34 +68,20 @@ export function leaveGameEngine(
     const previousCurrentPlayerId = state.players[state.currentPlayerIndex]?.id;
     state.players.splice(playerIndex, 1);
 
-    // In LOBBY, non-host leaving must not delete the game.
-    if (state.phase === "LOBBY") {
-      return { ok: true };
+    // If no players remain, reset index and delete game
+    if (state.players.length === 0) {
+      // console.log(`No players remains after player left ${playerId}`);
+      return { ok: true, deleteGame: true };
     }
 
-    // If no players remain, reset index and delete game
-      if (state.players.length === 0) {
-        // console.log(`No players remains after player left ${playerId}`);
-        return { ok: true, deleteGame: true };
-      }
-      // If only one player remains in multiplayer PLAY phase, delete game
-      // (In LOBBY, game must stay alive unless host leaves.)
-      if (
-        state.phase === "PLAY" &&
-        state.rules.mode === "MULTI" &&
-        state.players.length === 1
-      ) {
-        // console.log(`Only one player remains after player left ${playerId}. Game will be deleted.`);
-        return { ok: true, deleteGame: true };
-      }
-      // Update current player if needed
-      if (state.currentPlayerIndex === playerIndex) {
-        // If the leaving player is the current player, set to next player or 0
-        state.currentPlayerIndex = state.players.length > playerIndex ? playerIndex : 0;
-      } else if (playerIndex < state.currentPlayerIndex) {
-        // If the leaving player is before the current player, decrement index
-        state.currentPlayerIndex = Math.max(0, state.currentPlayerIndex - 1);
-      }
+    // Update current player if needed
+    if (state.currentPlayerIndex === playerIndex) {
+      // If the leaving player is the current player, set to next player or 0
+      state.currentPlayerIndex = state.players.length > playerIndex ? playerIndex : 0;
+    } else if (playerIndex < state.currentPlayerIndex) {
+      // If the leaving player is before the current player, decrement index
+      state.currentPlayerIndex = Math.max(0, state.currentPlayerIndex - 1);
+    }
 
     const nextCurrentPlayer = state.players[state.currentPlayerIndex];
     if (nextCurrentPlayer) {
@@ -108,6 +94,22 @@ export function leaveGameEngine(
         }
         state.boardActionsPending = state.rules.requiresBoardActionPerTurn;
       }
+    }
+
+    // In LOBBY, non-host leaving must not delete the game.
+    if (state.phase === "LOBBY") {
+      return { ok: true };
+    }
+
+    // If only one player remains in multiplayer PLAY phase, delete game
+    // (In LOBBY, game must stay alive unless host leaves.)
+    if (
+      state.phase === "PLAY" &&
+      state.rules.mode === "MULTI" &&
+      state.players.length === 1
+    ) {
+      // console.log(`Only one player remains after player left ${playerId}. Game will be deleted.`);
+      return { ok: true, deleteGame: true };
     }
 
     // console.log(`Player left ${playerId}`);

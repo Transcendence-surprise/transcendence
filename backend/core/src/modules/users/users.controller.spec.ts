@@ -6,10 +6,6 @@ import { UsersService } from './users.service';
 import { ImagesService } from '../images/images.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from '@transcendence/db-entities';
-import * as bcrypt from 'bcrypt';
-
-// Mock bcrypt module
-jest.mock('bcrypt');
 
 type MockUsersService = jest.Mocked<UsersService>;
 
@@ -21,6 +17,10 @@ describe('UsersController', () => {
     id: 1,
     username: 'testuser',
     email: 'test@example.com',
+    rankNumber: 1000,
+    winStreak: 0,
+    totalGames: 0,
+    totalWins: 0,
     roles: ['user'],
     twoFactorEnabled: false,
     avatarImageId: null,
@@ -29,31 +29,10 @@ describe('UsersController', () => {
     updatedAt: new Date(),
   };
 
-  const mockUserWithPassword = {
-    ...mockUser,
-    password: '$2b$10$hashedPassword',
-  };
-
   const mockUsersService: MockUsersService = {
     findAll: jest.fn<Promise<User[]>, []>(),
-    // findOneByUsername: jest.fn(),
     findOneById: jest.fn<Promise<User>, [number]>(),
-    findByIdentifier: jest.fn<Promise<User | null>, [string]>(),
-    validateCredentials: jest.fn<Promise<Omit<User, 'password'>>, [{ identifier: string; password: string }]>(
-      async (validateCredDto: { identifier: string; password: string }) => {
-      const user = (await mockUsersService.findByIdentifier(validateCredDto.identifier)) as unknown as User & { password: string | null };
-      if (!user) throw new UnauthorizedException('Invalid credentials');
-      if (!user.password) throw new UnauthorizedException('Invalid credentials');
-      const passwordCorrect = await bcrypt.compare(
-        validateCredDto.password,
-        user.password,
-      );
-      if (!passwordCorrect) throw new UnauthorizedException('Invalid credentials');
-      const { password: _, ...userWithoutPassword } = user;
-      // as unknown as Record<string, unknown> to avoid unsafe-typing of spread
-      return userWithoutPassword as unknown as Omit<typeof user, 'password'>;
-    }),
-    // removeByUsername: jest.fn(),
+    validateCredentials: jest.fn<Promise<Omit<User, 'password'>>, [{ identifier: string; password: string }]>(),
     create: jest.fn(),
   } as unknown as MockUsersService;
 
@@ -101,19 +80,20 @@ describe('UsersController', () => {
   describe('validateCredentials', () => {
     it('should validate correct credentials and return user without password', async () => {
       const dto = { identifier: 'testuser', password: 'correctPassword' };
-      mockUsersService.findByIdentifier.mockResolvedValue(mockUserWithPassword);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      mockUsersService.validateCredentials.mockResolvedValue(mockUser);
 
       const result = await controller.validateCredentials(dto);
 
       expect(result).toEqual(mockUser);
       expect(result).not.toHaveProperty('password');
-      expect(service.findByIdentifier).toHaveBeenCalledWith('testuser');
+      expect(service.validateCredentials).toHaveBeenCalledWith(dto);
     });
 
     it('should throw UnauthorizedException when user not found', async () => {
       const dto = { identifier: 'nonexistent', password: 'password' };
-      mockUsersService.findByIdentifier.mockResolvedValue(null);
+      mockUsersService.validateCredentials.mockRejectedValue(
+        new UnauthorizedException('Invalid credentials'),
+      );
 
       await expect(controller.validateCredentials(dto)).rejects.toThrow(
         UnauthorizedException,
@@ -125,8 +105,9 @@ describe('UsersController', () => {
 
     it('should throw UnauthorizedException when password is incorrect', async () => {
       const dto = { identifier: 'testuser', password: 'wrongPassword' };
-      mockUsersService.findByIdentifier.mockResolvedValue(mockUserWithPassword);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+      mockUsersService.validateCredentials.mockRejectedValue(
+        new UnauthorizedException('Invalid credentials'),
+      );
 
       await expect(controller.validateCredentials(dto)).rejects.toThrow(
         UnauthorizedException,
@@ -152,7 +133,11 @@ describe('UsersController', () => {
         email: 'new@example.com',
         password: 'password123',
       };
-      const createdUser = { ...mockUser, ...createUserDto };
+      const createdUser = {
+        ...mockUser,
+        username: createUserDto.username,
+        email: createUserDto.email,
+      };
       mockUsersService.create.mockResolvedValue(createdUser);
 
       const result = await controller.create(createUserDto);

@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GamePlayer } from '@transcendence/db-entities';
-import { PlayerRole, UserType } from "db-entities-dist/game/game-player.entity";
+import { PlayerRole, UserType } from '@transcendence/db-entities/game/game-player.entity';
 import { GameState } from '../models/state';
 
 @Injectable()

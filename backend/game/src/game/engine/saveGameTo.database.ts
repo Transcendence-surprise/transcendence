@@ -2,7 +2,6 @@
 
 import { GameState } from "../models/state";
 import { GamePersistenceService } from "../services/gamePersistence.service";
-import { GamePhase } from "db-entities-dist/game/game.entity";
 
 export async function saveGameToDB(
   gameId: string,

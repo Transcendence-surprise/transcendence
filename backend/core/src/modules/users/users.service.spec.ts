@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { BadgeService } from '../badges/badge.service';
 import { User, Image } from '@transcendence/db-entities';
 import * as bcrypt from 'bcrypt';
 
@@ -32,6 +33,10 @@ describe('UsersService', () => {
     username: 'testuser',
     email: 'test@example.com',
     password: 'hashedPassword',
+    rankNumber: 1000,
+    winStreak: 0,
+    totalGames: 0,
+    totalWins: 0,
     roles: ['user'],
     twoFactorEnabled: false,
     avatarImageId: mockImage.id,
@@ -44,6 +49,10 @@ describe('UsersService', () => {
     id: mockUser.id,
     username: mockUser.username,
     email: mockUser.email,
+    rankNumber: mockUser.rankNumber,
+    winStreak: mockUser.winStreak,
+    totalGames: mockUser.totalGames,
+    totalWins: mockUser.totalWins,
     roles: mockUser.roles,
     twoFactorEnabled: mockUser.twoFactorEnabled,
     avatarImageId: mockUser.avatarImageId,
@@ -68,6 +77,10 @@ describe('UsersService', () => {
     createQueryBuilder: jest.fn(() => mockQueryBuilder),
   };
 
+  const mockBadgeService = {
+    unlockByKey: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -75,6 +88,10 @@ describe('UsersService', () => {
         {
           provide: getRepositoryToken(User),
           useValue: mockRepository,
+        },
+        {
+          provide: BadgeService,
+          useValue: mockBadgeService,
         },
       ],
     }).compile();
@@ -86,6 +103,7 @@ describe('UsersService', () => {
     jest.clearAllMocks();
     mockQueryBuilder.where.mockReturnThis();
     mockQueryBuilder.addSelect.mockReturnThis();
+    mockBadgeService.unlockByKey.mockResolvedValue(undefined);
   });
 
   it('should be defined', () => {
@@ -262,6 +280,10 @@ describe('UsersService', () => {
         id: 1,
         username: 'testuser',
         email: 'test@example.com',
+        rankNumber: 1000,
+        winStreak: 0,
+        totalGames: 0,
+        totalWins: 0,
         roles: ['user'],
         twoFactorEnabled: false,
         avatarImageId: 10,
@@ -396,7 +418,7 @@ describe('UsersService', () => {
       const createUserDto = {
         username: 'newuser',
         email: 'new@example.com',
-        password: null,
+        password: undefined,
       };
 
       const createdUser = {

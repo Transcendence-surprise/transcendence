@@ -2,7 +2,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'db-entities-dist';
+import { User } from '@transcendence/db-entities';
 import { Repository } from 'typeorm';
 import { GameState } from '../models/state';
 

@@ -3,7 +3,7 @@
 import { GameState } from '../models/state';
 import { leaveGameEngine } from './leave.engine';
 import { advanceTurn, beginCurrentTurn } from './helpers/turnHandler';
-import { GamePhase } from 'db-entities-dist/game/game.entity';
+import { GamePhase } from '@transcendence/db-entities';
 
 export type MultiTimeoutResult =
   | {
