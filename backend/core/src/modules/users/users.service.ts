@@ -134,7 +134,6 @@ export class UsersService {
     const savedUser = await this.userRepo.save(user);
 
     await this.badgeService.unlockByKey(savedUser.id, 'first-login');
-    console.log(`Unlocked 'first-login' badge for user ${savedUser.id}`);
     return this.mapUser(savedUser);
   }
 
