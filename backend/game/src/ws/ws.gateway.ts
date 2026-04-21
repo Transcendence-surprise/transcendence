@@ -10,7 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { EngineService } from '../game/services/engine.service.nest';
 import { ChatMessage, ChatService } from '../chat/chat.service';
 import jwt from 'jsonwebtoken';
-import { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { OnModuleDestroy, OnModuleInit, Logger } from '@nestjs/common';
 
 interface AccessTokenPayload {
   sub: number;
@@ -40,6 +40,7 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
   server: Server;
 
   private timeoutTicker?: NodeJS.Timeout;
+  private readonly logger = new Logger(WsGateway.name);
 
   constructor(
     private engine: EngineService,
@@ -48,33 +49,40 @@ export class WsGateway implements OnModuleInit, OnModuleDestroy {
 
   onModuleInit(): void {
     this.timeoutTicker = setInterval(async () => {
-      const endedGames = await this.engine.evaluateSinglePlayerTimeouts();
-      const multiTimeoutEvents = await this.engine.evaluateMultiPlayerTimeouts();
-      for (const game of endedGames) {
-        await this.sendPlayUpdate(game.gameId);
-        await Promise.all([
-          ...game.playerIds.map((id) => this.sendPlayerStatusUpdate(id)),
-          ...game.spectatorIds.map((id) => this.sendPlayerStatusUpdate(id)),
-        ]);
-      }
-
-      for (const event of multiTimeoutEvents) {
-        if (event.type === 'PLAY_UPDATE') {
-          await this.sendPlayUpdate(event.gameId);
-          continue;
-        }
-
-        if (event.deleteGame) {
+      try {
+        const endedGames = await this.engine.evaluateSinglePlayerTimeouts();
+        const multiTimeoutEvents = await this.engine.evaluateMultiPlayerTimeouts();
+        for (const game of endedGames) {
+          await this.sendPlayUpdate(game.gameId);
           await Promise.all([
-            ...event.playerIds.map((id) => this.sendPlayerStatusUpdate(id)),
-            ...event.spectatorIds.map((id) => this.sendPlayerStatusUpdate(id)),
+            ...game.playerIds.map((id) => this.sendPlayerStatusUpdate(id)),
+            ...game.spectatorIds.map((id) => this.sendPlayerStatusUpdate(id)),
           ]);
-          await this.sendGameDeleted(event.gameId);
-          continue;
         }
 
-        await Promise.all(event.removedPlayerIds.map((id) => this.sendPlayerStatusUpdate(id)));
-        await this.sendPlayUpdate(event.gameId);
+        for (const event of multiTimeoutEvents) {
+          if (event.type === 'PLAY_UPDATE') {
+            await this.sendPlayUpdate(event.gameId);
+            continue;
+          }
+
+          if (event.deleteGame) {
+            await Promise.all([
+              ...event.playerIds.map((id) => this.sendPlayerStatusUpdate(id)),
+              ...event.spectatorIds.map((id) => this.sendPlayerStatusUpdate(id)),
+            ]);
+            await this.sendGameDeleted(event.gameId);
+            continue;
+          }
+
+          await Promise.all(event.removedPlayerIds.map((id) => this.sendPlayerStatusUpdate(id)));
+          await this.sendPlayUpdate(event.gameId);
+        }
+      } catch (error) {
+        this.logger.error(
+          `Error in timeout ticker: ${error instanceof Error ? error.message : String(error)}`,
+          error instanceof Error ? error.stack : undefined,
+        );
       }
     }, 1000);
   }
