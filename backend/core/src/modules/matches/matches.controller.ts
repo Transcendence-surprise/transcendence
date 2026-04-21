@@ -36,6 +36,12 @@ export class MatchesController {
     return this.matchesService.findAll();
   }
 
+  @Get('latest')
+  @LatestMatchesDocs()
+  async getUserLatestGames(@CurrentUser() user: PlayerContext): Promise<LatestGames[] > {
+    return this.matchesService.getUserLatestGames(Number(user.id));
+  }
+
   @Get(':id')
   @FindMatchByIdDocs()
   async findOne(@Param('id') id: string): Promise<MatchDto> {
@@ -70,11 +76,5 @@ export class MatchesController {
   @DeleteMatchDocs()
   async remove(@Param('id') id: string) {
     return this.matchesService.remove(id);
-  }
-
-  @Get('latest')
-  @LatestMatchesDocs()
-  async getUserLatestGames(@CurrentUser() user: PlayerContext): Promise<LatestGames[] > {
-    return this.matchesService.getUserLatestGames(Number(user.id));
   }
 }
