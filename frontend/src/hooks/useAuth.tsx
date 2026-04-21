@@ -1,10 +1,11 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useCallback, useContext, useState, useEffect } from "react";
 import * as authApi from "../api/authentification";
 import { connectSocket, disconnectSocket } from "../services/socket";
 
 export interface AuthContextType {
   user: authApi.User | null;
   loading: boolean;
+  refreshUser: () => Promise<authApi.User | null>;
   login: (
     username: string,
     password: string,
@@ -55,6 +56,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (user) connectSocket();
     else disconnectSocket();
   }, [user]);
+
+  const refreshUser = useCallback(async (): Promise<authApi.User | null> => {
+    const refreshedUser = await authApi.getCurrentUser(undefined, {
+      allowUnauthorized: true,
+    });
+    setUser(refreshedUser);
+    return refreshedUser;
+  }, []);
 
   const login = async (username: string, password: string) => {
     try {
@@ -139,6 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         loading,
+        refreshUser,
         login,
         loginWith2FA,
         signup,

@@ -28,7 +28,13 @@ export interface User {
   id: number | string;
   username: string;
   email: string;
+  avatarImageId?: number | null;
+  avatarUrl?: string | null;
   roles: string[];
+  rankNumber?: number;
+  winStreak?: number;
+  totalGames?: number;
+  totalWins?: number;
   createdAt?: string;
   updatedAt?: string;
   twoFactorEnabled?: boolean;
