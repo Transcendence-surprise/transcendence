@@ -2,45 +2,44 @@ import { mockPlayerProfile } from "../types/mockPlayer";
 import StatCard from "../components/UI/StatCard";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { useEffect, useState } from "react";
+import { getUserBadges, type UserBadge } from "../api/badges";
 
 export default function Profile() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const displayName = user?.username ?? mockPlayerProfile.name;
   const totalMatches = mockPlayerProfile.totalMatches;
-  const badges = [
-    {
-      id: "first-login",
-      name: "First login",
-      image: "/assets/badges/badge_first_login.svg",
-      unlocked: true,
-    },
-    {
-      id: "first-game",
-      name: "First game",
-      image: "/assets/badges/badge_first_game.svg",
-      unlocked: totalMatches >= 1,
-    },
-    {
-      id: "first-friend",
-      name: "First friend",
-      image: "/assets/badges/badge_first_friend.svg",
-      unlocked: true,
-    },
-    {
-      id: "games-20",
-      name: "20 games played",
-      image: "/assets/badges/badge_20_games.svg",
-      unlocked: totalMatches >= 20,
-    },
-    {
-      id: "games-50",
-      name: "50 games played",
-      image: "/assets/badges/badge_50_games.svg",
-      unlocked: totalMatches >= 50,
-    },
-  ];
-  const unlockedBadges = badges.filter((badge) => badge.unlocked);
+  const [unlockedBadges, setUnlockedBadges] = useState<UserBadge[]>([]);
+  const [badgesLoading, setBadgesLoading] = useState(false);
+  const [badgesError, setBadgesError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user || user.roles.includes("guest")) return;
+
+    const controller = new AbortController();
+
+    const loadBadges = async () => {
+      try {
+        setBadgesLoading(true);
+        setBadgesError(null);
+        const badges = await getUserBadges(controller.signal);
+        setUnlockedBadges(badges);
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        const message = error instanceof Error ? error.message : "Failed to load badges";
+        setBadgesError(message);
+      } finally {
+        if (!controller.signal.aborted) {
+          setBadgesLoading(false);
+        }
+      }
+    };
+
+    loadBadges();
+
+    return () => controller.abort();
+  }, [user]);
 
   if (!user || user.roles.includes("guest")) {
     return (
@@ -147,14 +146,18 @@ export default function Profile() {
       {/* Badges */}
       <div className="mb-8">
         <h3 className="text-2xl font-bold text-white mb-4">Badges</h3>
-        {unlockedBadges.length > 0 ? (
+        {badgesLoading ? (
+          <p className="text-sm text-gray-400">Loading badges...</p>
+        ) : badgesError ? (
+          <p className="text-sm text-red-400">{badgesError}</p>
+        ) : unlockedBadges.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 max-w-5xl">
             {unlockedBadges.map((badge) => (
               <div
-                key={badge.id}
+                key={badge.key}
                 className="rounded-lg border border-[var(--color-border-subtle)] bg-bg-modal p-3 flex flex-col items-center text-center gap-2"
               >
-                <img src={badge.image} alt={badge.name} className="w-16 h-16" />
+                <img src={badge.imageUrl} alt={badge.name} className="w-16 h-16" />
                 <p className="text-sm text-white">{badge.name}</p>
               </div>
             ))}
