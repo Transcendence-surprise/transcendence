@@ -72,6 +72,13 @@ export class EngineService {
 
       if (result.type === 'PLAYER_REMOVED') {
         if (result.deleteGame) {
+          // Mark game as ended/abandoned before persisting
+          state.gameEnded = true;
+          state.phase = GamePhase.END;
+          state.completionStatus = 'ABANDONED';
+          state.gameResult = undefined;
+          state.endReason = undefined;
+          await saveGameToDB(gameId, state, this.persistence);
           this.games.delete(gameId);
         }
 
