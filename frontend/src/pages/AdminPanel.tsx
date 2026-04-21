@@ -206,6 +206,7 @@ export default function AdminPanel() {
                         type="checkbox"
                         checked={!!u.twoFactorEnabled}
                         onChange={e => handleToggle2FA(u.id, e.target.checked)}
+                        aria-label={`Toggle two-factor authentication for ${u.username}`}
                         className="sr-only peer"
                       />
                       <span
