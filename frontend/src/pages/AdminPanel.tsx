@@ -2,14 +2,26 @@
 import { useAuth } from "../hooks/useAuth";
 import type { User } from "../api/users";
 import { useEffect, useState } from "react";
-import { getAllUsers } from "../api/users";
+import { getAllUsers, deleteUser, setUserTwoFactor } from "../api/users";
 import { checkAllServicesHealth, type ServiceHealth } from "../api/health";
+import { TiDeleteOutline } from "react-icons/ti";
+import { TbAuth2Fa } from "react-icons/tb";
 
 export default function AdminPanel() {
   const { user, isAdmin } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [services, setServices] = useState<ServiceHealth[]>([]);
 
+  const handleDeleteUser = async (id: number | string) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    try {
+      await deleteUser(id);
+      setUsers((users) => users.filter((user) => user.id !== id && user.id !== String(id) && user.id !== Number(id)));
+    } catch (err) {
+      alert("Failed to delete user.");
+      console.error(err);
+    }
+  };
   useEffect(() => {
     const controller = new AbortController();
 
@@ -59,6 +71,7 @@ export default function AdminPanel() {
         <h2 className="text-xl font-bold text-icon-red">Access Denied</h2>
         <p className="text-icon-red/80">You do not have admin privileges.</p>
       </div>
+      
     );
   }
 
@@ -147,10 +160,49 @@ export default function AdminPanel() {
               {users.map((u) => (
                 <li
                   key={u.id}
-                  className="p-3 rounded-lg bg-bg-dark/50 border border-[var(--color-border-subtle)]"
+                  className="flex justify-between p-3 rounded-lg bg-bg-dark/50 border border-[var(--color-border-subtle)] flex-row"
                 >
-                  <p className="text-white font-semibold">{u.username}</p>
-                  <p className="text-sm text-gray-400">{u.email}</p>
+                  <div>
+                    <p className="text-white font-semibold">{u.username}</p>
+                    <p className="text-sm text-gray-400">{u.email}</p>
+                  </div>
+              {u.username !== "admin" && (
+                <div className="flex flex-col items-center gap-1">
+                  <TbAuth2Fa 
+                    className="text-white text-2xl self-center cursor-pointer"
+                  />
+                  <label className="flex items-center gap-2 text-xs text-gray-300 select-none">
+                    {/* <span>2FA</span> */}
+                    <span className="relative inline-block w-10 h-6 align-middle select-none">
+                      <input
+                        type="checkbox"
+                        //checked={!!u.twoFactorEnabled}
+                        // onChange={async (e) => {
+                        //   try {
+                        //     const updated = await setUserTwoFactor(u.id, e.target.checked);
+                        //     setUsers((users) => users.map((user) => user.id === u.id ? { ...user, twoFactorEnabled: updated.twoFactorEnabled } : user));
+                        //   } catch (err) {
+                        //     alert("Failed to update 2FA for user.");
+                        //   }
+                        // }}
+                        className="sr-only peer"
+                      />
+                      <span
+                        className="block bg-gray-300 peer-checked:bg-green-500 w-10 h-6 rounded-full transition-colors duration-200"
+                      ></span>
+                      <span
+                        className="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full shadow-md transition-transform duration-200 peer-checked:translate-x-4"
+                      ></span>
+                    </span>
+                  </label>
+                </div>
+              )}
+              {u.username !== "admin" && (
+                <TiDeleteOutline
+                  className="text-red-500 text-2xl self-center cursor-pointer transition-transform duration-150 hover:scale-125"
+                  onClick={() => handleDeleteUser(u.id)}
+                />
+              )}
                 </li>
               ))}
             </ul>
@@ -160,3 +212,4 @@ export default function AdminPanel() {
     </div>
   );
 }
+
