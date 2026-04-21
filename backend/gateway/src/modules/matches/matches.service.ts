@@ -22,7 +22,7 @@ export class MatchesHttpService {
     return this.request<T>('get', '/api/matches', undefined, req);
   }
 
-  async findOne<T = unknown>(id: number, req?: FastifyRequest): Promise<T> {
+  async findOne<T = unknown>(id: string, req?: FastifyRequest): Promise<T> {
     return this.request<T>('get', `/api/matches/${id}`, undefined, req);
   }
 
@@ -30,15 +30,15 @@ export class MatchesHttpService {
     return this.request<T>('post', '/api/matches', body, req);
   }
 
-  async update<T = unknown>(id: number, body: unknown, req?: FastifyRequest): Promise<T> {
+  async update<T = unknown>(id: string, body: unknown, req?: FastifyRequest): Promise<T> {
     return this.request<T>('put', `/api/matches/${id}`, body, req);
   }
 
-  async partialUpdate<T = unknown>(id: number, body: unknown, req?: FastifyRequest): Promise<T> {
+  async partialUpdate<T = unknown>(id: string, body: unknown, req?: FastifyRequest): Promise<T> {
     return this.request<T>('patch', `/api/matches/${id}`, body, req);
   }
 
-  async remove<T = unknown>(id: number, req?: FastifyRequest): Promise<T> {
+  async remove<T = unknown>(id: string, req?: FastifyRequest): Promise<T> {
     return this.request<T>('delete', `/api/matches/${id}`, undefined, req);
   }
 
