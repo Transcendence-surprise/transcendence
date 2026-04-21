@@ -33,7 +33,7 @@ export class MatchesController {
 
   @Get(':id')
   async getMatch(@Param('id') id: string, @Req() req: FastifyRequest) {
-    return this.matchesClient.findOne(Number(id), req);
+    return this.matchesClient.findOne(id, req);
   }
 
   @Post()
@@ -47,7 +47,7 @@ export class MatchesController {
     @Body() body: unknown,
     @Req() req: FastifyRequest,
   ) {
-    return this.matchesClient.update(Number(id), body, req);
+    return this.matchesClient.update(id, body, req);
   }
 
   @Patch(':id')
@@ -56,11 +56,11 @@ export class MatchesController {
     @Body() body: unknown,
     @Req() req: FastifyRequest,
   ) {
-    return this.matchesClient.partialUpdate(Number(id), body, req);
+    return this.matchesClient.partialUpdate(id, body, req);
   }
 
   @Delete(':id')
   async removeMatch(@Param('id') id: string, @Req() req: FastifyRequest) {
-    return this.matchesClient.remove(Number(id), req);
+    return this.matchesClient.remove(id, req);
   }
 }
