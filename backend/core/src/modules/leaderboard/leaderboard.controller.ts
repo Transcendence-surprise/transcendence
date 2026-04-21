@@ -17,7 +17,7 @@ export class LeaderboardController {
     return this.leaderboardService.getAllTimeLeaderboard(10);
   }
 
-  @Get('user-ranking/:userId')
+  @Get('user-ranking/:userId')    // AUTH // GATEWAY
   async getUserRanking(@Param('userId') userId: number): Promise<number | null> {
     return this.leaderboardService.getUserRanking(userId);
   }

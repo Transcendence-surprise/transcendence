@@ -13,10 +13,15 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserPartialDto } from './dto/update-user-partial.dto';
 import { ValidateCredDto } from './dto/validate-credentials.dto';
 import * as bcrypt from 'bcrypt';
+import { BadgeService } from '../badges/badge.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
+  constructor(
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
+    private badgeService: BadgeService,
+  ) {}
 
   private mapUser(user: User): Omit<User, 'password' | 'avatarImage'> & {
     avatarImageId: number | null;
@@ -127,6 +132,9 @@ export class UsersService {
     }
 
     const savedUser = await this.userRepo.save(user);
+
+    await this.badgeService.unlockByKey(savedUser.id, 'first-login');
+    console.log(`Unlocked 'first-login' badge for user ${savedUser.id}`);
     return this.mapUser(savedUser);
   }
 
