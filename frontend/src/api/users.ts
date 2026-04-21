@@ -68,3 +68,53 @@ signal?: AbortSignal,
     rethrowAbortError(e);
   }
 }
+
+export async function deleteUser(id: number | string, signal?: AbortSignal) {
+  const numId = typeof id === "string" ? Number(id) : id;
+  if (isNaN(numId)) throw new Error("Invalid user id");
+
+  try {
+    const res = await fetch(`/api/users/id/${numId}`, {
+      method: "DELETE",
+      headers: { accept: "*/*" },
+      credentials: "include",
+      signal,
+    });
+    if (!res.ok) throw new Error("Failed to delete user");
+  } catch (e: any) {
+    rethrowAbortError(e);
+  }
+}
+
+// Admin: Set 2FA for any user (placeholder, backend endpoint needed)
+export async function setUserTwoFactor(
+  id: number | string,
+  enabled: boolean,
+  signal?: AbortSignal,
+): Promise<User> {
+  const numId = typeof id === "string" ? Number(id) : id;
+  if (isNaN(numId)) throw new Error("Invalid user id");
+
+  try {
+    const res = await fetch(`/api/users/id/${numId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({ twoFactorEnabled: enabled }),
+      credentials: "include",
+      signal,
+    });
+    if (!res.ok) throw new Error("Failed to update 2FA for user");
+
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      return res.json();
+    }
+
+    return {} as User;
+  } catch (e: any) {
+    rethrowAbortError(e);
+  }
+}
