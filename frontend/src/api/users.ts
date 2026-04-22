@@ -189,7 +189,9 @@ export async function uploadMyAvatar(
     }
 
     // console.log("Avatar upload success but no JSON body returned");
-    return {} as User;
+    throw new Error(
+      `Unexpected avatar upload response content-type: ${contentType ?? "missing"}`,
+    );
   } catch (e: unknown) {
     // console.error("uploadMyAvatar caught error:", e);
     rethrowAbortError(e);
