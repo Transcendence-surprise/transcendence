@@ -7,7 +7,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { FastifyRequest } from 'fastify';
 import { Server, Socket } from 'socket.io';
@@ -30,6 +30,7 @@ interface WsUser {
 
 interface GameStatePayload {
   ok?: boolean;
+  error?: string;
   state?: {
     phase?: string;
     board?: unknown;
@@ -65,6 +66,24 @@ interface GameStatePayload {
   spectators?: Array<{ id: string | number }>;
 }
 
+interface ResolvedGameState {
+  phase?: string;
+  board?: unknown;
+  players?: Array<{ id: string | number; name?: string; username?: string; displayName?: string }>;
+  rules?: any;
+  hostId?: string | number;
+  playerProgress?: unknown;
+  playerProgressById?: Record<string, unknown>;
+  currentPlayerId?: string | number;
+  gameStartedAt?: number;
+  moveStartedAt?: number;
+  moveLimitPerTurnSec?: number;
+  boardActionsPending?: unknown;
+  gameResult?: { winnerIds?: Array<string | number>; winnerId?: string | number };
+  endReason?: string | null;
+  spectators?: Array<{ id: string | number }>;
+}
+
 type TypedSocket = Socket & { user?: WsUser };
 
 @Injectable()
@@ -75,12 +94,14 @@ type TypedSocket = Socket & { user?: WsUser };
     credentials: true,
   },
 })
-export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleInit, OnModuleDestroy {
   @WebSocketServer()
   server: Server;
 
   private readonly logger = new Logger(RealtimeGateway.name);
   private readonly userSockets = new Map<number, Set<string>>();
+  private readonly playRoomContext = new Map<string, FastifyRequest>();
+  private playTicker?: NodeJS.Timeout;
 
   constructor(
     private readonly jwtService: JwtService,
@@ -207,6 +228,48 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     this.server.to(room).emit(event, payload);
   }
 
+  onModuleInit(): void {
+    this.playTicker = setInterval(async () => {
+      try {
+        const roomNames = Array.from(this.server.sockets.adapter.rooms.keys()).filter((room) =>
+          room.startsWith('play:'),
+        );
+
+        const activeGameIds = new Set<string>();
+
+        for (const roomName of roomNames) {
+          const room = this.server.sockets.adapter.rooms.get(roomName);
+          if (!room || room.size === 0) continue;
+
+          const gameId = roomName.slice('play:'.length);
+          if (!gameId) continue;
+          activeGameIds.add(gameId);
+
+          const req = this.playRoomContext.get(gameId);
+          if (!req) continue;
+
+          await this.sendPlayUpdate(gameId, req);
+        }
+
+        for (const trackedGameId of Array.from(this.playRoomContext.keys())) {
+          if (!activeGameIds.has(trackedGameId)) {
+            this.playRoomContext.delete(trackedGameId);
+          }
+        }
+      } catch (error) {
+        this.logger.warn(
+          `Realtime play ticker failed: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+    }, 1000);
+  }
+
+  onModuleDestroy(): void {
+    if (this.playTicker) {
+      clearInterval(this.playTicker);
+    }
+  }
+
   async handleConnection(client: TypedSocket): Promise<void> {
     try {
       const user = await this.authenticate(client);
@@ -302,9 +365,12 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   async sendLobbyUpdate(gameId: string, req?: FastifyRequest) {
-    const result = await this.gameService.getGameState<GameStatePayload>(gameId, req);
-    const state = result?.state ?? result;
-    if (!state) return;
+    const state = await this.resolveGameStateForRealtime(gameId, req);
+    if (!state) {
+      this.sendGameDeleted(gameId);
+      this.playRoomContext.delete(gameId);
+      return;
+    }
 
     const playersWithNames = (state.players ?? []).map((player) => ({
       id: player.id,
@@ -324,9 +390,12 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   async sendPlayUpdate(gameId: string, req?: FastifyRequest) {
-    const result = await this.gameService.getGameState<GameStatePayload>(gameId, req);
-    const state = result?.state ?? result;
-    if (!state) return;
+    const state = await this.resolveGameStateForRealtime(gameId, req);
+    if (!state) {
+      this.sendGameDeleted(gameId);
+      this.playRoomContext.delete(gameId);
+      return;
+    }
 
     this.sendToRoom(`play:${gameId}`, 'playUpdate', {
       phase: state.phase,
@@ -358,6 +427,39 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   sendGameDeleted(gameId: string) {
     this.sendToRoom(`lobby:${gameId}`, 'lobbyDeleted', { gameId });
     this.sendToRoom(`play:${gameId}`, 'gameDeleted', { gameId });
+  }
+
+  private async resolveGameStateForRealtime(
+    gameId: string,
+    req?: FastifyRequest,
+  ): Promise<ResolvedGameState | null> {
+    if (req) {
+      try {
+        const privateResult = await this.gameService.getGameState<GameStatePayload>(gameId, req);
+        const privateState = privateResult?.state;
+        if (privateState) {
+          return privateState;
+        }
+      } catch {
+        // fall through to internal state endpoint
+      }
+    }
+
+    try {
+      const internalResult = await this.gameService.getGameStateInternal<GameStatePayload>(gameId);
+      if ((internalResult as any)?.ok === false && (internalResult as any)?.error === 'GAME_NOT_FOUND') {
+        return null;
+      }
+
+      const internalState = internalResult?.state ?? internalResult;
+      if (!internalState || !(internalState as any).phase) {
+        return null;
+      }
+
+      return internalState as ResolvedGameState;
+    } catch {
+      return null;
+    }
   }
 
   @SubscribeMessage('joinMultiplayerList')
@@ -394,6 +496,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     if (!user) return client.disconnect(true);
 
     void client.join(`play:${data.gameId}`);
+    this.playRoomContext.set(data.gameId, this.buildRequestFromSocket(client));
     await this.sendPlayUpdate(data.gameId, this.buildRequestFromSocket(client));
   }
 

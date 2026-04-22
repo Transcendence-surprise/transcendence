@@ -38,6 +38,10 @@ export class GameHttpService {
     return this.request<T>('get', `/api/game/${gameId}`, undefined, req);
   }
 
+  async getGameStateInternal<T = unknown>(gameId: string): Promise<T> {
+    return this.request<T>('get', `/api/game/internal/${gameId}`);
+  }
+
   async getSinglePlayerLevels<T = unknown>(req?: FastifyRequest): Promise<T> {
     return this.request<T>('get', '/api/game/single/levels', undefined, req);
   }

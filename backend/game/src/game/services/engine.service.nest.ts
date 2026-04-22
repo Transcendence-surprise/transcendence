@@ -72,14 +72,14 @@ export class EngineService {
 
       if (result.type === 'PLAYER_REMOVED') {
         if (result.deleteGame) {
-          // Mark game as ended/abandoned before persisting
+          // Timeout should end the game (no winner) but keep it available for realtime/game-over UI.
           state.gameEnded = true;
           state.phase = GamePhase.END;
-          state.completionStatus = 'ABANDONED';
+          state.completionStatus = 'FINISHED';
           state.gameResult = undefined;
-          state.endReason = undefined;
+          state.endReason = 'LOSE_TIME_LIMIT';
           await saveGameToDB(gameId, state, this.persistence);
-          this.games.delete(gameId);
+          await this.userUpdateService.updateUserStats(state);
         }
 
         if (!result.deleteGame) {

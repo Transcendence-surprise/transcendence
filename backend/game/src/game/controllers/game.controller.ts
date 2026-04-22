@@ -132,6 +132,18 @@ export class GameController {
     return result.ok ? { ok: true } : { ok: false, error: result.error };
   }
 
+  // Internal realtime state for gateway ticker (no per-user filtering)
+  @Get('internal/:gameId')
+  @ApiParam({ name: 'gameId', type: 'string' })
+  getInternalRealtimeState(@Param('gameId') gameId: string) {
+    const state = this.engine.getGameState(gameId);
+    if (!state) {
+      return { ok: false, error: 'GAME_NOT_FOUND' };
+    }
+
+    return { ok: true, state };
+  }
+
   // Get game state
   @Get(':gameId')
   @ApiParam({ name: 'gameId', type: 'string' })
