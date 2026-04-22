@@ -118,6 +118,11 @@ services:
       - ./.env
     depends_on:
       - frontend
+      - gateway
+      - core
+      - auth
+      - game
+      - db
     networks:
       - transcendence_net
     healthcheck:
