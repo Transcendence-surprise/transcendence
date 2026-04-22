@@ -1,4 +1,3 @@
-// Example Admin Panel Component
 import { useAuth } from "../hooks/useAuth";
 import type { User } from "../api/users";
 import { useEffect, useState } from "react";
@@ -11,6 +10,32 @@ export default function AdminPanel() {
   const { user, isAdmin } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [services, setServices] = useState<ServiceHealth[]>([]);
+  const [updating2FA, setUpdating2FA] = useState<Record<string, boolean>>({});
+
+  const handleToggle2FA = async (id: number | string, enabled: boolean) => {
+    const key = String(id);
+
+    if (updating2FA[key]) return;
+
+    setUpdating2FA((prev) => ({ ...prev, [key]: true }));
+
+    try {
+      const updated = await setUserTwoFactor(id, enabled);
+      setUsers((users) =>
+        users.map((user) =>
+          String(user.id) === String(id)
+            ? { ...user, twoFactorEnabled: updated.twoFactorEnabled ?? enabled }
+            : user
+        )
+      );
+    } catch (err: any) {
+      alert(err?.message || "Failed to update 2FA for user.");
+      console.error(err);
+    } finally {
+      setUpdating2FA((prev) => ({ ...prev, [key]: false }));
+    }
+  };
+
 
   const handleDeleteUser = async (id: number | string) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
@@ -104,7 +129,7 @@ export default function AdminPanel() {
   return (
     <div className="p-6 space-y-8">
       <h1 className="text-2xl text-light-cyan font-bold mb-4">Admin Panel</h1>
-      <p className="mb-4 text-white">Welcome, Admin {user?.username}!</p>
+      <p className="mb-4 text-white">Welcome, {user?.username}!</p>
 
       {/* Services Health Section */}
       <section className="bg-bg-modal rounded-xl border border-[var(--color-border-subtle)] p-6">
@@ -160,35 +185,32 @@ export default function AdminPanel() {
               {users.map((u) => (
                 <li
                   key={u.id}
-                  className="flex justify-between p-3 rounded-lg bg-bg-dark/50 border border-[var(--color-border-subtle)] flex-row"
+                  className="flex items-center justify-between p-3 rounded-xl 
+                    
+                    border border-[var(--color-border-subtle)]
+                  "
                 >
-                  <div>
+                  <div className="flex flex-col gap-1 w-5">
                     <p className="text-white font-semibold">{u.username}</p>
                     <p className="text-sm text-gray-400">{u.email}</p>
                   </div>
               {u.username !== "admin" && (
-                <div className="flex flex-col items-center gap-1">
+                <div className="flex">
+                    <div className="flex flex-col items-center gap-1">
                   <TbAuth2Fa 
                     className="text-white text-2xl self-center cursor-pointer"
                   />
                   <label className="flex items-center gap-2 text-xs text-gray-300 select-none">
-                    {/* <span>2FA</span> */}
                     <span className="relative inline-block w-10 h-6 align-middle select-none">
                       <input
                         type="checkbox"
-                        //checked={!!u.twoFactorEnabled}
-                        // onChange={async (e) => {
-                        //   try {
-                        //     const updated = await setUserTwoFactor(u.id, e.target.checked);
-                        //     setUsers((users) => users.map((user) => user.id === u.id ? { ...user, twoFactorEnabled: updated.twoFactorEnabled } : user));
-                        //   } catch (err) {
-                        //     alert("Failed to update 2FA for user.");
-                        //   }
-                        // }}
+                        checked={!!u.twoFactorEnabled}
+                        onChange={e => handleToggle2FA(u.id, e.target.checked)}
+                        aria-label={`Toggle two-factor authentication for ${u.username}`}
                         className="sr-only peer"
                       />
                       <span
-                        className="block bg-gray-300 peer-checked:bg-green-500 w-10 h-6 rounded-full transition-colors duration-200"
+                        className="block bg-gray-300 peer-checked:bg-green-400 w-10 h-6 rounded-full transition-colors duration-200"
                       ></span>
                       <span
                         className="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full shadow-md transition-transform duration-200 peer-checked:translate-x-4"
@@ -196,6 +218,8 @@ export default function AdminPanel() {
                     </span>
                   </label>
                 </div>
+                </div>
+              
               )}
               {u.username !== "admin" && (
                 <TiDeleteOutline
@@ -212,4 +236,3 @@ export default function AdminPanel() {
     </div>
   );
 }
-

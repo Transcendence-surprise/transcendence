@@ -86,7 +86,7 @@ export async function deleteUser(id: number | string, signal?: AbortSignal) {
   }
 }
 
-// Admin: Set 2FA for any user (placeholder, backend endpoint needed)
+// Admin: Set 2FA for any user
 export async function setUserTwoFactor(
   id: number | string,
   enabled: boolean,
@@ -106,15 +106,22 @@ export async function setUserTwoFactor(
       credentials: "include",
       signal,
     });
-    if (!res.ok) throw new Error("Failed to update 2FA for user");
+
+    if (!res.ok) {
+      if (res.status === 429) {
+        throw new Error("Too many requests. Please try again in a moment.");
+      }
+      throw new Error("Failed to update 2FA for user");
+    }
 
     const contentType = res.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
       return res.json();
     }
 
-    return {} as User;
+    return { id: numId, twoFactorEnabled: enabled } as User;
   } catch (e: any) {
     rethrowAbortError(e);
+    throw e;
   }
 }
