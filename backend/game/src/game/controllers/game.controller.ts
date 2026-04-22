@@ -2,7 +2,6 @@ import { Controller, Post, Body, Get, Param, HttpCode } from '@nestjs/common';
 import { EngineService } from '../services/engine.service.nest';
 import { UnauthorizedException } from '@nestjs/common';
 import { GameSettings } from '../models/state';
-import { WsGateway } from '../../ws/ws.gateway';
 import { ApiBody, ApiOkResponse, ApiParam, ApiResponse } from '@nestjs/swagger';
 import {
   CreateGameDto,
@@ -31,7 +30,6 @@ import { PlayerAction } from '../models/playerAction';
 export class GameController {
   constructor(
   private readonly engine: EngineService,
-  private readonly wsGateway: WsGateway,
 ) {}
 
   // Create Game
@@ -54,9 +52,6 @@ export class GameController {
       user.username,
       settings
     );
-    // console.log(`Game created with ID: ${gameId} in phase ${this.engine.getGameState(gameId)?.phase || 'IDK'} by user ${user.id}`);
-    await this.wsGateway.sendMultiplayerListUpdate();
-    await this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
     return { ok: true, gameId };
   }
 
@@ -70,12 +65,6 @@ export class GameController {
    ): Promise<StartResponseDto> {
     const result = await this.engine.startGame(body.gameId, user.id);
 
-    if (result.ok) {
-      await this.wsGateway.sendMultiplayerListUpdate();
-      await this.wsGateway.sendLobbyUpdate(body.gameId);
-      await this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
-    }
-
     return result.ok ? { ok: true } : { ok: false, error: result.error };
   }
 
@@ -88,11 +77,6 @@ export class GameController {
     @CurrentUser() user: PlayerContext
   ) : Promise<JoinResponseDto> {
     const result = await this.engine.joinGame(body.gameId, user.id, user.username, body.role);
-
-    if (result.ok) {
-      await this.wsGateway.sendMultiplayerListUpdate();
-      await this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
-    }
     // console.log("User Joined: ", body.playerId );
     return result;
   }
@@ -109,18 +93,6 @@ export class GameController {
       throw new UnauthorizedException('User id missing');
     }
     const result = await this.engine.boardModification(body.gameId, body.action, user.id);
-    // console.log(`Board move request for game ${body.gameId} from user ${user.id}:`, body.action);    
-    if (result.ok) {
-      await this.wsGateway.sendPlayUpdate(body.gameId);
-
-      const state = await this.engine.getGameState(body.gameId);
-      if (state?.phase === 'END') {
-        await Promise.all([
-          ...state.players.map((p) => this.wsGateway.sendPlayerStatusUpdate(p.id)),
-          ...state.spectators.map((s) => this.wsGateway.sendPlayerStatusUpdate(s.id)),
-        ]);
-      }
-    }
     return result;
   }
 
@@ -142,18 +114,7 @@ export class GameController {
     };
 
     const result = await this.engine.playerAction(body.gameId, action, user.id);
-    
-    if (result.ok) {
-      await this.wsGateway.sendPlayUpdate(body.gameId);
 
-      const state = await this.engine.getGameState(body.gameId);
-      if (state?.phase === 'END') {
-        await Promise.all([
-          ...state.players.map((p) => this.wsGateway.sendPlayerStatusUpdate(p.id)),
-          ...state.spectators.map((s) => this.wsGateway.sendPlayerStatusUpdate(s.id)),
-        ]);
-      }
-    }
     return result;
   }
 
@@ -168,24 +129,19 @@ export class GameController {
   ) : Promise<LeaveResponseDto> {
     const result = await this.engine.leaveGame(body.gameId, user.id);
 
-    if (result.ok) {
-      await this.wsGateway.sendMultiplayerListUpdate();
-      await this.wsGateway.sendPlayerStatusUpdate(user.id.toString());
-      await this.wsGateway.sendLobbyUpdate(body.gameId);
+    return result.ok ? { ok: true } : { ok: false, error: result.error };
+  }
 
-      if (result.deleteGame) {
-        await Promise.all(
-          (result.previousPlayers ?? []).map((id) => this.wsGateway.sendPlayerStatusUpdate(id)),
-        );
-        await this.wsGateway.sendGameDeleted(body.gameId);
-      } else {
-        // If game not deleted, still notify play phase clients of player leaving
-        await this.wsGateway.sendPlayUpdate(body.gameId);
-      }
-
+  // Internal realtime state for gateway ticker (no per-user filtering)
+  @Get('internal/:gameId')
+  @ApiParam({ name: 'gameId', type: 'string' })
+  getInternalRealtimeState(@Param('gameId') gameId: string) {
+    const state = this.engine.getGameState(gameId);
+    if (!state) {
+      return { ok: false, error: 'GAME_NOT_FOUND' };
     }
 
-    return result.ok ? { ok: true } : { ok: false, error: result.error };
+    return { ok: true, state };
   }
 
   // Get game state
@@ -246,5 +202,4 @@ export class GameController {
       };
     }
   }
-
 }

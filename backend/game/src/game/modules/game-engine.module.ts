@@ -10,6 +10,7 @@ import { Image } from '@transcendence/db-entities';
 import { GamePersistenceService } from '../services/gamePersistence.service';
 import { PlayersPersistenceService } from '../services/playersPersistence.service';
 import { UserUpdateService } from '../services/userStateUpdate.service';
+import { GameTimeoutService } from '../services/game-timeout.service';
 
 
 @Module({
@@ -18,6 +19,7 @@ import { UserUpdateService } from '../services/userStateUpdate.service';
   ],
   providers: [
     EngineService,
+    GameTimeoutService,
     GamePersistenceService,
     PlayersPersistenceService,
     UserUpdateService

@@ -3,6 +3,7 @@ import { GameController } from './game.controller';
 import { GameHttpService } from './game.service';
 import type { FastifyRequest } from 'fastify';
 import { AuthGuard } from '../../common/guards/auth.guard';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 
 /* eslint-disable @typescript-eslint/unbound-method */
 
@@ -16,10 +17,20 @@ describe('GameController', () => {
       startGame: jest.fn(),
       joinGame: jest.fn(),
       leaveGame: jest.fn(),
+      boardMove: jest.fn(),
+      playerMove: jest.fn(),
       getGameState: jest.fn(),
       getSinglePlayerLevels: jest.fn(),
       getMultiplayerGames: jest.fn(),
       checkPlayerAvailability: jest.fn(),
+    };
+
+    const mockRealtimeGateway = {
+      sendMultiplayerListUpdate: jest.fn().mockResolvedValue(undefined),
+      sendPlayerStatusUpdate: jest.fn().mockResolvedValue(undefined),
+      sendLobbyUpdate: jest.fn().mockResolvedValue(undefined),
+      sendGameDeleted: jest.fn(),
+      sendPlayUpdate: jest.fn().mockResolvedValue(undefined),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -28,6 +39,10 @@ describe('GameController', () => {
         {
           provide: GameHttpService,
           useValue: mockService,
+        },
+        {
+          provide: RealtimeGateway,
+          useValue: mockRealtimeGateway,
         },
       ],
     })

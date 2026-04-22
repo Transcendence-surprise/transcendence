@@ -2,7 +2,7 @@
 
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { connectSocket, getSocket } from "../../services/socket";
+import { connectRealtimeSocket, getRealtimeSocket } from "../../services/realtimeSocket";
 import { useAuth } from "../../hooks/useAuth";
 import GamePage from "../../pages/GamePage";
 import { PlayerProgress, PrivateGameState } from "../models/privatState";
@@ -83,7 +83,7 @@ export default function GameRoute() {
 
     const controller = new AbortController();
 
-    const socket = connectSocket();
+    const socket = connectRealtimeSocket();
 
     // Route param changes can reuse this component instance, so reset per-game UI state.
     setMessages([]);
@@ -178,7 +178,7 @@ export default function GameRoute() {
   const sendPlayMessage = () => {
     if (!input.trim()) return;
 
-    const socket = getSocket();
+    const socket = getRealtimeSocket();
     if (!socket) return;
 
     socket.emit("playMessage", {
