@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { checkPlayerAvailability } from "../../api/game";
 import { useNavigate } from "react-router-dom";
-import { connectSocket, getSocket } from "../../services/socket";
+import { connectRealtimeSocket, getRealtimeSocket } from "../../services/realtimeSocket";
 
 interface ActiveGamesSectionProps {
   user: { username: string } | null;
@@ -18,27 +17,16 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
       return;
     }
 
-    const controller = new AbortController();
-
-    const checkActive = async () => {
-      try {
-        const availability = await checkPlayerAvailability(controller.signal);
-
-        if (!availability.ok && availability.gameId) {
-          setActiveGameIds([availability.gameId]);
-        } else {
-          setActiveGameIds([]);
-        }
-      } catch (err: any) {
-        if (err?.name !== "AbortError") {
-          setActiveGameIds([]);
-        }
-      }
+    const socket = getRealtimeSocket() ?? connectRealtimeSocket();
+    const requestStatus = () => {
+      socket.emit("checkPlayerStatus");
     };
 
-    checkActive();
-
-    const socket = getSocket() ?? connectSocket();
+    if (socket.connected) {
+      requestStatus();
+    } else {
+      socket.on("connect", requestStatus);
+    }
 
     const handleStatus = (data: any) => {
       if (!data.ok && data.gameId) {
@@ -51,7 +39,7 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
     socket.on("playerStatus", handleStatus);
 
     return () => {
-      controller.abort();
+      socket.off("connect", requestStatus);
       socket.off("playerStatus", handleStatus);
     };
   }, [user]);
@@ -85,27 +73,14 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
                   </div>
                   <button
                     onClick={async () => {
-                      const controller = new AbortController();
                       setLoadingGame(true);
                       try {
-                        const availability = await checkPlayerAvailability(
-                          controller.signal,
-                        );
-                        if (!availability.ok && availability.gameId) {
-                          navigate(
-                            availability.phase === "PLAY"
-                              ? `/game/${availability.gameId}`
-                              : `/multiplayer/lobby/${availability.gameId}`,
-                          );
-                        } else {
-                          navigate(`/game/${gameId}`);
-                        }
+                        navigate(`/game/${gameId}`);
                       } catch (err: any) {
                         if (err?.name !== "AbortError") {
                           console.error(err);
                         }
                       } finally {
-                        controller.abort();
                         setLoadingGame(false);
                       }
                     }}

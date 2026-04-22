@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { checkPlayerAvailability } from "../../api/game";
-import { getSocket, connectSocket } from "../../services/socket";
+import { getRealtimeSocket, connectRealtimeSocket } from "../../services/realtimeSocket";
 import StatusDot from "../UI/StatusDot";
 
 interface GameStatusDotProps {
@@ -21,29 +20,18 @@ export default function GameStatusDot({ user }: GameStatusDotProps) {
       return;
     }
 
-    const controller = new AbortController();
-    // Fallback: HTTP check on mount/user change
-    const check = async () => {
-      try {
-        const availability = await checkPlayerAvailability(controller.signal);
-        if (!availability.ok && availability.gameId) {
-          setActiveGame({
-            gameId: availability.gameId,
-            phase: availability.phase,
-          });
-        } else {
-          setActiveGame(null);
-        }
-      } catch (err: any) {
-        if (err?.name !== "AbortError") {
-          setActiveGame(null);
-        }
-      }
-    };
-    check();
-
     // Real-time: listen for playerStatus/playerGameStatus events
-    const socket = getSocket() ?? connectSocket();
+    const socket = getRealtimeSocket() ?? connectRealtimeSocket();
+    const requestStatus = () => {
+      socket.emit("checkPlayerStatus");
+    };
+
+    if (socket.connected) {
+      requestStatus();
+    } else {
+      socket.on("connect", requestStatus);
+    }
+
     const handleStatus = (data: any) => {
       if (data && !data.ok && data.gameId) {
         setActiveGame({ gameId: data.gameId, phase: data.phase });
@@ -54,7 +42,7 @@ export default function GameStatusDot({ user }: GameStatusDotProps) {
     socket.on("playerStatus", handleStatus);
     socket.on("playerGameStatus", handleStatus);
     return () => {
-      controller.abort();
+      socket.off("connect", requestStatus);
       socket.off("playerStatus", handleStatus);
       socket.off("playerGameStatus", handleStatus);
     };

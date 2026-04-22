@@ -3,7 +3,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { connectSocket, getSocket } from "../../services/socket";
+import { connectRealtimeSocket, getRealtimeSocket } from "../../services/realtimeSocket";
 import { getGameState, startGame, leaveGame } from "../../api/game";
 import Lobby from "../../components/game/Lobby";
 import { LobbyMessage } from "../models/lobbyMessage";
@@ -40,7 +40,7 @@ export default function LobbyRoute() {
       return;
     }
 
-    const socket = getSocket() ?? connectSocket();
+    const socket = getRealtimeSocket() ?? connectRealtimeSocket();
 
     const handleConnect = () => {
       socket.emit("joinLobby", { gameId });
@@ -56,6 +56,7 @@ export default function LobbyRoute() {
         setGame({
           id: data.gameId,
           hostName: data.host,
+          hostId: data.hostId,
           players: data.players,
           rules: data.rules,
           phase: data.phase,
@@ -157,7 +158,7 @@ export default function LobbyRoute() {
   const sendMessage = () => {
     if (!input.trim() || !gameId) return;
 
-    const socket = getSocket(); // get the existing socket instance
+    const socket = getRealtimeSocket(); // get the existing socket instance
     if (!socket || !input.trim() || !gameId) return;
 
     socket.emit("lobbyMessage", {

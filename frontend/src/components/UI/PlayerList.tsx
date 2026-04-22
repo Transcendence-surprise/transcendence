@@ -1,6 +1,6 @@
 type PlayerListProps = {
-  players: { id: number; displayName: string }[];
-  hostId: number;
+  players: { id: number | string; displayName: string }[];
+  hostId: number | string;
   maxPlayers: number;
 };
 
@@ -22,7 +22,7 @@ export default function PlayerList({
             className="flex items-center gap-2 text-sm text-lightest-cyan"
           >
             <span className="h-2 w-2 rounded-full bg-cyan-400" />
-            {player.displayName} {player.id === hostId ? "(Host)" : ""}
+            {player.displayName} {String(player.id) === String(hostId) ? "(Host)" : ""}
           </div>
         ))}
       </div>

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useState, useEffect } from "react";
 import * as authApi from "../api/authentification";
-import { connectSocket, disconnectSocket } from "../services/socket";
+import { connectRealtimeSocket, disconnectRealtimeSocket } from "../services/realtimeSocket";
 
 export interface AuthContextType {
   user: authApi.User | null;
@@ -53,8 +53,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (user) connectSocket();
-    else disconnectSocket();
+    if (user) connectRealtimeSocket();
+    else disconnectRealtimeSocket();
   }, [user]);
 
   const refreshUser = useCallback(async (): Promise<authApi.User | null> => {

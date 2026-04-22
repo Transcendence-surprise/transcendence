@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getMultiplayerGames, joinGame, checkPlayerAvailability } from "../../api/game";
 import { MultiGame } from "../models/multiGames";
 import JoinTable from "../../components/game/Join";
-import { getSocket, connectSocket } from "../../services/socket";
+import { getRealtimeSocket, connectRealtimeSocket } from "../../services/realtimeSocket";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function MultiplayerJoinRoute() {
@@ -29,7 +29,7 @@ export default function MultiplayerJoinRoute() {
       })
       .finally(() => setLoading(false));
 
-    const socket = getSocket() ?? connectSocket();
+    const socket = getRealtimeSocket() ?? connectRealtimeSocket();
 
     socket.emit("joinMultiplayerList");
 

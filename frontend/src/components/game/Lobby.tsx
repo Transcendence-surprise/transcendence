@@ -30,6 +30,19 @@ export default function Lobby({
   setInput,
   sendMessage,
 }: LobbyProps) {
+  const rules = {
+    mode: "MULTI",
+    maxPlayers: 2,
+    allowSpectators: false,
+    collectiblesPerPlayer: 1,
+    fixedCorners: false,
+    requiresBoardActionPerTurn: true,
+    boardSize: 7,
+    ...(game?.rules ?? {}),
+  };
+
+  const players = Array.isArray(game?.players) ? game.players : [];
+  const hostId = game?.hostId;
 
   return (
     <div className="min-h-screen bg-bg-dark text-white font-sans flex items-start justify-center px-4 py-10">
@@ -51,7 +64,7 @@ export default function Lobby({
           </div>
 
           {/* Spectators badge */}
-          {game.rules.allowSpectators && (
+          {rules.allowSpectators && (
             <div className="mb-4 flex justify-start">
               <span className="text-xs px-3 py-1 rounded-full bg-button-cyan-bg/60 border border-cyan-300/30 text-light-cyan">
                 Spectators Allowed
@@ -64,12 +77,12 @@ export default function Lobby({
             {/* Players column */}
             <div className="lg:col-span-1">
               <PlayerList
-                players={game.players}
-                hostId={game.hostId}
-                maxPlayers={game.rules.maxPlayers}
+                players={players}
+                hostId={hostId}
+                maxPlayers={rules.maxPlayers}
               />
               {/* Settings block */}
-              <LobbySettings rules={game.rules} />
+              <LobbySettings rules={rules} />
 
               <div className="mt-4 flex flex-col items-start gap-3">
                 <div className="flex gap-4">
