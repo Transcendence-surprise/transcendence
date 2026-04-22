@@ -13,7 +13,11 @@ type NavItem = {
   icon: ReactNode;
 };
 
-export default function Sidebar() {
+type SidebarProps = {
+  forceCollapsed?: boolean;
+};
+
+export default function Sidebar({ forceCollapsed = false }: SidebarProps) {
   const location = useLocation();
   const { isAdmin } = useAuth();
   const isViewportLockedPage = useIsViewportLockedPage();
@@ -46,11 +50,17 @@ export default function Sidebar() {
   };
 
   return (
+    // `group` allows children to respond to hover state on the sidebar
     <aside
       className={
-        isViewportLockedPage
-          ? "w-[280px] h-full overflow-y-auto bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4"
-          : "w-[280px] min-h-screen bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4"
+        // If forceCollapsed is true, sidebar stays thin and doesn't expand on hover
+        forceCollapsed
+          ? isViewportLockedPage
+            ? "sidebar-font w-18 h-full overflow-hidden bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4 transition-all duration-300 ease-in-out"
+            : "sidebar-font w-18 min-h-screen overflow-hidden bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4 transition-all duration-300 ease-in-out"
+          : isViewportLockedPage
+          ? "sidebar-font group w-16 hover:w-[240px] h-full overflow-hidden hover:overflow-y-auto bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4 transition-all duration-300 ease-in-out"
+          : "sidebar-font group w-16 hover:w-[240px] min-h-screen overflow-hidden hover:overflow-y-auto bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4 transition-all duration-300 ease-in-out"
       }
     >
       <nav className="flex flex-col gap-2">
