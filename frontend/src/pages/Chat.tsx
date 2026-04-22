@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { getSocket, connectSocket } from "../services/socket";
+import { getRealtimeSocket, connectRealtimeSocket } from "../services/realtimeSocket";
 
 interface ChatMessage {
   id: string;
@@ -24,7 +24,7 @@ export default function Chat() {
   useEffect(() => {
     if (!user) return;
 
-    const socket = connectSocket();
+    const socket = connectRealtimeSocket();
 
     const joinChat = () => {
       socket.emit("joinGlobalChat");
@@ -69,7 +69,7 @@ export default function Chat() {
   function sendMessage() {
     if (!input.trim()) return;
 
-    const socket = getSocket();
+    const socket = getRealtimeSocket();
     if (!socket) return;
 
     socket.emit("chatMessage", {
