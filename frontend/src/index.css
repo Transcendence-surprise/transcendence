@@ -9,3 +9,8 @@
     font-family: "Inter", sans-serif;
   }
 }
+
+/* Sidebar-specific font: keep Inter globally, use Montserrat in sidebar */
+.sidebar-font {
+  font-family: "Montserrat", sans-serif;
+}
