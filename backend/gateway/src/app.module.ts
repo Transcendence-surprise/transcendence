@@ -12,6 +12,8 @@ import { ImagesHttpModule } from './modules/images/images.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
 import { MatchesModule } from './modules/matches/matches.module';
 import { BadgeModule } from './modules/badges/badge.module';
+import { FriendHttpModule } from './modules/friends/friend.module';
+import { RealtimeModule } from './modules/realtime/realtime.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { BadgeModule } from './modules/badges/badge.module';
     LeaderboardModule,
     MatchesModule,
     BadgeModule,
+    FriendHttpModule,
+    RealtimeModule,
   ],
   controllers: [HealthController],
   providers: [

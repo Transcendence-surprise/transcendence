@@ -3,37 +3,89 @@ import type { FastifyRequest } from 'fastify';
 import { GameHttpService } from './game.service';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { Auth, AuthType } from '../../common/decorator/auth-type.decorator';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 
 @Controller('game')
 export class GameController {
-  constructor(private readonly gameClient: GameHttpService) {}
+  constructor(
+    private readonly gameClient: GameHttpService,
+    private readonly realtimeGateway: RealtimeGateway,
+  ) {}
 
   @Post('create')
   @Auth(AuthType.JWT)
   @UseGuards(AuthGuard)
   createGame(@Body() body: unknown, @Req() req: FastifyRequest) {
-    return this.gameClient.createGame(body, req);
+    return this.gameClient.createGame(body, req).then(async (result) => {
+      if ((result as any)?.ok) {
+        await this.realtimeGateway.sendMultiplayerListUpdate();
+        const userId = (req as any)?.user?.sub ?? (req as any)?.headers?.['x-user-id'];
+        if (userId !== undefined) {
+          await this.realtimeGateway.sendPlayerStatusUpdate(userId, req);
+        }
+      }
+      return result;
+    });
   }
 
   @Post('start')
   @Auth(AuthType.JWT)
   @UseGuards(AuthGuard)
   startGame(@Body() body: unknown, @Req() req: FastifyRequest) {
-    return this.gameClient.startGame(body, req);
+    return this.gameClient.startGame(body, req).then(async (result) => {
+      if ((result as any)?.ok) {
+        await this.realtimeGateway.sendMultiplayerListUpdate();
+        await this.realtimeGateway.sendLobbyUpdate((body as any)?.gameId, req);
+        const userId = (req as any)?.user?.sub ?? (req as any)?.headers?.['x-user-id'];
+        if (userId !== undefined) {
+          await this.realtimeGateway.sendPlayerStatusUpdate(userId, req);
+        }
+      }
+      return result;
+    });
   }
 
   @Post('join')
   @Auth(AuthType.JWT)
   @UseGuards(AuthGuard)
   join(@Body() body: unknown, @Req() req: FastifyRequest) {
-    return this.gameClient.joinGame(body, req);
+    return this.gameClient.joinGame(body, req).then(async (result) => {
+      if ((result as any)?.ok) {
+        await this.realtimeGateway.sendMultiplayerListUpdate();
+        const gameId = (body as any)?.gameId;
+        if (gameId) {
+          await this.realtimeGateway.sendLobbyUpdate(gameId, req);
+        }
+        const userId = (req as any)?.user?.sub ?? (req as any)?.headers?.['x-user-id'];
+        if (userId !== undefined) {
+          await this.realtimeGateway.sendPlayerStatusUpdate(userId, req);
+        }
+      }
+      return result;
+    });
   }
 
   @Post('leave')
   @Auth(AuthType.JWT)
   @UseGuards(AuthGuard)
   leaveGame(@Body() body: unknown, @Req() req: FastifyRequest) {
-    return this.gameClient.leaveGame(body, req);
+    return this.gameClient.leaveGame(body, req).then(async (result) => {
+      if ((result as any)?.ok) {
+        const gameId = (body as any)?.gameId;
+        await this.realtimeGateway.sendMultiplayerListUpdate();
+        if (gameId) {
+          await this.realtimeGateway.sendLobbyUpdate(gameId, req);
+        }
+        const userId = (req as any)?.user?.sub ?? (req as any)?.headers?.['x-user-id'];
+        if (userId !== undefined) {
+          await this.realtimeGateway.sendPlayerStatusUpdate(userId, req);
+        }
+        if ((result as any)?.deleteGame && gameId) {
+          await this.realtimeGateway.sendGameDeleted(gameId);
+        }
+      }
+      return result;
+    });
   }
 
   @Get(':gameId')
@@ -64,13 +116,29 @@ export class GameController {
   @Auth(AuthType.JWT)
   @UseGuards(AuthGuard)
   boardMove(@Body() body: unknown, @Req() req: FastifyRequest) {
-    return this.gameClient.boardMove(body, req);
+    return this.gameClient.boardMove(body, req).then(async (result) => {
+      if ((result as any)?.ok) {
+        const gameId = (body as any)?.gameId;
+        if (gameId) {
+          await this.realtimeGateway.sendPlayUpdate(gameId, req);
+        }
+      }
+      return result;
+    });
   }
 
   @Post('playermove')
   @Auth(AuthType.JWT)
   @UseGuards(AuthGuard)
   playerMove(@Body() body: unknown, @Req() req: FastifyRequest) {
-      return this.gameClient.playerMove(body, req);
+      return this.gameClient.playerMove(body, req).then(async (result) => {
+        if ((result as any)?.ok) {
+          const gameId = (body as any)?.gameId;
+          if (gameId) {
+            await this.realtimeGateway.sendPlayUpdate(gameId, req);
+          }
+        }
+        return result;
+      });
     }
 }
