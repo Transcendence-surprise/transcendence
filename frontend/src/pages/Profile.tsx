@@ -41,8 +41,8 @@ export default function Profile() {
       ? `${avatarUrlFromUser}?t=${avatarTimestamp}`
       : avatarUrlFromUser ?? null;
   const avatarSrc = avatarPreviewUrl ?? avatarSrcFromServer ?? DEFAULT_AVATAR;
-  console.log("avatarUrl from user:", user?.avatarUrl);
-  console.log("avatarSrc used:", avatarSrc);
+  // console.log("avatarUrl from user:", user?.avatarUrl);
+  // console.log("avatarSrc used:", avatarSrc);
 
   useEffect(() => {
     // Cleanup object URL when leaving the page or selecting another image.
@@ -76,13 +76,6 @@ const handleAvatarUpload = async (file?: File | null) => {
   const fileToUpload = file ?? avatarFile;
   if (!fileToUpload) return;
 
-    
-  console.log("Uploading avatar file:", {
-    name: fileToUpload.name,
-    type: fileToUpload.type,
-    size: fileToUpload.size,
-  });
-
   setAvatarUploading(true);
   setAvatarError(null);
 
@@ -104,7 +97,6 @@ const handleAvatarUpload = async (file?: File | null) => {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to upload avatar";
-    console.error("Avatar upload failed:", error);
     setAvatarError(message);
   } finally {
     setAvatarUploading(false);
@@ -228,8 +220,9 @@ const handleAvatarUpload = async (file?: File | null) => {
             onError={(e) => {
               // If the image fails to load (missing upload, cleared uploads dir, etc.),
               // fallback to the default avatar to avoid a persistent broken image/404.
+              // Compare the literal attribute value (not the resolved absolute URL).
               const img = e.currentTarget as HTMLImageElement;
-              if (img.src !== DEFAULT_AVATAR) {
+              if (img.getAttribute('src') !== DEFAULT_AVATAR) {
                 img.onerror = null;
                 img.src = DEFAULT_AVATAR;
               }
