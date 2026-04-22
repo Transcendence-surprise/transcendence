@@ -1,4 +1,4 @@
-import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Inject, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
 import type { ConfigType } from '@nestjs/config';
@@ -18,6 +18,11 @@ interface TwoFactorCode {
 interface PasswordResetToken {
   userId: number;
   expiresAt: Date;
+}
+
+interface UserLookupResult {
+  username: string;
+  roles?: string[];
 }
 
 @Injectable()
@@ -181,7 +186,23 @@ export class AuthService {
     };
   }
 
-  createGuestToken(nickname: string): Promise<string> {
+  private async isRegisteredUsernameTaken(nickname: string): Promise<boolean> {
+    const response = await this.httpService.axiosRef.get<UserLookupResult[]>(
+      `${this.config.core.url}/api/users`,
+    );
+
+    return response.data.some((user) => {
+      const isGuest = user.roles?.includes('guest') ?? false;
+      return !isGuest && user.username === nickname;
+    });
+  }
+
+  async createGuestToken(nickname: string): Promise<string> {
+    const registeredUsernameTaken = await this.isRegisteredUsernameTaken(nickname);
+    if (registeredUsernameTaken) {
+      throw new ConflictException('Nickname is already used by a registered user');
+    }
+
     const guestId = randomUUID();
 
     const guestUser = {
@@ -191,9 +212,7 @@ export class AuthService {
       isGuest: true,
     };
 
-    const token = this.jwtService.sign(guestUser);
-
-    return Promise.resolve(token);
+    return this.jwtService.sign(guestUser);
   }
 
   private async sendTwoFactorCode(email: string, userId: number): Promise<void> {
