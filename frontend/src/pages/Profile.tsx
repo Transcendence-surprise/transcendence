@@ -233,8 +233,14 @@ const handleAvatarUpload = async (file?: File | null) => {
           <button
             type="button"
             aria-label="Edit avatar"
-            onClick={() => fileInputRef.current?.click()}
-            className="absolute bottom-0 right-0 -mb-1 -mr-1 bg-bg-dark-tertiary p-1.5 rounded-full border border-[var(--color-border-subtle)] hover:bg-bg-dark transition-colors"
+            aria-busy={avatarUploading}
+            onClick={() => {
+              if (!avatarUploading) {
+                fileInputRef.current?.click();
+              }
+            }}
+            disabled={avatarUploading}
+            className="absolute bottom-0 right-0 -mb-1 -mr-1 bg-bg-dark-tertiary p-1.5 rounded-full border border-[var(--color-border-subtle)] hover:bg-bg-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <FiEdit2 className="w-4 h-4 text-cyan-300" />
           </button>
