@@ -8,6 +8,7 @@ import { ImagesModule } from './modules/images/images.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
 import { MatchesModule } from './modules/matches/matches.module';
 import { BadgeModule } from './modules/badges/badge.module';
+import { FriendModule } from './modules/friends/friend.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { BadgeModule } from './modules/badges/badge.module';
     LeaderboardModule,
     MatchesModule,
     BadgeModule,
+    FriendModule,
   ],
   controllers: [HealthController],
   providers: [],
