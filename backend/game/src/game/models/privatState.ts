@@ -13,6 +13,7 @@ export interface PrivateGameState {
   levelId: string;                    // which level is being played
   level: Level;                       // level details (optional, for display)
   hostName: string;                   // game owner nickname
+  hostId: string | number;
   phase: "LOBBY" | "PLAY" | "END";
   board: Board;                        // board tiles, collected items
   players: PlayerState[];              // all players, with positions
@@ -25,6 +26,16 @@ export interface PrivateGameState {
   gameStartedAt?: number;              // timestamp when game started (for total timer)
   moveStartedAt?: number;              // timestamp when current player's turn started (for move timer)
   moveLimitPerTurnSec?: number;        // move time limit in seconds (optional, for timer display)
+  rules?: {
+    mode: "SINGLE" | "MULTI";
+    maxPlayers: number;
+    allowSpectators: boolean;
+    collectiblesPerPlayer?: number;
+    fixedCorners: boolean;
+    requiresBoardActionPerTurn: boolean;
+    boardSize?: number;
+    moveLimitPerTurnSec?: number;
+  };
 
   // -----------------------
   // Personal / Private info
