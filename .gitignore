@@ -44,6 +44,9 @@ Thumbs.db
 # --- Nginx ---
 nginx/cert/
 
+# Local uploads produced by core when running dev (should not be committed)
+/uploads/
+
 #Maria's ignore
 docker-compose.db.yml
 instructions

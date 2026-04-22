@@ -12,11 +12,6 @@ export default function Profile() {
   const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
   const displayName = user?.username ?? "Player";
-  const avatarSrc = user?.avatarUrl ?? "/assets/profile_icon.svg";
-  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarUploading, setAvatarUploading] = useState(false);
-  const [avatarError, setAvatarError] = useState<string | null>(null);
   const [userRanking, setUserRanking] = useState<number | null>(null);
   const rankNumber = userRanking ?? user?.rankNumber ?? 0;
   const winStreak = user?.winStreak ?? 0;
@@ -31,7 +26,23 @@ export default function Profile() {
   const [latestGamesError, setLatestGamesError] = useState<string | null>(null);
   const userId = user?.id;
   const isGuest = !user || user.roles.includes("guest");
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const DEFAULT_AVATAR = "/assets/profile_icon.svg";
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [avatarTimestamp, setAvatarTimestamp] = useState<number>(0);
+  const avatarUrlFromUser = user?.avatarUrl ?? null;
+  // If we have a server-provided avatar URL, append timestamp to bust cache when needed.
+  const avatarSrcFromServer =
+    avatarUrlFromUser && avatarTimestamp
+      ? `${avatarUrlFromUser}?t=${avatarTimestamp}`
+      : avatarUrlFromUser ?? null;
+  const avatarSrc = avatarPreviewUrl ?? avatarSrcFromServer ?? DEFAULT_AVATAR;
+  console.log("avatarUrl from user:", user?.avatarUrl);
+  console.log("avatarSrc used:", avatarSrc);
 
   useEffect(() => {
     // Cleanup object URL when leaving the page or selecting another image.
@@ -41,68 +52,64 @@ export default function Profile() {
   }, [avatarPreviewUrl]);
 
   const handleAvatarSelect = (file: File | null) => {
-    setAvatarError(null);
-    // Clear previous preview if any
+  setAvatarError(null);
+
+  if (avatarPreviewUrl) {
+    try {
+      URL.revokeObjectURL(avatarPreviewUrl);
+    } catch {}
+    setAvatarPreviewUrl(null);
+  }
+
+  setAvatarFile(file);
+
+  if (!file) return;
+
+  const preview = URL.createObjectURL(file);
+  setAvatarPreviewUrl(preview);
+  // auto-upload immediately for better UX
+  // call upload with the selected file directly to avoid waiting for state
+  void handleAvatarUpload(file);
+};
+
+const handleAvatarUpload = async (file?: File | null) => {
+  const fileToUpload = file ?? avatarFile;
+  if (!fileToUpload) return;
+
+    
+  console.log("Uploading avatar file:", {
+    name: fileToUpload.name,
+    type: fileToUpload.type,
+    size: fileToUpload.size,
+  });
+
+  setAvatarUploading(true);
+  setAvatarError(null);
+
+  try {
+  await uploadMyAvatar(fileToUpload);
+    await refreshUser();
+
+  // update timestamp so browser requests the fresh file instead of cached image
+  setAvatarTimestamp(Date.now());
+
     if (avatarPreviewUrl) {
       try {
         URL.revokeObjectURL(avatarPreviewUrl);
-      } catch {
-        /* ignore */
-      }
-      setAvatarPreviewUrl(null);
+      } catch {}
     }
 
-    setAvatarFile(file);
-
-    if (!file) return;
-
-    const preview = URL.createObjectURL(file);
-    setAvatarPreviewUrl(preview);
-
-    // Immediately upload the selected avatar so user doesn't need to click Save.
-    // We upload directly with the file so we don't rely on React state timing.
-    (async () => {
-      const controller = new AbortController();
-      setAvatarUploading(true);
-      setAvatarError(null);
-      try {
-        await uploadMyAvatar(file, controller.signal);
-        // Refresh user profile to pick up new avatarUrl
-        await refreshUser();
-        // clear preview and local file state
-        try {
-          URL.revokeObjectURL(preview);
-        } catch {}
-        setAvatarPreviewUrl(null);
-        setAvatarFile(null);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error("Avatar upload failed:", err);
-        setAvatarError(message || "Failed to upload avatar");
-      } finally {
-        setAvatarUploading(false);
-      }
-    })();
-  };
-
-  const handleAvatarUpload = async () => {
-    if (!avatarFile) return;
-    const controller = new AbortController();
-
-    setAvatarUploading(true);
-    setAvatarError(null);
-    try {
-      await uploadMyAvatar(avatarFile, controller.signal);
-      // In case endpoint returns 204 or a minimal payload, re-fetch user.
-      await refreshUser();
-      handleAvatarSelect(null);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to upload avatar";
-      setAvatarError(message);
-    } finally {
-      setAvatarUploading(false);
-    }
-  };
+    setAvatarPreviewUrl(null);
+    setAvatarFile(null);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to upload avatar";
+    console.error("Avatar upload failed:", error);
+    setAvatarError(message);
+  } finally {
+    setAvatarUploading(false);
+  }
+};
 
   useEffect(() => {
     if (isGuest) return;
@@ -216,8 +223,17 @@ export default function Profile() {
       <div className="flex items-center gap-4 mb-8">
         <div className="relative shrink-0">
           <img
-            src={avatarPreviewUrl ?? avatarSrc}
+            src={avatarSrc}
             alt={displayName}
+            onError={(e) => {
+              // If the image fails to load (missing upload, cleared uploads dir, etc.),
+              // fallback to the default avatar to avoid a persistent broken image/404.
+              const img = e.currentTarget as HTMLImageElement;
+              if (img.src !== DEFAULT_AVATAR) {
+                img.onerror = null;
+                img.src = DEFAULT_AVATAR;
+              }
+            }}
             className="w-24 h-24 rounded-full object-cover border-2 border-blue-400"
           />
 
@@ -241,14 +257,7 @@ export default function Profile() {
 
           {avatarPreviewUrl ? (
             <div className="mt-3 flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleAvatarUpload}
-                disabled={avatarUploading}
-                className="px-3 py-1.5 rounded-md text-sm font-bold bg-cyan-500/20 text-cyan-200 border border-cyan-500/30 hover:border-cyan-400/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {avatarUploading ? "Uploading..." : "Save"}
-              </button>
+              <span className="text-sm text-gray-300">Preparing upload...</span>
               <button
                 type="button"
                 onClick={() => handleAvatarSelect(null)}
@@ -270,6 +279,18 @@ export default function Profile() {
             Rank {rankNumber} • {winStreak} wins
             streak
           </p>
+          {user?.avatarUrl ? (
+            <p className="text-sm mt-2">
+              <a
+                href={`${user.avatarUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-cyan-300 underline"
+              >
+                Open uploaded image
+              </a>
+            </p>
+          ) : null}
         </div>
       </div>
 

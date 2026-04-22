@@ -132,18 +132,23 @@ export async function uploadMyAvatar(
 ): Promise<User> {
   if (!file) throw new Error("Missing file");
 
-  // Basic client-side guardrails; backend should validate too.
   if (!file.type.startsWith("image/")) {
     throw new Error("Avatar must be an image");
   }
+
   const maxBytes = 5 * 1024 * 1024;
   if (file.size > maxBytes) {
     throw new Error("Avatar must be <= 5MB");
   }
 
   const form = new FormData();
-  // Backend docs: multipart/form-data field name must be `file`
   form.append("file", file);
+
+  // console.log("About to send avatar upload request", {
+  //   name: file.name,
+  //   type: file.type,
+  //   size: file.size,
+  // });
 
   try {
     const res = await fetch("/api/users/me/avatar", {
@@ -153,32 +158,41 @@ export async function uploadMyAvatar(
       signal,
     });
 
+    // console.log("Avatar upload response status:", res.status);
+    // console.log("Avatar upload response ok:", res.ok);
+    // console.log("Avatar upload response content-type:", res.headers.get("content-type"));
+
     if (!res.ok) {
-      // Some endpoints respond with JSON error, some plain text.
       let message = "Failed to upload avatar";
       try {
         const contentType = res.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
           const data = await res.json();
+          // console.log("Avatar upload error JSON:", data);
           message = data?.message || message;
         } else {
           const text = await res.text();
+          // console.log("Avatar upload error text:", text);
           if (text) message = text;
         }
-      } catch {
-        // ignore parse errors
+      } catch (parseError) {
+        // console.error("Failed to parse error response:", parseError);
       }
       throw new Error(message);
     }
 
     const contentType = res.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
-      return res.json();
+      const data = await res.json();
+      // console.log("Avatar upload success JSON:", data);
+      return data;
     }
 
-    // If backend returns 204 or non-json, caller can refresh user separately.
+    // console.log("Avatar upload success but no JSON body returned");
     return {} as User;
-  } catch (e: any) {
+  } catch (e: unknown) {
+    // console.error("uploadMyAvatar caught error:", e);
     rethrowAbortError(e);
+    throw e;
   }
 }
