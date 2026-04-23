@@ -45,19 +45,19 @@ export class BadgeBootstrapService {
     },
     {
       key: 'games-20',
-      name: '20 games played',
+      name: '20 games won',
       conditionType: 'games',
       conditionValue: 20,
       imageUrl: '/assets/badges/badge_20_games.svg',
-      description: 'Play 20 multiplayer games',
+      description: 'Win 20 multiplayer games',
     },
     {
       key: 'games-50',
-      name: '50 games played',
+      name: '50 games won',
       conditionType: 'games',
       conditionValue: 50,
       imageUrl: '/assets/badges/badge_50_games.svg',
-      description: 'Play 50 multiplayer games',
+      description: 'Win 50 multiplayer games',
     },
   ];
 

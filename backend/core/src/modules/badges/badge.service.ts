@@ -3,6 +3,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { In } from 'typeorm';
 import { Badge } from '@transcendence/db-entities';
 import { UserBadge } from '@transcendence/db-entities';
 
@@ -46,10 +47,26 @@ export class BadgeService {
       where: { conditionType: type },
     });
 
+
+    if (!badges.length) return;
+
+    const badgeIds = badges.map(b => b.id);
+
+    const userBadges = await this.userBadgeRepo.find({
+      where: {
+        userId,
+        badgeId: In(badgeIds),
+      },
+    });
+
+    const userBadgeMap = new Map(
+      userBadges.map(ub => [ub.badgeId, ub]),
+    );
+
+    const toSave: any[] = [];
+
     for (const badge of badges) {
-      let userBadge = await this.userBadgeRepo.findOne({
-        where: { userId, badgeId: badge.id },
-      });
+      let userBadge = userBadgeMap.get(badge.id);
 
       if (!userBadge) {
         userBadge = this.userBadgeRepo.create({
@@ -68,11 +85,13 @@ export class BadgeService {
         userBadge.progress = badge.conditionValue;
         userBadge.completed = true;
         userBadge.unlockedAt = new Date();
-
-        // 🔥 later: emit WS event
       }
 
-      await this.userBadgeRepo.save(userBadge);
+      toSave.push(userBadge);
+    }
+
+    if (toSave.length) {
+      await this.userBadgeRepo.save(toSave);
     }
   }
 
