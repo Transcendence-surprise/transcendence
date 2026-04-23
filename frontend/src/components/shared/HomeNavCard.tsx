@@ -19,12 +19,12 @@ export default function HomeNavCard({
   return (
     <Link
       to={to}
-      className="group relative rounded-xl border border-[var(--color-border-subtle)] bg-gradient-to-br from-bg-dark-secondary to-bg-dark p-6 overflow-hidden transition-all duration-300 hover:border-cyan-300/60 hover:shadow-cyan-light flex flex-col h-full"
+      className="group relative rounded-xl border border-[var(--color-border-subtle)] bg-gradient-to-br from-bg-dark-secondary to-bg-dark p-4 overflow-hidden transition-all duration-300 hover:border-cyan-300/60 hover:shadow-cyan-light flex flex-col h-full"
     >
-      <div className="flex flex-col justify-between h-full gap-6">
+      <div className="flex flex-col justify-between h-full gap-4">
         <div>
-            <div className={`text-4xl mb-3 ${iconClass ?? ""}`}>{icon}</div>
-            <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
+            <div className={`text-3xl mb-2 ${iconClass ?? ""}`}>{icon}</div>
+            <h3 className="text-lg font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors">
               {title}
             </h3>
             <p className="text-sm text-lightest-cyan group-hover:text-cyan-200 transition-colors">
