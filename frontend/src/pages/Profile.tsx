@@ -18,7 +18,7 @@ export default function Profile() {
   const totalGames = user?.totalGames ?? 0;
   const totalWins = user?.totalWins ?? 0;
   const winRate = totalGames > 0 ? Math.round((totalWins / totalGames) * 100) : 0;
-  const [unlockedBadges, setUnlockedBadges] = useState<UserBadge[]>([]);
+  const [userBadges, setUserBadges] = useState<UserBadge[]>([]);
   const [badgesLoading, setBadgesLoading] = useState(false);
   const [badgesError, setBadgesError] = useState<string | null>(null);
   const [latestGames, setLatestGames] = useState<LatestGames[]>([]);
@@ -150,7 +150,7 @@ const handleAvatarUpload = async (file?: File | null) => {
         setBadgesLoading(true);
         setBadgesError(null);
         const badges = await getUserBadges(controller.signal);
-        setUnlockedBadges(badges);
+        setUserBadges(badges);
       } catch (error) {
         if (controller.signal.aborted) return;
         const message = error instanceof Error ? error.message : "Failed to load badges";
@@ -369,20 +369,54 @@ const handleAvatarUpload = async (file?: File | null) => {
           <p className="text-sm text-gray-400">Loading badges...</p>
         ) : badgesError ? (
           <p className="text-sm text-red-400">{badgesError}</p>
-        ) : unlockedBadges.length > 0 ? (
+        ) : userBadges.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 max-w-5xl">
-            {unlockedBadges.map((badge) => (
-              <div
-                key={badge.key}
-                className="rounded-lg border border-[var(--color-border-subtle)] bg-bg-modal p-3 flex flex-col items-center text-center gap-2"
-              >
-                <img src={badge.imageUrl} alt={badge.name} className="w-16 h-16" />
-                <p className="text-sm text-white">{badge.name}</p>
-              </div>
-            ))}
+            {userBadges.map((badge) => {
+              const target = Math.max(1, Number(badge.target) || 1);
+              const progress = Math.max(0, Math.min(target, Number(badge.progress) || 0));
+              const progressPercent = Math.round((progress / target) * 100);
+
+              return (
+                <div
+                  key={badge.key}
+                  className={`rounded-lg border p-3 flex flex-col items-center text-center gap-2 ${
+                    badge.completed
+                      ? "border-cyan-500/60 bg-bg-modal"
+                      : "border-[var(--color-border-subtle)] bg-bg-modal"
+                  }`}
+                >
+                  <img src={badge.imageUrl} alt={badge.name} className="w-16 h-16" />
+                  <p className="text-sm text-white font-semibold">{badge.name}</p>
+                  <p className="text-xs text-gray-400 min-h-8">{badge.description}</p>
+
+                  <div className="w-full">
+                    <div className="flex justify-between text-[11px] text-gray-400 mb-1">
+                      <span>Progress</span>
+                      <span>
+                        {progress}/{target}
+                      </span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-bg-dark-tertiary overflow-hidden">
+                      <div
+                        className={`h-full ${badge.completed ? "bg-cyan-400" : "bg-blue-400"}`}
+                        style={{ width: `${progressPercent}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {badge.completed ? (
+                    <p className="text-[11px] text-cyan-300">
+                      Unlocked{badge.unlockedAt ? ` • ${new Date(badge.unlockedAt).toLocaleDateString()}` : ""}
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-gray-500">In progress</p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         ) : (
-          <p className="text-sm text-gray-400">No badges unlocked yet.</p>
+          <p className="text-sm text-gray-400">No badge progress yet.</p>
         )}
       </div>
 
