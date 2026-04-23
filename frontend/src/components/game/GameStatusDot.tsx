@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getRealtimeSocket, connectRealtimeSocket } from "../../services/realtimeSocket";
-import StatusDot from "../UI/StatusDot";
+import StatusDot from "../shared/StatusDot";
 
 interface GameStatusDotProps {
   user: { id?: string } | null;

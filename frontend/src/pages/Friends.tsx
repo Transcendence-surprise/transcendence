@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import StatusDot from "../components/UI/StatusDot";
+import StatusDot from "../components/shared/StatusDot";
 import { useAuth } from "../hooks/useAuth";
 import { connectRealtimeSocket, getRealtimeSocket } from "../services/realtimeSocket";
 import {

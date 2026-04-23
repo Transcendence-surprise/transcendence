@@ -3,6 +3,8 @@
   --color-cyan-bright: #00eaff;
   --color-magenta: #ff2edf;
   --color-pink: #fb85f3;
+  --color-violet: #ae66ff;
+  --color-neon-green: #1DFC7A;
 
   /* ================== ANIMATION / CANVAS COLORS ================== */
   --color-blue-hero: #5c90f6;
@@ -127,3 +129,30 @@ body,
   min-height: 100vh;
   height: 100%;
 }
+
+/* Utility classes that use CSS variables for consistent branding colors */
+.text-color-magenta {
+  color: var(--color-magenta) !important;
+  /* subtle neon glow using text-shadow + filter for broader support */
+  text-shadow: 0 0 10px rgba(255,46,223,0.45), 0 0 20px rgba(255,46,223,0.15);
+  filter: drop-shadow(0 0 10px rgba(255,46,223,0.45));
+}
+
+.text-color-cyan-bright {
+  color: var(--color-cyan-bright) !important;
+  text-shadow: 0 0 10px rgba(0,234,255,0.45), 0 0 20px rgba(0,234,255,0.15);
+  filter: drop-shadow(0 0 10px rgba(0,234,255,0.45));
+}
+
+.text-color-neon-green {
+  color: var(--color-neon-green) !important;
+  text-shadow: 0 0 10px rgba(29,252,122,0.45), 0 0 20px rgba(29,252,122,0.15);
+  filter: drop-shadow(0 0 10px rgba(29,252,122,0.45));
+}
+
+.text-color-violet {
+  color: var(--color-violet) !important;
+  text-shadow: 0 0 10px rgba(174,102,255,0.45), 0 0 20px rgba(174,102,255,0.15);
+  filter: drop-shadow(0 0 10px rgba(174,102,255,0.45));
+}
+

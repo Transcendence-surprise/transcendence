@@ -1,6 +1,9 @@
 import { useAuth } from "../../hooks/useAuth";
+import { Link } from "react-router-dom";
+import { LuLogOut } from "react-icons/lu";
 import logoBolt from "/logo-bolt.svg";
 import GameStatusDot from "../game/GameStatusDot";
+
 
 interface HeaderProps {
   onLoginClick: () => void;
@@ -32,23 +35,31 @@ export default function Header({ onLoginClick, onSignupClick }: HeaderProps) {
             </h1>
           </div>
         </a>
-        <div className="flex items-center gap-2">
-          <GameStatusDot user={user ? { id: user.id?.toString() } : null} />
-        </div>
-
-        <div className="flex items-center gap-2">
+        
+        <div className="flex items-center gap-3">
           {user ? (
             <>
-              <span className="px-3 py-1.5 text-sm text-cyan-bright font-semibold">
-                👻 {user?.username ?? "Guest"}
-              </span>
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col items-start">
+                  <Link
+                    to="/profile"
+                    className="py-1.5 text-base text-cyan-bright font-semibold hover:underline"
+                  >
+                    {user?.username ?? "Guest"}
+                  </Link>
+                  <div className="flex items-center gap-2 text-sm">
+                    <GameStatusDot user={user ? { id: user.id?.toString() } : null} />
+                  </div>
+                </div>
 
-              <button
-                onClick={logout}
-                className="px-4 py-1.5 text-sm bg-magenta hover:bg-pink-400 text-white font-medium rounded-lg transition-all"
-              >
-                Logout
-              </button>
+                <button
+                  onClick={logout}
+                  aria-label="Logout"
+                  className="ml-3 p-2 rounded-lg transition-all hover:scale-105"
+                >
+                  <LuLogOut className="text-color-magenta w-6 h-6" />
+                </button>
+              </div>
             </>
           ) : (
             <>

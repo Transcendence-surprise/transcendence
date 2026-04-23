@@ -1,31 +1,42 @@
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useIsViewportLockedPage } from "../../hooks/useIsViewportLockedPage";
+import { FiSettings, FiShield, FiHome, FiMessageSquare, FiUsers, FiUser } from "react-icons/fi";
+import { GoTrophy, GoListUnordered } from "react-icons/go";
+import { IoGameControllerOutline } from "react-icons/io5";
+import SidebarLink from "../shared/SideBarLink";
+import type { ReactNode } from "react";
 
-export default function Sidebar() {
+type NavItem = {
+  path: string;
+  label: string;
+  icon: ReactNode;
+};
+
+type SidebarProps = {
+  forceCollapsed?: boolean;
+};
+
+export default function Sidebar({ forceCollapsed = false }: SidebarProps) {
   const location = useLocation();
   const { isAdmin } = useAuth();
   const isViewportLockedPage = useIsViewportLockedPage();
 
-  const navItems = [
-    { path: "/", label: "Home", icon: "/assets/home_icon.svg" },
-    { path: "/profile", label: "Profile", icon: "/assets/profile_icon.svg" },
-    { path: "/game", label: "Game", icon: "/assets/game_icon.svg" },
-    { path: "/rules", label: "Rules", icon: "/assets/rules_icon.svg" },
-    { path: "/friends", label: "Friends", icon: "/assets/friends_icon.svg" },
-    { path: "/chat", label: "Chat", icon: "/assets/chat_icon.svg" },
-    {
-      path: "/leaderboard",
-      label: "Leaderboard",
-      icon: "/assets/tournament_icon.svg",
-    },
-    { path: "/settings", label: "Settings", icon: "/assets/settings_icon.svg" },
+  const navItems: NavItem[] = [
+    { path: "/", label: "Home", icon: <FiHome /> },
+    { path: "/profile", label: "Profile", icon: <FiUser /> },
+    { path: "/game", label: "Game", icon: <IoGameControllerOutline /> },
+    { path: "/rules", label: "Rules", icon: <GoListUnordered /> },
+    { path: "/friends", label: "Friends", icon: <FiUsers /> },
+    { path: "/chat", label: "Chat", icon: <FiMessageSquare /> },
+    { path: "/leaderboard", label: "Leaderboard", icon: <GoTrophy /> },
+    { path: "/settings", label: "Settings", icon: <FiSettings /> },
     ...(isAdmin
       ? [
           {
             path: "/admin",
             label: "Admin Panel",
-            icon: "/assets/admin_icon.svg",
+            icon: <FiShield />,
           },
         ]
       : []),
@@ -39,43 +50,28 @@ export default function Sidebar() {
   };
 
   return (
+    // `group` allows children to respond to hover state on the sidebar
     <aside
       className={
-        isViewportLockedPage
-          ? "w-[280px] h-full overflow-y-auto bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4"
-          : "w-[280px] min-h-screen bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4"
+        // If forceCollapsed is true, sidebar stays thin and doesn't expand on hover
+        forceCollapsed
+          ? isViewportLockedPage
+            ? "sidebar-font w-18 h-full overflow-hidden bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4 transition-all duration-300 ease-in-out"
+            : "sidebar-font w-18 min-h-screen overflow-hidden bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4 transition-all duration-300 ease-in-out"
+          : isViewportLockedPage
+          ? "sidebar-font group w-16 hover:w-[240px] h-full overflow-hidden hover:overflow-y-auto bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4 transition-all duration-300 ease-in-out"
+          : "sidebar-font group w-16 hover:w-[240px] min-h-screen overflow-hidden hover:overflow-y-auto bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4 transition-all duration-300 ease-in-out"
       }
     >
       <nav className="flex flex-col gap-2">
         {navItems.map((item) => (
-          <Link
+          <SidebarLink
             key={item.path}
             to={item.path}
-            className={`
-              w-full h-[38px] px-4 rounded-[10px] flex items-center gap-[12px]
-              transition-all duration-200 font-medium
-              ${
-                isActive(item.path)
-                  ? "text-cyan-bright border border-t border-cyan-200/70 border-t-cyan-200/70 bg-[linear-gradient(90deg,rgba(0,234,255,0.35)_0%,rgba(0,102,255,0.35)_100%)]"
-                  : "text-gray-400 hover:text-cyan-100 hover:shadow-[0_0_12px_rgba(0,200,255,0.45)]"
-              }
-            `}
-          >
-            <img
-              src={item.icon}
-              alt={item.label}
-              style={{
-                filter: isActive(item.path)
-                  ? "brightness(0) saturate(100%) invert(74%) sepia(95%) saturate(2876%) hue-rotate(160deg) brightness(101%) contrast(101%)"
-                  : "brightness(0) invert(1) opacity(0.5)",
-              }}
-              className="w-6 h-6 transition-all duration-200"
-            />
-            <span>{item.label}</span>
-            {isActive(item.path) && (
-              <span className="ml-auto w-2 h-2 rounded-full bg-[rgba(0,234,255,1)] shadow-[0_0_8px_rgba(0,234,255,0.8)]" />
-            )}
-          </Link>
+            label={item.label}
+            icon={item.icon}
+            isActive={isActive(item.path)}
+          />
         ))}
       </nav>
     </aside>

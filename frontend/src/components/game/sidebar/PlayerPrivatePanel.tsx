@@ -5,7 +5,7 @@ import {
   PrivateGameState,
 } from "../../../game/models/privatState";
 import { useAuth } from "../../../hooks/useAuth";
-import StatusDot from "../../UI/StatusDot";
+import StatusDot from "../../shared/StatusDot";
 
 interface PlayerPrivatePanelProps {
   game: PrivateGameState;
