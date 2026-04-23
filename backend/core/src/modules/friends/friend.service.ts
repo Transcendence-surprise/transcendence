@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FriendStatus } from '@transcendence/db-entities';
 import { Friendship } from '@transcendence/db-entities';
+import { BadgeService } from '../badges/badge.service';
 
 
 @Injectable()
@@ -12,6 +13,7 @@ export class FriendService {
 
     @InjectRepository(Friendship)
     private repo: Repository<Friendship>,
+    private badgeService: BadgeService,
   ) {}
 
   private async findPair(userAId: number, userBId: number) {
@@ -124,6 +126,9 @@ export class FriendService {
 
     friendship.status = FriendStatus.ACCEPTED;
     await this.repo.save(friendship);
+
+    await this.badgeService.increment(currentUserId, 'friends', 1);
+    await this.badgeService.increment(otherUserId, 'friends', 1);
   }
 
   async removeFriend(userId: number, otherUserId: number) {
