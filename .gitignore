@@ -56,3 +56,5 @@ instructions
 
 # VS Code settings
 .vscode/
+
+.ilia_private/
