@@ -9,8 +9,10 @@ import {
   ParseIntPipe,
   Req,
   BadRequestException,
+  Res,
 } from '@nestjs/common';
-import { FastifyRequest } from 'fastify';
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import { createReadStream } from 'fs';
 import { ImagesService, UploadedFile } from './images.service';
 import { UpdateImageDto } from './dto/update-image.dto';
 import {
@@ -20,6 +22,7 @@ import {
   UploadImageDocs,
   UpdateImageDocs,
   RemoveImageDocs,
+  GetImageContentDocs,
 } from './images.controller.docs';
 
 type MaybeMultipartRequest = FastifyRequest & {
@@ -41,6 +44,28 @@ export class ImagesController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.imagesService.findOne(id);
+  }
+
+  @GetImageContentDocs()
+  @Get(':id/content')
+  async getContent(
+    @Param('id', ParseIntPipe) id: number,
+    @Res() res: FastifyReply,
+  ) {
+    return this.sendImageContent(id, res);
+  }
+
+  private async sendImageContent(id: number, res: FastifyReply) {
+    const fileInfo = await this.imagesService.getContentFileInfo(id);
+
+    res.header('Content-Type', fileInfo.mimeType);
+    res.header(
+      'Content-Disposition',
+      `inline; filename="${encodeURIComponent(fileInfo.filename)}"`,
+    );
+    res.header('Cache-Control', 'public, max-age=31536000, immutable');
+
+    return res.send(createReadStream(fileInfo.absolutePath));
   }
 
   @UploadImageDocs()

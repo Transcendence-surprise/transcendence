@@ -4,7 +4,10 @@ export class GetImageResDto {
   @ApiProperty({ type: 'number', example: 1 })
   id: number;
 
-  @ApiProperty({ type: 'string', example: '/uploads/1774555638749-logo-bolt.svg' })
+  @ApiProperty({
+    type: 'string',
+    example: '/api/images/1/content',
+  })
   url: string;
 
   @ApiProperty({ type: 'string', example: 'logo-bolt.svg', required: false })

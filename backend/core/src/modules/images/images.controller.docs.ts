@@ -9,6 +9,7 @@ import {
   ApiBody,
   ApiParam,
   ApiNoContentResponse,
+  ApiProduces,
 } from '@nestjs/swagger';
 import { CreateImageDto } from './dto/create-image.dto';
 import { GetImageResDto } from './dto/get-image-res.dto';
@@ -48,6 +49,24 @@ const FindImageByIdDocs = () =>
       type: GetImageResDto,
     }),
     ApiNotFoundResponse({ description: 'Image not found' }),
+  );
+
+const GetImageContentDocs = () =>
+  applyDecorators(
+    ApiOperation({
+      summary: 'Get image binary content',
+      description: 'Stream uploaded image bytes by image ID',
+      operationId: 'getImageContentById',
+    }),
+    ApiParam({
+      name: 'id',
+      type: 'number',
+      description: 'Image ID',
+      example: 1,
+    }),
+    ApiProduces('image/*'),
+    ApiOkResponse({ description: 'Image binary stream returned' }),
+    ApiNotFoundResponse({ description: 'Image or file not found' }),
   );
 
 const UploadImageDocs = () =>
@@ -114,6 +133,7 @@ export {
   ImagesControllerDocs,
   FindAllImagesDocs,
   FindImageByIdDocs,
+  GetImageContentDocs,
   UploadImageDocs,
   UpdateImageDocs,
   RemoveImageDocs,

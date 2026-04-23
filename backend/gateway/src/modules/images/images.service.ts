@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import type { FastifyRequest } from 'fastify';
+import type { AxiosResponse } from 'axios';
 
 @Injectable()
 export class ImagesHttpService {
@@ -13,6 +14,15 @@ export class ImagesHttpService {
 
   async findOne<T = unknown>(id: number): Promise<{ statusCode: number; data: T }> {
     return this.request<T>(`/api/images/${id}`, 'get');
+  }
+
+  async getContent(id: number): Promise<AxiosResponse<NodeJS.ReadableStream>> {
+    return lastValueFrom(
+      this.http.get<NodeJS.ReadableStream>(`/api/images/${id}/content`, {
+        responseType: 'stream',
+        validateStatus: () => true,
+      }),
+    );
   }
 
   async create<T = unknown>(body: unknown, req?: FastifyRequest): Promise<{ statusCode: number; data: T }> {

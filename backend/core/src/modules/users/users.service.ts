@@ -28,10 +28,12 @@ export class UsersService {
     avatarUrl: string | null;
   } {
     const { password: _password, avatarImage: _avatarImage, ...rest } = user;
+    const avatarImageId = user.avatarImageId ?? null;
+
     return {
       ...rest,
-      avatarImageId: user.avatarImageId ?? null,
-      avatarUrl: user.avatarImage?.url ?? null,
+      avatarImageId,
+      avatarUrl: avatarImageId ? `/api/images/${avatarImageId}/content` : null,
     };
   }
 

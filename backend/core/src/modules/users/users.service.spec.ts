@@ -56,7 +56,7 @@ describe('UsersService', () => {
     roles: mockUser.roles,
     twoFactorEnabled: mockUser.twoFactorEnabled,
     avatarImageId: mockUser.avatarImageId,
-    avatarUrl: mockUser.avatarImage?.url ?? null,
+    avatarUrl: '/api/images/10/content',
     createdAt: mockUser.createdAt,
     updatedAt: mockUser.updatedAt,
   };
@@ -287,7 +287,7 @@ describe('UsersService', () => {
         roles: ['user'],
         twoFactorEnabled: false,
         avatarImageId: 10,
-        avatarUrl: 'https://cdn.example.com/avatar.png',
+        avatarUrl: '/api/images/10/content',
         createdAt: mockUser.createdAt,
         updatedAt: mockUser.updatedAt,
       });
