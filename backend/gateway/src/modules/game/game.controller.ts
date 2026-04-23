@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import { GameHttpService } from './game.service';
 import { AuthGuard } from '../../common/guards/auth.guard';
@@ -66,6 +66,7 @@ export class GameController {
   }
 
   @Post('leave')
+  @HttpCode(HttpStatus.OK)
   @Auth(AuthType.JWT)
   @UseGuards(AuthGuard)
   leaveGame(@Body() body: unknown, @Req() req: FastifyRequest) {
