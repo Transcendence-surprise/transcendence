@@ -14,6 +14,11 @@ const mockImage: Image = {
   createdAt: new Date(),
 };
 
+const normalizedMockImage: Image = {
+  ...mockImage,
+  url: '/api/images/1/content',
+};
+
 describe('ImagesService', () => {
   let service: ImagesService;
 
@@ -51,7 +56,7 @@ describe('ImagesService', () => {
 
       const result = await service.findAll();
 
-      expect(result).toEqual([mockImage]);
+      expect(result).toEqual([normalizedMockImage]);
       expect(mockRepository.find).toHaveBeenCalledTimes(1);
     });
   });
@@ -62,7 +67,7 @@ describe('ImagesService', () => {
 
       const result = await service.findOne(1);
 
-      expect(result).toEqual(mockImage);
+      expect(result).toEqual(normalizedMockImage);
       expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
     });
 
