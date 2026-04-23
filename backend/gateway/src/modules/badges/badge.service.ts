@@ -18,6 +18,30 @@ interface RequestWithUser extends FastifyRequest {
 export class BadgeHttpService {
 	constructor(private readonly http: HttpService) {}
 
+	async unlockByKey(
+		body: { userId: number; key: string },
+		req?: FastifyRequest,
+	): Promise<{ statusCode: number; data: { ok: boolean } }> {
+		return this.request<{ ok: boolean }>(
+			'/api/badges/internal/unlock',
+			'post',
+			body,
+			req,
+		);
+	}
+
+	async increment(
+		body: { userId: number; type: string; value: number },
+		req?: FastifyRequest,
+	): Promise<{ statusCode: number; data: { ok: boolean } }> {
+		return this.request<{ ok: boolean }>(
+			'/api/badges/internal/increment',
+			'post',
+			body,
+			req,
+		);
+	}
+
 	async getBadges<T = unknown>(
 		req?: FastifyRequest,
 	): Promise<{ statusCode: number; data: T }> {
