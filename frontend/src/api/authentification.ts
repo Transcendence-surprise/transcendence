@@ -68,9 +68,21 @@ export async function signup(
       throw new Error(error?.message || "Signup failed");
     }
 
-    const user = await getCurrentUser(signal);
+    const data = await res.json();
+    const user = (data?.user ?? data) as User | undefined;
+
+    if (user && user.username) {
+      setAuthHint(true);
+      return user;
+    }
+
+    // Fallback for unexpected payload shape
+    const refreshed = await getCurrentUser(signal);
+    if (!refreshed) {
+      throw new Error("Signup succeeded but user session is unavailable");
+    }
     setAuthHint(true);
-    return user;
+    return refreshed;
   } catch (e: any) {
     rethrowAbortError(e);
   }
@@ -155,7 +167,8 @@ export async function getCurrentUser(
   try {
     const res = await fetch("/api/users/me", { credentials: "include", signal });
     if (!res.ok) {
-      if (res.status === 401 && options?.allowUnauthorized) {
+      // 401 = unauthorized, 404 = user deleted
+      if ((res.status === 401 || res.status === 404) && options?.allowUnauthorized) {
         setAuthHint(false);
         return null;
       }
