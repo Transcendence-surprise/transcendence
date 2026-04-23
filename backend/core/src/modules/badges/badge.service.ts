@@ -20,15 +20,59 @@ export class BadgeService {
     const badge = await this.badgeRepo.findOne({ where: { key } });
     if (!badge) return;
 
-    const exists = await this.userBadgeRepo.findOne({
+    let userBadge = await this.userBadgeRepo.findOne({
       where: { userId, badgeId: badge.id },
     });
 
-    if (!exists) {
-      await this.userBadgeRepo.save({
+    if (!userBadge) {
+      userBadge = this.userBadgeRepo.create({
         userId,
         badgeId: badge.id,
+        progress: badge.conditionValue,
+        completed: true,
+        unlockedAt: new Date(),
       });
+    } else if (!userBadge.completed) {
+      userBadge.progress = badge.conditionValue;
+      userBadge.completed = true;
+      userBadge.unlockedAt = new Date();
+    }
+
+    await this.userBadgeRepo.save(userBadge);
+  }
+
+  async increment(userId: number, type: string, value: number) {
+    const badges = await this.badgeRepo.find({
+      where: { conditionType: type },
+    });
+
+    for (const badge of badges) {
+      let userBadge = await this.userBadgeRepo.findOne({
+        where: { userId, badgeId: badge.id },
+      });
+
+      if (!userBadge) {
+        userBadge = this.userBadgeRepo.create({
+          userId,
+          badgeId: badge.id,
+          progress: 0,
+          completed: false,
+        });
+      }
+
+      if (userBadge.completed) continue;
+
+      userBadge.progress += value;
+
+      if (userBadge.progress >= badge.conditionValue) {
+        userBadge.progress = badge.conditionValue;
+        userBadge.completed = true;
+        userBadge.unlockedAt = new Date();
+
+        // 🔥 later: emit WS event
+      }
+
+      await this.userBadgeRepo.save(userBadge);
     }
   }
 
@@ -36,7 +80,6 @@ export class BadgeService {
     const userBadges = await this.userBadgeRepo.find({
       where: { userId },
       relations: ['badge'],
-      order: { unlockedAt: 'ASC' },
     });
 
     return userBadges
@@ -46,6 +89,9 @@ export class BadgeService {
         name: ub.badge.name,
         imageUrl: ub.badge.imageUrl,
         description: ub.badge.description,
+        progress: ub.progress,
+        target: ub.badge.conditionValue,
+        completed: ub.completed,
         unlockedAt: ub.unlockedAt,
       }));
   }
