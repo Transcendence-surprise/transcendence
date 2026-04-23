@@ -104,6 +104,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   private readonly playRoomContext = new Map<string, FastifyRequest>();
   private readonly finishedGameBadgeUpdates = new Set<string>();
   private playTicker?: NodeJS.Timeout;
+  private socketGameMap = new Map<string, string>();
 
   constructor(
     private readonly jwtService: JwtService,
@@ -289,6 +290,11 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   handleDisconnect(client: TypedSocket): void {
+    const gameId = this.socketGameMap.get(client.id);
+    if (gameId) {
+      this.socketGameMap.delete(client.id);
+    }
+
     const userId = client.user?.sub;
     if (userId === undefined || userId === null) return;
 
@@ -551,7 +557,22 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     const user = client.user;
     if (!user) return client.disconnect(true);
 
+    const prevGameId = this.socketGameMap.get(client.id);
+
+    if (prevGameId && prevGameId !== data.gameId) {
+      await client.leave(`play:${prevGameId}`);
+    }
+
+    await client.join(`play:${data.gameId}`);
+
+    this.socketGameMap.set(client.id, data.gameId);
+
+    this.playRoomContext.set(data.gameId, this.buildRequestFromSocket(client));
+
+    await this.sendPlayUpdate(data.gameId, this.buildRequestFromSocket(client));
+
     void client.join(`play:${data.gameId}`);
+
     this.playRoomContext.set(data.gameId, this.buildRequestFromSocket(client));
     await this.sendPlayUpdate(data.gameId, this.buildRequestFromSocket(client));
   }
@@ -697,4 +718,15 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
       client.emit('error', { message: 'Failed to send message' });
     }
   }
+
+  @SubscribeMessage('leavePlay')
+  handleLeavePlay(
+    @MessageBody() data: { gameId: string },
+    @ConnectedSocket() client: TypedSocket,
+  ) {
+    void client.leave(`play:${data.gameId}`);
+    this.socketGameMap.delete(client.id);
+  }
+
+  
 }
