@@ -37,6 +37,10 @@ export default {
         "gray-400": "var(--color-gray-400)",
         "gray-500": "var(--color-gray-500)",
         "gray-600": "var(--color-gray-600)",
+        "border-softgray": '#FA003F',   // softer, modern border
+        "text-muted": '#9CA3AF',    // instead of gray-400
+        "text-soft": '#6B7280',     // instead of gray-500
+        "text-hover": '#D1D5DB',    // instead of gray-300
 
         /* Borders / utility colors */
         "border-subtle": "var(--color-border-subtle)",

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import LoginForm from "./auth/LoginForm";
 import SignupForm from "./auth/SignupForm";
 import Header from "./UI/Header";
@@ -56,8 +56,8 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      {/* Footer */}
-      <Footer />
+  {/* Footer: only visible on home page */}
+  {location.pathname === "/" ? <Footer /> : null}
     </div>
   );
 }

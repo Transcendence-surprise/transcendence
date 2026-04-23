@@ -1,7 +1,7 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useIsViewportLockedPage } from "../../hooks/useIsViewportLockedPage";
-import { FiSettings, FiShield, FiHome, FiMessageSquare, FiUsers, FiUser } from "react-icons/fi";
+import { FiSettings, FiShield, FiHome, FiMessageSquare, FiUsers, FiUser, FiFileText, FiLock } from "react-icons/fi";
 import { GoTrophy, GoListUnordered } from "react-icons/go";
 import { IoGameControllerOutline } from "react-icons/io5";
 import SidebarLink from "../shared/SideBarLink";
@@ -63,17 +63,55 @@ export default function Sidebar({ forceCollapsed = false }: SidebarProps) {
           : "sidebar-font group w-16 hover:w-[240px] min-h-screen overflow-hidden hover:overflow-y-auto bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4 transition-all duration-300 ease-in-out"
       }
     >
-      <nav className="flex flex-col gap-2">
-        {navItems.map((item) => (
-          <SidebarLink
-            key={item.path}
-            to={item.path}
-            label={item.label}
-            icon={item.icon}
-            isActive={isActive(item.path)}
-          />
-        ))}
-      </nav>
+  <div className="flex flex-col justify-between h-full">
+          <nav className="flex flex-col gap-2">
+            {navItems.map((item) => (
+              <SidebarLink
+                key={item.path}
+                to={item.path}
+                label={item.label}
+                icon={item.icon} 
+                isActive={isActive(item.path)}
+              />
+            ))}
+        </nav>
+        <div className="mt-4 pt-3 border-t border-gray-500 w-full">
+          <div className="flex flex-col items-center">
+            {/* Brand name: only visible when sidebar is expanded (group-hover) */}
+            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-500 hidden group-hover:block">
+              Transcendence
+            </p>
+
+            <div className="mt-2 flex flex-col items-center gap-2 w-full">
+              <Link
+                to="/terms"
+                className="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 transition-colors w-full justify-center"
+                aria-label="Terms of Service"
+              >
+                <FiFileText className="w-5 h-5 text-gray-400" />
+                <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity">
+                  Terms of Service
+                </span>
+              </Link>
+
+              <Link
+                to="/privacy"
+                className="flex items-center gap-2 px-2 py-1 rounded hover:bg-white/5 transition-colors w-full justify-center"
+                aria-label="Privacy Policy"
+              >
+                <FiLock className="w-5 h-5 text-gray-400" />
+                <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity">
+                  Privacy Policy
+                </span>
+              </Link>
+
+              <p className="text-xs text-gray-500 mt-2 hidden group-hover:block">© 2026</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    
     </aside>
   );
 }
