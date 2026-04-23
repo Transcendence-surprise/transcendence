@@ -11,6 +11,7 @@ import { Injectable, Logger, OnModuleDestroy, OnModuleInit, UnauthorizedExceptio
 import { JwtService } from '@nestjs/jwt';
 import type { FastifyRequest } from 'fastify';
 import { Server, Socket } from 'socket.io';
+import { BadgeHttpService } from '../badges/badge.service';
 import { ChatHttpService } from '../chat/chat.service';
 import { GameHttpService } from '../game/game.service';
 
@@ -101,12 +102,14 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   private readonly logger = new Logger(RealtimeGateway.name);
   private readonly userSockets = new Map<number, Set<string>>();
   private readonly playRoomContext = new Map<string, FastifyRequest>();
+  private readonly finishedGameBadgeUpdates = new Set<string>();
   private playTicker?: NodeJS.Timeout;
 
   constructor(
     private readonly jwtService: JwtService,
     private readonly chatService: ChatHttpService,
     private readonly gameService: GameHttpService,
+    private readonly badgeService: BadgeHttpService,
   ) {}
 
   private normalizePresenceUserId(userId: number | string): number | null {
@@ -394,6 +397,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     if (!state) {
       this.sendGameDeleted(gameId);
       this.playRoomContext.delete(gameId);
+      this.finishedGameBadgeUpdates.delete(gameId);
       return;
     }
 
@@ -413,6 +417,60 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
         : undefined,
       endReason: state.endReason,
     });
+
+    if (state.phase === 'FINISHED') {
+      await this.handleGameFinished(gameId, state);
+    }
+  }
+
+  private async handleGameFinished(gameId: string, state: ResolvedGameState): Promise<void> {
+    if (this.finishedGameBadgeUpdates.has(gameId)) {
+      return;
+    }
+
+    this.finishedGameBadgeUpdates.add(gameId);
+
+    try {
+      const participantIds = Array.from(
+        new Set(
+          (state.players ?? [])
+            .map((player) => this.normalizePresenceUserId(player.id))
+            .filter((id): id is number => id !== null),
+        ),
+      );
+
+      if (!participantIds.length) {
+        return;
+      }
+
+      const winnerSource = state.gameResult?.winnerIds ?? (state.gameResult?.winnerId !== undefined
+        ? [state.gameResult.winnerId]
+        : []);
+      const winnerIds = new Set(
+        winnerSource
+          .map((winnerId) => this.normalizePresenceUserId(winnerId))
+          .filter((id): id is number => id !== null),
+      );
+
+      await Promise.all(
+        participantIds.map((userId) =>
+          this.badgeService.unlockByKey({ userId, key: 'first-game' }),
+        ),
+      );
+
+      const winnerPromises = participantIds
+        .filter((userId) => winnerIds.has(userId))
+        .map((userId) => this.badgeService.increment({ userId, type: 'games', value: 1 }));
+
+      if (winnerPromises.length) {
+        await Promise.all(winnerPromises);
+      }
+    } catch (error) {
+      this.finishedGameBadgeUpdates.delete(gameId);
+      this.logger.warn(
+        `Failed to process game finished badges for game ${gameId}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
 
   async sendPlayerStatusUpdate(userId: string | number, req?: FastifyRequest) {
@@ -427,6 +485,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   sendGameDeleted(gameId: string) {
     this.sendToRoom(`lobby:${gameId}`, 'lobbyDeleted', { gameId });
     this.sendToRoom(`play:${gameId}`, 'gameDeleted', { gameId });
+    this.finishedGameBadgeUpdates.delete(gameId);
   }
 
   private async resolveGameStateForRealtime(
