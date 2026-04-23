@@ -37,12 +37,17 @@ const formatObjectiveMessage = (objective: ObjectiveStatus): string => {
 
 export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
   const { user } = useAuth();
-  const { playerProgress } = game;
+  const { playerProgress, playerProgressById } = game;
+  const userProgress =
+    user?.id != null
+      ? playerProgressById?.[user.id.toString()]
+      : undefined;
+  const effectivePlayerProgress = userProgress ?? playerProgress;
   const {
     collectedItems = [],
     currentCollectibleId,
     objectives = [],
-  } = playerProgress ?? {};
+  } = effectivePlayerProgress ?? {};
   const collectibleImagesRef = useRef<Record<string, HTMLImageElement>>({});
   const [collectibleImagesLoaded, setCollectibleImagesLoaded] = useState(false);
 
