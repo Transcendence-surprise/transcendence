@@ -127,8 +127,9 @@ export class FriendService {
     friendship.status = FriendStatus.ACCEPTED;
     await this.repo.save(friendship);
 
-    await this.badgeService.increment(currentUserId, 'friends', 1);
-    await this.badgeService.increment(otherUserId, 'friends', 1);
+    // Unlock first-friend badge if this is their first friend
+    await this.badgeService.unlockByKey(currentUserId, 'first-friend');
+    await this.badgeService.unlockByKey(otherUserId, 'first-friend');
   }
 
   async removeFriend(userId: number, otherUserId: number) {
