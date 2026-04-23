@@ -9,7 +9,7 @@ export class CreateImageDto {
   @IsString()
   @IsUrl({ require_tld: false, allow_underscores: true })
   @MaxLength(1024)
-  url: string;
+  url!: string;
 
   @ApiProperty({
     description: 'Original image file name (optional)',
