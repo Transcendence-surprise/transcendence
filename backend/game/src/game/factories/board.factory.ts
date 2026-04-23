@@ -10,8 +10,9 @@ function randomRotation(): Rotation {
 function randomTileType(): TileType {
   const r = Math.random();
   if (r < 0.6) return "L";
-  if (r < 0.85) return "I";
-  return "T";
+  if (r < 0.8) return "I";
+  if (r < 0.9) return "T";
+  return "X";
 }
 
 export function createEmptyBoard(size: number): Board {
