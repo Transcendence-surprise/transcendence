@@ -248,10 +248,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
           if (!gameId) continue;
           activeGameIds.add(gameId);
 
-          const req = this.playRoomContext.get(gameId);
-          if (!req) continue;
-
-          await this.sendPlayUpdate(gameId, req);
+          await this.sendPlayUpdate(gameId);
         }
 
         for (const trackedGameId of Array.from(this.playRoomContext.keys())) {
@@ -393,7 +390,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   async sendPlayUpdate(gameId: string, req?: FastifyRequest) {
-    const state = await this.resolveGameStateForRealtime(gameId, req);
+    const state = await this.resolveGameStateForRealtime(gameId);
     if (!state) {
       this.sendGameDeleted(gameId);
       this.playRoomContext.delete(gameId);
