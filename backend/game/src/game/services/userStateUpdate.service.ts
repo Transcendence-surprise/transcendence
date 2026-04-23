@@ -12,20 +12,25 @@ export class UserUpdateService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {}
   
-  async updateUserStats(state: GameState) {
+  async updateUserStats(state: GameState, participantIds?: Array<number | string>) {
     const winnerId = state.gameResult?.winnerId;
 
     if (state.rules.mode === "SINGLE") return;
-    await this.userRepo.manager.transaction(async (manager) => {
-      for (const p of state.players) {
 
-        const userId = Number(p.id);
+    const targetParticipantIds =
+      participantIds && participantIds.length > 0
+        ? participantIds
+        : state.players.map((p) => p.id);
+
+    await this.userRepo.manager.transaction(async (manager) => {
+      for (const participantId of targetParticipantIds) {
+        const userId = Number(participantId);
 
         if (isNaN(userId)) continue;
 
         await manager.increment(User, { id: userId }, 'totalGames', 1);
 
-        if (p.id.toString() === winnerId) {
+        if (participantId.toString() === winnerId) {
           await manager.increment(User, { id: userId }, 'totalWins', 1);
           await manager.increment(User, { id: userId }, 'winStreak', 1);
         } else {

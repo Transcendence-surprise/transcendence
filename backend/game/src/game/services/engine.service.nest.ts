@@ -66,6 +66,7 @@ export class EngineService {
     const events: Array<any> = [];
 
     for (const [gameId, state] of this.games.entries()) {
+      const participantIdsBeforeTimeout = state.players.map((p) => p.id);
       const result = applyMultiTimeout(state, now);
 
       if (!result) continue;
@@ -79,7 +80,7 @@ export class EngineService {
           state.gameResult = undefined;
           state.endReason = 'LOSE_TIME_LIMIT';
           await saveGameToDB(gameId, state, this.persistence);
-          await this.userUpdateService.updateUserStats(state);
+          await this.userUpdateService.updateUserStats(state, participantIdsBeforeTimeout);
         }
 
         if (!result.deleteGame) {
@@ -136,6 +137,14 @@ export class EngineService {
     const spectatorExists = state.spectators.some(
       s => s.id.toString() === playerId.toString()
     );
+
+    const hasHistoricProgress = Boolean(state.playerProgress[playerId.toString()]);
+
+    // If the game has already ended, allow former participants (removed by timeout/leave)
+    // to fetch final state using their saved progress snapshot.
+    if (state.phase === GamePhase.END && hasHistoricProgress) {
+      return getPrivateState(state, playerId);
+    }
 
     if (!playerExists && !spectatorExists) {
       return { ok: false, error: PrivateStateError.PLAYER_NOT_FOUND };
