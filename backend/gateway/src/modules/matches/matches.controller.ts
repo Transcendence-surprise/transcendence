@@ -11,8 +11,8 @@ import {
 } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import { MatchesHttpService } from './matches.service';
-import { Auth, AuthType } from 'src/common/decorator/auth-type.decorator';
-import { AuthGuard } from 'src/common/guards/auth.guard';
+import { Auth, AuthType } from '../../common/decorator/auth-type.decorator';
+import { AuthGuard } from '../../common/guards/auth.guard';
 import { UseGuards } from '@nestjs/common';
 
 @Controller('matches')
