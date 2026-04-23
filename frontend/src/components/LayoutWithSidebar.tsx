@@ -8,15 +8,17 @@ export default function LayoutWithSidebar() {
   return (
     <div
       className={
-        isViewportLockedPage ? "flex h-full min-h-0 overflow-hidden" : "flex"
+        isViewportLockedPage
+          ? "flex h-full min-h-0 overflow-hidden"
+          : "flex min-h-full flex-1"
       }
     >
       <Sidebar />
       <main
         className={
           isViewportLockedPage
-            ? "flex-1 min-h-0 overflow-hidden p-4 bg-bg-dark text-blue-hero"
-            : "flex-1 p-6 bg-bg-dark text-blue-hero"
+            ? "flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-bg-dark p-4 text-blue-hero"
+            : "flex-1 min-w-0 bg-bg-dark p-6 text-blue-hero"
         }
       >
         <Outlet />

@@ -56,14 +56,14 @@ export default function Sidebar({ forceCollapsed = false }: SidebarProps) {
         // If forceCollapsed is true, sidebar stays thin and doesn't expand on hover
         forceCollapsed
           ? isViewportLockedPage
-            ? "sidebar-font w-18 h-full overflow-hidden bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4 transition-all duration-300 ease-in-out"
-            : "sidebar-font w-18 min-h-screen overflow-hidden bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4 transition-all duration-300 ease-in-out"
+            ? "sidebar-font h-full w-18 overflow-hidden border-r border-gray-600 bg-[background: rgba(26, 26, 31, 0.95)] p-4 transition-all duration-300 ease-in-out"
+            : "sidebar-font h-full w-18 self-stretch overflow-hidden border-r border-gray-600 bg-[background: rgba(26, 26, 31, 0.95)] p-4 transition-all duration-300 ease-in-out"
           : isViewportLockedPage
-          ? "sidebar-font group w-16 hover:w-[240px] h-full overflow-hidden hover:overflow-y-auto bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4 transition-all duration-300 ease-in-out"
-          : "sidebar-font group w-16 hover:w-[240px] min-h-screen overflow-hidden hover:overflow-y-auto bg-[background: rgba(26, 26, 31, 0.95)] border-r border-gray-600 p-4 transition-all duration-300 ease-in-out"
+          ? "sidebar-font group h-full w-16 overflow-hidden border-r border-gray-600 bg-[background: rgba(26, 26, 31, 0.95)] p-4 transition-all duration-300 ease-in-out hover:w-[240px] hover:overflow-y-auto"
+          : "sidebar-font group min-h-full self-stretch w-16 overflow-hidden border-r border-gray-600 bg-[background: rgba(26, 26, 31, 0.95)] p-4 transition-all duration-300 ease-in-out hover:w-[240px] hover:overflow-y-auto"
       }
     >
-  <div className="flex flex-col justify-between h-full">
+      <div className="flex h-full flex-col justify-between">
           <nav className="flex flex-col gap-2">
             {navItems.map((item) => (
               <SidebarLink
@@ -111,7 +111,6 @@ export default function Sidebar({ forceCollapsed = false }: SidebarProps) {
         </div>
 
       </div>
-    
     </aside>
   );
 }

@@ -9,6 +9,7 @@ import { useIsViewportLockedPage } from "../hooks/useIsViewportLockedPage";
 export default function Layout() {
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
+  const location = useLocation();
   const isViewportLockedPage = useIsViewportLockedPage();
 
   const handleSwitchToSignup = () => {
@@ -25,8 +26,8 @@ export default function Layout() {
     <div
       className={
         isViewportLockedPage
-          ? "h-screen overflow-hidden bg-bg-dark text-white font-sans flex flex-col"
-          : "min-h-screen bg-bg-dark text-white font-sans"
+          ? "flex h-dvh flex-col overflow-hidden bg-bg-dark font-sans text-white"
+          : "flex min-h-dvh flex-col bg-bg-dark font-sans text-white"
       }
     >
       {/* Header */}
@@ -51,13 +52,17 @@ export default function Layout() {
       )}
       {/* Main content - this is where child routes will render */}
       <main
-        className={isViewportLockedPage ? "flex-1 min-h-0 overflow-hidden" : ""}
+        className={
+          isViewportLockedPage
+            ? "flex-1 min-h-0 overflow-y-auto overflow-x-hidden"
+            : "flex flex-1 flex-col min-h-0"
+        }
       >
         <Outlet />
       </main>
 
-  {/* Footer: only visible on home page */}
-  {location.pathname === "/" ? <Footer /> : null}
+      {/* Footer: only visible on home page */}
+      {location.pathname === "/" ? <Footer /> : null}
     </div>
   );
 }
