@@ -123,7 +123,7 @@ export default function GameRoute() {
 
     const handleGameDeleted = (data: { gameId: string }) => {
       if (data.gameId === id) {
-        alert("Game was deleted by host");
+        alert("Game was deleted");
         navigate("/game");
       }
     };
