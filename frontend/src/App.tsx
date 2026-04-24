@@ -15,6 +15,8 @@ import Settings from "./pages/Settings";
 import ResetPassword from "./pages/ResetPassword";
 import Chat from "./pages/Chat";
 import Rules from "./pages/Rules";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Friends from "./pages/Friends";
 import AdminPanel from "./pages/AdminPanel";
 import BadRequestPage from "./pages/error/400";
@@ -84,6 +86,8 @@ export default function App() {
               {<Route path="/admin" element={<AdminPanel />} />}
               {<Route path="chat" element={<Chat />} />}
               {<Route path="rules" element={<Rules />} />}
+              {<Route path="terms" element={<TermsOfService />} />}
+              {<Route path="privacy" element={<PrivacyPolicy />} />}
               {<Route path="friends" element={<Friends />} />}
             </Route>
 

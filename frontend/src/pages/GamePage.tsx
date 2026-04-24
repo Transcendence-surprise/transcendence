@@ -31,8 +31,8 @@ export default function GamePage({
     !game.players.some((p) => p.id.toString() === userId.toString());
 
   return (
-    <div>
-      <div className="flex w-full h-full items-start justify-center gap-4">
+    <div className="flex min-h-full flex-col">
+      <div className="flex w-full items-start justify-center gap-4">
         {/* Board centered */}
         <div className="flex-1 flex justify-center self-start">
           <BoardView
