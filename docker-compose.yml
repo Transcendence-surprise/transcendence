@@ -126,7 +126,7 @@ services:
     networks:
       - transcendence_net
     healthcheck:
-      test: ["CMD-SHELL", "wget -O /dev/null ${FRONTEND_URL} || exit 1"]
+      test: ["CMD-SHELL", "curl -sf ${FRONTEND_URL} > /dev/null || exit 1"]
       interval: 5s
       timeout: 2s
       start_period: 120s
