@@ -112,8 +112,6 @@ export class AuthHttpService {
   }
 
   async validateApiKey(token: string): Promise<boolean> {
-    console.log('token in params', token);
-
     const res = await lastValueFrom(
       this.http.get<boolean>('/api/auth/api-keys/validate',
         {

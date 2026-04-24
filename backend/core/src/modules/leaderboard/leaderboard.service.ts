@@ -16,7 +16,7 @@ async getAllTimeLeaderboard(limit = 100): Promise<LeaderboardEntryDto[]> {
     // user info
     .addSelect('u.username', 'username')
     .addSelect('u.win_streak', 'winStreak')
-    .addSelect('i.url', 'avatarUrl')
+    .addSelect('u.avatar_image_id', 'avatarImageId')
 
     // wins (IMPORTANT: from games)
     .addSelect(`
@@ -42,7 +42,6 @@ async getAllTimeLeaderboard(limit = 100): Promise<LeaderboardEntryDto[]> {
 
     .innerJoin('games', 'g', 'g.id = gp.game_id')
     .leftJoin('users', 'u', 'u.id = gp.registered_user_id')
-    .leftJoin('images', 'i', 'i.id = u.avatar_image_id')
 
     .where('g.phase = :phase', { phase: 'END' })
     .andWhere('g.type = :type', { type: 'MULTI' })
@@ -51,7 +50,7 @@ async getAllTimeLeaderboard(limit = 100): Promise<LeaderboardEntryDto[]> {
     .groupBy('gp.registered_user_id')
     .addGroupBy('u.username')
     .addGroupBy('u.win_streak')
-    .addGroupBy('i.url')
+    .addGroupBy('u.avatar_image_id')
 
     .orderBy('wins', 'DESC')
     .limit(limit);
@@ -65,14 +64,16 @@ async getAllTimeLeaderboard(limit = 100): Promise<LeaderboardEntryDto[]> {
       wins: Number(row.wins),
       totalGames: Number(row.totalGames),
       rank: Number(row.rank),
-      avatarUrl: row.avatarUrl,
+      avatarUrl: row.avatarImageId
+        ? `/api/images/${Number(row.avatarImageId)}/content`
+        : null,
     }));
   }
 
   async getUserRanking(userId: number): Promise<number | null> {
       const result = await this.dataSource.query(`
       SELECT rank FROM (
-        SELECT 
+        SELECT
           g.winner_user_id AS "userId",
           RANK() OVER (ORDER BY COUNT(*) DESC) AS rank
         FROM games g

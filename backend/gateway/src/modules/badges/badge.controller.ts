@@ -1,7 +1,7 @@
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { Auth, AuthType } from 'src/common/decorator/auth-type.decorator';
-import { AuthGuard } from 'src/common/guards/auth.guard';
+import { Auth, AuthType } from '../../common/decorator/auth-type.decorator';
+import { AuthGuard } from '../../common/guards/auth.guard';
 import { BadgeHttpService } from './badge.service';
 
 @Controller('badges')

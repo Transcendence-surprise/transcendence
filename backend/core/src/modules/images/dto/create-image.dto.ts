@@ -4,12 +4,12 @@ import { ApiProperty } from '@nestjs/swagger';
 export class CreateImageDto {
   @ApiProperty({
     description: 'Publicly accessible URL to image file',
-    example: '/uploads/avatars/abcd1234.png',
+    example: '/api/images/1/content',
   })
   @IsString()
   @IsUrl({ require_tld: false, allow_underscores: true })
   @MaxLength(1024)
-  url: string;
+  url!: string;
 
   @ApiProperty({
     description: 'Original image file name (optional)',

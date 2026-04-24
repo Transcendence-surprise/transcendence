@@ -1,8 +1,8 @@
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { LeaderboardHttpService } from './leaderboard.service';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { Auth, AuthType } from 'src/common/decorator/auth-type.decorator';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import { Auth, AuthType } from '../../common/decorator/auth-type.decorator';
 
 @Controller('leaderboard')
 export class LeaderboardController {

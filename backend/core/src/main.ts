@@ -7,7 +7,6 @@ import {
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import multipart from '@fastify/multipart';
-import fastifyStatic from '@fastify/static';
 import { mkdir } from 'fs/promises';
 
 async function bootstrap() {
@@ -35,12 +34,6 @@ async function bootstrap() {
     limits: {
       fileSize: 104857600, // 104 megabytes
     },
-  });
-
-  await app.register(fastifyStatic, {
-    root: uploadDir,
-    prefix: '/uploads/',
-    decorateReply: false,
   });
 
   app.setGlobalPrefix('api');
