@@ -44,4 +44,10 @@ export const FriendControllerDocs = {
       ApiBody({ type: FriendActionDto }),
       ApiResponse({ status: 200 }),
     ),
+
+  getFriendsSnapshot: () =>
+    applyDecorators(
+      ApiOperation({ summary: 'Get friends snapshot' }),
+      ApiResponse({ status: 200, description: 'Friends snapshot returned' }),
+    ),
 };

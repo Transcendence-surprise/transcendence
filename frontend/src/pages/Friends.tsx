@@ -5,13 +5,11 @@ import { useAuth } from "../hooks/useAuth";
 import { connectRealtimeSocket, getRealtimeSocket } from "../services/realtimeSocket";
 import {
   acceptFriendRequest,
-  getFriendRequests,
   getFriends,
   rejectFriendRequest,
   removeFriend,
   sendFriendRequestByUsername,
   type FriendUser,
-  type PendingFriendRequest,
 } from "../api/friend";
 
 type UiPendingRequest = {
@@ -33,115 +31,68 @@ type PresenceUpdatePayload = {
   isOnline: boolean;
 };
 
-type PresenceSnapshotPayload = {
-  statuses: PresenceUpdatePayload[];
-};
-
 function getAvatarInitial(name: string): string {
   return name.trim().charAt(0).toUpperCase() || "?";
 }
 
-function mapPendingRequest(request: PendingFriendRequest): UiPendingRequest | null {
-  const requesterId = request.requester?.id ?? request.requestedBy;
-  const requesterName = request.requester?.username;
-
-  if (!requesterId || !requesterName) {
-    return null;
-  }
-
-  return {
-    id: requesterId,
-    targetUserId: requesterId,
-    name: requesterName,
-    avatarUrl: request.requester?.avatarUrl ?? null,
-  };
-}
-
-function mapFriend(friend: FriendUser): UiFriend {
+function mapFriend(friend: FriendUser & { isOnline: boolean }): UiFriend {
   return {
     id: friend.id,
     name: friend.username,
     avatarUrl: friend.avatarUrl ?? null,
-    online: false,
+    online: friend.isOnline,
   };
 }
 
 export default function Friends() {
   const { user } = useAuth();
   const navigate = useNavigate();
+
   const [friendName, setFriendName] = useState("");
-  const [lastSentRequest, setLastSentRequest] = useState<string | null>(null);
+  const [friends, setFriends] = useState<UiFriend[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<UiPendingRequest[]>([]);
+
+  const [loading, setLoading] = useState(false);
+
+  const [sendStatus, setSendStatus] = useState<string | null>(null);
+  const [sendError, setSendError] = useState<string | null>(null);
   const [pageError, setPageError] = useState<string | null>(null);
-  const [sendRequestError, setSendRequestError] = useState<string | null>(null);
   const [pendingActionError, setPendingActionError] = useState<string | null>(null);
   const [removeFriendError, setRemoveFriendError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [sendingRequest, setSendingRequest] = useState(false);
-  const [pendingRequests, setPendingRequests] = useState<UiPendingRequest[]>([]);
-  const [friends, setFriends] = useState<UiFriend[]>([]);
-  const isLoadingRef = useRef(false);
-  const nextAllowedRefreshAtRef = useRef(0);
 
-  const friendIds = useMemo(() => friends.map((friend) => friend.id), [friends]);
+  const isLoadingRef = useRef(false);
+  const reloadLockRef = useRef(false);
+
+  const friendIds = useMemo(() => friends.map((f) => f.id), [friends]);
   const friendIdsKey = useMemo(
-    () => [...friendIds].sort((a, b) => a - b).join(","),
+    () => friendIds.slice().sort((a, b) => a - b).join(","),
     [friendIds],
   );
 
-  const currentUserId = useMemo(() => {
-    if (!user || typeof user.id !== "number") return undefined;
-    return user.id;
-  }, [user]);
-
-  const loadData = useCallback(async (options?: { force?: boolean }) => {
+  const loadData = useCallback(async () => {
     if (!user || user.roles.includes("guest")) return;
+    if (isLoadingRef.current) return;
 
-    const now = Date.now();
-    const force = options?.force === true;
-
-    if (isLoadingRef.current) {
-      return;
-    }
-
-    if (!force && now < nextAllowedRefreshAtRef.current) {
-      return;
-    }
-
-    isLoadingRef.current = true;
-
-    setLoading(true);
     setPageError(null);
 
+    isLoadingRef.current = true;
+    setLoading(true);
+
     try {
-      const [friendsData, pendingData] = await Promise.all([
-        getFriends(),
-        getFriendRequests(),
-      ]);
+      const snapshot = await getFriends();
 
-      setFriends((prev) => {
-        const previousStatus = new Map(prev.map((friend) => [friend.id, friend.online]));
+      setFriends(snapshot.friends.map(mapFriend));
 
-        return friendsData.map((friend) => ({
-          ...mapFriend(friend),
-          online: previousStatus.get(friend.id) ?? false,
-        }));
-      });
       setPendingRequests(
-        pendingData
-          .map(mapPendingRequest)
-          .filter((request): request is UiPendingRequest => request !== null),
+        snapshot.pendingRequests.map((u) => ({
+          id: u.id,
+          targetUserId: u.id,
+          name: u.username,
+          avatarUrl: u.avatarUrl ?? null,
+        })),
       );
-      nextAllowedRefreshAtRef.current = Date.now() + 1000;
-    } catch (e: unknown) {
-      const message =
-        e instanceof Error ? e.message : "Failed to load friends data";
-      setPageError(message);
-
-      if (message.includes("429") || message.toLowerCase().includes("too many requests")) {
-        nextAllowedRefreshAtRef.current = Date.now() + 5000;
-      } else {
-        nextAllowedRefreshAtRef.current = Date.now() + 1500;
-      }
+    } catch (e) {
+      setPageError("Failed to load friends");
     } finally {
       isLoadingRef.current = false;
       setLoading(false);
@@ -149,7 +100,7 @@ export default function Friends() {
   }, [user]);
 
   useEffect(() => {
-    void loadData({ force: true });
+    void loadData();
   }, [loadData]);
 
   useEffect(() => {
@@ -157,38 +108,31 @@ export default function Friends() {
 
     const socket = getRealtimeSocket() ?? connectRealtimeSocket();
 
-    const applyPresenceUpdate = ({ userId, isOnline }: PresenceUpdatePayload) => {
+    const onPresenceUpdate = ({ userId, isOnline }: PresenceUpdatePayload) => {
       setFriends((prev) =>
-        prev.map((friend) =>
-          friend.id === userId ? { ...friend, online: isOnline } : friend,
-        ),
+        prev.map((f) =>
+          f.id === userId ? { ...f, online: isOnline } : f
+        )
       );
     };
 
-    const applyPresenceSnapshot = ({ statuses }: PresenceSnapshotPayload) => {
-      const presenceById = new Map(statuses.map((status) => [status.userId, status.isOnline]));
+    const onFriendsUpdate = () => {
+      if (reloadLockRef.current) return;
 
-      setFriends((prev) =>
-        prev.map((friend) =>
-          presenceById.has(friend.id)
-            ? { ...friend, online: Boolean(presenceById.get(friend.id)) }
-            : friend,
-        ),
-      );
+      reloadLockRef.current = true;
+
+      setTimeout(async () => {
+        await loadData();
+        reloadLockRef.current = false;
+      }, 200);
     };
 
-    const handleFriendsUpdate = () => {
-      void loadData({ force: true });
-    };
-
-    socket.on("presence:update", applyPresenceUpdate);
-    socket.on("presence:snapshot", applyPresenceSnapshot);
-    socket.on("friends:update", handleFriendsUpdate);
+    socket.on("presence:update", onPresenceUpdate);
+    socket.on("friends:update", onFriendsUpdate);
 
     return () => {
-      socket.off("presence:update", applyPresenceUpdate);
-      socket.off("presence:snapshot", applyPresenceSnapshot);
-      socket.off("friends:update", handleFriendsUpdate);
+      socket.off("presence:update", onPresenceUpdate);
+      socket.off("friends:update", onFriendsUpdate);
     };
   }, [user, loadData]);
 
@@ -196,85 +140,70 @@ export default function Friends() {
     if (!user || user.roles.includes("guest")) return;
 
     const socket = getRealtimeSocket() ?? connectRealtimeSocket();
-    const ids = friendIds;
 
-    if (ids.length === 0) return;
-
-    const subscribeToPresence = () => {
-      socket.emit("presence:subscribe", { userIds: ids });
+    const subscribe = () => {
+      socket.emit("presence:subscribe", { userIds: friendIds });
     };
 
-    if (socket.connected) {
-      subscribeToPresence();
-    }
+    if (socket.connected) subscribe();
 
-    socket.on("connect", subscribeToPresence);
+    socket.on("connect", subscribe);
 
     return () => {
-      socket.off("connect", subscribeToPresence);
-      socket.emit("presence:unsubscribe", { userIds: ids });
+      socket.off("connect", subscribe);
+      socket.emit("presence:unsubscribe", { userIds: friendIds });
     };
-  }, [user, friendIdsKey]);
+  }, [friendIdsKey, user]);
 
   const handleSendRequest = async () => {
-    const trimmedName = friendName.trim();
-    if (!trimmedName) return;
+      const name = friendName.trim();
+      if (!name) return;
 
-    setSendingRequest(true);
-    setSendRequestError(null);
+    setSendError(null);
+    setSendStatus(null);
+    setPageError(null);
 
-    try {
-      await sendFriendRequestByUsername(trimmedName, currentUserId);
-      setLastSentRequest(trimmedName);
-      setFriendName("");
-    } catch (e: unknown) {
-      const message =
-        e instanceof Error ? e.message : "Failed to send friend request";
-      setSendRequestError(message);
-    } finally {
-      setSendingRequest(false);
-    }
-  };
-
-  const handlePendingRequest = async (
-    targetUserId: number,
-    action: "accept" | "reject",
-  ) => {
-    setPendingActionError(null);
-
-    try {
-      if (action === "accept") {
-        await acceptFriendRequest(targetUserId);
-      } else {
-        await rejectFriendRequest(targetUserId);
+      try {
+        await sendFriendRequestByUsername(name);
+        setFriendName("");
+        setSendStatus(`Friend request sent to ${name}`);
+      } catch (e) {
+        setSendError("Failed to send friend request");
       }
+    };
 
-      setPendingRequests((prev) =>
-        prev.filter((request) => request.targetUserId !== targetUserId),
-      );
-
-      if (action === "accept") {
+    const handleAccept = async (id: number) => {
+      setPendingActionError(null);
+      setPageError(null);
+      try {
+        await acceptFriendRequest(id);
         await loadData();
+      } catch (e) {
+        setPendingActionError("Failed to accept friend request");
       }
-    } catch (e: unknown) {
-      const message =
-        e instanceof Error ? e.message : "Failed to update request";
-      setPendingActionError(message);
-    }
-  };
+    };
 
-  const handleRemoveFriend = async (targetUserId: number) => {
-    setRemoveFriendError(null);
+    const handleReject = async (id: number) => {
+      setPendingActionError(null);
+      setPageError(null);
+      try {
+        await rejectFriendRequest(id);
+        await loadData();
+      } catch (e) {
+        setPendingActionError("Failed to reject friend request");
+      }
+    };
 
-    try {
-      await removeFriend(targetUserId);
-      setFriends((prev) => prev.filter((friend) => friend.id !== targetUserId));
-    } catch (e: unknown) {
-      const message =
-        e instanceof Error ? e.message : "Failed to remove friend";
-      setRemoveFriendError(message);
-    }
-  };
+    const handleRemove = async (id: number) => {
+      setRemoveFriendError(null);
+      setPageError(null);
+      try {
+        await removeFriend(id);
+        await loadData();
+      } catch (e) {
+        setRemoveFriendError("Failed to remove friend");
+      }
+    };
 
   if (!user || user.roles.includes("guest")) {
     return (
@@ -297,6 +226,7 @@ export default function Friends() {
     <div className="mx-auto w-full max-w-5xl min-h-[60vh] px-4 py-8">
       <h2 className="mb-8 text-4xl font-bold text-white">Friends</h2>
 
+      {/* ADD FRIEND */}
       <div className="space-y-6">
         <section className="rounded-lg border border-[var(--color-border-subtle)] bg-bg-modal p-5">
           <h3 className="text-xl font-semibold text-white">Add Friend</h3>
@@ -314,30 +244,32 @@ export default function Friends() {
             <input
               type="text"
               value={friendName}
-              onChange={(event) => setFriendName(event.target.value)}
+              onChange={(event) => {
+                setFriendName(event.target.value)
+                setSendError(null);
+                setSendStatus(null);
+              }
+            }
               placeholder="Enter username"
               className="w-full rounded-lg border border-[var(--color-border-subtle)] bg-black/30 px-4 py-2 text-white outline-none transition focus:border-cyan-bright"
             />
-            <button
-              type="submit"
-              disabled={!friendName.trim() || sendingRequest}
-              className="rounded-lg bg-gradient-to-r from-cyan-bright to-blue-hero px-5 py-2 font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {sendingRequest ? "Sending..." : "Send"}
-            </button>
+            <button type="submit">Send</button>
           </form>
 
-          {lastSentRequest ? (
+          {sendStatus ? (
             <p className="mt-3 text-sm text-cyan-300">
-              Friend request sent to {lastSentRequest}.
+              {sendStatus}
             </p>
           ) : null}
 
-          {sendRequestError ? (
-            <p className="mt-3 text-sm text-red-300">{sendRequestError}</p>
+          {sendError ? (
+            <p className="mt-3 text-sm text-red-300">
+              {sendError}
+            </p>
           ) : null}
         </section>
 
+        {/* PENDING */}
         <section className="rounded-lg border border-[var(--color-border-subtle)] bg-bg-modal p-5">
           <h3 className="text-xl font-semibold text-white">Pending Requests</h3>
 
@@ -381,7 +313,7 @@ export default function Friends() {
                     <button
                       type="button"
                       onClick={() =>
-                        void handlePendingRequest(request.targetUserId, "accept")
+                        void handleAccept(request.targetUserId)
                       }
                       className="rounded-md bg-green-500/20 px-3 py-1.5 text-sm font-medium text-green-300 transition hover:bg-green-500/30"
                     >
@@ -390,7 +322,7 @@ export default function Friends() {
                     <button
                       type="button"
                       onClick={() =>
-                        void handlePendingRequest(request.targetUserId, "reject")
+                        void handleReject(request.targetUserId)
                       }
                       className="rounded-md bg-red-500/20 px-3 py-1.5 text-sm font-medium text-red-300 transition hover:bg-red-500/30"
                     >
@@ -461,7 +393,7 @@ export default function Friends() {
 
                     <button
                       type="button"
-                      onClick={() => void handleRemoveFriend(friend.id)}
+                      onClick={() => void handleRemove(friend.id)}
                       className="rounded-md bg-red-500/20 px-3 py-1.5 text-sm font-medium text-red-300 transition hover:bg-red-500/30"
                     >
                       Delete

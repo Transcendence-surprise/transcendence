@@ -62,8 +62,10 @@ export function installGlobalApiErrorHandling(): void {
     try {
       const response = await originalFetch(input, init);
 
-      if (shouldRedirectForRequest(input)) {
-        redirectToErrorPage(response.status);
+      if (shouldRedirectForRequest(input) && !response.ok) {
+        if (response.status >= 700) {
+          redirectToErrorPage(response.status);
+        }
       }
 
       return response;

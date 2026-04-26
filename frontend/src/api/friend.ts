@@ -3,9 +3,10 @@
 import { rethrowAbortError } from "./requestUtils";
 
 export interface FriendUser {
-	id: number;
-	username: string;
-	avatarUrl?: string | null;
+  id: number;
+  username: string;
+  avatarUrl?: string | null;
+  isOnline: boolean;
 }
 
 export interface PendingFriendRequest {
@@ -21,6 +22,11 @@ interface SearchableUser {
 	id: number;
 	username: string;
 	roles?: string[];
+}
+
+interface FriendsResponse {
+	friends: FriendUser[];
+	pendingRequests: FriendUser[];
 }
 
 async function parseApiError(res: Response, fallback: string): Promise<Error> {
@@ -71,18 +77,8 @@ async function requestJson<T>(
 	}
 }
 
-export async function getFriends(signal?: AbortSignal): Promise<FriendUser[]> {
-	return requestJson<FriendUser[]>("/api/friends", { method: "GET" }, signal);
-}
-
-export async function getFriendRequests(
-	signal?: AbortSignal,
-): Promise<PendingFriendRequest[]> {
-	return requestJson<PendingFriendRequest[]>(
-		"/api/friends/requests",
-		{ method: "GET" },
-		signal,
-	);
+export async function getFriends(signal?: AbortSignal): Promise<FriendsResponse> {
+	return requestJson<FriendsResponse>("/api/friends/snapshot", { method: "GET" }, signal);
 }
 
 export async function acceptFriendRequest(

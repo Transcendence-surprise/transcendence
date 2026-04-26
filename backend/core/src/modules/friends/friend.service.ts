@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { FriendStatus } from '@transcendence/db-entities';
 import { Friendship } from '@transcendence/db-entities';
 import { BadgeService } from '../badges/badge.service';
-
+import { PresenceService } from '../presence/presence.service';
 
 @Injectable()
 export class FriendService {
@@ -14,6 +14,7 @@ export class FriendService {
     @InjectRepository(Friendship)
     private repo: Repository<Friendship>,
     private badgeService: BadgeService,
+    private presenceService: PresenceService,
   ) {}
 
   private async findPair(userAId: number, userBId: number) {
@@ -24,7 +25,6 @@ export class FriendService {
       ],
     });
   }
-
 
   async sendRequest(currentUserId: number, targetUserId: number) {
     if (currentUserId === targetUserId)
@@ -157,38 +157,46 @@ export class FriendService {
       relations: ['requester', 'receiver'],
     });
 
-    return friendships.map(f =>
-      f.requester.id === userId ? f.receiver : f.requester
-    );
+    return friendships.map(f => {
+      const user = f.requester.id === userId ? f.receiver : f.requester;
+
+      return {
+        id: user.id,
+        username: user.username,
+      };
+    });
   }
 
   async getPendingRequests(userId: number) {
     const pending = await this.repo.find({
-      where: [
-        {
-          receiverId: userId,
-          status: FriendStatus.PENDING,
-        },
-        {
-          requesterId: userId,
-          status: FriendStatus.PENDING,
-        },
-      ],
-      relations: ['requester', 'receiver', 'requestedByUser'],
+      where: {
+        receiverId: userId,
+        status: FriendStatus.PENDING,
+      },
+      relations: ['requester'],
     });
 
-    // Keep only incoming requests and expose actual sender in `requester`
-    return pending
-      .filter((friendship) => friendship.requestedBy !== userId)
-      .map((friendship) => {
-        const sender = friendship.requestedBy === friendship.requesterId
-          ? friendship.requester
-          : friendship.receiver;
-
-        return {
-          ...friendship,
-          requester: sender,
-        };
-      });
+    return pending.map(f => ({
+      id: f.requester.id,
+      username: f.requester.username,
+    }));
   }
+
+  async getFriendsSnapshot(userId: number) {
+
+    const friends = await this.getFriends(userId);
+    const pending = await this.getPendingRequests(userId);
+    return {
+      friends: friends.map(f => ({
+        id: f.id,
+        username: f.username,
+        isOnline: this.presenceService.isOnline(f.id),
+      })),
+      pendingRequests: pending.map(p => ({
+        id: p.id,
+        username: p.username,
+      })),
+    };
+  } 
+
 }

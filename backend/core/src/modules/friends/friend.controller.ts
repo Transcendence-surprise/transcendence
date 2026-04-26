@@ -1,12 +1,13 @@
 // src/modules/friends/friend.controller.ts
 
-import { Controller, Get, Post, Delete, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { FriendService } from './friend.service';
 import { FriendControllerDocs } from './friend.controller.docs';
 import { CurrentUser } from './dto/playerContext.dto';
 import type { PlayerContext } from './dto/playerContext.dto';
 import { Body } from '@nestjs/common';
-import { SendFriendRequestDto, FriendActionDto } from './dto/friends.dto';
+import { SendFriendRequestDto, FriendActionDto, FriendDto } from './dto/friends.dto';
+import { InternalGuard } from 'src/guards/internal.guard';
 
 @Controller('friends')
 export class FriendController {
@@ -14,16 +15,19 @@ export class FriendController {
 
   @Get()
   @FriendControllerDocs.getFriends()
-  async getFriends(@CurrentUser() user: PlayerContext) {
+  async getFriends(@CurrentUser() user: PlayerContext) : Promise<{ friends: FriendDto[] }> {
     if (!user) throw new UnauthorizedException();
-    return this.friendService.getFriends(Number(user.id));
+    const friends = await this.friendService.getFriends(Number(user.id));
+
+    return { friends };
   }
 
   @Get('requests')
   @FriendControllerDocs.getFriendRequests()
-  async getFriendRequests(@CurrentUser() user: PlayerContext) {
+  async getFriendRequests(@CurrentUser() user: PlayerContext) : Promise<{ pendingRequests: FriendDto[] }> {
     if (!user) throw new UnauthorizedException();
-    return this.friendService.getPendingRequests(Number(user.id));
+    const pendingRequests = await this.friendService.getPendingRequests(Number(user.id));
+    return { pendingRequests };
   }
 
   @Post('request')
@@ -64,5 +68,18 @@ export class FriendController {
   ) {
     if (!user) throw new UnauthorizedException();
     return this.friendService.removeFriend(Number(user.id), Number(dto.targetUserId));
+  }
+
+  @Get('snapshot')
+  @FriendControllerDocs.getFriendsSnapshot()
+  async getFriendsSnapshot(
+    @CurrentUser()
+    user: PlayerContext
+  ) : Promise<{
+    friends: FriendDto[],
+    pendingRequests: FriendDto[]
+  }> {
+    if (!user) throw new UnauthorizedException();
+    return this.friendService.getFriendsSnapshot(Number(user.id));
   }
 }

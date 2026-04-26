@@ -4,9 +4,9 @@ import { ConfigType } from '@nestjs/config';
 
 import gatewayConfig from '../../common/config/gateway.config';
 import { AuthHttpModule } from '../auth/auth.module';
-import { RealtimeModule } from '../realtime/realtime.module';
 import { FriendController } from './friend.controller';
 import { FriendHttpService } from './friend.service';
+import { RealtimeModule } from '../realtime/realtime.module';
 
 @Module({
 	imports: [
@@ -19,7 +19,7 @@ import { FriendHttpService } from './friend.service';
 			}),
 		}),
 		AuthHttpModule,
-		RealtimeModule,
+    RealtimeModule,
 	],
 	controllers: [FriendController],
 	providers: [FriendHttpService],
