@@ -23,12 +23,34 @@ const MAX_CHAT_MESSAGES = 1000;
 export class ChatService {
   private messages: ChatMessage[] = [];
 
-  addMessage(input: AddChatMessageInput): ChatMessage {
+  async addMessage(input: AddChatMessageInput): Promise<{
+  ok: boolean;
+  message?: ChatMessage;
+  error?: string;
+  }> {
+    console.log('Adding chat message:', input);
+    const content = String(input.content ?? '').trim();
+
+    if (!content) {
+      return { ok: false, error: 'EMPTY_MESSAGE' };
+    }
+
+    if (content.length > 500) {
+      return { ok: false, error: 'MESSAGE_TOO_LONG' };
+    }
+
+    if (input.replyTo) {
+      const exists = this.messages.some(m => m.id === input.replyTo);
+      if (!exists) {
+        return { ok: false, error: 'INVALID_REPLY_TO' };
+      }
+    }
+
     const msg: ChatMessage = {
       id: randomUUID(),
       userId: input.userId,
       username: input.username,
-      content: input.content,
+      content,
       timestamp: Date.now(),
       replyTo: input.replyTo,
     };
@@ -36,10 +58,11 @@ export class ChatService {
     this.messages.push(msg);
 
     if (this.messages.length > MAX_CHAT_MESSAGES) {
-      this.messages.shift();
+      this.messages.splice(0, this.messages.length - MAX_CHAT_MESSAGES);
     }
 
-    return msg;
+    console.log('Chat message added:', msg);
+    return { ok: true, message: msg };
   }
 
   getMessages(limit = 100) {

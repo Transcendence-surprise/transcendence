@@ -7,6 +7,7 @@ import { AuthHttpService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import gatewayConfig from '../../common/config/gateway.config';
+import { WsAuthService } from './ws-auth.service';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import gatewayConfig from '../../common/config/gateway.config';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthHttpService, AuthGuard],
-  exports: [AuthHttpService, AuthGuard, JwtModule],
+  providers: [AuthHttpService, AuthGuard, WsAuthService],
+  exports: [AuthHttpService, AuthGuard, JwtModule, WsAuthService],
 })
 export class AuthHttpModule {}

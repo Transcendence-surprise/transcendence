@@ -37,6 +37,7 @@ export class RealtimeGateway
       const userId = Number(user.sub);
 
       client.join(`user:${userId}`);
+      client.join('chat:global');
 
       console.log(`User ${userId} connected to realtime gateway`);
       const result = await this.presenceClient.markOnline(userId);
