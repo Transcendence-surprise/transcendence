@@ -1,3 +1,5 @@
+// src/modules/friends/friend.service.ts
+
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';

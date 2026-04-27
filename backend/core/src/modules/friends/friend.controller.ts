@@ -3,11 +3,10 @@
 import { Controller, Get, Post, Delete, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { FriendService } from './friend.service';
 import { FriendControllerDocs } from './friend.controller.docs';
-import { CurrentUser } from './dto/playerContext.dto';
-import type { PlayerContext } from './dto/playerContext.dto';
+import { CurrentUser } from '../../decorators/current-user.decorator';
+import type { JwtPayload } from '../../decorators/current-user.decorator';
 import { Body } from '@nestjs/common';
 import { SendFriendRequestDto, FriendActionDto, FriendDto } from './dto/friends.dto';
-import { InternalGuard } from 'src/guards/internal.guard';
 
 @Controller('friends')
 export class FriendController {
@@ -15,71 +14,71 @@ export class FriendController {
 
   @Get()
   @FriendControllerDocs.getFriends()
-  async getFriends(@CurrentUser() user: PlayerContext) : Promise<{ friends: FriendDto[] }> {
+  async getFriends(@CurrentUser() user: JwtPayload) : Promise<{ friends: FriendDto[] }> {
     if (!user) throw new UnauthorizedException();
-    const friends = await this.friendService.getFriends(Number(user.id));
+    const friends = await this.friendService.getFriends(Number(user.sub));
 
     return { friends };
   }
 
   @Get('requests')
   @FriendControllerDocs.getFriendRequests()
-  async getFriendRequests(@CurrentUser() user: PlayerContext) : Promise<{ pendingRequests: FriendDto[] }> {
+  async getFriendRequests(@CurrentUser() user: JwtPayload) : Promise<{ pendingRequests: FriendDto[] }> {
     if (!user) throw new UnauthorizedException();
-    const pendingRequests = await this.friendService.getPendingRequests(Number(user.id));
+    const pendingRequests = await this.friendService.getPendingRequests(Number(user.sub));
     return { pendingRequests };
   }
 
   @Post('request')
   @FriendControllerDocs.sendFriendRequest()
   async sendFriendRequest(
-    @CurrentUser() user: PlayerContext,
+    @CurrentUser() user: JwtPayload,
     @Body() dto: SendFriendRequestDto,
   ) {
     if (!user) throw new UnauthorizedException();
-    return this.friendService.sendRequest(Number(user.id), Number(dto.targetUserId));
+    return this.friendService.sendRequest(Number(user.sub), Number(dto.targetUserId));
   }
 
   @Post('accept')
   @FriendControllerDocs.acceptFriendRequest()
   async acceptFriendRequest(
-    @CurrentUser() user: PlayerContext,
+    @CurrentUser() user: JwtPayload,
     @Body() dto: FriendActionDto,
   ) {
     if (!user) throw new UnauthorizedException();
-    return this.friendService.acceptRequest(Number(user.id), Number(dto.targetUserId));
+    return this.friendService.acceptRequest(Number(user.sub), Number(dto.targetUserId));
   }
 
   @Post('reject')
   @FriendControllerDocs.rejectFriendRequest()
   async rejectFriendRequest(
-    @CurrentUser() user: PlayerContext,
+    @CurrentUser() user: JwtPayload,
     @Body() dto: FriendActionDto,
   ) {
     if (!user) throw new UnauthorizedException();
-    return this.friendService.rejectRequest(Number(user.id), Number(dto.targetUserId));
+    return this.friendService.rejectRequest(Number(user.sub), Number(dto.targetUserId));
   }
 
   @Delete()
   @FriendControllerDocs.removeFriend()
   async removeFriend(
-    @CurrentUser() user: PlayerContext,
+    @CurrentUser() user: JwtPayload,
     @Body() dto: FriendActionDto,
   ) {
     if (!user) throw new UnauthorizedException();
-    return this.friendService.removeFriend(Number(user.id), Number(dto.targetUserId));
+    return this.friendService.removeFriend(Number(user.sub), Number(dto.targetUserId));
   }
 
   @Get('snapshot')
   @FriendControllerDocs.getFriendsSnapshot()
   async getFriendsSnapshot(
     @CurrentUser()
-    user: PlayerContext
+    user: JwtPayload
   ) : Promise<{
     friends: FriendDto[],
     pendingRequests: FriendDto[]
   }> {
     if (!user) throw new UnauthorizedException();
-    return this.friendService.getFriendsSnapshot(Number(user.id));
+    return this.friendService.getFriendsSnapshot(Number(user.sub));
   }
 }

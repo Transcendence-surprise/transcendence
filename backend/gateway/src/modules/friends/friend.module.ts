@@ -1,3 +1,5 @@
+// src/modules/friends/friend.module.ts
+
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigType } from '@nestjs/config';
