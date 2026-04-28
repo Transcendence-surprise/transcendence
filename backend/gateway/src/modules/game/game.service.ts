@@ -1,8 +1,10 @@
+// src/modules/game/game.service.ts
+
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import type { FastifyRequest } from 'fastify';
-import { GameGateway } from '../realtime/game.gateway';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 import { CreateGameResponseDto } from './dto/create-game.dto';
 import { JoinGameDto } from './dto/join-game.dto';
 import { LeaveGameDto } from './dto/leave-game.dto';
@@ -25,14 +27,14 @@ interface RequestWithUser extends FastifyRequest {
 export class GameHttpService {
   constructor(
     private readonly http: HttpService,
-    private readonly gameGateway: GameGateway
+    private readonly realtimeGateway: RealtimeGateway,
   ) {}
 
   async createGame(body: unknown, req?: FastifyRequest): Promise<CreateGameResponseDto> {
     const result = await this.request<CreateGameResponseDto>('post', '/api/game/create', body, req);
     if (result?.gameId) {
-      this.gameGateway.emitMultiplayerGamesListUpdated();
-      this.gameGateway.emitPlayerAvailabilityUpdated();
+      this.realtimeGateway.emitter.emitMultiplayerGamesListUpdated();
+      this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated();
     }
     return result;
   }
@@ -40,9 +42,9 @@ export class GameHttpService {
   async joinGame<T = unknown>(body: JoinGameDto, req?: FastifyRequest): Promise<T> {
     const result = await this.request<T>('post', '/api/game/join', body, req);
     if (body?.gameId) {
-      this.gameGateway.emitLobbyUpdated(body?.gameId);
-      this.gameGateway.emitPlayerAvailabilityUpdated();
-      this.gameGateway.emitMultiplayerGamesListUpdated();
+      this.realtimeGateway.emitter.emitLobbyUpdated(body?.gameId);
+      this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated();
+      this.realtimeGateway.emitter.emitMultiplayerGamesListUpdated();
     }
     return result;
   }
@@ -50,10 +52,10 @@ export class GameHttpService {
   async leaveGame<T = unknown>(body: LeaveGameDto, req?: FastifyRequest): Promise<T> {
     const result = await this.request<T>('post', '/api/game/leave', body, req);
     if (body?.gameId) {
-      this.gameGateway.emitLobbyUpdated(body.gameId);
-      this.gameGateway.emitGameUpdated(body.gameId);
-      this.gameGateway.emitPlayerAvailabilityUpdated();
-      this.gameGateway.emitMultiplayerGamesListUpdated();
+      this.realtimeGateway.emitter.emitLobbyUpdated(body.gameId);
+      this.realtimeGateway.emitter.emitGameUpdated(body.gameId);
+      this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated();
+      this.realtimeGateway.emitter.emitMultiplayerGamesListUpdated();
     }
     return result;
   }
@@ -61,8 +63,8 @@ export class GameHttpService {
   async startGame<T = unknown>(body: StartGameDto, req?: FastifyRequest): Promise<T> {
 
     const result = await this.request<T>('post', '/api/game/start', body, req);
-    this.gameGateway.emitMultiplayerGamesListUpdated();
-    this.gameGateway.emitLobbyUpdated(body.gameId);
+    this.realtimeGateway.emitter.emitMultiplayerGamesListUpdated();
+    this.realtimeGateway.emitter.emitLobbyUpdated(body.gameId);
     return result;
   }
 
@@ -85,7 +87,7 @@ export class GameHttpService {
   async boardMove<T = unknown>(body: BoardMoveDto, req?: FastifyRequest): Promise<T> {
     const result = await  this.request<T>('post', '/api/game/boardmove', body, req);
     if (body.gameId) {
-      this.gameGateway.emitGameUpdated(body.gameId);
+      this.realtimeGateway.emitter.emitGameUpdated(body.gameId);
     }
     return result;
   }
@@ -93,7 +95,7 @@ export class GameHttpService {
   async playerMove<T = unknown>(body: PlayerMoveDto, req?: FastifyRequest): Promise<T> {
     const result = await this.request<T>('post', '/api/game/playermove', body, req);
     if (body.gameId) {
-      this.gameGateway.emitGameUpdated(body.gameId);
+      this.realtimeGateway.emitter.emitGameUpdated(body.gameId);
     }
     return result;
   }

@@ -22,7 +22,9 @@ export class BadgeHttpService {
 		body: { userId: number; key: string },
 		req?: FastifyRequest,
 	): Promise<{ statusCode: number; data: { ok: boolean } }> {
-		return this.request<{ ok: boolean }>(
+
+
+  	return this.request<{ ok: boolean }>(
 			'/api/badges/internal/unlock',
 			'post',
 			body,
@@ -59,34 +61,54 @@ export class BadgeHttpService {
 		return data;
 	}
 
-	private async request<T>(
-		path: string,
-		method: 'get' | 'post' | 'delete' | 'put' | 'patch' = 'get',
-		body?: unknown,
-		req?: FastifyRequest,
-		requireUser = false,
-	): Promise<{ statusCode: number; data: T }> {
-		const headers = this.buildForwardHeaders(req, requireUser);
+  private async request<T>(
+    path: string,
+    method: 'get' | 'post' | 'delete' | 'put' | 'patch' = 'get',
+    body?: unknown,
+    req?: FastifyRequest,
+    requireUser = false,
+  ): Promise<{ statusCode: number; data: T }> {
+    const headers = this.buildForwardHeaders(req, requireUser);
 
-		if (req?.headers?.['content-type']) {
-			headers['content-type'] = req.headers['content-type'];
-		}
+    if (req?.headers?.['content-type']) {
+      headers['content-type'] = req.headers['content-type'];
+    }
 
-		if (method !== 'get' && method !== 'delete' && !headers['content-type']) {
-			headers['content-type'] = 'application/json';
-		}
+    if (method !== 'get' && method !== 'delete' && !headers['content-type']) {
+      headers['content-type'] = 'application/json';
+    }
 
-		const config = { headers };
+    const config = { headers };
 
-		const res = method === 'get' || method === 'delete'
-			? await lastValueFrom(this.http[method]<T>(path, config))
-			: await lastValueFrom(this.http[method]<T>(path, body ?? {}, config));
+    let res;
 
-		return {
-			statusCode: res.status,
-			data: res.data,
-		};
-	}
+    switch (method) {
+      case 'get':
+        res = await lastValueFrom(this.http.get<T>(path, config));
+        break;
+
+      case 'delete':
+        res = await lastValueFrom(this.http.delete<T>(path, config));
+        break;
+
+      case 'post':
+        res = await lastValueFrom(this.http.post<T>(path, body, config));
+        break;
+
+      case 'put':
+        res = await lastValueFrom(this.http.put<T>(path, body, config));
+        break;
+
+      case 'patch':
+        res = await lastValueFrom(this.http.patch<T>(path, body, config));
+        break;
+    }
+
+    return {
+      statusCode: res.status,
+      data: res.data,
+    };
+  }
 
 	private buildForwardHeaders(
 		req?: FastifyRequest,

@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigType } from '@nestjs/config';
-
 import gatewayConfig from '../../common/config/gateway.config';
 import { GameController } from './game.controller';
 import { GameHttpService } from './game.service';
 import { AuthHttpModule } from '../auth/auth.module';
 import { RealtimeModule } from '../realtime/realtime.module';
-import { GameGateway } from '../realtime/game.gateway';
+import { InternalEventsController } from './internal-events.controller';
 
 @Module({
   imports: [
@@ -22,8 +21,8 @@ import { GameGateway } from '../realtime/game.gateway';
     AuthHttpModule,
     RealtimeModule,
   ],
-  controllers: [GameController],
-  providers: [GameHttpService, GameGateway],
+  controllers: [GameController, InternalEventsController],
+  providers: [GameHttpService],
   exports: [GameHttpService],
 })
 export class GameModule {}

@@ -9,7 +9,6 @@ import { ChatHttpService } from './chat.service';
 import { ChatController } from './chat.controller';
 import { AuthHttpModule } from '../auth/auth.module';
 import { RealtimeModule } from '../realtime/realtime.module';
-import { ChatGateway } from '../realtime/chat.gateway';
 
 @Module({
   imports: [
@@ -25,7 +24,7 @@ import { ChatGateway } from '../realtime/chat.gateway';
     RealtimeModule,
   ],
   controllers: [ChatController],
-  providers: [ChatHttpService, ChatGateway],
+  providers: [ChatHttpService],
   exports: [ChatHttpService],
 })
 export class ChatHttpModule {}

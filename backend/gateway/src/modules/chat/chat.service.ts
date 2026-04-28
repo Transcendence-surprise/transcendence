@@ -4,7 +4,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { FastifyRequest } from 'fastify';
 import { lastValueFrom } from 'rxjs';
-import { ChatGateway } from '../realtime/chat.gateway';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 
 export interface ChatMessage {
   id: string;
@@ -30,7 +30,7 @@ interface RequestWithUser extends FastifyRequest {
 export class ChatHttpService {
   constructor(
     private readonly http: HttpService,
-    private readonly chatGateway: ChatGateway,
+    private readonly realtimeGateway: RealtimeGateway,
   ) {}
 
   async getHistory(req: FastifyRequest): Promise<ChatMessage[]> {
@@ -112,8 +112,8 @@ export class ChatHttpService {
   }
 
   private notifyNewMessage(message: ChatMessage) {
-    if (!this.chatGateway) return;
+    if (!this.realtimeGateway.emitter) return;
 
-    this.chatGateway.emitNewMessage(message);
+    this.realtimeGateway.emitter.emitNewMessage(message);
   }
 }

@@ -1,3 +1,5 @@
+// src/modules/badges/badge.controller.ts
+
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { Auth, AuthType } from '../../common/decorator/auth-type.decorator';

@@ -1,33 +1,41 @@
-// src/modules/realtime/realtime.gateway.ts
-
 import {
   WebSocketGateway,
   WebSocketServer,
-  SubscribeMessage,
-  MessageBody,
-  ConnectedSocket,
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import type { TypedSocket } from './models/models';
-import { PresenceHTTPService } from '../presence/presence.service';
 import { WsAuthService } from '../auth/ws-auth.service';
+import { PresenceHTTPService } from '../presence/presence.service';
+
+import { bindGameEvents } from './events/game.events';
+import { bindChatEvents } from './events/chat.events';
+import { bindPresenceEvents } from './events/presence.events';
+import { RealtimeEmitter } from './realtime.emitter';
+import { OnGatewayInit } from '@nestjs/websockets';
 
 @WebSocketGateway({
   path: '/rt/socket.io/',
   cors: { origin: true, credentials: true },
 })
-export class RealtimeGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
   @WebSocketServer()
   server: Server;
+
+  public emitter: RealtimeEmitter;
 
   constructor(
     private readonly wsAuth: WsAuthService,
     private readonly presenceClient: PresenceHTTPService,
-  ) {}
+  ) {
+    console.log('RealtimeGateway CREATED');
+  }
+
+  afterInit(server: Server) {
+    this.server = server;
+    this.emitter = new RealtimeEmitter(server);
+  }
 
   async handleConnection(client: TypedSocket) {
     try {
@@ -39,12 +47,13 @@ export class RealtimeGateway
       client.join(`user:${userId}`);
       client.join('chat:global');
 
-      console.log(`User ${userId} connected to realtime gateway`);
       const result = await this.presenceClient.markOnline(userId);
-      console.log(`User ${userId} marked online`, result);
-      if (result) {
-        this.server.emit('presence:update', result);
-      }
+      if (result) this.emitter.emitPlayerAvailabilityUpdated();
+
+      bindGameEvents(this.server, client);
+      bindChatEvents(this.server, client);
+      bindPresenceEvents(this.server, client);
+
     } catch {
       client.disconnect(true);
     }
@@ -54,34 +63,7 @@ export class RealtimeGateway
     const userId = Number(client.user?.sub);
     if (!userId) return;
 
-    try {
-      const result = await this.presenceClient.markOffline(userId);
-      console.log(`User ${userId} marked offline`, result);
-      if (result) {
-        this.server.emit('presence:update', result);
-      }
-    } catch (e) {
-      console.error('presence offline failed', e.message);
-    }
-  }
-
-  @SubscribeMessage('presence:subscribe')
-  handlePresenceSubscribe(
-    @MessageBody() data: { userIds?: number[] },
-    @ConnectedSocket() client: TypedSocket,
-  ) {
-    const userIds = this.normalize(data.userIds);
-
-    userIds.forEach((id) => client.join(`presence:user:${id}`));
-  }
-
-  private normalize(input?: number[]): number[] {
-    return Array.from(
-      new Set(
-        (input ?? [])
-          .map(Number)
-          .filter((n) => Number.isInteger(n) && n > 0),
-      ),
-    );
+    const result = await this.presenceClient.markOffline(userId);
+    if (result) this.emitter.emitPlayerAvailabilityUpdated();
   }
 }

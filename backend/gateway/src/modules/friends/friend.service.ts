@@ -4,7 +4,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import type { FastifyRequest } from 'fastify';
-import { FriendsGateway } from '../realtime/friends.gateway';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 
 interface JwtPayload {
 	sub: number | string;
@@ -21,7 +21,7 @@ interface RequestWithUser extends FastifyRequest {
 export class FriendHttpService {
 	constructor(
     private readonly http: HttpService,
-    private readonly friendsGateway: FriendsGateway,
+    private readonly realtimeGateway: RealtimeGateway,
   ) {}
 
 	async getFriends<T = unknown>(req: FastifyRequest): Promise<T> {
@@ -29,31 +29,31 @@ export class FriendHttpService {
 	}
 
 	async getFriendRequests<T = unknown>(req: FastifyRequest): Promise<T> {
-		const result =  this.request<T>('get', '/api/friends/requests', undefined, req, true);
+		const result = await this.request<T>('get', '/api/friends/requests', undefined, req, true);
     return result;
 	}
 
 	async sendFriendRequest<T = unknown>(body: unknown, req: FastifyRequest): Promise<T> {
-		const result =   this.request<T>('post', '/api/friends/request', body, req, true);
+		const result =   await this.request<T>('post', '/api/friends/request', body, req, true);
     this.notifyFriendsChanged(req, body);
     return result;
 	}
 
 	async acceptFriendRequest<T = unknown>(body: unknown, req: FastifyRequest): Promise<T> {
-		const result =   this.request<T>('post', '/api/friends/accept', body, req, true);
+		const result =   await this.request<T>('post', '/api/friends/accept', body, req, true);
     this.notifyFriendsChanged(req, body);
     console.log('Friend accepted, emitted update');
     return result;
 	}
 
 	async rejectFriendRequest<T = unknown>(body: unknown, req: FastifyRequest): Promise<T> {
-		const result =   this.request<T>('post', '/api/friends/reject', body, req, true);
+		const result =   await this.request<T>('post', '/api/friends/reject', body, req, true);
     this.notifyFriendsChanged(req, body);
     return result;
 	}
 
 	async removeFriend<T = unknown>(body: unknown, req: FastifyRequest): Promise<T> {
-		const result =   this.request<T>('delete', '/api/friends', body, req, true);
+		const result =   await this.request<T>('delete', '/api/friends', body, req, true);
     this.notifyFriendsChanged(req, body);
     console.log('Friend removed, emitted update');
     return result;
@@ -180,7 +180,7 @@ export class FriendHttpService {
 
   if (!currentUserId || !targetUserId) return;
 
-  this.friendsGateway.emitFriendsUpdate([
+  this.realtimeGateway.emitter.emitFriendsUpdate([
     currentUserId,
     targetUserId,
   ]);

@@ -16,6 +16,7 @@ import { FriendHttpModule } from './modules/friends/friend.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
 import { PresenceModule } from './modules/presence/presence.module';
 import { ChatHttpModule } from './modules/chat/chat.module';
+import { GuardModule } from './common/guards/internal.guard.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { ChatHttpModule } from './modules/chat/chat.module';
     RealtimeModule,
     PresenceModule,
     ChatHttpModule,
+    GuardModule,
   ],
   controllers: [HealthController],
   providers: [
