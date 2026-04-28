@@ -43,7 +43,12 @@ export default function LobbyChat({
           className="flex-1 px-4 py-2 rounded-lg bg-bg-dark-secondary border border-[var(--color-border-subtle)] text-lightest-cyan placeholder-text-light-cyan/50 focus:outline-none focus:border-cyan-300 transition-colors"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && onSend()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              onSend();
+            }
+          }}
           placeholder="Type a message…"
         />
         <button

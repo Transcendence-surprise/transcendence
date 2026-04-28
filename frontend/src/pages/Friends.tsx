@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StatusDot from "../components/shared/StatusDot";
 import { useAuth } from "../hooks/useAuth";
-import { connectRealtimeSocket, getRealtimeSocket } from "../services/realtimeSocket";
+import { getRealtimeSocket } from "../services/realtimeSocket";
 import {
   acceptFriendRequest,
   getFriends,
@@ -106,7 +106,12 @@ export default function Friends() {
   useEffect(() => {
     if (!user || user.roles.includes("guest")) return;
 
-    const socket = getRealtimeSocket() ?? connectRealtimeSocket();
+    const socket = getRealtimeSocket();
+
+    if (!socket) {
+      console.error("Socket not initialized");
+      return;
+    }
 
     const onPresenceUpdate = ({ userId, isOnline }: PresenceUpdatePayload) => {
       setFriends((prev) =>
@@ -139,7 +144,12 @@ export default function Friends() {
   useEffect(() => {
     if (!user || user.roles.includes("guest")) return;
 
-    const socket = getRealtimeSocket() ?? connectRealtimeSocket();
+    const socket = getRealtimeSocket();
+
+    if (!socket) {
+      console.error("Socket not initialized");
+      return;
+    }
 
     const subscribe = () => {
       socket.emit("presence:subscribe", { userIds: friendIds });

@@ -2,7 +2,7 @@
 
 import { useNavigate, useParams } from "react-router-dom";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { connectRealtimeSocket, getRealtimeSocket } from "../../services/realtimeSocket";
+import { getRealtimeSocket } from "../../services/realtimeSocket";
 import { getGameState, startGame, leaveGame } from "../../api/game";
 import Lobby from "../../components/game/Lobby";
 import { LobbyMessage } from "../models/lobbyMessage";
@@ -24,6 +24,8 @@ export default function LobbyRoute() {
 
   const fetchControllerRef = useRef<AbortController | null>(null);
   const lastFetchRef = useRef(0);
+
+  const joinedRef = useRef(false);
 
   const fetchGame = useCallback(async () => {
     if (!gameId) return;
@@ -72,23 +74,34 @@ export default function LobbyRoute() {
   }, [user, gameId, fetchGame, navigate]);
 
   // Websocket for update game state
+  const handleLobbyMessage = useCallback((msg: any) => {
+    setMessages(prev => [...prev, msg]);
+  }, []);
+
   useEffect(() => {
     if (!gameId || !user?.id) {
-      // redirect if we can't determine user
       navigate("/game");
       return;
     }
 
-    const socket = getRealtimeSocket() ?? connectRealtimeSocket();
+    const socket = getRealtimeSocket();
+
+    if (!socket) {
+      console.error("Socket not initialized");
+      return;
+    }
 
     const join = () => {
+      if (joinedRef.current) return;
+      joinedRef.current = true;
+
       socket.emit("game:join", { gameId });
     };
 
     if (socket.connected) {
       join();
     } else {
-      socket.on("connect", join);
+      socket.once("connect", join);
     }
 
     const handleLobbyUpdated = (p: { gameId: string }) => {
@@ -101,10 +114,6 @@ export default function LobbyRoute() {
       fetchGame();
     };
 
-    const handleLobbyMessage = (msg: any) => {
-      setMessages(prev => [...prev, msg]);
-    };
-
     const handleError = (err: any) => {
       setError(err.error || "Failed to join lobby");
     };
@@ -115,12 +124,14 @@ export default function LobbyRoute() {
 
     return () => {
       fetchControllerRef.current?.abort();
+      joinedRef.current = false;
+
       socket.off("connect", join);
       socket.off("lobby:updated", handleLobbyUpdated);
       socket.off("lobbyMessage", handleLobbyMessage);
       socket.off("error", handleError);
     };
-  }, [gameId, user, fetchGame, navigate]);
+  }, [gameId, user, fetchGame, navigate, handleLobbyMessage]);
 
   // Start game (host only)
   const handleStart = async () => {

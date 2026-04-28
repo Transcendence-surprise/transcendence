@@ -8,19 +8,33 @@ export function connectRealtimeSocket(): Socket {
   realtimeSocket = io(window.location.origin, {
     path: "/rt/socket.io/",
     withCredentials: true,
-    autoConnect: true,
+    autoConnect: false,
     transports: ["polling", "websocket"],
   });
+
+  realtimeSocket.connect();
 
   return realtimeSocket;
 }
 
-export function getRealtimeSocket(): Socket | null {
+export function getRealtimeSocket(): Socket {
+  if (!realtimeSocket) {
+    realtimeSocket = io(window.location.origin, {
+      path: "/rt/socket.io/",
+      withCredentials: true,
+      autoConnect: false,
+      transports: ["websocket"],
+    });
+
+    realtimeSocket.connect();
+  }
+
   return realtimeSocket;
 }
 
 export function disconnectRealtimeSocket(): void {
   if (!realtimeSocket) return;
+  realtimeSocket.removeAllListeners(); 
   realtimeSocket.disconnect();
   realtimeSocket = null;
 }

@@ -49,6 +49,7 @@ export function useGameRoom(id: string) {
       });
     };
 
+
     getGameState(id, controller.signal)
       .then((g) => {
         const { nextPlayerProgress, nextPlayerProgressById } =
@@ -69,30 +70,41 @@ export function useGameRoom(id: string) {
         socket.emit("game:join", { gameId: id });
 
         socket.on("game:updated", async ({ gameId }) => {
-          const updated = await getGameState(gameId);
-
-          setGame((prev) => {
-            if (!prev) return prev;
-
-            const { nextPlayerProgress, nextPlayerProgressById } =
-              resolveProgressState({
-                incomingPlayerProgress: updated.playerProgress,
-                incomingPlayerProgressById: updated.playerProgressById,
-                previousPlayerProgress: prev.playerProgress,
-                previousPlayerProgressById: prev.playerProgressById,
-                currentUserId: user.id,
-              });
-
-            return {
-              ...updated,
-              playerProgress: nextPlayerProgress,
-              playerProgressById: nextPlayerProgressById,
-            };
-          });
+          try {
+            const updated = await getGameState(gameId);
+            setGame((prev) => {
+              if (!prev) return prev;
+              const { nextPlayerProgress, nextPlayerProgressById } =
+                resolveProgressState({
+                  incomingPlayerProgress: updated.playerProgress,
+                  incomingPlayerProgressById: updated.playerProgressById,
+                  previousPlayerProgress: prev.playerProgress,
+                  previousPlayerProgressById: prev.playerProgressById,
+                  currentUserId: user.id,
+                });
+              return {
+                ...updated,
+                playerProgress: nextPlayerProgress,
+                playerProgressById: nextPlayerProgressById,
+              };
+            });
+          } catch (e: any) {
+            if (e?.message === 'GAME_NOT_FOUND' || e?.message === 'Game state missing') {
+              setError('Game not found or has ended.');
+              setGame(null);
+            } else if (e?.name !== 'AbortError') {
+              setError('Failed to load game');
+            }
+          }
         });
       })
       .catch((e) => {
-        if (e?.name !== "AbortError") setError("Failed to load game");
+        if (e?.message === 'GAME_NOT_FOUND' || e?.message === 'Game state missing') {
+          setError('Game not found or has ended.');
+          setGame(null);
+        } else if (e?.name !== 'AbortError') {
+          setError('Failed to load game');
+        }
       })
       .finally(() => setLoading(false));
 

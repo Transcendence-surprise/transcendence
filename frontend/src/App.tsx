@@ -25,8 +25,13 @@ import ServerErrorPage from "./pages/error/500";
 import BadGatewayPage from "./pages/error/502";
 import ServiceUnavailablePage from "./pages/error/503";
 import GlobalErrorBoundary from "./components/error/GlobalErrorBoundary";
+import { useEffect } from "react";
+import { connectRealtimeSocket } from "./services/realtimeSocket";
 
 export default function App() {
+  useEffect(() => {
+    connectRealtimeSocket();
+  }, []);
   return (
     <BrowserRouter>
       <GlobalErrorBoundary>
