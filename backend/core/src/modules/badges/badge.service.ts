@@ -18,8 +18,12 @@ export class BadgeService {
   ) {}
 
   async unlockByKey(userId: number, key: string) {
+    console.log(`Unlocking badge for user ${userId} with key "${key}"`);
     const badge = await this.badgeRepo.findOne({ where: { key } });
-    if (!badge) return;
+    if (!badge) {
+      console.warn(`Badge with key "${key}" not found`);
+      return;
+    }
 
     let userBadge = await this.userBadgeRepo.findOne({
       where: { userId, badgeId: badge.id },
@@ -96,23 +100,33 @@ export class BadgeService {
   }
 
   async getUserBadges(userId: number) {
+    const allBadges = await this.badgeRepo.find({
+      order: { id: 'ASC' },
+    });
     const userBadges = await this.userBadgeRepo.find({
       where: { userId },
-      relations: ['badge'],
     });
 
-    return userBadges
-      .filter((ub) => ub.badge)
-      .map((ub) => ({
-        key: ub.badge.key,
-        name: ub.badge.name,
-        imageUrl: ub.badge.imageUrl,
-        description: ub.badge.description,
-        progress: ub.progress,
-        target: ub.badge.conditionValue,
-        completed: ub.completed,
-        unlockedAt: ub.unlockedAt,
-      }));
+    const map = new Map(
+      userBadges.map(ub => [ub.badgeId, ub]),
+    );
+
+    return allBadges.map((badge) => {
+      const ub = map.get(badge.id);
+
+      return {
+        key: badge.key,
+        name: badge.name,
+        imageUrl: badge.imageUrl,
+        description: badge.description,
+
+        progress: ub?.progress ?? 0,
+        target: badge.conditionValue,
+
+        completed: ub?.completed ?? false,
+        unlockedAt: ub?.unlockedAt ?? null,
+      };
+    });
   }
 
   async getBadges() {

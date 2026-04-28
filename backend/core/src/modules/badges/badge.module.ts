@@ -14,5 +14,3 @@ import { BadgeController } from './badge.controller';
   exports: [BadgeService],
 })
 export class BadgeModule {}
-
-

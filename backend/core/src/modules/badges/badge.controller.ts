@@ -1,8 +1,8 @@
 import { BadRequestException, Body, Controller, Get, Post } from '@nestjs/common';
 import { BadgeService } from './badge.service';
 import { BadgeControllerDocs } from './badge.controller.docs';
-import { CurrentUser } from './dto/playerContext.dto';
-import type { PlayerContext } from './dto/playerContext.dto';
+import { CurrentUser } from '../../decorators/current-user.decorator';
+import type { JwtPayload } from '../../decorators/current-user.decorator';
 
 interface BadgeUnlockDto {
   userId: number;
@@ -25,10 +25,10 @@ export class BadgeController {
     return this.badgeService.getBadges();
   }
 
-  @Get('unlocked')
+  @Get('user-badges')
   @BadgeControllerDocs.getUserBadges()
-  async getUserBadges(@CurrentUser() user: PlayerContext) {
-    return this.badgeService.getUserBadges(Number(user.id));
+  async getUserBadges(@CurrentUser() user: JwtPayload) {
+    return this.badgeService.getUserBadges(Number(user.sub));
   }
 
   @Post('internal/unlock')
