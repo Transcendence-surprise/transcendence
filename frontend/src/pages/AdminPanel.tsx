@@ -5,12 +5,21 @@ import { getAllUsers, deleteUser, setUserTwoFactor } from "../api/users";
 import { checkAllServicesHealth, type ServiceHealth } from "../api/health";
 import { TiDeleteOutline } from "react-icons/ti";
 import { TbAuth2Fa } from "react-icons/tb";
+import ConfirmModal from "../components/UI/ConfirmModal";
+
+interface PendingTwoFactorChange {
+  id: number | string;
+  username: string;
+  enabled: boolean;
+}
 
 export default function AdminPanel() {
   const { user, isAdmin } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [services, setServices] = useState<ServiceHealth[]>([]);
   const [updating2FA, setUpdating2FA] = useState<Record<string, boolean>>({});
+  const [pending2FAChange, setPending2FAChange] =
+    useState<PendingTwoFactorChange | null>(null);
 
   const handleToggle2FA = async (id: number | string, enabled: boolean) => {
     const key = String(id);
@@ -36,6 +45,28 @@ export default function AdminPanel() {
     }
   };
 
+  const requestToggle2FA = (targetUser: User, enabled: boolean) => {
+    const key = String(targetUser.id);
+    if (updating2FA[key]) return;
+
+    setPending2FAChange({
+      id: targetUser.id,
+      username: targetUser.username,
+      enabled,
+    });
+  };
+
+  const close2FAModal = () => {
+    if (pending2FAChange && updating2FA[String(pending2FAChange.id)]) return;
+    setPending2FAChange(null);
+  };
+
+  const confirmToggle2FA = async () => {
+    if (!pending2FAChange) return;
+
+    await handleToggle2FA(pending2FAChange.id, pending2FAChange.enabled);
+    setPending2FAChange(null);
+  };
 
   const handleDeleteUser = async (id: number | string) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
@@ -205,15 +236,16 @@ export default function AdminPanel() {
                       <input
                         type="checkbox"
                         checked={!!u.twoFactorEnabled}
-                        onChange={e => handleToggle2FA(u.id, e.target.checked)}
+                        onChange={(e) => requestToggle2FA(u, e.target.checked)}
+                        disabled={updating2FA[String(u.id)]}
                         aria-label={`Toggle two-factor authentication for ${u.username}`}
                         className="sr-only peer"
                       />
                       <span
-                        className="block bg-gray-300 peer-checked:bg-green-400 w-10 h-6 rounded-full transition-colors duration-200"
+                        className="block h-6 w-10 rounded-full bg-gray-300 transition-colors duration-200 peer-checked:bg-green-400 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
                       ></span>
                       <span
-                        className="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full shadow-md transition-transform duration-200 peer-checked:translate-x-4"
+                        className="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 peer-checked:translate-x-4 peer-disabled:opacity-70"
                       ></span>
                     </span>
                   </label>
@@ -233,6 +265,34 @@ export default function AdminPanel() {
           )}
         </div>
       </section>
+
+      <ConfirmModal
+        open={!!pending2FAChange}
+        title="Confirm 2FA change"
+        message={
+          pending2FAChange ? (
+            <>
+              Are you sure you want to{" "}
+              <span className="font-semibold text-white">
+                {pending2FAChange.enabled ? "enable" : "disable"}
+              </span>{" "}
+              2FA for{" "}
+              <span className="font-semibold text-cyan-bright">
+                {pending2FAChange.username}
+              </span>
+              ?
+            </>
+          ) : null
+        }
+        note="This will change the security settings for this account."
+        loading={
+          pending2FAChange
+            ? updating2FA[String(pending2FAChange.id)]
+            : false
+        }
+        onCancel={close2FAModal}
+        onConfirm={confirmToggle2FA}
+      />
     </div>
   );
 }
