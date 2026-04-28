@@ -2,7 +2,7 @@ export default function Footer() {
   return (
     <footer className="bg-bg-dark border-t border-border-gray shadow-lg">
       <div className="max-w-6xl mx-auto px-4 py-4">
-        <p className="text-center text-sm text-gray-400">
+        <div className="text-center text-sm text-gray-400">
           <span className="text-gray-500">Created by </span>
           <a
             href="https://github.com/MariiaZhytnikova"
@@ -45,7 +45,7 @@ export default function Footer() {
           {/* <a href="/terms" className="text-gray-500 hover:text-gray-300 hover:underline transition-colors">
             Terms of Service
           </a> */}
-        </p>
+        </div>
       </div>
     </footer>
   );
