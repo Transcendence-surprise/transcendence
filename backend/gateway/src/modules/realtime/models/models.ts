@@ -1,6 +1,6 @@
 // src/modules/realtime/models.ts
 
-import { Socket } from "node_modules/socket.io/dist/socket";
+import { Socket } from "socket.io";
 
 export interface JwtPayload {
   sub: number | string;
