@@ -1,6 +1,10 @@
+// src/components/game/ActiveGamesSection.tsx
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getGameState } from "../../api/game";
 import { connectRealtimeSocket, getRealtimeSocket } from "../../services/realtimeSocket";
+import { checkPlayerAvailability } from "../../api/game";
 
 interface ActiveGamesSectionProps {
   user: { username: string } | null;
@@ -18,29 +22,31 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
     }
 
     const socket = getRealtimeSocket() ?? connectRealtimeSocket();
-    const requestStatus = () => {
-      socket.emit("checkPlayerStatus");
-    };
+    const controller = new AbortController();
 
-    if (socket.connected) {
-      requestStatus();
-    } else {
-      socket.on("connect", requestStatus);
-    }
+    const loadStatus = async () => {
+      try {
+        const data = await checkPlayerAvailability(controller.signal);
 
-    const handleStatus = (data: any) => {
-      if (!data.ok && data.gameId) {
-        setActiveGameIds([data.gameId]);
-      } else {
-        setActiveGameIds([]);
+        if (data?.gameId) {
+          setActiveGameIds([data.gameId]);
+        } else {
+          setActiveGameIds([]);
+        }
+      } catch (e: any) {
+        if (e?.name !== "AbortError") {
+          console.error("Failed to load active games");
+        }
       }
     };
 
-    socket.on("playerStatus", handleStatus);
+    loadStatus();
+
+    socket.on("playerAvailability:updated", loadStatus);
 
     return () => {
-      socket.off("connect", requestStatus);
-      socket.off("playerStatus", handleStatus);
+      controller.abort();
+      socket.off("playerAvailability:updated", loadStatus);
     };
   }, [user]);
 
@@ -75,7 +81,12 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
                     onClick={async () => {
                       setLoadingGame(true);
                       try {
-                        navigate(`/game/${gameId}`);
+                        const game = await getGameState(gameId);
+                        if (game?.phase === "PLAY") {
+                          navigate(`/game/${gameId}`);
+                        } else {
+                          navigate(`/multiplayer/lobby/${gameId}`);
+                        }
                       } catch (err: any) {
                         if (err?.name !== "AbortError") {
                           console.error(err);

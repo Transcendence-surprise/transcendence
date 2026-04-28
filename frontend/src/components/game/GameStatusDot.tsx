@@ -1,7 +1,10 @@
+// src/components/game/GameStatusDot.tsx
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getRealtimeSocket, connectRealtimeSocket } from "../../services/realtimeSocket";
 import StatusDot from "../shared/StatusDot";
+import { checkPlayerAvailability } from "../../api/game";
 
 interface GameStatusDotProps {
   user: { id?: string } | null;
@@ -9,6 +12,7 @@ interface GameStatusDotProps {
 
 export default function GameStatusDot({ user }: GameStatusDotProps) {
   const navigate = useNavigate();
+
   const [activeGame, setActiveGame] = useState<{
     gameId: string;
     phase: string;
@@ -20,31 +24,37 @@ export default function GameStatusDot({ user }: GameStatusDotProps) {
       return;
     }
 
-    // Real-time: listen for playerStatus/playerGameStatus events
     const socket = getRealtimeSocket() ?? connectRealtimeSocket();
-    const requestStatus = () => {
-      socket.emit("checkPlayerStatus");
-    };
+    const controller = new AbortController();
 
-    if (socket.connected) {
-      requestStatus();
-    } else {
-      socket.on("connect", requestStatus);
-    }
+    const loadStatus = async () => {
+      try {
+        const data = await checkPlayerAvailability(controller.signal);
 
-    const handleStatus = (data: any) => {
-      if (data && !data.ok && data.gameId) {
-        setActiveGame({ gameId: data.gameId, phase: data.phase });
-      } else {
-        setActiveGame(null);
+        if (data?.gameId) {
+          setActiveGame({
+            gameId: data.gameId,
+            phase: data.phase,
+          });
+        } else {
+          setActiveGame(null);
+        }
+      } catch (e: any) {
+        if (e?.name !== "AbortError") {
+          console.error("Failed to load player status");
+        }
       }
     };
-    socket.on("playerStatus", handleStatus);
-    socket.on("playerGameStatus", handleStatus);
+
+    // initial fetch
+    loadStatus();
+
+    // WS trigger → refetch status
+    socket.on("playerAvailability:updated", loadStatus);
+
     return () => {
-      socket.off("connect", requestStatus);
-      socket.off("playerStatus", handleStatus);
-      socket.off("playerGameStatus", handleStatus);
+      controller.abort();
+      socket.off("playerAvailability:updated", loadStatus);
     };
   }, [user]);
 
