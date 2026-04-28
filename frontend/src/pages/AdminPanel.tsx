@@ -5,7 +5,10 @@ import { getAllUsers, deleteUser, setUserTwoFactor } from "../api/users";
 import { checkAllServicesHealth, type ServiceHealth } from "../api/health";
 import { TiDeleteOutline } from "react-icons/ti";
 import { TbAuth2Fa } from "react-icons/tb";
-import ConfirmModal from "../components/UI/ConfirmModal";
+import ConfirmModal from "../components/UI/modals/ConfirmModal";
+import DeleteUserConfirmationModal, {
+  type PendingUserDeletion,
+} from "../components/UI/modals/DeleteUserConfirmationModal";
 
 interface PendingTwoFactorChange {
   id: number | string;
@@ -18,8 +21,11 @@ export default function AdminPanel() {
   const [users, setUsers] = useState<User[]>([]);
   const [services, setServices] = useState<ServiceHealth[]>([]);
   const [updating2FA, setUpdating2FA] = useState<Record<string, boolean>>({});
+  const [deletingUsers, setDeletingUsers] = useState<Record<string, boolean>>({});
   const [pending2FAChange, setPending2FAChange] =
     useState<PendingTwoFactorChange | null>(null);
+  const [pendingUserDeletion, setPendingUserDeletion] =
+    useState<PendingUserDeletion | null>(null);
 
   const handleToggle2FA = async (id: number | string, enabled: boolean) => {
     const key = String(id);
@@ -69,14 +75,49 @@ export default function AdminPanel() {
   };
 
   const handleDeleteUser = async (id: number | string) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    const key = String(id);
+    if (deletingUsers[key]) return;
+
+    setDeletingUsers((prev) => ({ ...prev, [key]: true }));
+
     try {
       await deleteUser(id);
-      setUsers((users) => users.filter((user) => user.id !== id && user.id !== String(id) && user.id !== Number(id)));
+      setUsers((users) =>
+        users.filter(
+          (user) =>
+            user.id !== id &&
+            user.id !== String(id) &&
+            user.id !== Number(id)
+        )
+      );
     } catch (err) {
       alert("Failed to delete user.");
       console.error(err);
+    } finally {
+      setDeletingUsers((prev) => ({ ...prev, [key]: false }));
     }
+  };
+
+  const requestDeleteUser = (targetUser: User) => {
+    const key = String(targetUser.id);
+    if (deletingUsers[key]) return;
+
+    setPendingUserDeletion({
+      id: targetUser.id,
+      username: targetUser.username,
+    });
+  };
+
+  const closeDeleteModal = () => {
+    if (pendingUserDeletion && deletingUsers[String(pendingUserDeletion.id)]) return;
+    setPendingUserDeletion(null);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!pendingUserDeletion) return;
+
+    await handleDeleteUser(pendingUserDeletion.id);
+    setPendingUserDeletion(null);
   };
   useEffect(() => {
     const controller = new AbortController();
@@ -255,8 +296,12 @@ export default function AdminPanel() {
               )}
               {u.username !== "admin" && (
                 <TiDeleteOutline
-                  className="text-red-500 text-2xl self-center cursor-pointer transition-transform duration-150 hover:scale-125"
-                  onClick={() => handleDeleteUser(u.id)}
+                  className={`text-2xl self-center transition-transform duration-150 ${
+                    deletingUsers[String(u.id)]
+                      ? "cursor-not-allowed text-red-400/60"
+                      : "cursor-pointer text-red-500 hover:scale-125"
+                  }`}
+                  onClick={() => requestDeleteUser(u)}
                 />
               )}
                 </li>
@@ -292,6 +337,17 @@ export default function AdminPanel() {
         }
         onCancel={close2FAModal}
         onConfirm={confirmToggle2FA}
+      />
+
+      <DeleteUserConfirmationModal
+        pendingUserDeletion={pendingUserDeletion}
+        loading={
+          pendingUserDeletion
+            ? deletingUsers[String(pendingUserDeletion.id)]
+            : false
+        }
+        onCancel={closeDeleteModal}
+        onConfirm={confirmDeleteUser}
       />
     </div>
   );
