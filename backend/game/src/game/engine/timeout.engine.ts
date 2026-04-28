@@ -67,6 +67,7 @@ export function applyMultiTimeout(
     if (!result.ok) return null;
 
     if (result.deleteGame) {
+      state.moveStartedAt = now;
       return {
         type: 'PLAYER_REMOVED',
         removedPlayerIds: [removedPlayerId],
@@ -76,9 +77,9 @@ export function applyMultiTimeout(
 
     const nextPlayer = state.players[state.currentPlayerIndex];
     if (nextPlayer) {
+      state.moveStartedAt = now;
       beginCurrentTurn(state, now);
     }
-
     return {
       type: 'PLAYER_REMOVED',
       removedPlayerIds: [removedPlayerId],

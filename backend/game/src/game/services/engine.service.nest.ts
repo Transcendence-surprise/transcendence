@@ -27,6 +27,7 @@ import { saveGameToDB } from '../engine/saveGameTo.database';
 import { PlayersPersistenceService } from './playersPersistence.service';
 import { savePlayersToDB } from '../engine/savePlayersTo.database';
 import { UserUpdateService } from './userStateUpdate.service';
+import { GameInternalHTTPService } from './game-internal.http.service';
 
 @Injectable()
 export class EngineService {
@@ -34,10 +35,10 @@ export class EngineService {
     private readonly persistence: GamePersistenceService,
     private readonly playersPersistence: PlayersPersistenceService,
     private readonly userUpdateService: UserUpdateService,
+    private readonly gameInternal: GameInternalHTTPService
   ) {}
 
   private games = new Map<string, GameState>();
-
 
   async evaluateSinglePlayerTimeouts(now = Date.now()) {
     const endedGames: Array<any> = [];
@@ -55,6 +56,8 @@ export class EngineService {
 
       saves.push(saveGameToDB(gameId, state, this.persistence));
       saves.push(this.userUpdateService.updateUserStats(state));
+      // await this.gameInternal.emitGameEnded(gameId);
+      await this.gameInternal.emitGameUpdated(gameId);
     }
 
     await Promise.all(saves);
@@ -81,10 +84,13 @@ export class EngineService {
           state.endReason = 'LOSE_TIME_LIMIT';
           await saveGameToDB(gameId, state, this.persistence);
           await this.userUpdateService.updateUserStats(state, participantIdsBeforeTimeout);
+          // await this.gameInternal.emitGameEnded(gameId);
+          await this.gameInternal.emitGameUpdated(gameId);
         }
 
         if (!result.deleteGame) {
           await saveGameToDB(gameId, state, this.persistence);
+          await this.gameInternal.emitGameUpdated(gameId);
         }
 
         events.push({
@@ -101,7 +107,7 @@ export class EngineService {
 
       if (result.type === 'PLAY_UPDATE') {
         await saveGameToDB(gameId, state, this.persistence);
-
+        await this.gameInternal.emitGameUpdated(gameId);
         events.push({ type: 'PLAY_UPDATE', gameId });
       }
     }
