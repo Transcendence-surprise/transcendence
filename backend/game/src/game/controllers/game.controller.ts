@@ -92,6 +92,7 @@ export class GameController {
     if (!user.id) {
       throw new UnauthorizedException('User id missing');
     }
+    console.log(`Received board move request for gameId ${body.gameId} from user ${user.id}`);
     const result = await this.engine.boardModification(body.gameId, body.action, user.id);
     return result;
   }
@@ -107,7 +108,7 @@ export class GameController {
       if (!user.id) {
       throw new UnauthorizedException('User id missing');
     }
-
+    console.log(`Received player move request for gameId ${body.gameId} from user ${user.id}`);
     const action: PlayerAction = {
       path: body.path,
       skip: body.skip || false,

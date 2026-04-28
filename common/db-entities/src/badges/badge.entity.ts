@@ -20,6 +20,12 @@ export class Badge {
   @Column({ length: 128 })
   name: string;
 
+  @Column({ name: 'condition_type', length: 32 })
+  conditionType: string; // 'wins', 'games', 'streak'
+
+  @Column({ name: 'condition_value', type: 'int' })
+  conditionValue: number;
+
   @Column({ name: 'image_url', type: 'varchar', length: 255 })
   imageUrl: string;
 

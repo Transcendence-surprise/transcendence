@@ -29,7 +29,12 @@ export default function MultiplayerJoinRoute() {
       })
       .finally(() => setLoading(false));
 
-    const socket = getRealtimeSocket() ?? connectRealtimeSocket();
+    const socket = getRealtimeSocket();
+
+    if (!socket) {
+      console.error("Socket not initialized");
+      return;
+    }
 
     socket.emit("joinMultiplayerList");
 

@@ -70,9 +70,18 @@ export class AuthGuard implements CanActivate {
 
     try {
       const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
+      // Verify user still exists in core service (check for deletion)
+      const userExists = await this.checkUserExists(payload.sub as number);
+      if (!userExists) {
+        throw new UnauthorizedException('User account has been deleted');
+      }
+
       (request as RequestWithUser).user = payload;
       return true;
-    } catch {
+    } catch (err) {
+      if (err instanceof UnauthorizedException) {
+        throw err;
+      }
       throw new UnauthorizedException('Invalid JWT token');
     }
   }
@@ -111,6 +120,20 @@ export class AuthGuard implements CanActivate {
   private extractJwtToken(request: FastifyRequest): string | undefined {
     const authCookie = request.cookies.access_token;
     return authCookie;
+  }
+
+  private async checkUserExists(userId: number): Promise<boolean> {
+    try {
+      // Try to fetch user from core service without auth headers
+      const res = await fetch(`${this.config.core.baseUrl}/api/users/id/${userId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      return res.ok && res.status !== 404;
+    } catch {
+      // If request fails, allow the request to proceed (core service may be down)
+      return true;
+    }
   }
 
   private extractApiKey(request: FastifyRequest): string | undefined {

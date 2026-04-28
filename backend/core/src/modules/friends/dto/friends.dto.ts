@@ -12,3 +12,15 @@ export class FriendActionDto {
   targetUserId: number;
 }
 
+
+export class FriendDto {
+  id: number;
+  username: string;
+  isOnline?: boolean;
+}
+
+export class FriendsSnapshotDto {
+  friends: FriendDto[];
+  pendingRequests: FriendDto[];
+}
+

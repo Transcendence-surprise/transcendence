@@ -2,9 +2,15 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthController } from './health/health.controller';
 import { GameModule } from './game/modules/game.module'; // My GAME
+import { ConfigModule } from '@nestjs/config';
+import gameConfig from './config/game.config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [gameConfig],
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_HOST ?? 'localhost',

@@ -1,6 +1,10 @@
-import { GameSettings } from './game-settings.dto';
+// src/modules/game/dto/create-game.dto.ts
+import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateGameDto {
-  hostId: string;
-  settings: GameSettings;
+export class CreateGameResponseDto {
+  @ApiProperty()
+  ok: boolean;
+
+  @ApiProperty()
+  gameId: string;
 }

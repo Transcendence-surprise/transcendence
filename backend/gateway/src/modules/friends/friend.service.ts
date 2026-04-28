@@ -1,7 +1,10 @@
+// src/modules/friends/friend.service.ts
+
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import type { FastifyRequest } from 'fastify';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 
 interface JwtPayload {
 	sub: number | string;
@@ -16,31 +19,61 @@ interface RequestWithUser extends FastifyRequest {
 
 @Injectable()
 export class FriendHttpService {
-	constructor(private readonly http: HttpService) {}
+	constructor(
+    private readonly http: HttpService,
+    private readonly realtimeGateway: RealtimeGateway,
+  ) {}
 
 	async getFriends<T = unknown>(req: FastifyRequest): Promise<T> {
 		return this.request<T>('get', '/api/friends', undefined, req, true);
 	}
 
 	async getFriendRequests<T = unknown>(req: FastifyRequest): Promise<T> {
-		return this.request<T>('get', '/api/friends/requests', undefined, req, true);
+		const result = await this.request<T>('get', '/api/friends/requests', undefined, req, true);
+    return result;
 	}
 
 	async sendFriendRequest<T = unknown>(body: unknown, req: FastifyRequest): Promise<T> {
-		return this.request<T>('post', '/api/friends/request', body, req, true);
+		const result =   await this.request<T>('post', '/api/friends/request', body, req, true);
+    this.notifyFriendsChanged(req, body);
+    return result;
 	}
 
 	async acceptFriendRequest<T = unknown>(body: unknown, req: FastifyRequest): Promise<T> {
-		return this.request<T>('post', '/api/friends/accept', body, req, true);
+		const result =   await this.request<T>('post', '/api/friends/accept', body, req, true);
+    this.notifyFriendsChanged(req, body);
+    console.log('Friend accepted, emitted update');
+    return result;
 	}
 
 	async rejectFriendRequest<T = unknown>(body: unknown, req: FastifyRequest): Promise<T> {
-		return this.request<T>('post', '/api/friends/reject', body, req, true);
+		const result =   await this.request<T>('post', '/api/friends/reject', body, req, true);
+    this.notifyFriendsChanged(req, body);
+    return result;
 	}
 
 	async removeFriend<T = unknown>(body: unknown, req: FastifyRequest): Promise<T> {
-		return this.request<T>('delete', '/api/friends', body, req, true);
+		const result =   await this.request<T>('delete', '/api/friends', body, req, true);
+    this.notifyFriendsChanged(req, body);
+    console.log('Friend removed, emitted update');
+    return result;
 	}
+
+  async getFriendsSnapshot<T = unknown>(req: FastifyRequest): Promise<T> {
+    return this.request<T>('get', '/api/friends/snapshot', undefined, req, true);
+  }
+
+  async getFriendsSnapshotByUser<T = unknown>(
+    user: JwtPayload
+  ): Promise<T> {
+    const headers = this.buildHeadersFromUser(user);
+
+    const response = await lastValueFrom(
+      this.http.get<T>('/api/friends/snapshot', { headers }),
+    );
+
+    return response.data;
+  }
 
 	private buildForwardHeaders(
 		req?: FastifyRequest,
@@ -115,4 +148,41 @@ export class FriendHttpService {
 
 		return response.data;
 	}
+
+  private buildHeadersFromUser(user: JwtPayload): Record<string, string> {
+    return {
+      'x-user-id': String(user.sub),
+      'x-user-username': user.username,
+      'x-user-email': user.email,
+      'x-user-roles': user.roles.join(','),
+    };
+  }
+
+  private extractTargetUserId(body: unknown): number | null {
+    if (!body || typeof body !== 'object') return null;
+
+    const target = (body as { targetUserId?: unknown }).targetUserId;
+    const id = Number(target);
+
+    if (!Number.isInteger(id) || id <= 0) return null;
+
+    return id;
+  }
+
+  private notifyFriendsChanged(
+  req: FastifyRequest,
+  body: unknown,
+) {
+  const reqWithUser = req as RequestWithUser;
+
+  const currentUserId = Number(reqWithUser.user?.sub);
+  const targetUserId = this.extractTargetUserId(body);
+
+  if (!currentUserId || !targetUserId) return;
+
+  this.realtimeGateway.emitter.emitFriendsUpdate([
+    currentUserId,
+    targetUserId,
+  ]);
+}
 }

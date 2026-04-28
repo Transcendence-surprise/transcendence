@@ -26,9 +26,11 @@ export default function GamePage({
   sendMessage,
   showChat = false,
 }: GamePageProps) {
+  if (!game) return <div>Game not found</div>;
+
   const isSpectator =
     userId != null &&
-    !game.players.some((p) => p.id.toString() === userId.toString());
+    !game.players.some((p) => String(p.id) === String(userId));
 
   return (
     <div className="flex min-h-full flex-col">
@@ -44,11 +46,12 @@ export default function GamePage({
             isSpectator={isSpectator}
           />
         </div>
-        {/* Sidebar pushed right */}
+
         <div className="flex-shrink-0 self-start">
           <Sidebar game={game} isSpectator={isSpectator} />
         </div>
       </div>
+
       {showChat && (
         <div className="mt-4 w-5/6 mx-auto">
           <LobbyChat

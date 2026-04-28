@@ -1,48 +1,18 @@
-import { useEffect, useState } from "react";
+// src/components/game/ActiveGamesSection.tsx
+
 import { useNavigate } from "react-router-dom";
-import { connectRealtimeSocket, getRealtimeSocket } from "../../services/realtimeSocket";
+import { useState } from "react";
+import { getGameState } from "../../api/game";
+import { usePlayerAvailability } from "../../hooks/usePlayerAvailability";
 
 interface ActiveGamesSectionProps {
-  user: { username: string } | null;
+  user: { id?: string } | null;
 }
 
 export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
   const navigate = useNavigate();
-  const [activeGameIds, setActiveGameIds] = useState<string[]>([]);
+  const { availability, loading, error } = usePlayerAvailability(user);
   const [loadingGame, setLoadingGame] = useState(false);
-
-  useEffect(() => {
-    if (!user) {
-      setActiveGameIds([]);
-      return;
-    }
-
-    const socket = getRealtimeSocket() ?? connectRealtimeSocket();
-    const requestStatus = () => {
-      socket.emit("checkPlayerStatus");
-    };
-
-    if (socket.connected) {
-      requestStatus();
-    } else {
-      socket.on("connect", requestStatus);
-    }
-
-    const handleStatus = (data: any) => {
-      if (!data.ok && data.gameId) {
-        setActiveGameIds([data.gameId]);
-      } else {
-        setActiveGameIds([]);
-      }
-    };
-
-    socket.on("playerStatus", handleStatus);
-
-    return () => {
-      socket.off("connect", requestStatus);
-      socket.off("playerStatus", handleStatus);
-    };
-  }, [user]);
 
   return (
     <>
@@ -51,14 +21,13 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
       </h2>
 
       {/* Active Games Section */}
-      {activeGameIds.length > 0 ? (
+      {availability?.gameId ? (
         <div className="w-full max-w-md px-4">
           <div className="space-y-2">
-            {activeGameIds.map((gameId) => (
-              <div
-                key={gameId}
-                className="bg-green-500/10 border border-green-500/30 rounded-lg p-3"
-              >
+            <div
+              key={availability.gameId}
+              className="bg-green-500/10 border border-green-500/30 rounded-lg p-3"
+            >
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -67,7 +36,7 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
                         Game in Progress
                       </p>
                       <p className="text-xs text-gray-400">
-                        ID: {gameId.slice(0, 8)}...
+                        ID: {availability.gameId.slice(0, 8)}...
                       </p>
                     </div>
                   </div>
@@ -75,7 +44,12 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
                     onClick={async () => {
                       setLoadingGame(true);
                       try {
-                        navigate(`/game/${gameId}`);
+                        const game = await getGameState(availability.gameId!);
+                        if (game?.phase === "PLAY") {
+                          navigate(`/game/${availability.gameId}`);
+                        } else {
+                          navigate(`/multiplayer/lobby/${availability.gameId}`);
+                        }
                       } catch (err: any) {
                         if (err?.name !== "AbortError") {
                           console.error(err);
@@ -91,7 +65,6 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
                   </button>
                 </div>
               </div>
-            ))}
           </div>
         </div>
       ) : (
@@ -99,7 +72,9 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
         <div className="w-full max-w-md px-4">
           <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
             <p className="text-gray-400">
-              {user
+              {error
+                ? error
+                : user
                 ? "You have no active games right now."
                 : "You are not logged in. No active games available."}
             </p>

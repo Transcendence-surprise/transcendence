@@ -35,6 +35,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Fetch current user on mount
   useEffect(() => {
+    if (!authApi.hasAuthHint()) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     const controller = new AbortController();
 
     authApi

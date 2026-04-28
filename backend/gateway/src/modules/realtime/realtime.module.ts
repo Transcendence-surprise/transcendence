@@ -1,13 +1,14 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AuthHttpModule } from '../auth/auth.module';
-import { ChatHttpModule } from '../chat/chat.module';
-import { GameModule } from '../game/game.module';
 import { RealtimeGateway } from './realtime.gateway';
+import { PresenceModule } from '../presence/presence.module';
 
-@Global()
 @Module({
-  imports: [AuthHttpModule, ChatHttpModule, GameModule],
+  imports: [
+    AuthHttpModule,
+    PresenceModule,
+  ],
   providers: [RealtimeGateway],
   exports: [RealtimeGateway],
 })
-export class RealtimeModule {}
+export class RealtimeModule {} 

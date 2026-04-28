@@ -1,3 +1,6 @@
+// Ensure required env vars for tests
+process.env.GATEWAY_URL = process.env.GATEWAY_URL || 'http://localhost:3002';
+process.env.INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY || 'test-internal-key';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   FastifyAdapter,

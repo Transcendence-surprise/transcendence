@@ -27,6 +27,7 @@ import { saveGameToDB } from '../engine/saveGameTo.database';
 import { PlayersPersistenceService } from './playersPersistence.service';
 import { savePlayersToDB } from '../engine/savePlayersTo.database';
 import { UserUpdateService } from './userStateUpdate.service';
+import { GameInternalHTTPService } from './game-internal.http.service';
 
 @Injectable()
 export class EngineService {
@@ -34,10 +35,10 @@ export class EngineService {
     private readonly persistence: GamePersistenceService,
     private readonly playersPersistence: PlayersPersistenceService,
     private readonly userUpdateService: UserUpdateService,
+    private readonly gameInternal: GameInternalHTTPService
   ) {}
 
   private games = new Map<string, GameState>();
-
 
   async evaluateSinglePlayerTimeouts(now = Date.now()) {
     const endedGames: Array<any> = [];
@@ -55,6 +56,8 @@ export class EngineService {
 
       saves.push(saveGameToDB(gameId, state, this.persistence));
       saves.push(this.userUpdateService.updateUserStats(state));
+      // await this.gameInternal.emitGameEnded(gameId);
+      await this.gameInternal.emitGameUpdated(gameId);
     }
 
     await Promise.all(saves);
@@ -66,6 +69,7 @@ export class EngineService {
     const events: Array<any> = [];
 
     for (const [gameId, state] of this.games.entries()) {
+      const participantIdsBeforeTimeout = state.players.map((p) => p.id);
       const result = applyMultiTimeout(state, now);
 
       if (!result) continue;
@@ -79,11 +83,14 @@ export class EngineService {
           state.gameResult = undefined;
           state.endReason = 'LOSE_TIME_LIMIT';
           await saveGameToDB(gameId, state, this.persistence);
-          await this.userUpdateService.updateUserStats(state);
+          await this.userUpdateService.updateUserStats(state, participantIdsBeforeTimeout);
+          // await this.gameInternal.emitGameEnded(gameId);
+          await this.gameInternal.emitGameUpdated(gameId);
         }
 
         if (!result.deleteGame) {
           await saveGameToDB(gameId, state, this.persistence);
+          await this.gameInternal.emitGameUpdated(gameId);
         }
 
         events.push({
@@ -100,7 +107,7 @@ export class EngineService {
 
       if (result.type === 'PLAY_UPDATE') {
         await saveGameToDB(gameId, state, this.persistence);
-
+        await this.gameInternal.emitGameUpdated(gameId);
         events.push({ type: 'PLAY_UPDATE', gameId });
       }
     }
@@ -136,6 +143,14 @@ export class EngineService {
     const spectatorExists = state.spectators.some(
       s => s.id.toString() === playerId.toString()
     );
+
+    const hasHistoricProgress = Boolean(state.playerProgress[playerId.toString()]);
+
+    // If the game has already ended, allow former participants (removed by timeout/leave)
+    // to fetch final state using their saved progress snapshot.
+    if (state.phase === GamePhase.END && hasHistoricProgress) {
+      return getPrivateState(state, playerId);
+    }
 
     if (!playerExists && !spectatorExists) {
       return { ok: false, error: PrivateStateError.PLAYER_NOT_FOUND };

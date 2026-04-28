@@ -1,7 +1,16 @@
+// src/modules/game/game.service.ts
+
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import type { FastifyRequest } from 'fastify';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
+import { CreateGameResponseDto } from './dto/create-game.dto';
+import { JoinGameDto } from './dto/join-game.dto';
+import { LeaveGameDto } from './dto/leave-game.dto';
+import { PlayerMoveDto } from './dto/player-move.dto';
+import { BoardMoveDto } from './dto/board-move.dto';
+import { StartGameDto } from './dto/start-game.dto';
 
 interface JwtPayload {
   sub: number;
@@ -16,30 +25,51 @@ interface RequestWithUser extends FastifyRequest {
 
 @Injectable()
 export class GameHttpService {
-  constructor(private readonly http: HttpService) {}
+  constructor(
+    private readonly http: HttpService,
+    private readonly realtimeGateway: RealtimeGateway,
+  ) {}
 
-  async createGame<T = unknown>(body: unknown, req?: FastifyRequest): Promise<T> {
-    return this.request<T>('post', '/api/game/create', body, req);
+  async createGame(body: unknown, req?: FastifyRequest): Promise<CreateGameResponseDto> {
+    const result = await this.request<CreateGameResponseDto>('post', '/api/game/create', body, req);
+    if (result?.gameId) {
+      this.realtimeGateway.emitter.emitMultiplayerGamesListUpdated();
+      this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated();
+    }
+    return result;
   }
 
-  async startGame<T = unknown>(body: unknown, req?: FastifyRequest): Promise<T> {
-    return this.request<T>('post', '/api/game/start', body, req);
+  async joinGame<T = unknown>(body: JoinGameDto, req?: FastifyRequest): Promise<T> {
+    const result = await this.request<T>('post', '/api/game/join', body, req);
+    if (body?.gameId) {
+      this.realtimeGateway.emitter.emitLobbyUpdated(body?.gameId);
+      this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated();
+      this.realtimeGateway.emitter.emitMultiplayerGamesListUpdated();
+    }
+    return result;
   }
 
-  async joinGame<T = unknown>(body: unknown, req?: FastifyRequest): Promise<T> {
-    return this.request<T>('post', '/api/game/join', body, req);
+  async leaveGame<T = unknown>(body: LeaveGameDto, req?: FastifyRequest): Promise<T> {
+    const result = await this.request<T>('post', '/api/game/leave', body, req);
+    if (body?.gameId) {
+      this.realtimeGateway.emitter.emitLobbyUpdated(body.gameId);
+      this.realtimeGateway.emitter.emitGameUpdated(body.gameId);
+      this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated();
+      this.realtimeGateway.emitter.emitMultiplayerGamesListUpdated();
+    }
+    return result;
   }
 
-  async leaveGame<T = unknown>(body: unknown, req?: FastifyRequest): Promise<T> {
-    return this.request<T>('post', '/api/game/leave', body, req);
+  async startGame<T = unknown>(body: StartGameDto, req?: FastifyRequest): Promise<T> {
+
+    const result = await this.request<T>('post', '/api/game/start', body, req);
+    this.realtimeGateway.emitter.emitMultiplayerGamesListUpdated();
+    this.realtimeGateway.emitter.emitLobbyUpdated(body.gameId);
+    return result;
   }
 
   async getGameState<T = unknown>(gameId: string, req?: FastifyRequest): Promise<T> {
     return this.request<T>('get', `/api/game/${gameId}`, undefined, req);
-  }
-
-  async getGameStateInternal<T = unknown>(gameId: string): Promise<T> {
-    return this.request<T>('get', `/api/game/internal/${gameId}`);
   }
 
   async getSinglePlayerLevels<T = unknown>(req?: FastifyRequest): Promise<T> {
@@ -54,12 +84,47 @@ export class GameHttpService {
     return this.request<T>('get', `/api/game/check-player`, undefined, req);
   }
 
-  async boardMove<T = unknown>(body: unknown, req?: FastifyRequest): Promise<T> {
-    return this.request<T>('post', '/api/game/boardmove', body, req);
+  async boardMove<T = unknown>(body: BoardMoveDto, req?: FastifyRequest): Promise<T> {
+    const result = await  this.request<T>('post', '/api/game/boardmove', body, req);
+    if (body.gameId) {
+      this.realtimeGateway.emitter.emitGameUpdated(body.gameId);
+    }
+    return result;
   }
 
-  async playerMove<T = unknown>(body: unknown, req?: FastifyRequest): Promise<T> {
-    return this.request<T>('post', '/api/game/playermove', body, req);
+  async playerMove<T = unknown>(body: PlayerMoveDto, req?: FastifyRequest): Promise<T> {
+    const result = await this.request<T>('post', '/api/game/playermove', body, req);
+    if (body.gameId) {
+      this.realtimeGateway.emitter.emitGameUpdated(body.gameId);
+    }
+    return result;
+  }
+
+  private buildHeaders(req?: FastifyRequest): Record<string, string> {
+    const headers: Record<string, string> = {};
+
+    const user = (req as RequestWithUser | undefined)?.user;
+
+    if (user) {
+      headers['x-user-id'] = String(user.sub);
+      headers['x-user-username'] = user.username;
+      headers['x-user-email'] = user.email;
+      headers['x-user-roles'] = user.roles.join(',');
+    }
+
+    const allowedPassThrough = [
+      'authorization',
+      'x-request-id',
+    ];
+
+    for (const key of allowedPassThrough) {
+      const value = req?.headers?.[key];
+      if (typeof value === 'string') {
+        headers[key] = value;
+      }
+    }
+
+    return headers;
   }
 
   private async request<T>(
@@ -68,27 +133,14 @@ export class GameHttpService {
     body?: any,
     req?: FastifyRequest,
   ): Promise<T> {
-    let headers: Record<string, string> = {};
 
-    if (req) {
-      headers = { ...req.headers as Record<string, string> };
+    const headers = this.buildHeaders(req);
+    const config = { headers };
 
-      const reqWithUser = req as RequestWithUser;
-      if (reqWithUser.user) {
-        headers['x-user-id'] = String(reqWithUser.user.sub);
-        headers['x-user-username'] = reqWithUser.user.username;
-        headers['x-user-email'] = reqWithUser.user.email;
-        headers['x-user-roles'] = Array.isArray(reqWithUser.user.roles)
-          ? reqWithUser.user.roles.join(',')
-          : String(reqWithUser.user.roles);
-      }
-    }
-
-    const config = Object.keys(headers).length ? { headers } : undefined;
-
-    const res = method === 'get' || method === 'delete'
-      ? await lastValueFrom(this.http[method]<T>(path, config))
-      : await lastValueFrom(this.http[method]<T>(path, body, config));
+    const res =
+      method === 'get' || method === 'delete'
+        ? await lastValueFrom(this.http[method]<T>(path, config))
+        : await lastValueFrom(this.http[method]<T>(path, body, config));
 
     return res.data;
   }

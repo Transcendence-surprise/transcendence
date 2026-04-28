@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { getRealtimeSocket, connectRealtimeSocket } from "../services/realtimeSocket";
+import { getChatHistory, sendChatMessage } from "../api/chat";
 
 interface ChatMessage {
   id: string;
@@ -16,38 +17,86 @@ export default function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
+
   const { user } = useAuth();
   const navigate = useNavigate();
+
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!user) return;
 
+    const controller = new AbortController();
+    console.log("Fetching chat history");
+    getChatHistory(controller.signal)
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setMessages(data);
+        } else {
+          setMessages([]);
+        }
+      })
+      .catch(console.error);
+    console.log("Chat history fetched");
+    return () => controller.abort();
+  }, [user]);
+
+
+  useEffect(() => {
+    if (!user) return;
+
     const socket = connectRealtimeSocket();
 
-    const joinChat = () => {
-      socket.emit("joinGlobalChat");
+    const subscribe = () => {
+      socket.emit("chat:subscribe");
     };
 
-    // Join on initial connect and on reconnect
-    joinChat();
-    socket.on("connect", joinChat);
+    socket.on("connect", subscribe);
 
-    socket.on("chatHistory", (history: ChatMessage[]) => {
-      setMessages(history);
-    });
+    // only subscribe once after connect
+    if (socket.connected) {
+      subscribe();
+    }
 
-    socket.on("chatMessage", (msg: ChatMessage) => {
+    socket.on("chat:newMessage", (msg: ChatMessage) => {
       setMessages((prev) => [...prev, msg]);
     });
 
     return () => {
-      socket.off("connect", joinChat);
-      socket.off("chatHistory");
-      socket.off("chatMessage");
+      socket.off("connect", subscribe);
+      socket.off("chat:newMessage");
+      socket.emit("chat:unsubscribe");
     };
   }, [user]);
+
+  async function sendMessage() {
+    if (!input.trim()) return;
+
+    try {
+      await sendChatMessage({
+        content: input,
+        replyTo: replyTo?.id,
+      });
+
+      setInput("");
+      setReplyTo(null);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function findMessage(id?: string) {
+    return messages.find((m) => m.id === id);
+  }
+
+  function scrollToBottom() {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   if (!user) {
     return (
@@ -65,33 +114,6 @@ export default function Chat() {
       </div>
     );
   }
-
-  function sendMessage() {
-    if (!input.trim()) return;
-
-    const socket = getRealtimeSocket();
-    if (!socket) return;
-
-    socket.emit("chatMessage", {
-      content: input,
-      replyTo: replyTo?.id,
-    });
-
-    setInput("");
-    setReplyTo(null);
-  }
-
-  function findMessage(id?: string) {
-    return messages.find((m) => m.id === id);
-  }
-
-  function scrollToBottom() {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   return (
     <div className="flex flex-col h-full min-h-0 max-w-2xl mx-auto bg-bg-dark text-white rounded-lg border border-[var(--color-border-subtle)]">

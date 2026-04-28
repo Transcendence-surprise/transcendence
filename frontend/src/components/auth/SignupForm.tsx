@@ -18,19 +18,21 @@ export default function SignupForm({
     agreeToTerms: false,
   });
   const [guestNickname, setGuestNickname] = useState("");
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const { signup, continueAsGuest } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAuthError(null);
 
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      setAuthError("Passwords do not match");
       return;
     }
 
     if (!formData.agreeToTerms) {
-      alert("Please agree to the Terms of Service and Privacy Policy");
+      setAuthError("Please agree to the Terms of Service and Privacy Policy");
       return;
     }
 
@@ -42,12 +44,19 @@ export default function SignupForm({
       );
       onClose();
     } catch (err: any) {
+      if (err?.name === "AbortError") {
+        return;
+      }
       console.error("Signup error:", err.message);
-      alert(`Signup failed: ${err.message}`);
+      setAuthError(err?.message || "Signup failed");
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (authError) {
+      setAuthError(null);
+    }
+
     const value =
       e.target.type === "checkbox" ? e.target.checked : e.target.value;
     setFormData({
@@ -93,6 +102,12 @@ export default function SignupForm({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
+          {authError && (
+            <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              {authError}
+            </div>
+          )}
+
           <div>
             <label
               htmlFor="signup-username"

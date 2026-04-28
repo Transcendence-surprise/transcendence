@@ -61,7 +61,9 @@ describe('GameController', () => {
   it('should call service methods', async () => {
     const req = {} as FastifyRequest;
 
-    service.createGame.mockResolvedValue({ ok: true });
+
+    // Fix: mock must return required gameId
+    service.createGame.mockResolvedValue({ ok: true, gameId: 'test-game-id' });
     await controller.createGame({ hostId: 'test', settings: {} }, req);
     expect(service.createGame).toHaveBeenCalled();
 

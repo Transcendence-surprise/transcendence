@@ -10,10 +10,13 @@ export interface Badge {
 
 export interface UserBadge {
   key: string;
-  unlockedAt: string; // ISO date string when the badge was unlocked
   name: string;
   description: string;
   imageUrl: string;
+  progress: number;
+  target: number;
+  completed: boolean;
+  unlockedAt: string | null; // ISO date string when the badge was unlocked
 }
 
 export async function getAllBadges(signal?: AbortSignal) {

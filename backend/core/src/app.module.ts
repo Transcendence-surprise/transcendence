@@ -10,6 +10,8 @@ import { MatchesModule } from './modules/matches/matches.module';
 import { BadgeModule } from './modules/badges/badge.module';
 import { FriendModule } from './modules/friends/friend.module';
 import { ChatModule } from './modules/chat/chat.module';
+import { PresenceModule } from './modules/presence/presence.module';
+import { GuardModule } from './guards/guard.module';
 
 @Module({
   imports: [
@@ -34,8 +36,9 @@ import { ChatModule } from './modules/chat/chat.module';
     BadgeModule,
     FriendModule,
     ChatModule,
+    PresenceModule,
+    GuardModule,
   ],
   controllers: [HealthController],
-  providers: [],
 })
 export class AppModule {}

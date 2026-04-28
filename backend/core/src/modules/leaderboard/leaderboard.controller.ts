@@ -5,8 +5,8 @@ import {
   LeaderboardControllerDocs,
   GetAllTimeLeaderboardDocs,
 } from './leaderboard.controller.docs';
-import { CurrentUser } from './dto/playerContext.dto';
-import type { PlayerContext } from './dto/playerContext.dto';
+import { CurrentUser } from '../../decorators/current-user.decorator';
+import type { JwtPayload } from '../../decorators/current-user.decorator';
 
 @LeaderboardControllerDocs()
 @Controller('leaderboard')
@@ -21,8 +21,8 @@ export class LeaderboardController {
 
   @Get('user-ranking')
   async getUserRanking(
-    @CurrentUser() user: PlayerContext,
+    @CurrentUser() user: JwtPayload,
   ): Promise<number | null> {
-    return this.leaderboardService.getUserRanking(Number(user.id));
+    return this.leaderboardService.getUserRanking(Number(user.sub));
   }
 }

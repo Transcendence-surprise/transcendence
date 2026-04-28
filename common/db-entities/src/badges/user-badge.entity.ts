@@ -38,6 +38,15 @@ export class UserBadge {
   @JoinColumn({ name: 'badge_id' })
   badge: Badge;
 
-  @CreateDateColumn({ name: 'unlocked_at', type: 'timestamptz' })
-  unlockedAt: Date;
+  @Column({ type: 'int', default: 0 })
+  progress: number;
+
+  @Column({ type: 'boolean', default: false })
+  completed: boolean;
+
+  @Column({ name: 'unlocked_at', type: 'timestamptz', nullable: true })
+  unlockedAt: Date | null;
+
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
+  createdAt: Date;
 }

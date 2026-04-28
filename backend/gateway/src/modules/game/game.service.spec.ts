@@ -4,6 +4,7 @@ import { HttpService } from '@nestjs/axios';
 import { of } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import { GameHttpService } from './game.service';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 
 /* eslint-disable @typescript-eslint/unbound-method */
 
@@ -17,12 +18,17 @@ describe('GameHttpService', () => {
       post: jest.fn(),
     };
 
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GameHttpService,
         {
           provide: HttpService,
           useValue: mockHttpService,
+        },
+        {
+          provide: RealtimeGateway,
+          useValue: {}, // mock implementation
         },
       ],
     }).compile();

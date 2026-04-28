@@ -19,5 +19,9 @@ export default registerAs('gateway', () => ({
     },
     game: {
         baseUrl: requireEnv('GAME_URL', process.env.GAME_URL),
-    }
+    },
+
+    internal: {
+      serviceKey: requireEnv('INTERNAL_SERVICE_KEY', process.env.INTERNAL_SERVICE_KEY),
+    },
 }))
