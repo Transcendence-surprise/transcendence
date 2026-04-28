@@ -1,4 +1,4 @@
-import ConfirmModal from "./ConfirmModal";
+import ConfirmModal from "../UI/modals/ConfirmModal";
 
 export interface PendingUserDeletion {
   id: number | string;
