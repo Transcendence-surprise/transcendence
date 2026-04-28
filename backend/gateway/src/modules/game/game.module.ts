@@ -6,6 +6,8 @@ import gatewayConfig from '../../common/config/gateway.config';
 import { GameController } from './game.controller';
 import { GameHttpService } from './game.service';
 import { AuthHttpModule } from '../auth/auth.module';
+import { RealtimeModule } from '../realtime/realtime.module';
+import { GameGateway } from '../realtime/game.gateway';
 
 @Module({
   imports: [
@@ -18,9 +20,10 @@ import { AuthHttpModule } from '../auth/auth.module';
       }),
     }),
     AuthHttpModule,
+    RealtimeModule,
   ],
   controllers: [GameController],
-  providers: [GameHttpService],
+  providers: [GameHttpService, GameGateway],
   exports: [GameHttpService],
 })
 export class GameModule {}

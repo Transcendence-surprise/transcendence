@@ -22,7 +22,6 @@ export function useGameRoom(id: string) {
     const controller = new AbortController();
     const socket = connectRealtimeSocket();
 
-    // 🔥 IMPORTANT RESET (fixes your modal bug)
     setGame(null);
     setLoading(true);
     setError(null);
@@ -67,9 +66,30 @@ export function useGameRoom(id: string) {
           playerProgressById: nextPlayerProgressById,
         });
 
-        socket.emit("joinPlay", { gameId: id, userId: user.id });
+        socket.emit("game:join", { gameId: id });
 
-        socket.on("playUpdate", handleUpdate);
+        socket.on("game:updated", async ({ gameId }) => {
+          const updated = await getGameState(gameId);
+
+          setGame((prev) => {
+            if (!prev) return prev;
+
+            const { nextPlayerProgress, nextPlayerProgressById } =
+              resolveProgressState({
+                incomingPlayerProgress: updated.playerProgress,
+                incomingPlayerProgressById: updated.playerProgressById,
+                previousPlayerProgress: prev.playerProgress,
+                previousPlayerProgressById: prev.playerProgressById,
+                currentUserId: user.id,
+              });
+
+            return {
+              ...updated,
+              playerProgress: nextPlayerProgress,
+              playerProgressById: nextPlayerProgressById,
+            };
+          });
+        });
       })
       .catch((e) => {
         if (e?.name !== "AbortError") setError("Failed to load game");
@@ -78,8 +98,8 @@ export function useGameRoom(id: string) {
 
     return () => {
       controller.abort();
-      socket.emit("leavePlay", { gameId: id });
-      socket.off("playUpdate", handleUpdate);
+      socket.emit("game:leave", { gameId: id });
+      socket.off("game:updated", handleUpdate);
     };
   }, [id, user]);
 

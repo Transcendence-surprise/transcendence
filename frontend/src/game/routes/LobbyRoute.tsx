@@ -1,8 +1,7 @@
 // // multiplayer lobby
 
-import { useNavigate } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { connectRealtimeSocket, getRealtimeSocket } from "../../services/realtimeSocket";
 import { getGameState, startGame, leaveGame } from "../../api/game";
 import Lobby from "../../components/game/Lobby";
@@ -12,25 +11,65 @@ import { useAuth } from "../../hooks/useAuth";
 export default function LobbyRoute() {
   const navigate = useNavigate();
   const { gameId } = useParams();
-
   const { user } = useAuth();
 
   const [messages, setMessages] = useState<LobbyMessage[]>([]);
   const [input, setInput] = useState("");
-
   const [game, setGame] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [leaveError, setLeaveError] = useState<string | null>(null);
   const [startError, setStartError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
-  const requestControllerRef = useRef<AbortController | null>(null);
 
-  const nextSignal = () => {
-    requestControllerRef.current?.abort();
-    requestControllerRef.current = new AbortController();
-    return requestControllerRef.current.signal;
-  };
+  const fetchControllerRef = useRef<AbortController | null>(null);
+  const lastFetchRef = useRef(0);
+
+  const fetchGame = useCallback(async () => {
+    if (!gameId) return;
+
+    // abort ONLY previous fetchGame request
+    fetchControllerRef.current?.abort();
+    const controller = new AbortController();
+    fetchControllerRef.current = controller;
+
+    try {
+      const res = await getGameState(gameId, controller.signal);
+
+      if (!res) {
+        navigate("/game", {
+          state: { message: "Lobby was closed" },
+        });
+        return;
+      }
+
+      setGame(res);
+
+      if (res.phase === "PLAY") {
+        navigate(`/game/${gameId}`);
+      }
+    } catch (err: any) {
+      if (err?.name === "AbortError") return;
+
+      if (err?.message?.includes("GAME_NOT_FOUND")) {
+        navigate("/game", {
+          state: { message: "Lobby was closed" },
+        });
+        return;
+      }
+
+      console.error(err);
+      setError("Failed to load game");
+    }
+  }, [gameId, navigate]);
+
+  useEffect(() => {
+    if (!user || !gameId) {
+      navigate("/game");
+      return;
+    }
+    fetchGame();
+  }, [user, gameId, fetchGame, navigate]);
 
   // Websocket for update game state
   useEffect(() => {
@@ -42,63 +81,46 @@ export default function LobbyRoute() {
 
     const socket = getRealtimeSocket() ?? connectRealtimeSocket();
 
-    const handleConnect = () => {
-      socket.emit("joinLobby", { gameId });
+    const join = () => {
+      socket.emit("game:join", { gameId });
     };
 
     if (socket.connected) {
-      socket.emit("joinLobby", { gameId });
+      join();
     } else {
-      socket.on("connect", handleConnect)
+      socket.on("connect", join);
     }
 
-    const handleLobbyUpdate = (data: any) => {
-        setGame({
-          id: data.gameId,
-          hostName: data.host,
-          hostId: data.hostId,
-          players: data.players,
-          rules: data.rules,
-          phase: data.phase,
-        });
-        // If phase changed to PLAY, navigate to board
-        if (data.phase === "PLAY") {
-          navigate(`/game/${data.gameId}`);
-        }
-    };
+    const handleLobbyUpdated = (p: { gameId: string }) => {
+      if (p.gameId !== gameId) return;
 
-    socket.on("lobbyUpdate", handleLobbyUpdate);
+      const now = Date.now();
+      if (now - lastFetchRef.current < 300) return;
+
+      lastFetchRef.current = now;
+      fetchGame();
+    };
 
     const handleLobbyMessage = (msg: any) => {
       setMessages(prev => [...prev, msg]);
     };
 
-    socket.on("lobbyMessage", handleLobbyMessage);
-
-    const handleLobbyDeleted = (data: { gameId: string }) => {
-      if (data.gameId === gameId) {
-        alert("The host left and the lobby was closed!");
-        navigate("/game");
-      }
-    };
-
-    socket.on("lobbyDeleted", handleLobbyDeleted);
-
     const handleError = (err: any) => {
       setError(err.error || "Failed to join lobby");
     };
 
+    socket.on("lobby:updated", handleLobbyUpdated);
+    socket.on("lobbyMessage", handleLobbyMessage);
     socket.on("error", handleError);
 
     return () => {
-      requestControllerRef.current?.abort();
-      socket.off("connect", handleConnect);
-      socket.off("lobbyUpdate", handleLobbyUpdate);
+      fetchControllerRef.current?.abort();
+      socket.off("connect", join);
+      socket.off("lobby:updated", handleLobbyUpdated);
       socket.off("lobbyMessage", handleLobbyMessage);
-      socket.off("lobbyDeleted", handleLobbyDeleted);
-      socket.off("error", handleError); 
+      socket.off("error", handleError);
     };
-  }, [gameId, user, navigate]);
+  }, [gameId, user, fetchGame, navigate]);
 
   // Start game (host only)
   const handleStart = async () => {
@@ -110,11 +132,9 @@ export default function LobbyRoute() {
     try {
       setError(null);
 
-      const signal = nextSignal();
+      await startGame(gameId);
 
-      await startGame(gameId, signal);
-
-      const updatedGame = await getGameState(gameId, signal);
+      const updatedGame = await getGameState(gameId);
       setGame(updatedGame);
 
       // backend switched phase → PLAY
@@ -143,9 +163,8 @@ export default function LobbyRoute() {
     if (!gameId) return;
 
     setLeaveError(null);
-    const signal = nextSignal();
 
-    const res = await leaveGame(gameId, signal);
+    const res = await leaveGame(gameId);
 
     if (res.ok) {
       navigate("/multiplayer/join");
