@@ -88,6 +88,9 @@ services:
 
   nginx:
     container_name: nginx-dev
+    build:
+      args:
+        MODSEC: "false" # true for prod, false for dev
     ports:
       # - "80:80" // comment out port for compatability with hive's computers
       - "8080:8080"
