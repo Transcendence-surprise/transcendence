@@ -1,3 +1,135 @@
+import { TILE_SVGS } from "../components/game/tiles/tilesConstants";
+import type { ReactNode } from "react";
+import type { IconType } from "react-icons";
+import {
+  GiMaze,
+  GiPuzzle,
+  GiWalkingBoot,
+  GiCog,
+  GiCycle,
+  GiDiamonds,
+  GiTrophyCup,
+} from "react-icons/gi";
+import { MdOutlineDangerous } from "react-icons/md";
+
+type RuleTileType = "L" | "I" | "T" | "X" | "W";
+
+const TILE_DETAILS: {
+  type: RuleTileType;
+  title: string;
+  subtitle: string;
+  description: string;
+  color: string;
+}[] = [
+  {
+    type: "L",
+    title: "L-Tile",
+    subtitle: "Corner",
+    description:
+      "Has two perpendicular openings at a corner. Can be rotated to change which corners are connected.",
+    color: "var(--color-tile-l)",
+  },
+  {
+    type: "I",
+    title: "I-Tile",
+    subtitle: "Straight",
+    description:
+      "Has openings on opposite sides in a straight line. Connects two opposite sides of the tile.",
+    color: "var(--color-tile-i)",
+  },
+  {
+    type: "T",
+    title: "T-Tile",
+    subtitle: "Three-way",
+    description:
+      "Has three openings. One side is blocked, allowing three-way connections.",
+    color: "var(--color-tile-t)",
+  },
+  {
+    type: "X",
+    title: "X-Tile",
+    subtitle: "Junction",
+    description:
+      "Has openings on all four sides. Allows connections in every direction.",
+    color: "var(--color-tile-x)",
+  },
+  {
+    type: "W",
+    title: "W-Tile",
+    subtitle: "Wall",
+    description:
+      "Has no openings at all. It acts as a fully blocked wall tile and cannot be used as part of a path.",
+    color: "var(--color-tile-t)",
+  },
+];
+
+function tileSvgDataUri(type: RuleTileType) {
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(TILE_SVGS[type])}`;
+}
+
+function TileImage({
+  type,
+}: {
+  type: RuleTileType;
+}) {
+  return (
+    <img
+      src={tileSvgDataUri(type)}
+      alt={`${type} tile`}
+      className="h-[68px] w-[68px] shrink-0"
+    />
+  );
+}
+
+function TileCard({
+  title,
+  subtitle,
+  description,
+  type,
+  color,
+}: {
+  title: string;
+  subtitle: string;
+  description: string;
+  type: RuleTileType;
+  color: string;
+}) {
+  return (
+    <div className="group relative overflow-hidden rounded-lg border border-cyan-dark bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] p-4 transition-transform duration-200 hover:-translate-y-0.5">
+      <div
+        className="absolute inset-x-0 top-0 h-1"
+        style={{ backgroundColor: color }}
+      />
+      <div className="grid grid-cols-[88px_minmax(0,1fr)] items-center gap-4">
+        <div className="flex min-h-full items-center justify-center">
+          <TileImage type={type} />
+        </div>
+        <div className="min-w-0">
+          <p className="font-bold text-cyan-bright">{title}</p>
+          <p className="mb-2 text-xs uppercase tracking-[0.18em] text-white/55">
+            {subtitle}
+          </p>
+          <p className="text-sm leading-6 text-white/90">{description}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SectionTitle({
+  icon: Icon,
+  children,
+}: {
+  icon: IconType;
+  children: ReactNode;
+}) {
+  return (
+    <h2 className="mb-4 flex items-center gap-3 text-2xl font-bold text-cyan-bright">
+      <Icon className="shrink-0 text-[1.15em]" />
+      <span>{children}</span>
+    </h2>
+  );
+}
 
 export default function Rules() {
   return (
@@ -13,7 +145,7 @@ export default function Rules() {
 		<div className="space-y-8">
 		  {/* Objective Section */}
 		  <section className="bg-bg-dark-secondary border border-[var(--color-border-subtle)] rounded-lg p-6">
-			<h2 className="text-2xl font-bold text-cyan-bright mb-4">🎯 Objective</h2>
+			<SectionTitle icon={GiMaze}>Objective</SectionTitle>
 			<p className="text-white leading-relaxed mb-3">
 			  Navigate through a dynamically shifting labyrinth to collect items and reach your objectives. 
 			  The board changes as you manipulate tiles, creating new paths and closing off others. 
@@ -22,27 +154,27 @@ export default function Rules() {
 		  </section>
 
 		  {/* Board & Tiles Section */}
-		  <section className="bg-bg-dark-secondary border border-[var(--color-border-subtle)] rounded-lg p-6">
-			<h2 className="text-2xl font-bold text-cyan-bright mb-4">🧩 Board & Tiles</h2>
+		  <section className="bg-bg-dark-secondary border border-[var(--color-border-subtle)] rounded-lg p-6 overflow-hidden">
+			<SectionTitle icon={GiPuzzle}>Board & Tiles</SectionTitle>
 			<div className="space-y-4 text-white">
-			  <p>The playing field is a grid board made up of puzzle tiles. Each tile has paths (openings) that allow movement between adjacent tiles.</p>
-			  
-			  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-				<div className="bg-bg-dark p-3 rounded border border-cyan-dark">
-				  <p className="font-bold text-cyan-bright mb-2">L-Tile (Corner)</p>
-				  <p className="text-sm">Has two perpendicular openings at a corner. Can be rotated to change which corners are connected.</p>
+			  <p>The playing field is a grid board made up of puzzle tiles. Most tiles have paths (openings) that allow movement between adjacent tiles, but some tiles act as walls and block movement completely.</p>
+
+			  <div className="relative mt-6 rounded-lg border border-white/5 bg-[radial-gradient(circle_at_top_left,rgba(33,230,197,0.12),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(92,144,246,0.12),transparent_30%)] p-4 md:p-6">
+				<div className="mb-5 flex items-center justify-between gap-4">
+				  <div>
+					<p className="text-sm font-semibold uppercase tracking-[0.25em] text-white/50">
+					  Tile Reference
+					</p>
+					<p className="mt-1 text-sm text-white/80">
+					  Learn how each shape opens, blocks, and redirects your route.
+					</p>
+				  </div>
 				</div>
-				<div className="bg-bg-dark p-3 rounded border border-cyan-dark">
-				  <p className="font-bold text-cyan-bright mb-2">I-Tile (Straight)</p>
-				  <p className="text-sm">Has openings on opposite sides (straight line). Connects two opposite sides of the tile.</p>
-				</div>
-				<div className="bg-bg-dark p-3 rounded border border-cyan-dark">
-				  <p className="font-bold text-cyan-bright mb-2">T-Tile (Three-way)</p>
-				  <p className="text-sm">Has three openings. One side is blocked, allowing three-way connections.</p>
-				</div>
-				<div className="bg-bg-dark p-3 rounded border border-cyan-dark">
-				  <p className="font-bold text-cyan-bright mb-2">X-Tile (Junction)</p>
-				  <p className="text-sm">Has openings on all four sides. Allows connections in every direction.</p>
+
+				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+				  {TILE_DETAILS.map((tile) => (
+					<TileCard key={tile.type} {...tile} />
+				  ))}
 				</div>
 			  </div>
 
@@ -55,7 +187,7 @@ export default function Rules() {
 
 		  {/* Movement Rules Section */}
 		  <section className="bg-bg-dark-secondary border border-[var(--color-border-subtle)] rounded-lg p-6">
-			<h2 className="text-2xl font-bold text-cyan-bright mb-4">🚶 Movement Rules</h2>
+			<SectionTitle icon={GiWalkingBoot}>Movement Rules</SectionTitle>
 			<div className="space-y-3 text-light-cyan">
 			  <ul className="space-y-2 ml-4">
 				<li className="flex gap-3">
@@ -80,7 +212,7 @@ export default function Rules() {
 
 		  {/* Board Manipulation Section */}
 		  <section className="bg-bg-dark-secondary border border-[var(--color-border-subtle)] rounded-lg p-6">
-			<h2 className="text-2xl font-bold text-cyan-bright mb-4">⚙️ Board Manipulation</h2>
+			<SectionTitle icon={GiCog}>Board Manipulation</SectionTitle>
 			<p className="text-white mb-4">Each turn, before or during movement, you can manipulate the board to create new paths:</p>
 			<div className="space-y-3 text-light-cyan">
 			  <div className="bg-bg-dark p-4 rounded border border-cyan-dark">
@@ -100,7 +232,7 @@ export default function Rules() {
 
 		  {/* Turn Structure Section */}
 		  <section className="bg-bg-dark-secondary border border-[var(--color-border-subtle)] rounded-lg p-6">
-			<h2 className="text-2xl font-bold text-cyan-bright mb-4">🔄 Turn Structure</h2>
+			<SectionTitle icon={GiCycle}>Turn Structure</SectionTitle>
 			<div className="space-y-4 text-light-cyan">
 			  <div>
 				<p className="font-bold text-cyan-bright mb-2">Single-Player Mode:</p>
@@ -125,7 +257,7 @@ export default function Rules() {
 
 		  {/* Collecting Items Section */}
 		  <section className="bg-bg-dark-secondary border border-[var(--color-border-subtle)] rounded-lg p-6">
-			<h2 className="text-2xl font-bold text-cyan-bright mb-4">💎 Collecting Collectibles</h2>
+			<SectionTitle icon={GiDiamonds}>Collecting Collectibles</SectionTitle>
 			<div className="space-y-3 text-light-cyan">
 			  <ul className="space-y-2 ml-4">
 				<li className="flex gap-3">
@@ -150,7 +282,7 @@ export default function Rules() {
 
 		  {/* Win Conditions Section */}
 		  <section className="bg-bg-dark-secondary border border-[var(--color-border-subtle)] rounded-lg p-6">
-			<h2 className="text-2xl font-bold text-cyan-bright mb-4">🏆 Win Conditions</h2>
+			<SectionTitle icon={GiTrophyCup}>Win Conditions</SectionTitle>
 			<div className="space-y-3 text-light-cyan">
 			  <p className="font-bold text-cyan-bright">You win by:</p>
 			  <ul className="space-y-2 ml-4">
@@ -172,7 +304,7 @@ export default function Rules() {
 
 		  {/* Lose Conditions Section */}
 		  <section className="bg-bg-dark-secondary border border-[var(--color-border-subtle)] rounded-lg p-6">
-			<h2 className="text-2xl font-bold text-cyan-bright mb-4">❌ Lose Conditions</h2>
+			<SectionTitle icon={MdOutlineDangerous}>Lose Conditions</SectionTitle>
 			<div className="space-y-3 text-light-cyan">
 			  <ul className="space-y-2 ml-4">
 				<li className="flex gap-3">
