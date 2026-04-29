@@ -9,7 +9,7 @@ If it was not success - restart backend.
 
 **Step 2:** Connect to database
 ```bash
-docker exec -it postgres-dev psql -U transcendence -d transcendence
+docker exec -it db-dev psql -U transcendence -d transcendence
 ```
 
 ## Usful Commands
