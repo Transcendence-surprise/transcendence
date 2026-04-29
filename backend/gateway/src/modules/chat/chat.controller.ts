@@ -9,8 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { Auth, AuthType } from 'src/common/decorator/auth-type.decorator';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import { Auth, AuthType } from '../../common/decorator/auth-type.decorator';
 import { ChatHttpService } from './chat.service';
 
 @Controller('chat')
