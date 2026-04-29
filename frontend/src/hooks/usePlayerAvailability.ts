@@ -15,6 +15,9 @@ export function usePlayerAvailability(user: { id?: string } | null) {
   const controllerRef = useRef<AbortController | null>(null);
   const inFlightRef = useRef(false);
 
+  const lastCallRef = useRef(0);
+  const DEBOUNCE_MS = 1500;
+
   useEffect(() => {
     if (!user) {
       setAvailability(null);
@@ -37,7 +40,12 @@ export function usePlayerAvailability(user: { id?: string } | null) {
     controllerRef.current = controller;
 
     const loadStatus = async () => {
-      if (inFlightRef.current) return; // prevent spam
+      const now = Date.now();
+
+      if (now - lastCallRef.current < DEBOUNCE_MS) return;
+      lastCallRef.current = now;
+
+      if (inFlightRef.current) return;
       inFlightRef.current = true;
 
       setLoading(true);
@@ -46,14 +54,7 @@ export function usePlayerAvailability(user: { id?: string } | null) {
       try {
         const data = await checkPlayerAvailability(controller.signal);
 
-        if (data?.gameId) {
-          setAvailability({
-            gameId: data.gameId,
-            phase: data.phase,
-          });
-        } else {
-          setAvailability(null);
-        }
+        setAvailability(data?.gameId ? data : null);
       } catch (e: any) {
         if (e?.name !== "AbortError") {
           setError("Failed to load player status");
