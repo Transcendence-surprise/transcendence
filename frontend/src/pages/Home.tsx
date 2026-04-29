@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import HomeNavCard from "../components/shared/HomeNavCard";
+import HomeNavCard from "../components/UI/HomeNavCard";
 import HeroCanvas from "../components/HeroCanvas";
 import { IoGameControllerOutline } from 'react-icons/io5';
 import { FiUser, FiSettings } from 'react-icons/fi';
@@ -25,18 +25,11 @@ export default function Home() {
       to: "/game",
     },
     {
-      title: "Rules",
-      description: "Learn how the game works",
-      icon: <GoListUnordered />,
-      iconClass: "text-color-violet drop-shadow-[0_0_10px_rgba(174,102,255,0.45)]",
-      to: "/rules",
-    },
-    {
       title: "Friends",
       description: "Manage and play with friends",
       icon: <FiUsers />,
       iconClass: "text-color-neon-green drop-shadow-[0_0_10px_rgba(174,102,255,0.45)]",
-      to: "/rules",
+      to: "/friends",
     },
     {
       title: "Chat",
@@ -58,6 +51,13 @@ export default function Home() {
       icon: <FiSettings />,
       iconClass: "text-color-magenta drop-shadow-[0_0_10px_rgba(174,102,255,0.45)]",
       to: "/settings",
+    },
+    {
+      title: "Rules",
+      description: "Learn how the game works",
+      icon: <GoListUnordered />,
+      iconClass: "text-color-violet drop-shadow-[0_0_10px_rgba(174,102,255,0.45)]",
+      to: "/rules",
     },
 
   

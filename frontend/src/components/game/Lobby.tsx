@@ -7,6 +7,7 @@ import { LobbyMessage } from "../../game/models/lobbyMessage";
 
 export type LobbyProps = {
   game: any;
+  gameId?: string;
   onGameStarted: () => void;
   onGameLeave: () => void;
   error?: string | null;
@@ -20,6 +21,7 @@ export type LobbyProps = {
 
 export default function Lobby({
   game,
+  gameId,
   onGameStarted,
   onGameLeave,
   error,
@@ -43,49 +45,49 @@ export default function Lobby({
 
   const players = Array.isArray(game?.players) ? game.players : [];
   const hostId = game?.hostId;
+  const gameIdLabel = gameId ?? game?.id ?? game?.gameId ?? "Unknown";
 
   return (
-    <div className="min-h-screen bg-bg-dark text-white font-sans flex items-start justify-center px-4 py-10">
-      <div className="relative w-full max-w-5xl">
-        <div className="absolute -inset-1 rounded-2xl bg-[radial-gradient(circle_at_top,rgba(0,234,255,0.25),transparent_55%)] blur-2xl" />
+    <div className="flex min-h-screen items-start justify-center bg-bg-dark px-4 py-10 font-sans text-white">
+      <div className="relative w-full max-w-6xl">
+        <div className="absolute -inset-1 rounded-[28px] bg-[radial-gradient(circle_at_top,rgba(0,234,255,0.18),transparent_50%),radial-gradient(circle_at_bottom_right,rgba(92,144,246,0.14),transparent_35%)] blur-2xl" />
 
-        <div className="relative rounded-2xl border border-[var(--color-border-subtle)] bg-bg-dark-secondary px-8 py-10 shadow-dark-lg">
+        <div className="relative rounded-[28px] border border-[var(--color-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01))] px-6 py-8 shadow-dark-lg sm:px-8 sm:py-10">
           {/* Header */}
-          <div className="flex flex-col items-center gap-2 mb-8">
-            <h2 className="text-4xl font-bold drop-shadow-lg text-light-cyan">
+          <div className="mb-8 flex flex-col items-center gap-3 text-center">
+            <p className="text-xs uppercase tracking-[0.34em] text-white/40">
+              Multiplayer Lobby
+            </p>
+            <h2 className="text-balance text-3xl font-bold text-light-cyan drop-shadow-lg sm:text-4xl md:text-5xl">
               Waiting for players to join
             </h2>
-            {/* <p className="text-xs uppercase tracking-[0.4em] text-light-cyan">
-              Waiting for players to join
-            </p> */}
-            {/* <p className="text-sm text-lightest-cyan text-center max-w-md">
-              Game ID: {game.id} • Host: {game.hostId}
-            </p> */}
+            <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-white/60">
+              <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1">
+                Game ID: {gameIdLabel}
+              </span>
+              <span className="rounded-full border border-cyan-400/15 bg-cyan-400/8 px-3 py-1 text-cyan-200">
+                {players.length}/{rules.maxPlayers} players ready
+              </span>
+              {rules.allowSpectators ? (
+                <span className="rounded-full border border-cyan-400/15 bg-cyan-400/8 px-3 py-1 text-cyan-200">
+                  Spectators allowed
+                </span>
+              ) : null}
+            </div>
           </div>
 
-          {/* Spectators badge */}
-          {rules.allowSpectators && (
-            <div className="mb-4 flex justify-start">
-              <span className="text-xs px-3 py-1 rounded-full bg-button-cyan-bg/60 border border-cyan-300/30 text-light-cyan">
-                Spectators Allowed
-              </span>
-            </div>
-          )}
-
           {/* Main content: Players + Chat */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
             {/* Players column */}
-            <div className="lg:col-span-1">
+            <div className="space-y-4">
               <PlayerList
                 players={players}
                 hostId={hostId}
                 maxPlayers={rules.maxPlayers}
               />
-              {/* Settings block */}
               <LobbySettings rules={rules} />
 
-              <div className="mt-4 flex flex-col items-start gap-3">
-                <div className="flex gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row xl:flex-col">
                   {game.phase === "LOBBY" && (
                     <LobbyActionButton
                       onClick={onGameStarted}
@@ -99,12 +101,11 @@ export default function Lobby({
                   <LobbyActionButton onClick={onGameLeave} variant="leave">
                     Leave Lobby
                   </LobbyActionButton>
-                </div>
               </div>
             </div>
 
             {/* Chat column */}
-            <div className="lg:col-span-2">
+            <div className="min-w-0">
               <LobbyChat
                 messages={messages}
                 input={input}
@@ -116,10 +117,10 @@ export default function Lobby({
 
           {/* Errors */}
           {error && (
-            <p className="mb-4 text-red-400 text-center text-sm">{error}</p>
+            <p className="mb-4 text-center text-sm text-red-400">{error}</p>
           )}
           {leaveError && (
-            <p className="mb-4 text-red-400 text-center text-sm">
+            <p className="mb-4 text-center text-sm text-red-400">
               {leaveError}
             </p>
           )}

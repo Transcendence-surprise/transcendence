@@ -127,7 +127,7 @@ export default function Settings() {
   const twoFactorEnabled = user?.twoFactorEnabled ?? false;
 
   return (
-    <div className="flex flex-col min-h-[60vh] gap-8 max-w-4xl">
+    <div className="flex w-full flex-col min-h-[60vh] gap-8">
       <div>
         <h2 className="text-4xl font-bold text-white">Settings</h2>
         <p className="text-lightest-cyan mt-2">Manage your account settings.</p>

@@ -1,55 +1,92 @@
-import { mockLeaderboard } from "../types/mockPlayer";
+import { useEffect, useState } from "react";
+import {
+  getAllTimeLeaderboard,
+  getUserRanking,
+  type LeaderboardEntry,
+} from "../api/leaderboard";
+import LeaderboardRow from "../components/leaderboard/LeaderboardRow";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Leaderboard() {
+  const { user } = useAuth();
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [userRanking, setUserRanking] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadLeaderboard = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const leaderboardPromise = getAllTimeLeaderboard(controller.signal);
+        const rankingPromise =
+          user && !user.roles.includes("guest")
+            ? getUserRanking(controller.signal)
+            : Promise.resolve(null);
+
+        const [leaderboard, ranking] = await Promise.all([
+          leaderboardPromise,
+          rankingPromise,
+        ]);
+
+        if (controller.signal.aborted) return;
+
+        setEntries(leaderboard);
+        setUserRanking(ranking);
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        const message =
+          err instanceof Error ? err.message : "Failed to load leaderboard.";
+        setError(message);
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadLeaderboard();
+
+    return () => controller.abort();
+  }, [user]);
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh]">
-      <h2 className="text-4xl font-bold mb-8 text-white">Leaderboard</h2>
+    <div className="flex flex-col">
+      <div className="mb-8">
+        <h2 className="text-4xl font-bold text-white">Leaderboard</h2>
+        <p className="mt-2 text-sm text-light-cyan">
+          Ranked by total wins in completed multiplayer games.
+        </p>
+      </div>
 
-      <div className="bg-bg-modal rounded-lg border border-[var(--color-border-subtle)] p-4 max-w-4xl w-full">
-        {mockLeaderboard.map((player, index) => (
-          <div
-            key={player.id}
-            className="flex items-center justify-between py-4 px-4 border-b border-[var(--color-border-gray)] last:border-b-0 hover:bg-white/8 transition"
-          >
-            <div className="flex items-center gap-4 flex-1">
-              <div className="w-10 h-10 flex items-center justify-center min-w-10">
-                <span className="text-cyan-bright font-bold text-lg">
-                  {index + 1}
-                </span>
-              </div>
-              <img
-                src={player.avatar}
-                alt={player.name}
-                className="w-12 h-12 rounded-full object-cover border border-[var(--color-border-subtle)]"
-              />
-              <div>
-                <h3 className="text-white font-semibold">{player.name}</h3>
-                <p className="text-xs text-gray-400">Win streak: {player.winstreak}</p>
-              </div>
-            </div>
-
-            <div className="flex gap-8 items-center">
-              <div className="text-center">
-                <p className="text-yellow-400 font-bold text-lg">
-                  {player.totalWins}
-                </p>
-                <p className="text-xs text-gray-400">Wins</p>
-              </div>
-              <div className="text-center">
-                <p className="text-cyan-400 font-bold text-lg">
-                  {player.totalMatches}
-                </p>
-                <p className="text-xs text-gray-400">Matches</p>
-              </div>
-              <div className="text-center">
-                <p className="text-green-400 font-bold text-lg">
-                  {player.winrate}%
-                </p>
-                <p className="text-xs text-gray-400">Win Rate</p>
-              </div>
-            </div>
+      <div className="w-full rounded-lg border border-[var(--color-border-subtle)] bg-bg-modal">
+        {userRanking !== null ? (
+          <div className="m-4 rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 text-sm text-cyan-200">
+            Your current multiplayer rank:{" "}
+            <span className="font-bold text-cyan-bright">#{userRanking}</span>
           </div>
-        ))}
+        ) : null}
+
+        {loading ? (
+          <p className="px-4 py-6 text-sm text-gray-400">Loading leaderboard...</p>
+        ) : error ? (
+          <p className="px-4 py-6 text-sm text-red-300">{error}</p>
+        ) : entries.length === 0 ? (
+          <p className="px-4 py-6 text-sm text-gray-400">No leaderboard data yet.</p>
+        ) : (
+          entries.map((player, index) => (
+            <LeaderboardRow
+              key={player.userId}
+              player={player}
+              fallbackRank={index + 1}
+              currentUserId={user?.id}
+            />
+          ))
+        )}
       </div>
     </div>
   );

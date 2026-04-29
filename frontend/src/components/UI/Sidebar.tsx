@@ -4,7 +4,7 @@ import { useIsViewportLockedPage } from "../../hooks/useIsViewportLockedPage";
 import { FiSettings, FiShield, FiHome, FiMessageSquare, FiUsers, FiUser, FiFileText, FiLock } from "react-icons/fi";
 import { GoTrophy, GoListUnordered } from "react-icons/go";
 import { IoGameControllerOutline } from "react-icons/io5";
-import SidebarLink from "../shared/SideBarLink";
+import SidebarLink from "./SideBarLink";
 import type { ReactNode } from "react";
 
 type NavItem = {
@@ -26,11 +26,11 @@ export default function Sidebar({ forceCollapsed = false }: SidebarProps) {
     { path: "/", label: "Home", icon: <FiHome /> },
     { path: "/profile", label: "Profile", icon: <FiUser /> },
     { path: "/game", label: "Game", icon: <IoGameControllerOutline /> },
-    { path: "/rules", label: "Rules", icon: <GoListUnordered /> },
     { path: "/friends", label: "Friends", icon: <FiUsers /> },
     { path: "/chat", label: "Chat", icon: <FiMessageSquare /> },
     { path: "/leaderboard", label: "Leaderboard", icon: <GoTrophy /> },
     { path: "/settings", label: "Settings", icon: <FiSettings /> },
+    { path: "/rules", label: "Rules", icon: <GoListUnordered /> },
     ...(isAdmin
       ? [
           {

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { MultiplayerSettings } from "../../game/models/gameSettings";
-import SimpleButton from "../UI/SimpleButton";
+import SimpleButton from "../shared/SimpleButton";
 
 type Props = {
   settings: MultiplayerSettings;

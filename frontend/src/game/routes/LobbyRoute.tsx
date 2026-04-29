@@ -205,6 +205,7 @@ export default function LobbyRoute() {
   return (
     <Lobby
       game={game}
+      gameId={gameId}
       onGameStarted={handleStart}
       onGameLeave={handleLeave}
       error={startError}
