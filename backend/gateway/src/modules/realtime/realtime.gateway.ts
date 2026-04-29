@@ -48,7 +48,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
       client.join('chat:global');
 
       const result = await this.presenceClient.markOnline(userId);
-      if (result) this.emitter.emitPlayerAvailabilityUpdated();
+      if (result) this.emitter.emitPlayerAvailabilityUpdated(String(userId));
 
       bindGameEvents(this.server, client);
       bindChatEvents(this.server, client);
@@ -64,6 +64,6 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     if (!userId) return;
 
     const result = await this.presenceClient.markOffline(userId);
-    if (result) this.emitter.emitPlayerAvailabilityUpdated();
+    if (result) this.emitter.emitPlayerAvailabilityUpdated(String(userId));
   }
 }
