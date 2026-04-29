@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import HomeNavCard from "../components/shared/HomeNavCard";
+import HomeNavCard from "../components/UI/HomeNavCard";
 import HeroCanvas from "../components/HeroCanvas";
 import { IoGameControllerOutline } from 'react-icons/io5';
 import { FiUser, FiSettings } from 'react-icons/fi';

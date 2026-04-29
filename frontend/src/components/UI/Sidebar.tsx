@@ -4,7 +4,7 @@ import { useIsViewportLockedPage } from "../../hooks/useIsViewportLockedPage";
 import { FiSettings, FiShield, FiHome, FiMessageSquare, FiUsers, FiUser, FiFileText, FiLock } from "react-icons/fi";
 import { GoTrophy, GoListUnordered } from "react-icons/go";
 import { IoGameControllerOutline } from "react-icons/io5";
-import SidebarLink from "../shared/SideBarLink";
+import SidebarLink from "./SideBarLink";
 import type { ReactNode } from "react";
 
 type NavItem = {
