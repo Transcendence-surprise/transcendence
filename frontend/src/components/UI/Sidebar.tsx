@@ -26,11 +26,11 @@ export default function Sidebar({ forceCollapsed = false }: SidebarProps) {
     { path: "/", label: "Home", icon: <FiHome /> },
     { path: "/profile", label: "Profile", icon: <FiUser /> },
     { path: "/game", label: "Game", icon: <IoGameControllerOutline /> },
-    { path: "/rules", label: "Rules", icon: <GoListUnordered /> },
     { path: "/friends", label: "Friends", icon: <FiUsers /> },
     { path: "/chat", label: "Chat", icon: <FiMessageSquare /> },
     { path: "/leaderboard", label: "Leaderboard", icon: <GoTrophy /> },
     { path: "/settings", label: "Settings", icon: <FiSettings /> },
+    { path: "/rules", label: "Rules", icon: <GoListUnordered /> },
     ...(isAdmin
       ? [
           {
