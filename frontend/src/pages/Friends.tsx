@@ -1,233 +1,43 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+// src/pages/Friends.tsx
+
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StatusDot from "../components/shared/StatusDot";
 import { useAuth } from "../hooks/useAuth";
-import { getRealtimeSocket } from "../services/realtimeSocket";
-import {
-  acceptFriendRequest,
-  getFriends,
-  rejectFriendRequest,
-  removeFriend,
-  sendFriendRequestByUsername,
-  type FriendUser,
-} from "../api/friend";
-
-type UiPendingRequest = {
-  id: number;
-  targetUserId: number;
-  name: string;
-  avatarUrl: string | null;
-};
-
-type UiFriend = {
-  id: number;
-  name: string;
-  avatarUrl: string | null;
-  online: boolean;
-};
-
-type PresenceUpdatePayload = {
-  userId: number;
-  isOnline: boolean;
-};
+import { useFriends } from "../hooks/useFriends";
 
 function getAvatarInitial(name: string): string {
   return name.trim().charAt(0).toUpperCase() || "?";
-}
-
-function mapFriend(friend: FriendUser & { isOnline: boolean }): UiFriend {
-  return {
-    id: friend.id,
-    name: friend.username,
-    avatarUrl: friend.avatarUrl ?? null,
-    online: friend.isOnline,
-  };
 }
 
 export default function Friends() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const {
+    friends,
+    pendingRequests,
+    loading,
+    sendStatus,
+    sendError,
+    pageError,
+    pendingActionError,
+    removeFriendError,
+    setSendError,
+    setSendStatus,
+    handleSendRequest,
+    handleAccept,
+    handleReject,
+    handleRemove,
+  } = useFriends();
+
   const [friendName, setFriendName] = useState("");
-  const [friends, setFriends] = useState<UiFriend[]>([]);
-  const [pendingRequests, setPendingRequests] = useState<UiPendingRequest[]>([]);
-
-  const [loading, setLoading] = useState(false);
-
-  const [sendStatus, setSendStatus] = useState<string | null>(null);
-  const [sendError, setSendError] = useState<string | null>(null);
-  const [pageError, setPageError] = useState<string | null>(null);
-  const [pendingActionError, setPendingActionError] = useState<string | null>(null);
-  const [removeFriendError, setRemoveFriendError] = useState<string | null>(null);
-
-  const isLoadingRef = useRef(false);
-  const reloadLockRef = useRef(false);
-
-  const friendIds = useMemo(() => friends.map((f) => f.id), [friends]);
-  const friendIdsKey = useMemo(
-    () => friendIds.slice().sort((a, b) => a - b).join(","),
-    [friendIds],
-  );
-
-  const loadData = useCallback(async () => {
-    if (!user || user.roles.includes("guest")) return;
-    if (isLoadingRef.current) return;
-
-    setPageError(null);
-
-    isLoadingRef.current = true;
-    setLoading(true);
-
-    try {
-      const snapshot = await getFriends();
-
-      setFriends(snapshot.friends.map(mapFriend));
-
-      setPendingRequests(
-        snapshot.pendingRequests.map((u) => ({
-          id: u.id,
-          targetUserId: u.id,
-          name: u.username,
-          avatarUrl: u.avatarUrl ?? null,
-        })),
-      );
-    } catch (e) {
-      setPageError("Failed to load friends");
-    } finally {
-      isLoadingRef.current = false;
-      setLoading(false);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    void loadData();
-  }, [loadData]);
-
-  useEffect(() => {
-    if (!user || user.roles.includes("guest")) return;
-
-    const socket = getRealtimeSocket();
-
-    if (!socket) {
-      console.error("Socket not initialized");
-      return;
-    }
-
-    const onPresenceUpdate = ({ userId, isOnline }: PresenceUpdatePayload) => {
-      setFriends((prev) =>
-        prev.map((f) =>
-          f.id === userId ? { ...f, online: isOnline } : f
-        )
-      );
-    };
-
-    const onFriendsUpdate = () => {
-      if (reloadLockRef.current) return;
-
-      reloadLockRef.current = true;
-
-      setTimeout(async () => {
-        await loadData();
-        reloadLockRef.current = false;
-      }, 200);
-    };
-
-    socket.on("presence:update", onPresenceUpdate);
-    socket.on("friends:update", onFriendsUpdate);
-
-    return () => {
-      socket.off("presence:update", onPresenceUpdate);
-      socket.off("friends:update", onFriendsUpdate);
-    };
-  }, [user, loadData]);
-
-  useEffect(() => {
-    if (!user || user.roles.includes("guest")) return;
-
-    const socket = getRealtimeSocket();
-
-    if (!socket) {
-      console.error("Socket not initialized");
-      return;
-    }
-
-    const subscribe = () => {
-      socket.emit("presence:subscribe", { userIds: friendIds });
-    };
-
-    if (socket.connected) subscribe();
-
-    socket.on("connect", subscribe);
-
-    return () => {
-      socket.off("connect", subscribe);
-      socket.emit("presence:unsubscribe", { userIds: friendIds });
-    };
-  }, [friendIdsKey, user]);
-
-  const handleSendRequest = async () => {
-      const name = friendName.trim();
-      if (!name) return;
-
-    setSendError(null);
-    setSendStatus(null);
-    setPageError(null);
-
-      try {
-        await sendFriendRequestByUsername(name);
-        setFriendName("");
-        setSendStatus(`Friend request sent to ${name}`);
-      } catch (e) {
-        setSendError("Failed to send friend request");
-      }
-    };
-
-    const handleAccept = async (id: number) => {
-      setPendingActionError(null);
-      setPageError(null);
-      try {
-        await acceptFriendRequest(id);
-        await loadData();
-      } catch (e) {
-        setPendingActionError("Failed to accept friend request");
-      }
-    };
-
-    const handleReject = async (id: number) => {
-      setPendingActionError(null);
-      setPageError(null);
-      try {
-        await rejectFriendRequest(id);
-        await loadData();
-      } catch (e) {
-        setPendingActionError("Failed to reject friend request");
-      }
-    };
-
-    const handleRemove = async (id: number) => {
-      setRemoveFriendError(null);
-      setPageError(null);
-      try {
-        await removeFriend(id);
-        await loadData();
-      } catch (e) {
-        setRemoveFriendError("Failed to remove friend");
-      }
-    };
 
   if (!user || user.roles.includes("guest")) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <h2 className="text-3xl font-bold mb-6 text-cyan-400">
-          Login required to access friends
-        </h2>
-
-        <button
-          onClick={() => navigate(-1)}
-          className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
-        >
-          Back
-        </button>
+      <div>
+        <h2>Login required</h2>
+        <button onClick={() => navigate(-1)}>Back</button>
       </div>
     );
   }
@@ -247,7 +57,7 @@ export default function Friends() {
           <form
             onSubmit={(event) => {
               event.preventDefault();
-              void handleSendRequest();
+              void handleSendRequest(friendName);
             }}
             className="mt-4 flex flex-col gap-3 sm:flex-row"
           >
