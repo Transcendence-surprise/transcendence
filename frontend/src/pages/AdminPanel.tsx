@@ -5,12 +5,13 @@ import { getAllUsers, deleteUser, setUserTwoFactor } from "../api/users";
 import { checkAllServicesHealth, type ServiceHealth } from "../api/health";
 import AdminServicesSection from "../components/admin/AdminServicesSection";
 import AdminUsersSection from "../components/admin/AdminUsersSection";
-import DeleteUserConfirmationModal, {
-  type PendingUserDeletion,
-} from "../components/admin/DeleteUserConfirmationModal";
-import TwoFactorConfirmationModal, {
-  type PendingTwoFactorChange,
-} from "../components/admin/TwoFactorConfirmationModal";
+import ActionConfirmationModal, {
+  type PendingDeletion,
+} from "../components/shared/ActionConfirmationModal";
+
+interface PendingTwoFactorChange extends PendingDeletion {
+  enabled: boolean;
+}
 
 export default function AdminPanel() {
   const { user, isAdmin } = useAuth();
@@ -21,7 +22,7 @@ export default function AdminPanel() {
   const [pending2FAChange, setPending2FAChange] =
     useState<PendingTwoFactorChange | null>(null);
   const [pendingUserDeletion, setPendingUserDeletion] =
-    useState<PendingUserDeletion | null>(null);
+    useState<PendingDeletion | null>(null);
 
   const handleToggle2FA = async (id: number | string, enabled: boolean) => {
     const key = String(id);
@@ -53,7 +54,7 @@ export default function AdminPanel() {
 
     setPending2FAChange({
       id: targetUser.id,
-      username: targetUser.username,
+      name: targetUser.username,
       enabled,
     });
   };
@@ -100,7 +101,7 @@ export default function AdminPanel() {
 
     setPendingUserDeletion({
       id: targetUser.id,
-      username: targetUser.username,
+      name: targetUser.username,
     });
   };
 
@@ -183,8 +184,26 @@ export default function AdminPanel() {
         onDelete={requestDeleteUser}
       />
 
-      <TwoFactorConfirmationModal
-        pendingTwoFactorChange={pending2FAChange}
+      <ActionConfirmationModal
+        pendingDeletion={pending2FAChange}
+        title="Confirm 2FA change"
+        confirmLabel="Confirm"
+        message={
+          pending2FAChange ? (
+            <>
+              Are you sure you want to{" "}
+              <span className="font-semibold text-white">
+                {pending2FAChange.enabled ? "enable" : "disable"}
+              </span>{" "}
+              2FA for{" "}
+              <span className="font-semibold text-cyan-bright">
+                {pending2FAChange.name}
+              </span>
+              ?
+            </>
+          ) : null
+        }
+        note="This will change the security settings for this account."
         loading={
           pending2FAChange
             ? updating2FA[String(pending2FAChange.id)]
@@ -194,8 +213,9 @@ export default function AdminPanel() {
         onConfirm={confirmToggle2FA}
       />
 
-      <DeleteUserConfirmationModal
-        pendingUserDeletion={pendingUserDeletion}
+      <ActionConfirmationModal
+        pendingDeletion={pendingUserDeletion}
+        itemType="user"
         loading={
           pendingUserDeletion
             ? deletingUsers[String(pendingUserDeletion.id)]

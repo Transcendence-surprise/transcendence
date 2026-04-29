@@ -6,6 +6,13 @@ import StatusDot from "../components/shared/StatusDot";
 import { useAuth } from "../hooks/useAuth";
 import { useFriends } from "../hooks/useFriends";
 import DeleteActionButton from "../components/shared/DeleteActionButton";
+import ActionConfirmationModal, {
+  type PendingDeletion,
+} from "../components/shared/ActionConfirmationModal";
+
+type PendingFriendDeleteAction = PendingDeletion & {
+  action: "rejectRequest" | "removeFriend";
+};
 
 function getAvatarInitial(name: string): string {
   return name.trim().charAt(0).toUpperCase() || "?";
@@ -33,6 +40,30 @@ export default function Friends() {
   } = useFriends();
 
   const [friendName, setFriendName] = useState("");
+  const [pendingDeleteAction, setPendingDeleteAction] =
+    useState<PendingFriendDeleteAction | null>(null);
+  const [deleteActionLoading, setDeleteActionLoading] = useState(false);
+
+  const closeDeleteModal = () => {
+    if (deleteActionLoading) return;
+    setPendingDeleteAction(null);
+  };
+
+  const confirmDeleteAction = async () => {
+    if (!pendingDeleteAction) return;
+
+    setDeleteActionLoading(true);
+    try {
+      if (pendingDeleteAction.action === "rejectRequest") {
+        await handleReject(Number(pendingDeleteAction.id));
+      } else {
+        await handleRemove(Number(pendingDeleteAction.id));
+      }
+      setPendingDeleteAction(null);
+    } finally {
+      setDeleteActionLoading(false);
+    }
+  };
 
   if (!user || user.roles.includes("guest")) {
     return (
@@ -142,7 +173,13 @@ export default function Friends() {
                     </button>
                     <DeleteActionButton
                       ariaLabel={`Reject friend request from ${request.name}`}
-                      onClick={() => void handleReject(request.targetUserId)}
+                      onClick={() =>
+                        setPendingDeleteAction({
+                          action: "rejectRequest",
+                          id: request.targetUserId,
+                          name: request.name,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -209,7 +246,13 @@ export default function Friends() {
 
                     <DeleteActionButton
                       ariaLabel={`Delete friend ${friend.name}`}
-                      onClick={() => void handleRemove(friend.id)}
+                      onClick={() =>
+                        setPendingDeleteAction({
+                          action: "removeFriend",
+                          id: friend.id,
+                          name: friend.name,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -220,6 +263,42 @@ export default function Friends() {
           </div>
         </section>
       </div>
+
+      <ActionConfirmationModal
+        pendingDeletion={pendingDeleteAction}
+        itemType={
+          pendingDeleteAction?.action === "rejectRequest" ? "request" : "friend"
+        }
+        title={
+          pendingDeleteAction?.action === "rejectRequest"
+            ? "Reject friend request"
+            : "Confirm friend deletion"
+        }
+        confirmLabel={
+          pendingDeleteAction?.action === "rejectRequest"
+            ? "Reject request"
+            : "Delete friend"
+        }
+        message={
+          pendingDeleteAction?.action === "rejectRequest" ? (
+            <>
+              Are you sure you want to reject the friend request from{" "}
+              <span className="font-semibold text-cyan-bright">
+                {pendingDeleteAction.name}
+              </span>
+              ?
+            </>
+          ) : undefined
+        }
+        note={
+          pendingDeleteAction?.action === "rejectRequest"
+            ? "You can still receive another request later."
+            : undefined
+        }
+        loading={deleteActionLoading}
+        onCancel={closeDeleteModal}
+        onConfirm={confirmDeleteAction}
+      />
     </div>
   );
 }
