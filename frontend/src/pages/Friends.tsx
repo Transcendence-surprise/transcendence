@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import StatusDot from "../components/shared/StatusDot";
 import { useAuth } from "../hooks/useAuth";
 import { useFriends } from "../hooks/useFriends";
+import DeleteActionButton from "../components/shared/DeleteActionButton";
 
 function getAvatarInitial(name: string): string {
   return name.trim().charAt(0).toUpperCase() || "?";
@@ -139,15 +140,10 @@ export default function Friends() {
                     >
                       ✔️
                     </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        void handleReject(request.targetUserId)
-                      }
-                      className="rounded-md bg-red-500/20 px-3 py-1.5 text-sm font-medium text-red-300 transition hover:bg-red-500/30"
-                    >
-                      ✖️
-                    </button>
+                    <DeleteActionButton
+                      ariaLabel={`Reject friend request from ${request.name}`}
+                      onClick={() => void handleReject(request.targetUserId)}
+                    />
                   </div>
                 </div>
               ))
@@ -211,13 +207,10 @@ export default function Friends() {
                       </span>
                     </div>
 
-                    <button
-                      type="button"
+                    <DeleteActionButton
+                      ariaLabel={`Delete friend ${friend.name}`}
                       onClick={() => void handleRemove(friend.id)}
-                      className="rounded-md bg-red-500/20 px-3 py-1.5 text-sm font-medium text-red-300 transition hover:bg-red-500/30"
-                    >
-                      Delete
-                    </button>
+                    />
                   </div>
                 </div>
               ))

@@ -1,5 +1,5 @@
 import type { User } from "../../api/users";
-import { TiDeleteOutline } from "react-icons/ti";
+import DeleteActionButton from "../shared/DeleteActionButton";
 
 interface AdminUserRowProps {
   user: User;
@@ -49,12 +49,9 @@ export default function AdminUserRow({
             </label>
           </div>
 
-          <TiDeleteOutline
-            className={`justify-self-end self-center text-2xl transition-transform duration-150 ${
-              isDeleting
-                ? "cursor-not-allowed text-red-400/60"
-                : "cursor-pointer text-red-500 hover:scale-125"
-            }`}
+          <DeleteActionButton
+            disabled={isDeleting}
+            ariaLabel={`Delete user ${user.username}`}
             onClick={() => onDelete(user)}
           />
         </>
