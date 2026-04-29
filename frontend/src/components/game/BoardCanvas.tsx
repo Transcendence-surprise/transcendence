@@ -11,7 +11,7 @@ import {
   MdOutlineKeyboardArrowUp,
 } from "react-icons/md";
 import { CELL_SIZE } from "../../game/models/constants";
-import SimpleButton from "../UI/SimpleButton";
+import SimpleButton from "../shared/SimpleButton";
 
 type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
 

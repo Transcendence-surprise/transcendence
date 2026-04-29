@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { SinglePlayerSettings } from "../../game/models/gameSettings";
 import { SingleLevel } from "../../game/models/singleLevel";
 import { getSingleLevels } from "../../api/game";
-import SimpleButton from "../UI/SimpleButton";
+import SimpleButton from "../shared/SimpleButton";
 
 type Props = {
   settings: SinglePlayerSettings;
