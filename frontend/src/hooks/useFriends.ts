@@ -96,47 +96,39 @@ export function useFriends() {
     if (!user || user.roles.includes("guest")) return;
 
     const socket = getRealtimeSocket();
-    if (!socket) return;
-
-    const subscribe = () => {
-      socket.emit("presence:subscribe", { userIds: friendIds });
-    };
-
-    if (socket.connected) subscribe();
-    socket.on("connect", subscribe);
-
-    return () => {
-      socket.off("connect", subscribe);
-
-      socket.emit("presence:unsubscribe", {
-        userIds: friendIdsRef.current,
-      });
-    };
-  }, [friendIdsKey, user]);
-
-  useEffect(() => {
-    if (!user || user.roles.includes("guest")) return;
-
-    const socket = getRealtimeSocket();
-
     if (!socket) {
       console.error("Socket not initialized");
       return;
     }
 
+    friendIdsRef.current = friendIds;
+
     const subscribe = () => {
       socket.emit("presence:subscribe", { userIds: friendIds });
     };
 
-    if (socket.connected) subscribe();
+    const handleAvailabilityUpdated = () => {
+      void loadData();
+    };
 
+    const handleFriendsUpdated = () => {
+      void loadData();
+    };
+
+    if (socket.connected) subscribe();
     socket.on("connect", subscribe);
+    socket.on("playerAvailability:updated", handleAvailabilityUpdated);
+    socket.on("friends:update", handleFriendsUpdated);
 
     return () => {
       socket.off("connect", subscribe);
-      socket.emit("presence:unsubscribe", { userIds: friendIds });
+      socket.off("playerAvailability:updated", handleAvailabilityUpdated);
+      socket.off("friends:update", handleFriendsUpdated);
+      socket.emit("presence:unsubscribe", {
+        userIds: friendIdsRef.current,
+      });
     };
-  }, [friendIdsKey, user]);
+  }, [friendIdsKey, user, loadData]);
 
   const handleSendRequest = async (friendName: string): Promise<boolean> => {
     const name = friendName.trim();
