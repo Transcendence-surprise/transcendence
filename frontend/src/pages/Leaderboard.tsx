@@ -4,6 +4,7 @@ import {
   getUserRanking,
   type LeaderboardEntry,
 } from "../api/leaderboard";
+import LeaderboardRow from "../components/leaderboard/LeaderboardRow";
 import { useAuth } from "../hooks/useAuth";
 
 export default function Leaderboard() {
@@ -55,7 +56,12 @@ export default function Leaderboard() {
 
   return (
     <div className="flex flex-col">
-      <h2 className="text-4xl font-bold mb-8 text-white">Leaderboard</h2>
+      <div className="mb-8">
+        <h2 className="text-4xl font-bold text-white">Leaderboard</h2>
+        <p className="mt-2 text-sm text-light-cyan">
+          Ranked by total wins in completed multiplayer games.
+        </p>
+      </div>
 
       <div className="w-full rounded-lg border border-[var(--color-border-subtle)] bg-bg-modal">
         {userRanking !== null ? (
@@ -72,68 +78,14 @@ export default function Leaderboard() {
         ) : entries.length === 0 ? (
           <p className="px-4 py-6 text-sm text-gray-400">No leaderboard data yet.</p>
         ) : (
-          entries.map((player, index) => {
-            const username = player.username ?? `User #${player.userId}`;
-            const winRate =
-              player.totalGames > 0
-                ? Math.round((player.wins / player.totalGames) * 100)
-                : 0;
-
-            return (
-              <div
-                key={player.userId}
-                className="flex flex-col gap-4 border-b border-[var(--color-border-gray)] px-4 py-4 transition hover:bg-white/8 last:border-b-0 md:flex-row md:items-center md:justify-between"
-              >
-                <div className="flex min-w-0 flex-1 items-center gap-4">
-                  <div className="flex h-10 w-10 min-w-10 items-center justify-center">
-                    <span className="text-lg font-bold text-cyan-bright">
-                      {player.rank || index + 1}
-                    </span>
-                  </div>
-                  {player.avatarUrl ? (
-                    <img
-                      src={player.avatarUrl}
-                      alt={username}
-                      className="h-12 w-12 rounded-full border border-[var(--color-border-subtle)] object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--color-border-subtle)] bg-black/40 text-sm font-semibold text-cyan-200">
-                      {username.trim().charAt(0).toUpperCase() || "?"}
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="truncate font-semibold text-white">
-                      {username}
-                    </h3>
-                    <p className="text-xs text-gray-400">
-                      Win streak: {player.winStreak}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid w-full grid-cols-3 gap-4 md:w-auto md:flex md:items-center md:gap-8">
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-yellow-400">
-                      {player.wins}
-                    </p>
-                    <p className="text-xs text-gray-400">Wins</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-cyan-400">
-                      {player.totalGames}
-                    </p>
-                    <p className="text-xs text-gray-400">Matches</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-green-400">
-                      {winRate}%
-                    </p>
-                    <p className="text-xs text-gray-400">Win Rate</p>
-                  </div>
-                </div>
-              </div>
-            );
-          })
+          entries.map((player, index) => (
+            <LeaderboardRow
+              key={player.userId}
+              player={player}
+              fallbackRank={index + 1}
+              currentUserId={user?.id}
+            />
+          ))
         )}
       </div>
     </div>
