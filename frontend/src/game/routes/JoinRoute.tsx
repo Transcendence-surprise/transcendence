@@ -1,5 +1,5 @@
 // src/routes/MultiplayerJoinRoute.tsx
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMultiplayerGames, joinGame, checkPlayerAvailability } from "../../api/game";
 import { MultiGame } from "../models/multiGames";
@@ -9,28 +9,34 @@ import { useAuth } from "../../hooks/useAuth";
 
 export default function MultiplayerJoinRoute() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
   const [games, setGames] = useState<MultiGame[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+
+  const fetchGames = useCallback(async () => {
+    try {
+      const data = await getMultiplayerGames();
+      setGames(data);
+    } catch (e) {
+      console.error("fetch failed:", e);
+      setError("Failed to load games");
+    }
+  }, []);
 
   useEffect(() => {
     if (!user?.id) return;
 
-    const controller = new AbortController();
-
     setLoading(true);
-    getMultiplayerGames(controller.signal)
-      .then((data) => setGames(data))
-      .catch((err) => {
-        if (err?.name !== "AbortError") {
-          setError(err.message || "Failed to load games");
-        }
-      })
-      .finally(() => setLoading(false));
+
+    fetchGames().finally(() => setLoading(false));
+  }, [user, fetchGames]);
+
+  useEffect(() => {
+    if (!user?.id) return;
 
     const socket = getRealtimeSocket();
-
     if (!socket) {
       console.error("Socket not initialized");
       return;
@@ -38,18 +44,17 @@ export default function MultiplayerJoinRoute() {
 
     socket.emit("joinMultiplayerList");
 
-    const handleUpdate = (data: any) => {
-      setGames(data.games);
-    };
+  const handleUpdate = () => {
+    console.log("WS UPDATE RECEIVED");
+    fetchGames();
+  };
 
-    socket.on("multiplayerListUpdate", handleUpdate);
+    socket.on("multiplayerGamesList:updated", handleUpdate);
 
     return () => {
-      socket.off("multiplayerListUpdate", handleUpdate);
-      controller.abort();
+      socket.off("multiplayerGamesList:updated", handleUpdate);
     };
-
-  }, [user]);
+  }, [user, fetchGames]);
 
   const handleJoin = async (gameId: string) => {
     const controller = new AbortController();
@@ -99,7 +104,6 @@ export default function MultiplayerJoinRoute() {
     }
   };
 
-  if (loading) return <div>Loading multiplayer games...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
@@ -108,6 +112,7 @@ export default function MultiplayerJoinRoute() {
       onJoin={handleJoin}
       onSpectate={handleSpectate}
       onBack={() => navigate("/multiplayer/setup")}
+      loading={loading}
     />
   );
 }
