@@ -12,12 +12,12 @@ export default function LobbyActionButton({
   children,
 }: LobbyActionButtonProps) {
   const baseClass =
-    "px-6 py-2 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex min-w-[148px] items-center justify-center rounded-lg px-6 py-2.5 font-semibold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50";
 
   const variantClass =
     variant === "leave"
-      ? "bg-button-magenta hover:bg-pink-400 text-white border border-pink-300/40"
-      : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:shadow-cyan-light text-white border border-cyan-400/30";
+      ? "border border-white/20 bg-white/[0.03] text-white hover:border-pink-300/45 hover:bg-pink-400/12"
+      : "border border-cyan-400/30 bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(34,211,238,0.22)]";
 
   return (
     <button
