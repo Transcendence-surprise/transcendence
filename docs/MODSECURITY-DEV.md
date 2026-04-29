@@ -109,69 +109,18 @@ confirmed against the running stack:
 Tests below use `/api/users`. Without WAF the phase 2 payloads all return **200 OK** (the
 attack reaches the backend). With WAF enabled they must return the listed status.
 
-### Confirm WAF is active
-
-```bash
-curl -si http://localhost:8080/api/users | head -1
-# Expected: HTTP/1.1 200 OK
-```
-
-### Rule 900010 — Missing Host header
-
-```bash
-curl -si --header 'Host:' http://localhost:8080/api/users | head -1
-# Expected: 400 Bad Request
-```
-
 ### Rule 900011 — Disallowed HTTP method
 
 ```bash
 curl -si -X TRACE http://localhost:8080/api/users | head -1
 # Expected: 405 Method Not Allowed
-
-curl -si -X FOOBAR http://localhost:8080/api/users | head -1
-# Expected: 405 Method Not Allowed
-```
-
-### Rule 900012 — Non-numeric Content-Length
-
-```bash
-curl -si -X POST \
-  -H 'Content-Length: 10; drop table users' \
-  -H 'Content-Type: application/json' \
-  -d '{}' \
-  http://localhost:8080/api/users | head -1
-# Expected: 400 Bad Request
-```
-
-### Rule 900020 — Dotfile / hidden path
-
-```bash
-curl -si http://localhost:8080/api/.env | head -1
-# Expected: 403 Forbidden
-
-curl -si http://localhost:8080/api/.git/HEAD | head -1
-# Expected: 403 Forbidden
 ```
 
 ### Rule 900021 — Dangerous file extension in URI
 
 ```bash
-curl -si http://localhost:8080/api/users.php | head -1
-# Expected: 403 Forbidden
-
 curl -si http://localhost:8080/api/users.sh | head -1
 # Expected: 403 Forbidden
-```
-
-### Rule 900030 — Path traversal
-
-```bash
-curl -si "http://localhost:8080/api/users?file=../../etc/passwd" | head -1
-# Expected: 400 Bad Request  (without WAF: 200 OK)
-
-curl -si "http://localhost:8080/api/users?path=..%2F..%2Fetc%2Fshadow" | head -1
-# Expected: 400 Bad Request  (without WAF: 200 OK)
 ```
 
 ### Rule 900100 — SQL injection: UNION SELECT
@@ -179,72 +128,12 @@ curl -si "http://localhost:8080/api/users?path=..%2F..%2Fetc%2Fshadow" | head -1
 ```bash
 curl -si "http://localhost:8080/api/users?id=1+UNION+SELECT+username,password+FROM+users--" | head -1
 # Expected: 400 Bad Request  (without WAF: 200 OK)
-
-curl -si "http://localhost:8080/api/users?q=foo+union+select+1,2,3" | head -1
-# Expected: 400 Bad Request  (without WAF: 200 OK)
-```
-
-### Rule 900101 — SQL injection: DML / DDL
-
-```bash
-curl -si "http://localhost:8080/api/users?q=1;DROP+TABLE+users" | head -1
-# Expected: 400 Bad Request  (without WAF: 200 OK)
-
-curl -si "http://localhost:8080/api/users?q=INSERT+INTO+users+VALUES(1,'hacked')" | head -1
-# Expected: 400 Bad Request  (without WAF: 200 OK)
-```
-
-### Rule 900102 — SQL injection: comments and functions
-
-```bash
-curl -si "http://localhost:8080/api/users?id=1--" | head -1
-# Expected: 400 Bad Request  (without WAF: 200 OK)
-
-curl -si "http://localhost:8080/api/users?id=1;exec(xp_cmdshell('whoami'))" | head -1
-# Expected: 400 Bad Request  (without WAF: 200 OK)
 ```
 
 ### Rule 900200 — XSS: script tag
 
 ```bash
 curl -si "http://localhost:8080/api/users?name=<script>alert(1)</script>" | head -1
-# Expected: 400 Bad Request  (without WAF: 200 OK)
-
-curl -si "http://localhost:8080/api/users?name=%3Cscript%3Ealert(1)%3C/script%3E" | head -1
-# Expected: 400 Bad Request  (without WAF: 200 OK)
-```
-
-### Rule 900201 — XSS: javascript: URI
-
-```bash
-curl -si "http://localhost:8080/api/users?url=javascript:alert(document.cookie)" | head -1
-# Expected: 400 Bad Request  (without WAF: 200 OK)
-```
-
-### Rule 900202 — XSS: event handler attributes
-
-```bash
-curl -si "http://localhost:8080/api/users?bio=test+onerror=steal()" | head -1
-# Expected: 400 Bad Request  (without WAF: 200 OK)
-
-curl -si "http://localhost:8080/api/users?tag=onload=exfiltrate()" | head -1
-# Expected: 400 Bad Request  (without WAF: 200 OK)
-```
-
-### Rule 900300 — Command injection
-
-```bash
-curl -si "http://localhost:8080/api/users?file=x;cat+/etc/passwd" | head -1
-# Expected: 400 Bad Request  (without WAF: 200 OK)
-
-curl -si "http://localhost:8080/api/users?cmd=hello|whoami" | head -1
-# Expected: 400 Bad Request  (without WAF: 200 OK)
-```
-
-### Rule 900301 — Null byte injection
-
-```bash
-curl -si "http://localhost:8080/api/users?file=image.png%00.php" | head -1
 # Expected: 400 Bad Request  (without WAF: 200 OK)
 ```
 
