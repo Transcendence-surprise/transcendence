@@ -38,7 +38,7 @@ export async function getAllBadges(signal?: AbortSignal) {
 }
 
 export async function getUserBadges(signal?: AbortSignal) {
-  const response = await fetch('/api/badges/unlocked', {
+  const response = await fetch('/api/badges/user-badges', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
