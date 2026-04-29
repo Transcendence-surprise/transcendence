@@ -116,86 +116,86 @@ export default function Chat() {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0 max-w-2xl mx-auto bg-bg-dark text-white rounded-lg border border-[var(--color-border-subtle)]">
-      {/* Header */}
-      <div className="p-4 border-b border-[var(--color-border-gray)] text-xl font-bold text-blue-hero">
-        Global Chat
-      </div>
+    <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-[var(--color-border-subtle)] bg-bg-dark text-white">
+        {/* Header */}
+        <div className="border-b border-[var(--color-border-gray)] p-4 text-xl font-bold text-blue-hero">
+          Global Chat
+        </div>
 
-      {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg) => {
-          const replyMsg = findMessage(msg.replyTo);
+        {/* Messages */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
+          {messages.map((msg) => {
+            const replyMsg = findMessage(msg.replyTo);
 
-          return (
-            <div key={msg.id} className="group">
-              {replyMsg && (
-                <div className="text-xs text-gray-400 mb-1 ml-[7.75rem] truncate max-w-full">
-                  Replying to {replyMsg.username}: {replyMsg.content}
-                </div>
-              )}
+            return (
+              <div key={msg.id} className="group">
+                {replyMsg && (
+                  <div className="mb-1 ml-[7.75rem] max-w-full truncate text-xs text-gray-400">
+                    Replying to {replyMsg.username}: {replyMsg.content}
+                  </div>
+                )}
 
-              <div className="flex items-start gap-3">
-                <div className="w-28 min-w-28 font-semibold text-blue-300 truncate text-right">
-                  {msg.username}
-                </div>
-
-                <div className="flex-1">
-                  <div className="bg-slate-800 p-2 rounded-md">
-                    {msg.content}
+                <div className="flex items-start gap-3">
+                  <div className="w-28 min-w-28 truncate text-right font-semibold text-blue-300">
+                    {msg.username}
                   </div>
 
-                  {/* Hover actions */}
-                  <div className="opacity-0 group-hover:opacity-100 text-xs text-gray-400 mt-1 flex gap-3">
-                    <button
-                      className="hover:text-blue-400 transition-colors"
-                      onClick={() => {
-                        setReplyTo(msg);
-                        setTimeout(() => inputRef.current?.focus(), 0);
-                      }}
-                    >
-                      Reply
-                    </button>
+                  <div className="flex-1">
+                    <div className="rounded-md bg-slate-800 p-2">
+                      {msg.content}
+                    </div>
+
+                    {/* Hover actions */}
+                    <div className="mt-1 flex gap-3 text-xs text-gray-400 opacity-0 group-hover:opacity-100">
+                      <button
+                        className="transition-colors hover:text-blue-400"
+                        onClick={() => {
+                          setReplyTo(msg);
+                          setTimeout(() => inputRef.current?.focus(), 0);
+                        }}
+                      >
+                        Reply
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-        <div ref={messagesEndRef} />
-      </div>
+            );
+          })}
+          <div ref={messagesEndRef} />
+        </div>
 
-      {/* Reply Preview */}
-      {replyTo && (
-        <div className="px-4 py-2 bg-slate-800 text-sm flex justify-between gap-2">
-          <span className="truncate">
-            Replying to {replyTo.username}: {replyTo.content}
-          </span>
+        {/* Reply Preview */}
+        {replyTo && (
+          <div className="flex justify-between gap-2 bg-slate-800 px-4 py-2 text-sm">
+            <span className="truncate">
+              Replying to {replyTo.username}: {replyTo.content}
+            </span>
 
-          <button className="text-red-400" onClick={() => setReplyTo(null)}>
-            Cancel
+            <button className="text-red-400" onClick={() => setReplyTo(null)}>
+              Cancel
+            </button>
+          </div>
+        )}
+
+        {/* Input */}
+        <div className="flex gap-2 border-t border-slate-700 p-4">
+          <input
+            ref={inputRef}
+            className="flex-1 rounded-md bg-slate-800 p-2"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            placeholder="Write a message..."
+          />
+
+          <button
+            onClick={sendMessage}
+            className="rounded-md bg-blue-500 px-4 py-2"
+          >
+            Send
           </button>
         </div>
-      )}
-
-      {/* Input */}
-      <div className="p-4 border-t border-slate-700 flex gap-2">
-        <input
-          ref={inputRef}
-          className="flex-1 bg-slate-800 p-2 rounded-md"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          placeholder="Write a message..."
-        />
-
-        <button
-          onClick={sendMessage}
-          className="bg-blue-500 px-4 py-2 rounded-md"
-        >
-          Send
-        </button>
-      </div>
     </div>
   );
 }

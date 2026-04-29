@@ -75,7 +75,7 @@ export default function Friends() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl min-h-[60vh] px-4 py-8">
+    <div className="w-full min-h-[60vh] px-4 py-8">
       <h2 className="mb-8 text-4xl font-bold text-white">Friends</h2>
 
       {/* ADD FRIEND */}
