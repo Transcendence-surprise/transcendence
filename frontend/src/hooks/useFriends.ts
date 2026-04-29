@@ -26,11 +26,6 @@ export type UiFriend = {
   online: boolean;
 };
 
-type PresenceUpdatePayload = {
-  userId: number;
-  isOnline: boolean;
-};
-
 function mapFriend(friend: FriendUser & { isOnline: boolean }): UiFriend {
   return {
     id: friend.id,
