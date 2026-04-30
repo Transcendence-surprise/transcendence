@@ -12,7 +12,8 @@ import { GamePersistenceService } from '../services/gamePersistence.service';
 import { PlayersPersistenceService } from '../services/playersPersistence.service';
 import { UserUpdateService } from '../services/userStateUpdate.service';
 import { GameTimeoutService } from '../services/game-timeout.service';
-import { GameInternalHTTPService } from '../services/game-internal.http.service';
+import { GatewayInternalHTTPService } from '../services/gateway-internal.http.service';
+import { CoreBadgeHTTPService } from '../services/core-internal.http.service';
 import { ConfigService } from '@nestjs/config/dist/config.service';
 import { ConfigModule } from '@nestjs/config/dist/config.module';
 
@@ -35,14 +36,16 @@ import { ConfigModule } from '@nestjs/config/dist/config.module';
     GamePersistenceService,
     PlayersPersistenceService,
     UserUpdateService,
-    GameInternalHTTPService
+    GatewayInternalHTTPService,
+    CoreBadgeHTTPService,
   ],
   exports: [
     EngineService,
     GamePersistenceService,
     PlayersPersistenceService,
     UserUpdateService,
-    GameInternalHTTPService
+    GatewayInternalHTTPService,
+    CoreBadgeHTTPService,
   ],
 })
 export class GameEngineModule {}
