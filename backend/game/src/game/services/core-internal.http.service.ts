@@ -1,3 +1,5 @@
+// src/game/services/badge-internal.http.service.ts
+
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
@@ -6,8 +8,8 @@ import gameConfig from '../../config/game.config';
 import { Inject } from '@nestjs/common';
 
 @Injectable()
-export class GameInternalHTTPService {
-  private readonly logger = new Logger(GameInternalHTTPService.name);
+export class CoreBadgeHTTPService {
+  private readonly logger = new Logger(CoreBadgeHTTPService.name);
 
   constructor(
     private readonly http: HttpService,
@@ -21,7 +23,7 @@ export class GameInternalHTTPService {
     data?: unknown,
   ): Promise<T | null> {
     try {
-      const baseUrl = this.config.gateway.baseUrl.replace(/\/$/, '');
+      const baseUrl = this.config.core.baseUrl.replace(/\/$/, '');
       const normalizedPath = path.startsWith('/api')
         ? path
         : `/api${path.startsWith('/') ? path : `/${path}`}`;
@@ -44,17 +46,12 @@ export class GameInternalHTTPService {
     }
   }
 
-  async emitGameUpdated(gameId: string) {
-    return this.request('post', '/internal/events', {
-      type: 'GAME_UPDATED',
-      gameId,
-    });
+  async incrementProgress(payload: {
+    userIds: number[];
+    type: string;
+    value: number;
+  }) {
+    console.log('Game Service:Incrementing badge progress with payload:', payload);
+    return this.request('post', '/badges/internal/increment', payload);
   }
-
-  // async emitGameEnded(gameId: string) {
-  //   return this.request('post', '/internal/events', {
-  //     type: 'GAME_ENDED',
-  //     gameId,
-  //   });
-  // }
 }
