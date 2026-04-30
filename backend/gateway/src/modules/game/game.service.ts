@@ -34,7 +34,7 @@ export class GameHttpService {
     const result = await this.request<CreateGameResponseDto>('post', '/api/game/create', body, req);
     if (result?.gameId) {
       this.realtimeGateway.emitter.emitMultiplayerGamesListUpdated();
-      this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated();
+      this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated(result.gameId);
     }
     return result;
   }
@@ -42,8 +42,8 @@ export class GameHttpService {
   async joinGame<T = unknown>(body: JoinGameDto, req?: FastifyRequest): Promise<T> {
     const result = await this.request<T>('post', '/api/game/join', body, req);
     if (body?.gameId) {
-      this.realtimeGateway.emitter.emitLobbyUpdated(body?.gameId);
-      this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated();
+      this.realtimeGateway.emitter.emitLobbyUpdated(body.gameId);
+      this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated(body.gameId);
       this.realtimeGateway.emitter.emitMultiplayerGamesListUpdated();
     }
     return result;
@@ -54,7 +54,7 @@ export class GameHttpService {
     if (body?.gameId) {
       this.realtimeGateway.emitter.emitLobbyUpdated(body.gameId);
       this.realtimeGateway.emitter.emitGameUpdated(body.gameId);
-      this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated();
+      this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated(body.gameId);
       this.realtimeGateway.emitter.emitMultiplayerGamesListUpdated();
     }
     return result;

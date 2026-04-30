@@ -52,7 +52,7 @@ export class BadgeHttpService {
 
 	async getUserBadges<T = unknown>(req?: FastifyRequest): Promise<T> {
 		const { data } = await this.request<T>(
-			'/api/badges/unlocked',
+			'/api/badges/user-badges',
 			'get',
 			undefined,
 			req,

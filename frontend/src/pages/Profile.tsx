@@ -210,8 +210,8 @@ export default function Profile() {
         ) : userBadges.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 max-w-5xl">
             {userBadges.map((badge) => {
-              const target = Math.max(1, Number(badge.target) || 1);
-              const progress = Math.max(0, Math.min(target, Number(badge.progress) || 0));
+              const progress = badge.progress;
+              const target = badge.target;
               const progressPercent = Math.round((progress / target) * 100);
 
               return (

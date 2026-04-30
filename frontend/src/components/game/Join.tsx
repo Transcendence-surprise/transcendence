@@ -6,6 +6,7 @@ type Props = {
   onJoin: (gameId: string) => void;
   onSpectate: (gameId: string) => void;
   onBack: () => void;
+  loading: boolean;
 };
 
 export default function JoinTable({
@@ -13,11 +14,16 @@ export default function JoinTable({
   onJoin,
   onSpectate,
   onBack,
+  loading,
 }: Props) {
   const actionButtonClass =
     "px-4 py-1 rounded border border-cyan-300/30 bg-button-cyan-bg text-white hover:bg-button-cyan-hover transition-colors";
   const tableHeadClass = "p-3 border-b border-[var(--color-border-gray)] text-light-cyan";
   const tableCellClass = "p-3 border-b border-[var(--color-border-gray)]";
+
+  if (loading) {
+    return <div>Loading multiplayer games...</div>;
+  }
 
   if (games.length === 0) {
     return (
