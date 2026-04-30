@@ -52,7 +52,7 @@ export class BadgeService {
     });
 
     if (!badges.length) return;
-
+    console.log(`Service: Incrementing badge progress for type "${type}" and userIds:`, userIds);
     const badgeIds = badges.map(b => b.id);
 
     const userBadges = await this.userBadgeRepo.find({
