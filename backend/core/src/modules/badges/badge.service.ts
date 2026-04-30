@@ -46,54 +46,55 @@ export class BadgeService {
     await this.userBadgeRepo.save(userBadge);
   }
 
-  async increment(userId: number, type: string, value: number) {
+  async increment(userIds: number[], type: string, value: number) {
     const badges = await this.badgeRepo.find({
       where: { conditionType: type },
     });
 
-
     if (!badges.length) return;
-
+    console.log(`Service: Incrementing badge progress for type "${type}" and userIds:`, userIds);
     const badgeIds = badges.map(b => b.id);
 
     const userBadges = await this.userBadgeRepo.find({
       where: {
-        userId,
+        userId: In(userIds),
         badgeId: In(badgeIds),
       },
     });
 
     const userBadgeMap = new Map(
-      userBadges.map(ub => [ub.badgeId, ub]),
+      userBadges.map(ub => [`${ub.userId}-${ub.badgeId}`, ub]),
     );
 
     const toSave: any[] = [];
 
-    for (const badge of badges) {
-      let userBadge = userBadgeMap.get(badge.id);
+    for (const userId of userIds) {
+      for (const badge of badges) {
+        const key = `${userId}-${badge.id}`;
+        let userBadge = userBadgeMap.get(key);
 
-      if (!userBadge) {
-        userBadge = this.userBadgeRepo.create({
-          userId,
-          badgeId: badge.id,
-          progress: 0,
-          completed: false,
-        });
+        if (!userBadge) {
+          userBadge = this.userBadgeRepo.create({
+            userId,
+            badgeId: badge.id,
+            progress: 0,
+            completed: false,
+          });
+        }
+
+        if (userBadge.completed) continue;
+
+        userBadge.progress += value;
+
+        if (userBadge.progress >= badge.conditionValue) {
+          userBadge.progress = badge.conditionValue;
+          userBadge.completed = true;
+          userBadge.unlockedAt = new Date();
+        }
+
+        toSave.push(userBadge);
       }
-
-      if (userBadge.completed) continue;
-
-      userBadge.progress += value;
-
-      if (userBadge.progress >= badge.conditionValue) {
-        userBadge.progress = badge.conditionValue;
-        userBadge.completed = true;
-        userBadge.unlockedAt = new Date();
-      }
-
-      toSave.push(userBadge);
     }
-
     if (toSave.length) {
       await this.userBadgeRepo.save(toSave);
     }

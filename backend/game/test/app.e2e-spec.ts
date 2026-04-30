@@ -1,5 +1,6 @@
 // Ensure required env vars for tests
 process.env.GATEWAY_URL = process.env.GATEWAY_URL || 'http://localhost:3002';
+process.env.CORE_URL = process.env.CORE_URL || 'http://localhost:3001';
 process.env.INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY || 'test-internal-key';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
@@ -27,7 +28,9 @@ describe('AppController (e2e)', () => {
   });
 
   afterEach(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   it('game/health (GET)', async () => {

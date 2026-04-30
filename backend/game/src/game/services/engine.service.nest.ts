@@ -1,3 +1,5 @@
+// src/game/services/engine.service.nest.ts
+
 import { Injectable } from '@nestjs/common';
 import { GamePhase } from '@transcendence/db-entities';
 import { GameState, GameSettings } from '../models/state';
@@ -27,7 +29,8 @@ import { saveGameToDB } from '../engine/saveGameTo.database';
 import { PlayersPersistenceService } from './playersPersistence.service';
 import { savePlayersToDB } from '../engine/savePlayersTo.database';
 import { UserUpdateService } from './userStateUpdate.service';
-import { GameInternalHTTPService } from './game-internal.http.service';
+import { GatewayInternalHTTPService } from './gateway-internal.http.service';
+import { CoreBadgeHTTPService } from './core-internal.http.service';
 
 @Injectable()
 export class EngineService {
@@ -35,7 +38,8 @@ export class EngineService {
     private readonly persistence: GamePersistenceService,
     private readonly playersPersistence: PlayersPersistenceService,
     private readonly userUpdateService: UserUpdateService,
-    private readonly gameInternal: GameInternalHTTPService
+    private readonly gameInternal: GatewayInternalHTTPService,
+    private readonly coreBadgeService: CoreBadgeHTTPService
   ) {}
 
   private games = new Map<string, GameState>();
@@ -56,7 +60,6 @@ export class EngineService {
 
       saves.push(saveGameToDB(gameId, state, this.persistence));
       saves.push(this.userUpdateService.updateUserStats(state));
-      // await this.gameInternal.emitGameEnded(gameId);
       await this.gameInternal.emitGameUpdated(gameId);
     }
 
@@ -84,7 +87,6 @@ export class EngineService {
           state.endReason = 'LOSE_TIME_LIMIT';
           await saveGameToDB(gameId, state, this.persistence);
           await this.userUpdateService.updateUserStats(state, participantIdsBeforeTimeout);
-          // await this.gameInternal.emitGameEnded(gameId);
           await this.gameInternal.emitGameUpdated(gameId);
         }
 
@@ -261,6 +263,13 @@ export class EngineService {
 
     if (result.ok && state.gameEnded) {
       await this.userUpdateService.updateUserStats(state);
+      /// Update badges here if needed, e.g. for multiplayer games with multiple winners or specific achievements.
+
+      await this.coreBadgeService.incrementProgress({
+        userIds: state.players.map(p => Number(p.id)),
+        type: "games",
+        value: 1,
+      });
     }
 
     return result;

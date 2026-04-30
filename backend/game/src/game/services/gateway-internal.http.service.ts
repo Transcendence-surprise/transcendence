@@ -1,3 +1,5 @@
+// src/game/services/badge-internal.http.service.ts
+
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
@@ -6,8 +8,8 @@ import gameConfig from '../../config/game.config';
 import { Inject } from '@nestjs/common';
 
 @Injectable()
-export class GameInternalHTTPService {
-  private readonly logger = new Logger(GameInternalHTTPService.name);
+export class GatewayInternalHTTPService {
+  private readonly logger = new Logger(GatewayInternalHTTPService.name);
 
   constructor(
     private readonly http: HttpService,
@@ -50,11 +52,4 @@ export class GameInternalHTTPService {
       gameId,
     });
   }
-
-  // async emitGameEnded(gameId: string) {
-  //   return this.request('post', '/internal/events', {
-  //     type: 'GAME_ENDED',
-  //     gameId,
-  //   });
-  // }
 }
