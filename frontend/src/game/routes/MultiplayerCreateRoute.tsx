@@ -16,6 +16,7 @@ export default function MultiplayerCreateRoute() {
     boardSize: 6,
     allowSpectators: false,
     collectiblesPerPlayer: 5,
+    turnDeadline: 30,
   });
   const requestControllerRef = useRef<AbortController | null>(null);
 
