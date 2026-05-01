@@ -1,5 +1,6 @@
 import { MultiplayerSettings } from "../../game/models/gameSettings";
 import CustomSelect from "../shared/CustomSelect";
+import InfoChip from "../shared/InfoChip";
 import SettingsField from "../shared/SettingsField";
 import SimpleButton from "../shared/SimpleButton";
 
@@ -45,21 +46,21 @@ export default function MultiplayerSettingsForm({
           </div>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-100">
+            <InfoChip>
               {settings.maxPlayers} Players
-            </span>
-            <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-100">
+            </InfoChip>
+            <InfoChip>
               {settings.boardSize}x{settings.boardSize} Board
-            </span>
-            <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-100">
+            </InfoChip>
+            <InfoChip>
               {settings.collectiblesPerPlayer} Collectibles
-            </span>
-            <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-100">
+            </InfoChip>
+            <InfoChip>
               {settings.turnDeadline ?? 30}s Turns
-            </span>
-            <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-100">
+            </InfoChip>
+            <InfoChip>
               Spectators {settings.allowSpectators ? "On" : "Off"}
-            </span>
+            </InfoChip>
           </div>
 
           <div className="mt-8 grid gap-4 lg:grid-cols-2">

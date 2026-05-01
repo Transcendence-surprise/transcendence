@@ -1,3 +1,5 @@
+import InfoChip from "../shared/InfoChip";
+
 type PlayerListProps = {
   players: {
     id: number | string;
@@ -25,9 +27,9 @@ export default function PlayerList({
             Lobby roster
           </p>
         </div>
-        <div className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-sm font-semibold text-cyan-100">
+        <InfoChip className="text-sm font-semibold">
           {players.length} / {maxPlayers}
-        </div>
+        </InfoChip>
       </div>
 
       <div className="space-y-2.5">
@@ -54,9 +56,12 @@ export default function PlayerList({
                 </div>
               </div>
               {isHost ? (
-                <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200">
+                <InfoChip
+                  size="xs"
+                  className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200"
+                >
                   Host
-                </span>
+                </InfoChip>
               ) : null}
             </div>
           );
