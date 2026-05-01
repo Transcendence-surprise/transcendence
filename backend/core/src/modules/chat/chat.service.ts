@@ -23,11 +23,11 @@ const MAX_CHAT_MESSAGES = 1000;
 export class ChatService {
   private messages: ChatMessage[] = [];
 
-  async addMessage(input: AddChatMessageInput): Promise<{
+  addMessage(input: AddChatMessageInput): {
   ok: boolean;
   message?: ChatMessage;
   error?: string;
-  }> {
+  } {
     console.log('Adding chat message:', input);
     const content = String(input.content ?? '').trim();
 

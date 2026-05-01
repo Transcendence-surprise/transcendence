@@ -11,18 +11,18 @@ export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   @Get('history')
-  async getHistory(@CurrentUser() user: JwtPayload) {
+  getHistory(@CurrentUser() user: JwtPayload) {
     if (!user) {
       throw new UnauthorizedException();
     }
 
-    const messages = await this.chatService.getMessages(100);
+    const messages = this.chatService.getMessages(100);
 
     return Array.isArray(messages) ? messages : [];
   }
 
   @Post('messages')
-  async addMessage(
+  addMessage(
     @CurrentUser() user: JwtPayload,
     @Body() dto: AddChatMessageDto,
   ) {
