@@ -1,6 +1,6 @@
 // src/modules/friends/friend.controller.ts
 
-import { Controller, Get, Post, Delete, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, UnauthorizedException } from '@nestjs/common';
 import { FriendService } from './friend.service';
 import { FriendControllerDocs } from './friend.controller.docs';
 import { CurrentUser } from '../../decorators/current-user.decorator';

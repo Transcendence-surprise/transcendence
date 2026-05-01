@@ -8,7 +8,7 @@ import {
   Param,
   Body,
 } from '@nestjs/common';
-import { LatestGames, MatchesService } from './matches.service';
+import { MatchesService } from './matches.service';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { UpdateMatchDto } from './dto/update-match.dto';
 import { MatchDto } from './dto/match.dto';
@@ -24,6 +24,7 @@ import {
 } from './matches.controller.docs';
 import { CurrentUser } from './dto/playerContext.dto';
 import type { PlayerContext } from './dto/playerContext.dto';
+import type { LatestGames } from './types/latest-games';
 
 @MatchesControllerDocs()
 @Controller('matches')

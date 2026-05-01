@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { LeaderboardEntryDto } from './dto/leaderboard.dto';
+import { RawLeaderboardRow } from './types/leaderboardRow';
 
 @Injectable()
 export class LeaderboardService {
@@ -55,23 +56,24 @@ async getAllTimeLeaderboard(limit = 100): Promise<LeaderboardEntryDto[]> {
     .orderBy('wins', 'DESC')
     .limit(limit);
 
-    const rows = await qb.getRawMany();
+    const rows: RawLeaderboardRow[] = await qb.getRawMany();
 
     return rows.map((row) => ({
       userId: Number(row.userId),
-      username: row.username,
-      winStreak: Number(row.winStreak),
+      username: row.username ?? null,
+      winStreak: row.winStreak != null ? Number(row.winStreak) : 0,
       wins: Number(row.wins),
       totalGames: Number(row.totalGames),
       rank: Number(row.rank),
       avatarUrl: row.avatarImageId
         ? `/api/images/${Number(row.avatarImageId)}/content`
         : null,
-    }));
+    } as LeaderboardEntryDto));
   }
 
   async getUserRanking(userId: number): Promise<number | null> {
-      const result = await this.dataSource.query(`
+    const result: Array<{ userId: string | number; rank: string | number }> = await this.dataSource.query(
+      `
       SELECT rank FROM (
         SELECT
           g.winner_user_id AS "userId",
@@ -83,7 +85,9 @@ async getAllTimeLeaderboard(limit = 100): Promise<LeaderboardEntryDto[]> {
         GROUP BY g.winner_user_id
       ) ranked
       WHERE "userId" = $1
-    `, [userId]);
+    `,
+      [userId],
+    );
 
     if (result.length === 0) return null;
 

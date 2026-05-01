@@ -1,4 +1,5 @@
 import { createParamDecorator, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { FastifyRequest } from 'fastify'
 
 export interface PlayerContext {
   id: number | string;
@@ -8,7 +9,7 @@ export interface PlayerContext {
 
 export const CurrentUser = createParamDecorator(
   (_: unknown, ctx: ExecutionContext): PlayerContext | undefined => {
-    const request = ctx.switchToHttp().getRequest();
+    const request = ctx.switchToHttp().getRequest<FastifyRequest>();
 
     const id = request.headers['x-user-id'];
     const username = request.headers['x-user-username'];

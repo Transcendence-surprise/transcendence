@@ -5,12 +5,7 @@ import { Game, GamePhase } from '@transcendence/db-entities';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { MatchDto } from './dto/match.dto';
 import { UpdateMatchDto } from './dto/update-match.dto';
-
-export interface LatestGames {
-  result: string;
-  opponents: string [];
-  createdAt: string;
-}
+import type { LatestGames, RawLatestGameRow } from './types/latest-games';
 
 @Injectable()
 export class MatchesService {
@@ -102,8 +97,8 @@ export class MatchesService {
   }
 
   async getUserLatestGames(playerId: number): Promise<LatestGames[] > {
-    const rows = await this.dataSource.query(`
-      SELECT 
+    const rows = (await this.dataSource.query(`
+      SELECT
         g.id AS "gameId",
         g.created_at AS "createdAt",
         g.winner_user_id AS "winnerId",
@@ -121,12 +116,12 @@ export class MatchesService {
       GROUP BY g.id
       ORDER BY g.created_at DESC
       LIMIT 7
-    `, [playerId]);
+    `, [playerId])) as unknown as RawLatestGameRow[];
 
-    return rows.map((row) => ({
+    return rows.map((row: RawLatestGameRow): LatestGames => ({
       result:
         String(row.winnerId) === String(playerId) ? 'win' : 'lose',
-      opponents: row.opponents?.filter(Boolean) || [],
+      opponents: row.opponents?.filter((opponent): opponent is string => Boolean(opponent)) || [],
       createdAt: row.createdAt,
     }));
   }
