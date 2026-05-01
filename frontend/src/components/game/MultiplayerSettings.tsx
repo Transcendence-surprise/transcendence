@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
 import { MultiplayerSettings } from "../../game/models/gameSettings";
+import CustomSelect from "../shared/CustomSelect";
+import SettingsField from "../shared/SettingsField";
 import SimpleButton from "../shared/SimpleButton";
 
 type Props = {
@@ -11,28 +12,6 @@ type Props = {
   loading?: boolean;
 };
 
-type FieldProps = {
-  label: string;
-  hint?: string;
-  children: ReactNode;
-};
-
-function SettingsField({ label, hint, children }: FieldProps) {
-  return (
-    <label className="grid gap-3 rounded-xl border border-neutral-500/20 bg-black/20 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-4">
-      <div>
-        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-cyan-bright">
-          {label}
-        </p>
-        {hint ? (
-          <p className="mt-1 text-sm leading-6 text-lightest-cyan/75">{hint}</p>
-        ) : null}
-      </div>
-      {children}
-    </label>
-  );
-}
-
 export default function MultiplayerSettingsForm({
   settings,
   onChange,
@@ -41,8 +20,6 @@ export default function MultiplayerSettingsForm({
   error,
   loading,
 }: Props) {
-  const selectClassName =
-    "w-full rounded-lg border border-[var(--color-border-subtle)] bg-bg-dark px-4 py-2.5 text-base text-white transition-colors focus:border-cyan-300 focus:outline-none sm:min-w-[112px] sm:w-auto";
   const inputClassName =
     "w-full rounded-lg border border-[var(--color-border-subtle)] bg-bg-dark px-4 py-2.5 text-base text-white transition-colors focus:border-cyan-300 focus:outline-none sm:w-24";
 
@@ -90,20 +67,21 @@ export default function MultiplayerSettingsForm({
               label="Max Players"
               hint="Choose how many players can join this multiplayer match."
             >
-              <select
-                className={selectClassName}
+              <CustomSelect
+                className="w-full sm:min-w-[112px] sm:w-auto"
                 value={settings.maxPlayers}
-                onChange={(e) =>
+                onChange={(value) =>
                   onChange({
                     ...settings,
-                    maxPlayers: Number(e.target.value) as 2 | 3 | 4,
+                    maxPlayers: value,
                   })
                 }
-              >
-                <option value={2}>2</option>
-                <option value={3}>3</option>
-                <option value={4}>4</option>
-              </select>
+                options={[
+                  { label: "2", value: 2 },
+                  { label: "3", value: 3 },
+                  { label: "4", value: 4 },
+                ]}
+              />
             </SettingsField>
 
             <SettingsField
@@ -138,39 +116,21 @@ export default function MultiplayerSettingsForm({
               label="Board Size"
               hint="Larger boards create longer routes and more room for strategy."
             >
-              <select
-                className={selectClassName}
+              <CustomSelect
+                className="w-full sm:min-w-[112px] sm:w-auto"
                 value={settings.boardSize}
-                onChange={(e) =>
+                onChange={(value) =>
                   onChange({
                     ...settings,
-                    boardSize: Number(e.target.value) as 6 | 7 | 8 | 9,
+                    boardSize: value,
                   })
                 }
-              >
-                <option value={6}>6</option>
-                <option value={7}>7</option>
-                <option value={8}>8</option>
-                <option value={9}>9</option>
-              </select>
-            </SettingsField>
-
-            <SettingsField
-              label="Collectibles / Player"
-              hint="Set how many objectives each player needs to collect."
-            >
-              <input
-                type="number"
-                min={1}
-                max={7}
-                className={inputClassName}
-                value={settings.collectiblesPerPlayer}
-                onChange={(e) =>
-                  onChange({
-                    ...settings,
-                    collectiblesPerPlayer: Number(e.target.value),
-                  })
-                }
+                options={[
+                  { label: "6", value: 6 },
+                  { label: "7", value: 7 },
+                  { label: "8", value: 8 },
+                  { label: "9", value: 9 },
+                ]}
               />
             </SettingsField>
 
@@ -190,6 +150,30 @@ export default function MultiplayerSettingsForm({
                     turnDeadline: Number(e.target.value),
                   })
                 }
+              />
+            </SettingsField>
+            <SettingsField
+              label="Collectibles / Player"
+              hint="Set how many objectives each player needs to collect."
+            >
+              <CustomSelect
+                className="w-full sm:min-w-[112px] sm:w-auto"
+                value={settings.collectiblesPerPlayer}
+                onChange={(value) =>
+                  onChange({
+                    ...settings,
+                    collectiblesPerPlayer: value,
+                  })
+                }
+                options={[
+                  { label: "1", value: 1 },
+                  { label: "2", value: 2 },
+                  { label: "3", value: 3 },
+                  { label: "4", value: 4 },
+                  { label: "5", value: 5 },
+                  { label: "6", value: 6 },
+                  { label: "7", value: 7 },
+                ]}
               />
             </SettingsField>
           </div>
