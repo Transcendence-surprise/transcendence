@@ -35,12 +35,12 @@ export default function LeaderboardRow({
   const fallbackInitial = username.trim().charAt(0).toUpperCase() || "?";
   const fallbackAvatarClassName =
     rank === 1
-      ? "from-yellow-400/30 via-amber-400/20 to-bg-dark"
+      ? "from-yellow-400 via-amber-400 to-bg-dark"
       : rank === 2
-        ? "from-slate-200/30 via-slate-400/15 to-bg-dark"
+        ? "from-slate-200 via-slate-400 to-bg-dark"
         : rank === 3
-          ? "from-amber-500/30 via-orange-500/15 to-bg-dark"
-          : "from-cyan-400/25 via-blue-500/15 to-bg-dark";
+          ? "from-amber-500 via-orange-500 to-bg-dark"
+          : "from-cyan-400 via-blue-500 to-bg-dark";
 
   return (
     <div

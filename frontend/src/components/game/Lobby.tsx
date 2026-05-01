@@ -62,9 +62,9 @@ export default function Lobby({
               Waiting for players to join
             </h2>
             <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-white/60">
-              <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1">
+              {/* <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1">
                 Game ID: {gameIdLabel}
-              </span>
+              </span> */}
               <span className="rounded-full border border-cyan-400/15 bg-cyan-400/8 px-3 py-1 text-cyan-200">
                 {players.length}/{rules.maxPlayers} players ready
               </span>

@@ -21,14 +21,16 @@ function formatMessageTimestamp(timestamp: number) {
 }
 
 function getAvatarGradient(username: string) {
-  const gradients = [
-    "from-cyan-400/30 via-blue-500/20 to-transparent",
-    "from-pink-400/30 via-fuchsia-500/20 to-transparent",
-    "from-emerald-400/30 via-teal-500/20 to-transparent",
-    "from-yellow-300/30 via-amber-500/20 to-transparent",
-    "from-violet-400/30 via-indigo-500/20 to-transparent",
-    "from-rose-400/30 via-orange-500/20 to-transparent",
-  ];
+const gradients = [
+  "from-cyan-400 via-cyan-500 to-fuchsia-700/70",
+  "from-fuchsia-400 via-pink-500 tto-fuchsia-700/70",
+  "from-yellow-300 via-amber-500 to-fuchsia-700/70",
+  "from-violet-400 via-indigo-500 to-fuchsia-700/70",
+  "from-rose-400 via-orange-500 to-fuchsia-700/70",
+  "from-cyan-400 via-blue-500 to-fuchsia-700/70",
+  "from-purple-400 via-fuchsia-500 to-fuchsia-700/70",
+  "from-sky-400 via-indigo-600 to-fuchsia-700/70",
+];
 
   const seed = username
     .split("")
