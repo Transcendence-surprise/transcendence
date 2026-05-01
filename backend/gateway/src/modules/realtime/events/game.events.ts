@@ -3,16 +3,16 @@ import type { TypedSocket } from '../models/models';
 
 export function bindGameEvents(server: Server, client: TypedSocket) {
 
-  client.on('game:join', ({ gameId }) => {
-    client.join(`game:${gameId}`);
-    client.join(`lobby:${gameId}`);
-    client.join(`play:${gameId}`);
+  client.on('game:join', async ({ gameId }) => {
+    await client.join(`game:${gameId}`);
+    await client.join(`lobby:${gameId}`);
+    await client.join(`play:${gameId}`);
   });
 
-  client.on('game:leave', ({ gameId }) => {
-    client.leave(`game:${gameId}`);
-    client.leave(`lobby:${gameId}`);
-    client.leave(`play:${gameId}`);
+  client.on('game:leave', async ({ gameId }) => {
+    await client.leave(`game:${gameId}`);
+    await client.leave(`lobby:${gameId}`);
+    await client.leave(`play:${gameId}`);
   });
 
   client.on('lobbyMessage', (payload) => {

@@ -44,8 +44,8 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
 
       const userId = Number(user.sub);
 
-      client.join(`user:${userId}`);
-      client.join('chat:global');
+      await client.join(`user:${userId}`);
+      await client.join('chat:global');
 
       const result = await this.presenceClient.markOnline(userId);
       if (result) this.emitter.emitPlayerAvailabilityUpdated(String(userId));
