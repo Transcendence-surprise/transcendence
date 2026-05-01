@@ -9,6 +9,7 @@ import {
 } from "../api/chat";
 import ChatMessageItem from "../components/chat/ChatMessageItem";
 import ChatInputBar from "../components/chat/ChatInputBar";
+import BackButton from "../components/shared/BackButton";
 
 export default function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -102,12 +103,7 @@ export default function Chat() {
           Login required to access chat
         </h2>
 
-        <button
-          onClick={() => navigate(-1)}
-          className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
-        >
-          Back
-        </button>
+        <BackButton onClick={() => navigate(-1)} variant="outline" />
       </div>
     );
   }

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { SinglePlayerSettings } from "../../game/models/gameSettings";
 import { SingleLevel } from "../../game/models/singleLevel";
 import { getSingleLevels } from "../../api/game";
+import BackButton from "../shared/BackButton";
 import SimpleButton from "../shared/SimpleButton";
 
 type Props = {
@@ -65,12 +66,7 @@ export default function SinglePlayerSettingsForm({
         </select>
       </label>
       <SimpleButton title="Create Game" onClick={onCreate} disabled={loading} />
-      <button
-        className="mt-2 text-sm underline text-blue-300"
-        onClick={onBack}
-        >
-          Back
-      </button>
+      <BackButton onClick={onBack} className="mt-2" />
     </div>
   );
 }

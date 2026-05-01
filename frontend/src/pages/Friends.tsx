@@ -9,6 +9,7 @@ import DeleteActionButton from "../components/shared/DeleteActionButton";
 import ActionConfirmationModal, {
   type PendingDeletion,
 } from "../components/shared/ActionConfirmationModal";
+import BackButton from "../components/shared/BackButton";
 
 type PendingFriendDeleteAction = PendingDeletion & {
   action: "rejectRequest" | "removeFriend";
@@ -69,7 +70,7 @@ export default function Friends() {
     return (
       <div>
         <h2>Login required</h2>
-        <button onClick={() => navigate(-1)}>Back</button>
+        <BackButton onClick={() => navigate(-1)} variant="outline" />
       </div>
     );
   }

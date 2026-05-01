@@ -1,5 +1,6 @@
 // src/components/game/JoinOrCreateTable.tsx
 import { MultiGame } from "../../game/models/multiGames";
+import BackButton from "../shared/BackButton";
 
 type Props = {
   games: MultiGame[];
@@ -40,12 +41,7 @@ export default function JoinTable({
             <p className="mt-2 text-sm text-lightest-cyan">
               Start a new lobby or try again later.
             </p>
-            <button
-              className="mt-6 text-sm underline text-blue-hero"
-              onClick={onBack}
-            >
-              Back
-            </button>
+            <BackButton onClick={onBack} className="mt-6" />
           </div>
         </div>
       </div>
@@ -123,12 +119,7 @@ export default function JoinTable({
           </div>
 
           <div className="mt-6 flex justify-center">
-            <button
-              className="text-sm underline text-blue-300"
-              onClick={onBack}
-            >
-              Back
-            </button>
+            <BackButton onClick={onBack} />
           </div>
         </div>
       </div>

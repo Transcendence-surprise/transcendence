@@ -1,6 +1,7 @@
 // src/components/game/BoardView.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import BackButton from "../shared/BackButton";
 import { Board } from "../../game/models/board";
 import { useGameActions } from "../../hooks/useGameActions";
 import { PlayerState } from "../../game/models/privatState";
@@ -117,13 +118,7 @@ export default function BoardView({
 
       {/* Navigation buttons */}
       <div className="mt-2 flex gap-3">
-        <button
-          type="button"
-          onClick={() => navigate(-2)}
-          className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
-        >
-          Back
-        </button>
+        <BackButton onClick={() => navigate(-2)} variant="outline" />
         <button
           type="button"
           onClick={handleLeaveGame}

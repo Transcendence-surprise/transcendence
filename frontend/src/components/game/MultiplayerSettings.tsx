@@ -2,6 +2,7 @@ import { MultiplayerSettings } from "../../game/models/gameSettings";
 import CustomSelect from "../shared/CustomSelect";
 import InfoChip from "../shared/InfoChip";
 import SettingsField from "../shared/SettingsField";
+import BackButton from "../shared/BackButton";
 import SimpleButton from "../shared/SimpleButton";
 
 type Props = {
@@ -194,12 +195,7 @@ export default function MultiplayerSettingsForm({
                 className="w-56"
               />
             </div>
-            <button
-              className="text-sm text-light-cyan underline underline-offset-4 transition-colors hover:text-cyan-bright"
-              onClick={onBack}
-            >
-              Back
-            </button>
+            <BackButton onClick={onBack} />
           </div>
         </div>
       </div>
