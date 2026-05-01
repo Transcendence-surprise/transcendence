@@ -59,6 +59,13 @@ export default function JoinTable({
             <p className="mt-3 text-sm leading-6 text-lightest-cyan/80">
               Start a new lobby or try again later.
             </p>
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+              <InfoChip>0 Open Matches</InfoChip>
+              <InfoChip variant="muted">Create or refresh</InfoChip>
+            </div>
+            <p className="mx-auto mt-4 max-w-md text-xs uppercase tracking-[0.16em] text-white/35">
+              Ask a friend to host a lobby, or create one from the multiplayer setup screen.
+            </p>
             <BackButton onClick={onBack} className="mt-6" />
           </div>
         </div>
