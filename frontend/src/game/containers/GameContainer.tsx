@@ -1,6 +1,7 @@
 // src/containers/GameContainer.tsx
 
 import { useNavigate } from "react-router-dom";
+import GameEndModal from "../../components/game/GameEndModal";
 import { useGameRoom } from "../../hooks/useGameRoom";
 import { useGameChat } from "../../hooks/useGameChat";
 import GamePage from "../../pages/GamePage";
@@ -45,6 +46,10 @@ export default function GameContainer({ gameId, user }: Props) {
       : null;
 
   const isEnded = game.phase === "END";
+  const modalVariant = iWon ? "victory" : endReasonText ? "defeat" : "neutral";
+  const modalBadgeLabel = iWon ? "Victory" : endReasonText ? "Defeat" : "Complete";
+  const modalTitle = iWon ? "You won!" : endReasonText ? "You lose!" : "Draw";
+  const modalWinnerText = winnerNames ? `Winner: ${winnerNames}` : null;
 
   return (
     <>
@@ -61,47 +66,13 @@ export default function GameContainer({ gameId, user }: Props) {
 
       {isEnded && (
         <GameEndModal
-          iWon={iWon}
-          winnerNames={winnerNames}
-          endReasonText={endReasonText}
+          variant={modalVariant}
+          badgeLabel={modalBadgeLabel}
+          title={modalTitle}
+          winnerText={modalWinnerText}
           onBack={() => navigate("/game")}
         />
       )}
     </>
-  );
-}
-
-function GameEndModal({
-  iWon,
-  winnerNames,
-  endReasonText,
-  onBack,
-}: {
-  iWon: boolean;
-  winnerNames: string;
-  endReasonText: string | null;
-  onBack: () => void;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-md rounded-xl border border-gray-700 bg-gray-900 p-6 shadow-2xl">
-        <h2 className="text-2xl font-bold mb-2 text-center">
-          {iWon ? "🏆 You won!" : endReasonText ? "You lost" : "Game finished"}
-        </h2>
-
-        <p className="text-center text-gray-300 mb-6">
-          {winnerNames
-            ? `Winner: ${winnerNames}`
-            : endReasonText ?? "No winner information"}
-        </p>
-
-        <button
-          onClick={onBack}
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
-        >
-          Back
-        </button>
-      </div>
-    </div>
   );
 }
