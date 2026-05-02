@@ -62,6 +62,8 @@ export function processPlayerAction(
     player.y = finalStep.y;
   }
 
+  // Count each successful player move toward single-player move limits.
+  player.totalMoves += 1;
   player.hasMoved = true;
 
   // COLLECT ITEMS
