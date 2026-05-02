@@ -98,31 +98,32 @@ export default function BoardView({
   };
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <BoardCanvas
-        board={board}
-        players={players}
-        currentPlayerId={currentPlayerId}
-        selectedTiles={selectedTiles}
-        setSelectedTiles={setSelectedTiles}
-        onArrowClick={handleArrowClick}
-        onPlayerMove={handlePlayerMove}
-        onRotateClick={handleRotateButton}
-        onSwapClick={handleSwapButton}
-        onSkipClick={handleSkip}
-        canRotate={selectedTiles.length === 1}
-        canSwap={selectedTiles.length === 2}
-        boardActionsPending={boardActionsPending}
-        isSpectator={isSpectator}
-      />
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-fit rounded-[1.75rem] border border-[var(--color-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.022),rgba(255,255,255,0.008))] px-5 py-5 shadow-[0_18px_44px_rgba(0,0,0,0.22)]">
+        <BoardCanvas
+          board={board}
+          players={players}
+          currentPlayerId={currentPlayerId}
+          selectedTiles={selectedTiles}
+          setSelectedTiles={setSelectedTiles}
+          onArrowClick={handleArrowClick}
+          onPlayerMove={handlePlayerMove}
+          onRotateClick={handleRotateButton}
+          onSwapClick={handleSwapButton}
+          onSkipClick={handleSkip}
+          canRotate={selectedTiles.length === 1}
+          canSwap={selectedTiles.length === 2}
+          boardActionsPending={boardActionsPending}
+          isSpectator={isSpectator}
+        />
+      </div>
 
-      {/* Navigation buttons */}
-      <div className="mt-2 flex gap-3">
+      <div className="flex items-center justify-center gap-3 rounded-2xl border border-[var(--color-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.008))] px-4 py-4 shadow-[0_14px_36px_rgba(0,0,0,0.16)]">
         <BackButton onClick={() => navigate(-2)} variant="outline" />
         <button
           type="button"
           onClick={handleLeaveGame}
-          className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
+          className="rounded-lg border border-[var(--color-border-subtle)] bg-bg-dark-tertiary px-6 py-3 font-medium text-white transition-all hover:border-cyan-bright hover:shadow-cyan-light"
         >
           Leave Game
         </button>
