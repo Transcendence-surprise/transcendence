@@ -23,6 +23,10 @@ export class UsersService {
     private badgeService: BadgeService,
   ) {}
 
+  private getDefaultAvatarUrl(user: User) {
+    return `https://api.dicebear.com/9.x/bottts/svg?seed=user-${user.id}`;
+  }
+
   private mapUser(user: User): Omit<User, 'password' | 'avatarImage'> & {
     avatarImageId: number | null;
     avatarUrl: string | null;
@@ -33,7 +37,9 @@ export class UsersService {
     return {
       ...rest,
       avatarImageId,
-      avatarUrl: avatarImageId ? `/api/images/${avatarImageId}/content` : null,
+      avatarUrl: avatarImageId
+        ? `/api/images/${avatarImageId}/content`
+        : this.getDefaultAvatarUrl(user),
     };
   }
 

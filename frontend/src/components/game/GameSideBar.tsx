@@ -4,6 +4,7 @@ import PlayerList from "./sidebar/PlayerList";
 import PlayerPrivatePanel from "./sidebar/PlayerPrivatePanel";
 import { PrivateGameState } from "../../game/models/privatState";
 import InfoChip from "../shared/InfoChip";
+import { getMockAvatarSrc } from "../../types/mockPlayer";
 
 type GameSideBarProps = {
   game: PrivateGameState;
@@ -44,9 +45,11 @@ export default function GameSideBar({
                 Level {game.levelId}
               </p>
             </div>
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-cyan-400/20 bg-gradient-to-br from-cyan-400/20 via-blue-500/15 to-transparent text-sm font-semibold text-cyan-100">
-              {(currentPlayer?.name ?? "P").charAt(0).toUpperCase()}
-            </div>
+            <img
+              src={getMockAvatarSrc(`user-${currentPlayer?.id ?? "player"}`)}
+              alt={currentPlayer?.name ?? "Player avatar"}
+              className="h-11 w-11 shrink-0 rounded-full border border-cyan-400/25 bg-black/15 object-cover shadow-[0_0_0_2px_rgba(34,211,238,0.08)]"
+            />
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             <InfoChip>{collectedCount} Collected</InfoChip>

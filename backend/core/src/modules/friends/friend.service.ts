@@ -10,7 +10,6 @@ import { PresenceService } from '../presence/presence.service';
 @Injectable()
 export class FriendService {
   constructor(
-
     @InjectRepository(Friendship)
     private repo: Repository<Friendship>,
     private badgeService: BadgeService,
@@ -24,6 +23,12 @@ export class FriendService {
         { requesterId: userBId, receiverId: userAId },
       ],
     });
+  }
+
+  private getAvatarUrl(user: { id: number; avatarImageId?: number | null }) {
+    return user.avatarImageId
+      ? `/api/images/${user.avatarImageId}/content`
+      : `https://api.dicebear.com/9.x/bottts/svg?seed=user-${user.id}`;
   }
 
   async sendRequest(currentUserId: number, targetUserId: number) {
@@ -163,6 +168,7 @@ export class FriendService {
       return {
         id: user.id,
         username: user.username,
+        avatarUrl: this.getAvatarUrl(user),
       };
     });
   }
@@ -179,24 +185,25 @@ export class FriendService {
     return pending.map(f => ({
       id: f.requester.id,
       username: f.requester.username,
+      avatarUrl: this.getAvatarUrl(f.requester),
     }));
   }
 
   async getFriendsSnapshot(userId: number) {
-
     const friends = await this.getFriends(userId);
     const pending = await this.getPendingRequests(userId);
     return {
       friends: friends.map(f => ({
         id: f.id,
         username: f.username,
+        avatarUrl: f.avatarUrl ?? null,
         isOnline: this.presenceService.isOnline(f.id),
       })),
       pendingRequests: pending.map(p => ({
         id: p.id,
         username: p.username,
+        avatarUrl: p.avatarUrl ?? null,
       })),
     };
-  } 
-
+  }
 }
