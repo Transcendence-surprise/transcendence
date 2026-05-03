@@ -1,5 +1,6 @@
 import { Controller, Post, Body, Get, Param, HttpCode } from '@nestjs/common';
 import { EngineService } from '../services/engine.service.nest';
+import { CoreBadgeHTTPService } from '../services/core-internal.http.service';
 import { UnauthorizedException } from '@nestjs/common';
 import { GameSettings } from '../models/state';
 import { ApiBody, ApiOkResponse, ApiParam, ApiResponse } from '@nestjs/swagger';
@@ -29,8 +30,9 @@ import { PlayerAction } from '../models/playerAction';
 @Controller('game')
 export class GameController {
   constructor(
-  private readonly engine: EngineService,
-) {}
+    private readonly engine: EngineService,
+    private readonly coreService: CoreBadgeHTTPService,
+  ) {}
 
   // Create Game
   @Post('create')
@@ -47,9 +49,14 @@ export class GameController {
 
     const settings = body as GameSettings;
 
+    // Fetch current user data from Core to get updated avatar
+    const currentUser = await this.coreService.getUserById(user.id);
+    const avatarUrl = currentUser?.avatarUrl ?? null;
+
     const { gameId } = await this.engine.createGame(
       user.id,
       user.username,
+      avatarUrl,
       settings
     );
     return { ok: true, gameId };
@@ -76,8 +83,16 @@ export class GameController {
     @Body() body: JoinGameDto,
     @CurrentUser() user: PlayerContext
   ) : Promise<JoinResponseDto> {
-    const result = await this.engine.joinGame(body.gameId, user.id, user.username, body.role);
-    // console.log("User Joined: ", body.playerId );
+    // Fetch current user data from Core to get updated avatar
+    const currentUser = await this.coreService.getUserById(user.id);
+    const avatarUrl = currentUser?.avatarUrl ?? null;
+
+    const result = await this.engine.joinGame(
+      body.gameId, 
+      user.id, 
+      user.username,
+      avatarUrl,
+      body.role);
     return result;
   }
 

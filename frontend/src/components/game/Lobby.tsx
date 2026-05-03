@@ -1,6 +1,6 @@
 // src/game/components/Lobby.tsx
 import LobbyChat from "./LobbyChat";
-import PlayerList from "../UI/PlayerList";
+import LobbyPlayerList from "../UI/LobbyPlayerList";
 import { LobbySettings } from "../UI/LobbySettings";
 import LobbyActionButton from "../UI/LobbyActionButton";
 import { LobbyMessage } from "../../game/models/lobbyMessage";
@@ -78,7 +78,7 @@ export default function Lobby({
           <div className="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
             {/* Players column */}
             <div className="space-y-4">
-              <PlayerList
+              <LobbyPlayerList
                 players={players}
                 hostId={hostId}
                 maxPlayers={rules.maxPlayers}

@@ -6,6 +6,7 @@ export function joinGameEngine(
   state: GameState,
   playerId: number | string,
   nickname: string,
+  avatarUrl: string | null,
   role: "PLAYER" | "SPECTATOR"
 ): JoinResult {
 
@@ -43,6 +44,7 @@ export function joinGameEngine(
       id: playerId,
       slotId: availableSlot.slotId,
       name: nickname,
+      avatarUrl,
       x: availableSlot.x,
       y: availableSlot.y,
       hasMoved: false,

@@ -1,5 +1,5 @@
 // src/game/dtos/playerState.dto.ts
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class PlayerStateDto {
   @ApiProperty()
@@ -22,4 +22,7 @@ export class PlayerStateDto {
 
   @ApiProperty()
   skipsLeft: number;
+
+  @ApiPropertyOptional()
+  avatarUrl?: string | null;
 }

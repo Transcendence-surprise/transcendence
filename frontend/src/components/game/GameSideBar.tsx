@@ -28,7 +28,6 @@ export default function GameSideBar({
     game.playerProgress?.collectedItems?.length ??
     0;
   const maxMoves = game.level?.constraints?.maxMoves;
-
   return (
     <div className="flex w-[21.5rem] flex-col gap-3 p-3 xl:w-[22.5rem]">
       {isSingleMode ? (
@@ -46,7 +45,7 @@ export default function GameSideBar({
               </p>
             </div>
             <img
-              src={getMockAvatarSrc(`user-${currentPlayer?.id ?? "player"}`)}
+              src={currentPlayer?.avatarUrl || getMockAvatarSrc(`user-${currentPlayer?.id ?? "player"}`)}
               alt={currentPlayer?.name ?? "Player avatar"}
               className="h-11 w-11 shrink-0 rounded-full border border-cyan-400/25 bg-black/15 object-cover shadow-[0_0_0_2px_rgba(34,211,238,0.08)]"
             />

@@ -54,4 +54,8 @@ export class CoreBadgeHTTPService {
     console.log('Game Service:Incrementing badge progress with payload:', payload);
     return this.request('post', '/badges/internal/increment', payload);
   }
+
+  async getUserById(userId: number | string): Promise<{ avatarUrl?: string | null; username?: string } | null> {
+    return this.request<{ avatarUrl?: string | null; username?: string }>('get', `/users/id/${userId}`);
+  }
 }

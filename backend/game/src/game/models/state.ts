@@ -17,6 +17,7 @@ export interface PlayerState {
   hasMoved: boolean;              // did the player already move this turn?
   skipsLeft: number;              // how many skips the player has left
   totalMoves: number;             // total moves made (for move limit constraint)
+  avatarUrl?: string | null;
   // stunned?: boolean;           // future-proof: player cannot act
 }
 

@@ -117,8 +117,13 @@ export class EngineService {
     return events;
   }
 
-  async createGame(hostId: number | string, nickname:string, settings: GameSettings) {
-    const state = createGameEngine(hostId, nickname, settings); // from create.engine.ts
+  async createGame(
+    hostId: number | string, 
+    nickname:string, 
+    avatarUrl: string | null, 
+    settings: GameSettings
+  ) {
+    const state = createGameEngine(hostId, nickname, avatarUrl, settings); // from create.engine.ts
     const gameId = crypto.randomUUID();
     this.games.set(gameId, state);
     await saveGameToDB(gameId, state, this.persistence);
@@ -179,13 +184,14 @@ export class EngineService {
     gameId: string,
     playerId: number | string,
     name: string,
+    avatarUrl: string | null,
     role: "PLAYER" | "SPECTATOR"
   ) {
     const state = this.getGameState(gameId);
     if (!state) {
       return { ok: false, error: JoinError.GAME_NOT_FOUND };
     }
-    const result = joinGameEngine(state, playerId, name, role);
+    const result = joinGameEngine(state, playerId, name, avatarUrl, role);
     if (result.ok && role === 'PLAYER') {
       await savePlayersToDB(gameId, state, this.playersPersistence);
     }

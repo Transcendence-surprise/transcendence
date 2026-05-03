@@ -11,7 +11,7 @@ type PlayerListProps = {
   maxPlayers: number;
 };
 
-export default function PlayerList({
+export default function LobbyPlayerList({
   players,
   hostId,
   maxPlayers,
