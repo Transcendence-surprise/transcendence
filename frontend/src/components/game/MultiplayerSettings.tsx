@@ -32,7 +32,7 @@ export default function MultiplayerSettingsForm({
       return settings.turnDeadline ?? 30;
     }
 
-    return Math.min(300, Math.max(5, parsed));
+    return Math.min(300, Math.max(30, parsed));
   };
 
   const inputClassName =
@@ -155,7 +155,7 @@ export default function MultiplayerSettingsForm({
             >
               <input
                 type="number"
-                min={5}
+                min={30}
                 max={300}
                 className={inputClassName}
                 value={settings.turnDeadline ?? 30}

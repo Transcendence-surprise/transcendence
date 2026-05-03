@@ -118,10 +118,7 @@ export default function JoinTable({
                     className="odd:bg-white/[0.02] even:bg-transparent"
                   >
                     <td className={tableCellClass}>
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-white">{game.hostName}</span>
-                        <span className="text-xs text-white/40">Game ID: {game.id.slice(0, 8)}</span>
-                      </div>
+                      <span className="font-semibold text-white">{game.hostName}</span>
                     </td>
                     <td className={tableCellClass}>
                       <InfoChip className="text-[11px]">
