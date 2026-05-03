@@ -123,7 +123,7 @@ export class EngineService {
     avatarUrl: string | null, 
     settings: GameSettings
   ) {
-    const state = createGameEngine(hostId, nickname, avatarUrl, settings); // from create.engine.ts
+    const state = createGameEngine(hostId, nickname, settings, avatarUrl); // from create.engine.ts
     const gameId = crypto.randomUUID();
     this.games.set(gameId, state);
     await saveGameToDB(gameId, state, this.persistence);
@@ -191,7 +191,7 @@ export class EngineService {
     if (!state) {
       return { ok: false, error: JoinError.GAME_NOT_FOUND };
     }
-    const result = joinGameEngine(state, playerId, name, avatarUrl, role);
+    const result = joinGameEngine(state, playerId, name, role, avatarUrl);
     if (result.ok && role === 'PLAYER') {
       await savePlayersToDB(gameId, state, this.playersPersistence);
     }

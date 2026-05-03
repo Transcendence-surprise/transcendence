@@ -10,8 +10,8 @@ import { GamePhase } from '@transcendence/db-entities';
 export function createGame(
   hostId: number | string,
   nickname: string,
-  avatarUrl: string | null,
-  settings: GameSettings
+  settings: GameSettings,
+  avatarUrl?: string | null,
 ): GameState {
 
   // Create the level
@@ -36,7 +36,7 @@ export function createGame(
     const hostPlayer = state.players[0];
     hostPlayer.id = hostId;
     hostPlayer.name = nickname;
-    hostPlayer.avatarUrl = avatarUrl;
+    hostPlayer.avatarUrl = avatarUrl ?? null;
     hostPlayer.x = spawn.x;
     hostPlayer.y = spawn.y;
     hostPlayer.slotId = spawn.slotId;
@@ -72,7 +72,7 @@ export function createGame(
     id: hostId,
     slotId: spawn.slotId,
     name: nickname,
-    avatarUrl,
+    avatarUrl: avatarUrl ?? null,
     x: spawn.x,
     y: spawn.y,
     hasMoved: false,
