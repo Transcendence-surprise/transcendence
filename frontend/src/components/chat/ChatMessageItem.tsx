@@ -23,7 +23,7 @@ function formatMessageTimestamp(timestamp: number) {
 function getAvatarGradient(username: string) {
 const gradients = [
   "from-cyan-400 via-cyan-500 to-fuchsia-700/70",
-  "from-fuchsia-400 via-pink-500 tto-fuchsia-700/70",
+  "from-fuchsia-400 via-pink-500 to-fuchsia-700/70",
   "from-yellow-300 via-amber-500 to-fuchsia-700/70",
   "from-violet-400 via-indigo-500 to-fuchsia-700/70",
   "from-rose-400 via-orange-500 to-fuchsia-700/70",

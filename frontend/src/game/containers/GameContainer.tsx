@@ -46,9 +46,11 @@ export default function GameContainer({ gameId, user }: Props) {
       : null;
 
   const isEnded = game.phase === "END";
-  const modalVariant = iWon ? "victory" : endReasonText ? "defeat" : "neutral";
-  const modalBadgeLabel = iWon ? "Victory" : endReasonText ? "Defeat" : "Complete";
-  const modalTitle = iWon ? "You won!" : endReasonText ? "You lose!" : "Draw";
+  const hasWinner = winnerIds.length > 0;
+  const didLose = !iWon && (Boolean(endReasonText) || hasWinner);
+  const modalVariant = iWon ? "victory" : didLose ? "defeat" : "neutral";
+  const modalBadgeLabel = iWon ? "Victory" : didLose ? "Defeat" : "Complete";
+  const modalTitle = iWon ? "You won!" : didLose ? "You lose!" : "Draw";
   const modalWinnerText = winnerNames ? `Winner: ${winnerNames}` : null;
 
   return (

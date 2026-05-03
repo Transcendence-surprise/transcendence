@@ -20,7 +20,7 @@ export default function InfoChip({
 
   const variantClassName =
     variant === "muted"
-      ? "border-cyan-400/20 bg-cyan-400/10 text-cyan-100"
+      ? "border-white/12 bg-white/[0.03] text-white/72"
       : "border-cyan-400/20 bg-cyan-400/10 text-cyan-100";
 
   return (

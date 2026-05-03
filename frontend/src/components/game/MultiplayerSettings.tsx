@@ -22,6 +22,19 @@ export default function MultiplayerSettingsForm({
   error,
   loading,
 }: Props) {
+  const normalizeTurnDeadline = (value: string) => {
+    if (value.trim() === "") {
+      return undefined;
+    }
+
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) {
+      return settings.turnDeadline ?? 30;
+    }
+
+    return Math.min(300, Math.max(5, parsed));
+  };
+
   const inputClassName =
     "w-full rounded-lg border border-[var(--color-border-subtle)] bg-bg-dark px-4 py-2.5 text-base text-white transition-colors focus:border-cyan-300 focus:outline-none sm:w-24";
 
@@ -149,7 +162,7 @@ export default function MultiplayerSettingsForm({
                 onChange={(e) =>
                   onChange({
                     ...settings,
-                    turnDeadline: Number(e.target.value),
+                    turnDeadline: normalizeTurnDeadline(e.target.value),
                   })
                 }
               />
