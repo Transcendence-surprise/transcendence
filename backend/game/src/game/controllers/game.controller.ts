@@ -29,8 +29,8 @@ import { PlayerAction } from '../models/playerAction';
 @Controller('game')
 export class GameController {
   constructor(
-  private readonly engine: EngineService,
-) {}
+    private readonly engine: EngineService,
+  ) {}
 
   // Create Game
   @Post('create')
@@ -76,8 +76,11 @@ export class GameController {
     @Body() body: JoinGameDto,
     @CurrentUser() user: PlayerContext
   ) : Promise<JoinResponseDto> {
-    const result = await this.engine.joinGame(body.gameId, user.id, user.username, body.role);
-    // console.log("User Joined: ", body.playerId );
+    const result = await this.engine.joinGame(
+      body.gameId, 
+      user.id, 
+      user.username,
+      body.role);
     return result;
   }
 

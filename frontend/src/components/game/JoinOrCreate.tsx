@@ -1,4 +1,5 @@
 import GameModeCard from "../UI/GameModeCard";
+import BackButton from "../shared/BackButton";
 
 type Props = {
   onCreate: () => void;
@@ -25,9 +26,7 @@ export default function MultiplayerOption({ onCreate, onJoin, onBack }: Props) {
         />
       </div>
 
-      <button className="mt-4 text-sm underline text-gray-400" onClick={onBack}>
-        Back
-      </button>
+      <BackButton onClick={onBack} className="mt-4 text-gray-400 hover:text-cyan-bright" />
     </div>
   );
 }

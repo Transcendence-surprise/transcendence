@@ -7,8 +7,23 @@ import {
   sendChatMessage,
   type ChatMessage,
 } from "../api/chat";
+import { getAllUsers } from "../api/users";
 import ChatMessageItem from "../components/chat/ChatMessageItem";
 import ChatInputBar from "../components/chat/ChatInputBar";
+import BackButton from "../components/shared/BackButton";
+
+function enrichChatMessage(
+  message: ChatMessage,
+  avatarUrlById: Map<string, string | null>,
+): ChatMessage {
+  return {
+    ...message,
+    avatarUrl:
+      message.avatarUrl ??
+      avatarUrlById.get(String(message.userId)) ??
+      null,
+  };
+}
 
 export default function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -20,16 +35,28 @@ export default function Chat() {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const avatarUrlByIdRef = useRef<Map<string, string | null>>(new Map());
 
   useEffect(() => {
     if (!user) return;
 
     const controller = new AbortController();
     console.log("Fetching chat history");
-    getChatHistory(controller.signal)
-      .then((data) => {
+    Promise.all([
+      getChatHistory(controller.signal),
+      getAllUsers(controller.signal),
+    ])
+      .then(([data, allUsers]) => {
+        avatarUrlByIdRef.current = new Map(
+          allUsers.map((chatUser) => [String(chatUser.id), chatUser.avatarUrl ?? null]),
+        );
+
         if (Array.isArray(data)) {
-          setMessages(data);
+          setMessages(
+            data.map((message) =>
+              enrichChatMessage(message, avatarUrlByIdRef.current),
+            ),
+          );
         } else {
           setMessages([]);
         }
@@ -57,7 +84,10 @@ export default function Chat() {
     }
 
     socket.on("chat:newMessage", (msg: ChatMessage) => {
-      setMessages((prev) => [...prev, msg]);
+      setMessages((prev) => [
+        ...prev,
+        enrichChatMessage(msg, avatarUrlByIdRef.current),
+      ]);
     });
 
     return () => {
@@ -102,12 +132,7 @@ export default function Chat() {
           Login required to access chat
         </h2>
 
-        <button
-          onClick={() => navigate(-1)}
-          className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
-        >
-          Back
-        </button>
+        <BackButton onClick={() => navigate(-1)} variant="outline" />
       </div>
     );
   }

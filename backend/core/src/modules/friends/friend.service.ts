@@ -10,7 +10,6 @@ import { PresenceService } from '../presence/presence.service';
 @Injectable()
 export class FriendService {
   constructor(
-
     @InjectRepository(Friendship)
     private repo: Repository<Friendship>,
     private badgeService: BadgeService,
@@ -183,7 +182,6 @@ export class FriendService {
   }
 
   async getFriendsSnapshot(userId: number) {
-
     const friends = await this.getFriends(userId);
     const pending = await this.getPendingRequests(userId);
     return {
@@ -197,6 +195,5 @@ export class FriendService {
         username: p.username,
       })),
     };
-  } 
-
+  }
 }

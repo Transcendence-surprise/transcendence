@@ -10,7 +10,7 @@ import { GamePhase } from '@transcendence/db-entities';
 export function createGame(
   hostId: number | string,
   nickname: string,
-  settings: GameSettings
+  settings: GameSettings,
 ): GameState {
 
   // Create the level

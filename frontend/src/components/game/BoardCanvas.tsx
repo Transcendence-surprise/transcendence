@@ -247,13 +247,17 @@ export function BoardCanvas({
   return (
     <div className="flex flex-col items-center gap-5">
       {!isSpectator && (
-        <div className="w-[600px] max-w-full mb-3">
-          <div className="min-h-[44px] px-3 py-2 rounded-md border border-gray-600 bg-gray-800/70 text-center text-base text-gray-200 flex items-center justify-center">
-            {boardHint}
+        <div className="mb-3 w-[600px] max-w-full">
+          <div className="rounded-xl border border-[var(--color-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.022),rgba(255,255,255,0.008))] px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.16)]">
+            <div className="flex min-h-[44px] items-center justify-center text-center text-sm leading-6 text-white/75 sm:text-base">
+              {boardHint}
+            </div>
           </div>
           {boardActionsPending && (
-            <div className="mt-2 w-1/2 mx-auto p-2 bg-pink rounded-md text-xs text-black font-semibold text-center">
-              Board action required!
+            <div className="mt-2 flex justify-center">
+              <span className="rounded-full border border-rose-400/25 bg-rose-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-rose-200">
+                Board action required
+              </span>
             </div>
           )}
         </div>
@@ -450,53 +454,55 @@ export function BoardCanvas({
 
       {!isSpectator && (
         <>
-          <div className="mt-4 flex flex-wrap justify-center gap-3">
-            <SimpleButton
-              title="Rotate"
-              onClick={onRotateClick}
-              disabled={!canRotate || isSubmittingMove}
-              className="w-auto px-3 py-1"
-              textClassName="text-sm mb-0"
-            />
-            <SimpleButton
-              title="Swap"
-              onClick={onSwapClick}
-              disabled={!canSwap || isSubmittingMove}
-              className="w-auto px-3 py-1"
-              textClassName="text-sm mb-0"
-            />
-            <SimpleButton
-              title="Confirm Move"
-              onClick={submitMovePath}
-              disabled={
-                !selectedPlayer || movePath.length === 0 || isSubmittingMove
-              }
-              className="w-auto px-3 py-1"
-              textClassName="text-sm mb-0"
-            />
-            <SimpleButton
-              title="Cancel Path"
-              onClick={resetMoveSelection}
-              disabled={!selectedPlayer || isSubmittingMove}
-              className="w-auto px-3 py-1"
-              textClassName="text-sm mb-0"
-            />
-            <SimpleButton
-              title="Skip move"
-              onClick={onSkipClick}
-              disabled={isSubmittingMove}
-              className="w-auto px-3 py-1"
-              textClassName="text-sm mb-0"
-            />
-          </div>
+          <div className="mt-4 w-[600px] max-w-full rounded-2xl border border-[var(--color-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.022),rgba(255,255,255,0.008))] px-4 py-4 shadow-[0_14px_36px_rgba(0,0,0,0.18)]">
+            <div className="flex flex-wrap justify-center gap-3">
+              <SimpleButton
+                title="Rotate"
+                onClick={onRotateClick}
+                disabled={!canRotate || isSubmittingMove}
+                className="w-auto px-3 py-1"
+                textClassName="text-sm mb-0"
+              />
+              <SimpleButton
+                title="Swap"
+                onClick={onSwapClick}
+                disabled={!canSwap || isSubmittingMove}
+                className="w-auto px-3 py-1"
+                textClassName="text-sm mb-0"
+              />
+              <SimpleButton
+                title="Confirm Move"
+                onClick={submitMovePath}
+                disabled={
+                  !selectedPlayer || movePath.length === 0 || isSubmittingMove
+                }
+                className="w-auto px-3 py-1"
+                textClassName="text-sm mb-0"
+              />
+              <SimpleButton
+                title="Cancel Path"
+                onClick={resetMoveSelection}
+                disabled={!selectedPlayer || isSubmittingMove}
+                className="w-auto px-3 py-1"
+                textClassName="text-sm mb-0"
+              />
+              <SimpleButton
+                title="Skip move"
+                onClick={onSkipClick}
+                disabled={isSubmittingMove}
+                className="w-auto px-3 py-1"
+                textClassName="text-sm mb-0"
+              />
+            </div>
 
-          {selectedPlayer && (
-            <p className="mt-3 text-xs text-gray-300 text-center max-w-xs">
-              {movePath.length > 0
-                ? "Path ready. Click selected player again or press Confirm Move."
-                : "Move mode: click adjacent tiles to build path."}
-            </p>
-          )}
+            {selectedPlayer && (
+              <p className="mt-3 text-center text-xs text-white/60">
+                {movePath.length > 0
+                  ? "Path ready. Click selected player again or press Confirm Move."
+                  : "Move mode: click adjacent tiles to build path."}
+              </p>
+            )}
+          </div>
         </>
       )}
     </div>

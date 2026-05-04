@@ -23,4 +23,3 @@ export class FriendsSnapshotDto {
   friends: FriendDto[];
   pendingRequests: FriendDto[];
 }
-

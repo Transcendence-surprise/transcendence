@@ -23,11 +23,15 @@ export interface PlayerProfile {
   recentGames: RecentGame[];
 }
 
+export function getMockAvatarSrc(seed: string) {
+  return `https://api.dicebear.com/9.x/bottts/svg?seed=${encodeURIComponent(seed)}`;
+}
+
 // Mock data example
 export const mockPlayerProfile: PlayerProfile = {
   id: "1",
   name: "ShadowNinja42",
-  avatar: "https://api.dicebear.com/9.x/bottts/svg?seed=Felix",
+  avatar: getMockAvatarSrc("Felix"),
   rank: "#5",
   winstreak: 3,
   winrate: 67.5,
@@ -88,7 +92,7 @@ export const mockLeaderboard: PlayerProfile[] = [
   {
     id: "1",
     name: "CrimsonKnight",
-    avatar: "https://api.dicebear.com/9.x/bottts/svg?seed=Crimson",
+    avatar: getMockAvatarSrc("Crimson"),
     rank: "#1",
     winstreak: 8,
     winrate: 82.5,
@@ -100,7 +104,7 @@ export const mockLeaderboard: PlayerProfile[] = [
   {
     id: "2",
     name: "IceStorm",
-    avatar: "https://api.dicebear.com/9.x/bottts/svg?seed=Ice",
+    avatar: getMockAvatarSrc("Ice"),
     rank: "#2",
     winstreak: 5,
     winrate: 75.3,
@@ -112,7 +116,7 @@ export const mockLeaderboard: PlayerProfile[] = [
   {
     id: "3",
     name: "PhoenixRise",
-    avatar: "https://api.dicebear.com/9.x/bottts/svg?seed=Phoenix",
+    avatar: getMockAvatarSrc("Phoenix"),
     rank: "#3",
     winstreak: 3,
     winrate: 70.8,
@@ -124,7 +128,7 @@ export const mockLeaderboard: PlayerProfile[] = [
   {
     id: "4",
     name: "ShadowNinja42",
-    avatar: "https://api.dicebear.com/9.x/bottts/svg?seed=Felix",
+    avatar: getMockAvatarSrc("Felix"),
     rank: "#4",
     winstreak: 3,
     winrate: 67.5,
@@ -136,7 +140,7 @@ export const mockLeaderboard: PlayerProfile[] = [
   {
     id: "5",
     name: "VortexEcho",
-    avatar: "https://api.dicebear.com/9.x/bottts/svg?seed=Vortex",
+    avatar: getMockAvatarSrc("Vortex"),
     rank: "#5",
     winstreak: 2,
     winrate: 62.1,
@@ -148,7 +152,7 @@ export const mockLeaderboard: PlayerProfile[] = [
   {
     id: "6",
     name: "LunarEclipse",
-    avatar: "https://api.dicebear.com/9.x/bottts/svg?seed=Lunar",
+    avatar: getMockAvatarSrc("Lunar"),
     rank: "#6",
     winstreak: 4,
     winrate: 58.9,
@@ -160,7 +164,7 @@ export const mockLeaderboard: PlayerProfile[] = [
   {
     id: "7",
     name: "ThunderStrike",
-    avatar: "https://api.dicebear.com/9.x/bottts/svg?seed=Thunder",
+    avatar: getMockAvatarSrc("Thunder"),
     rank: "#7",
     winstreak: 1,
     winrate: 55.2,
@@ -172,7 +176,7 @@ export const mockLeaderboard: PlayerProfile[] = [
   {
     id: "8",
     name: "SilentHero",
-    avatar: "https://api.dicebear.com/9.x/bottts/svg?seed=Silent",
+    avatar: getMockAvatarSrc("Silent"),
     rank: "#8",
     winstreak: 2,
     winrate: 51.4,

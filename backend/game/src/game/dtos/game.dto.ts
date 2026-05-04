@@ -8,6 +8,7 @@ import {
   IsString,
   IsIn,
   IsNumber,
+  Min,
   ValidateNested,
 } from 'class-validator';
 import { StartError } from '../models/startResult';
@@ -58,6 +59,13 @@ export class CreateGameDto {
   @IsOptional()
   @IsNumber()
   collectiblesPerPlayer?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(30)
+  turnDeadline?: number;
 }
 
 export class CreateGameResponseDto {

@@ -6,6 +6,7 @@ export interface ChatMessage {
   id: string;
   userId: number | string;
   username: string;
+  avatarUrl?: string | null;
   content: string;
   timestamp: number;
   replyTo?: string;

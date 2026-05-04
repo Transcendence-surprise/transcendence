@@ -4,6 +4,7 @@ import { FiEdit2 } from "react-icons/fi";
 import { useProfile } from "../hooks/useProfile";
 import { useAuth } from "../hooks/useAuth";
 import { useAvatar } from "../hooks/useAvatar";
+import BackButton from "../components/shared/BackButton";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -42,12 +43,7 @@ export default function Profile() {
           Login required to access profile
         </h2>
 
-        <button
-          onClick={() => navigate(-1)}
-          className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
-        >
-          Back
-        </button>
+        <BackButton onClick={() => navigate(-1)} variant="outline" />
       </div>
     );
   }

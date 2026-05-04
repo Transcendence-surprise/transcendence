@@ -117,8 +117,12 @@ export class EngineService {
     return events;
   }
 
-  async createGame(hostId: number | string, nickname:string, settings: GameSettings) {
-    const state = createGameEngine(hostId, nickname, settings); // from create.engine.ts
+  async createGame(
+    hostId: number | string, 
+    nickname:string, 
+    settings: GameSettings
+  ) {
+    const state = createGameEngine(hostId, nickname, settings);
     const gameId = crypto.randomUUID();
     this.games.set(gameId, state);
     await saveGameToDB(gameId, state, this.persistence);

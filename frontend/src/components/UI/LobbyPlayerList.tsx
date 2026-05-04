@@ -1,15 +1,19 @@
+import InfoChip from "../shared/InfoChip";
+import Avatar from "../shared/Avatar";
+
 type PlayerListProps = {
   players: {
     id: number | string;
     displayName?: string;
     username?: string;
     name?: string;
+    avatarUrl?: string | null;
   }[];
   hostId: number | string;
   maxPlayers: number;
 };
 
-export default function PlayerList({
+export default function LobbyPlayerList({
   players,
   hostId,
   maxPlayers,
@@ -25,9 +29,9 @@ export default function PlayerList({
             Lobby roster
           </p>
         </div>
-        <div className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-sm font-semibold text-cyan-100">
+        <InfoChip className="text-sm font-semibold">
           {players.length} / {maxPlayers}
-        </div>
+        </InfoChip>
       </div>
 
       <div className="space-y-2.5">
@@ -38,25 +42,30 @@ export default function PlayerList({
             player.username?.trim() ||
             player.name?.trim() ||
             "Unknown player";
-          const initial = playerName.charAt(0).toUpperCase() || "?";
-
           return (
             <div
               key={player.id}
-              className="flex items-center gap-3 rounded-lg border border-white/5 bg-black/20 px-3 py-2.5 text-sm text-lightest-cyan"
+              className="flex items-center gap-3 rounded-lg border border-neutral-500 bg-black/20 px-3 py-2.5 text-sm text-lightest-cyan"
             >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-cyan-400/20 bg-gradient-to-br from-cyan-400/20 via-blue-500/10 to-transparent font-semibold text-cyan-100">
-                {initial}
-              </div>
+              <Avatar
+                name={playerName}
+                userId={player.id}
+                avatarUrl={player.avatarUrl}
+                alt={playerName}
+                className="h-9 w-9 shrink-0 rounded-full border border-cyan-400/20 object-cover"
+              />
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium text-white">
                   {playerName}
                 </div>
               </div>
               {isHost ? (
-                <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200">
+                <InfoChip
+                  size="xs"
+                  className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200"
+                >
                   Host
-                </span>
+                </InfoChip>
               ) : null}
             </div>
           );

@@ -31,7 +31,7 @@ export function LobbySettings({ rules }: LobbySettingsProps) {
         {items.map((item) => (
           <div
             key={item.label}
-            className="rounded-lg border border-white/5 bg-black/20 px-3 py-3"
+            className="rounded-lg border border-neutral-500 bg-black/20 px-3 py-3"
           >
             <p className="text-[11px] uppercase tracking-[0.14em] text-white/40">
               {item.label}
@@ -44,14 +44,14 @@ export function LobbySettings({ rules }: LobbySettingsProps) {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <span className="rounded-full border border-cyan-400/15 bg-cyan-400/8 px-2.5 py-1 text-[11px] font-medium text-cyan-200">
+        {/* <span className="rounded-full border border-cyan-400 bg-cyan-400/8 px-2.5 py-1 text-[11px] font-medium text-cyan-200">
           {rules.fixedCorners ? "Fixed corners" : "Rotating corners"}
         </span>
-        <span className="rounded-full border border-cyan-400/15 bg-cyan-400/8 px-2.5 py-1 text-[11px] font-medium text-cyan-200">
+        <span className="rounded-full border border-cyan-400 bg-cyan-400/8 px-2.5 py-1 text-[11px] font-medium text-cyan-200">
           {rules.requiresBoardActionPerTurn
             ? "Board action required"
             : "Free movement"}
-        </span>
+        </span> */}
       </div>
     </div>
   );

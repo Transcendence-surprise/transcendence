@@ -1,4 +1,5 @@
 import type { LeaderboardEntry } from "../../api/leaderboard";
+import Avatar from "../shared/Avatar";
 
 interface LeaderboardRowProps {
   player: LeaderboardEntry;
@@ -32,16 +33,6 @@ export default function LeaderboardRow({
   const rowClassName = isCurrentUser
     ? "bg-cyan-500/6 ring-1 ring-inset ring-cyan-400/40"
     : "";
-  const fallbackInitial = username.trim().charAt(0).toUpperCase() || "?";
-  const fallbackAvatarClassName =
-    rank === 1
-      ? "from-yellow-400/30 via-amber-400/20 to-bg-dark"
-      : rank === 2
-        ? "from-slate-200/30 via-slate-400/15 to-bg-dark"
-        : rank === 3
-          ? "from-amber-500/30 via-orange-500/15 to-bg-dark"
-          : "from-cyan-400/25 via-blue-500/15 to-bg-dark";
-
   return (
     <div
       className={`flex flex-col gap-4 border-b border-[var(--color-border-gray)] px-4 py-4 transition hover:bg-white/8 last:border-b-0 md:flex-row md:items-center md:justify-between ${rowClassName}`.trim()}
@@ -52,19 +43,13 @@ export default function LeaderboardRow({
             {rank}
           </span>
         </div>
-        {player.avatarUrl ? (
-          <img
-            src={player.avatarUrl}
-            alt={username}
-            className="h-12 w-12 rounded-full border border-[var(--color-border-subtle)] object-cover"
-          />
-        ) : (
-          <div
-            className={`flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-gradient-to-br ${fallbackAvatarClassName} text-sm font-semibold text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]`}
-          >
-            {fallbackInitial}
-          </div>
-        )}
+        <Avatar
+          name={username}
+          userId={player.userId}
+          avatarUrl={player.avatarUrl}
+          alt={username}
+          className="h-12 w-12 rounded-full border border-[var(--color-border-subtle)] bg-black/15 object-cover"
+        />
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="truncate text-sm font-semibold text-white sm:text-base">

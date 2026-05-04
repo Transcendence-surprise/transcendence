@@ -9,14 +9,12 @@ import DeleteActionButton from "../components/shared/DeleteActionButton";
 import ActionConfirmationModal, {
   type PendingDeletion,
 } from "../components/shared/ActionConfirmationModal";
+import BackButton from "../components/shared/BackButton";
+import Avatar from "../components/shared/Avatar";
 
 type PendingFriendDeleteAction = PendingDeletion & {
   action: "rejectRequest" | "removeFriend";
 };
-
-function getAvatarInitial(name: string): string {
-  return name.trim().charAt(0).toUpperCase() || "?";
-}
 
 export default function Friends() {
   const { user } = useAuth();
@@ -69,7 +67,7 @@ export default function Friends() {
     return (
       <div>
         <h2>Login required</h2>
-        <button onClick={() => navigate(-1)}>Back</button>
+        <BackButton onClick={() => navigate(-1)} variant="outline" />
       </div>
     );
   }
@@ -145,17 +143,13 @@ export default function Friends() {
                   className="flex items-center justify-between gap-4 py-3"
                 >
                   <div className="flex items-center gap-3">
-                    {request.avatarUrl ? (
-                      <img
-                        src={request.avatarUrl}
-                        alt={request.name}
-                        className="h-10 w-10 rounded-full border border-[var(--color-border-subtle)] object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-border-subtle)] bg-black/40 text-sm font-semibold text-cyan-200">
-                        {getAvatarInitial(request.name)}
-                      </div>
-                    )}
+                    <Avatar
+                      name={request.name}
+                      userId={request.id}
+                      avatarUrl={request.avatarUrl}
+                      alt={request.name}
+                      className="h-10 w-10 rounded-full border border-[var(--color-border-subtle)] object-cover"
+                    />
                     <span className="font-medium text-white">
                       {request.name}
                     </span>
@@ -213,17 +207,13 @@ export default function Friends() {
                   className="flex items-center justify-between gap-4 py-3"
                 >
                   <div className="flex items-center gap-3">
-                    {friend.avatarUrl ? (
-                      <img
-                        src={friend.avatarUrl}
-                        alt={friend.name}
-                        className="h-10 w-10 rounded-full border border-[var(--color-border-subtle)] object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-border-subtle)] bg-black/40 text-sm font-semibold text-cyan-200">
-                        {getAvatarInitial(friend.name)}
-                      </div>
-                    )}
+                    <Avatar
+                      name={friend.name}
+                      userId={friend.id}
+                      avatarUrl={friend.avatarUrl}
+                      alt={friend.name}
+                      className="h-10 w-10 rounded-full border border-[var(--color-border-subtle)] object-cover"
+                    />
                     <span className="font-medium text-white">{friend.name}</span>
                   </div>
 

@@ -32,6 +32,8 @@ export default function LobbyChat({
             <ChatMessageItem
               key={`${msg.userName}-${msg.timestamp}-${i}`}
               message={{
+                userId: msg.userId,
+                avatarUrl: msg.avatarUrl,
                 username: msg.userName,
                 content: msg.message,
                 timestamp: msg.timestamp,

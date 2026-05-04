@@ -8,6 +8,7 @@ export interface MultiplayerSettings {
   allowSpectators: boolean;
   boardSize: 6 | 7 | 8 | 9;
   collectiblesPerPlayer: number;
+  turnDeadline?: number;
 }
 
 export type GameSettings =

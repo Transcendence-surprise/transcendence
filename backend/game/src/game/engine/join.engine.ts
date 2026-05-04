@@ -6,7 +6,7 @@ export function joinGameEngine(
   state: GameState,
   playerId: number | string,
   nickname: string,
-  role: "PLAYER" | "SPECTATOR"
+  role: "PLAYER" | "SPECTATOR",
 ): JoinResult {
 
   // Rule 1: cannot join twice - normalize IDs to strings before comparison
@@ -54,7 +54,7 @@ export function joinGameEngine(
     const firstCollectible = state.level.collectibles?.find(
       c => c.ownerSlotId === availableSlot.slotId
     );
-    state.playerProgress[playerId] = {
+    state.playerProgress[playerId.toString()] = {
       collectedItems: [],
       currentCollectibleId: firstCollectible?.id, 
       objectives: compileObjectives(state.level, state.rules).map(obj => {

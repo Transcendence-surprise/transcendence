@@ -1,5 +1,8 @@
-import type { ReactNode } from "react";
 import { MultiplayerSettings } from "../../game/models/gameSettings";
+import CustomSelect from "../shared/CustomSelect";
+import InfoChip from "../shared/InfoChip";
+import SettingsField from "../shared/SettingsField";
+import BackButton from "../shared/BackButton";
 import SimpleButton from "../shared/SimpleButton";
 
 type Props = {
@@ -11,20 +14,6 @@ type Props = {
   loading?: boolean;
 };
 
-type FieldProps = {
-  label: string;
-  children: ReactNode;
-};
-
-function SettingsField({ label, children }: FieldProps) {
-  return (
-    <label className="text-lg grid grid-cols-[180px_auto] items-center gap-x-4 justify-center text-center">
-      <span className="text-cyan-bright text-right">{label}</span>
-      {children}
-    </label>
-  );
-}
-
 export default function MultiplayerSettingsForm({
   settings,
   onChange,
@@ -33,107 +22,193 @@ export default function MultiplayerSettingsForm({
   error,
   loading,
 }: Props) {
-  const selectClassName =
-    "px-4 py-2 text-lg bg-gray-800 rounded border border-[var(--color-border-subtle)] focus:outline-none focus:border-cyan-200";
+  const normalizeTurnDeadline = (value: string) => {
+    if (value.trim() === "") {
+      return undefined;
+    }
+
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) {
+      return settings.turnDeadline ?? 30;
+    }
+
+    return Math.min(300, Math.max(30, parsed));
+  };
+
   const inputClassName =
-    "px-4 py-2 text-lg bg-gray-800 rounded w-20 border border-[var(--color-border-subtle)] focus:outline-none focus:border-cyan-200";
+    "w-full rounded-lg border border-[var(--color-border-subtle)] bg-bg-dark px-4 py-2.5 text-base text-white transition-colors focus:border-cyan-300 focus:outline-none sm:w-24";
 
   return (
     <div className="min-h-screen bg-bg-dark text-white font-sans flex items-center justify-center px-4 py-10">
-      <div className="relative w-full max-w-2xl">
-        <div className="absolute -inset-1 rounded-2xl bg-[radial-gradient(circle_at_top,rgba(0,234,255,0.25),transparent_55%)] blur-2xl" />
-        <div className="absolute -left-10 top-10 h-24 w-24 rounded-full bg-cyan-400/20 blur-2xl" />
-        <div className="absolute -right-10 bottom-6 h-24 w-24 rounded-full bg-blue-500/20 blur-2xl" />
+      <div className="relative w-full max-w-4xl">
+        <div className="absolute -inset-1 rounded-[28px] bg-[radial-gradient(circle_at_top,rgba(0,234,255,0.18),transparent_45%),radial-gradient(circle_at_bottom_right,rgba(92,144,246,0.14),transparent_32%)] blur-2xl" />
+        <div className="absolute -left-10 top-12 h-28 w-28 rounded-full bg-cyan-400/15 blur-3xl" />
+        <div className="absolute -right-10 bottom-8 h-32 w-32 rounded-full bg-blue-500/15 blur-3xl" />
 
-        <div className="relative rounded-2xl border border-[var(--color-border-subtle)] bg-bg-dark-secondary px-8 py-10 shadow-dark-lg">
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-xs uppercase tracking-[0.4em] text-light-cyan">
+        <div className="relative rounded-[28px] border border-[var(--color-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01))] px-6 py-8 shadow-dark-lg sm:px-8 sm:py-10">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <p className="text-xs uppercase tracking-[0.34em] text-light-cyan/70">
               Lobby Setup
             </p>
-            <h2 className="text-4xl font-bold drop-shadow-lg text-white">
+            <h2 className="text-4xl font-bold text-white drop-shadow-lg sm:text-5xl">
               Multiplayer Settings
             </h2>
-            <p className="text-sm text-lightest-cyan text-center max-w-md">
-              Tune your lobby rules before inviting friends.
+            <p className="max-w-2xl text-sm leading-6 text-lightest-cyan/80 sm:text-base">
+              Configure your match before creating the lobby. These settings
+              control player count, board scale, collectibles, and the pace of each turn.
             </p>
           </div>
 
-          <div className="mt-8 flex flex-col gap-4 ">
-            <SettingsField label="Max Players">
-              <select
-                className={selectClassName}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            <InfoChip>
+              {settings.maxPlayers} Players
+            </InfoChip>
+            <InfoChip>
+              {settings.boardSize}x{settings.boardSize} Board
+            </InfoChip>
+            <InfoChip>
+              {settings.collectiblesPerPlayer} Collectibles
+            </InfoChip>
+            <InfoChip>
+              {settings.turnDeadline ?? 30}s Turns
+            </InfoChip>
+            <InfoChip>
+              Spectators {settings.allowSpectators ? "On" : "Off"}
+            </InfoChip>
+          </div>
+
+          <div className="mt-8 grid gap-4 lg:grid-cols-2">
+            <SettingsField
+              label="Max Players"
+              hint="Choose how many players can join this multiplayer match."
+            >
+              <CustomSelect
+                className="w-full sm:min-w-[112px] sm:w-auto"
                 value={settings.maxPlayers}
-                onChange={(e) =>
+                onChange={(value) =>
                   onChange({
                     ...settings,
-                    maxPlayers: Number(e.target.value) as 2 | 3 | 4,
+                    maxPlayers: value,
                   })
                 }
-              >
-                <option value={2}>2</option>
-                <option value={3}>3</option>
-                <option value={4}>4</option>
-              </select>
-            </SettingsField>
-
-            <SettingsField label="Allow Spectators">
-              <input
-                type="checkbox"
-                className="h-5 w-5 accent-cyan-300"
-                checked={settings.allowSpectators}
-                onChange={(e) =>
-                  onChange({ ...settings, allowSpectators: e.target.checked })
-                }
+                options={[
+                  { label: "2", value: 2 },
+                  { label: "3", value: 3 },
+                  { label: "4", value: 4 },
+                ]}
               />
             </SettingsField>
 
-            <SettingsField label="Board Size">
-              <select
-                className={selectClassName}
-                value={settings.boardSize}
-                onChange={(e) =>
+            <SettingsField
+              label="Allow Spectators"
+              hint="Let extra users join the lobby as viewers without taking a player slot."
+            >
+              <button
+                type="button"
+                role="switch"
+                aria-checked={settings.allowSpectators}
+                onClick={() =>
                   onChange({
                     ...settings,
-                    boardSize: Number(e.target.value) as 6 | 7 | 8 | 9,
+                    allowSpectators: !settings.allowSpectators,
                   })
                 }
+                className={`relative inline-flex h-7 w-12 items-center rounded-full border transition-colors ${
+                  settings.allowSpectators
+                    ? "border-cyan-300/50 bg-cyan-400/35"
+                    : "border-[var(--color-border-subtle)] bg-bg-dark"
+                }`}
               >
-                <option value={6}>6</option>
-                <option value={7}>7</option>
-                <option value={8}>8</option>
-                <option value={9}>9</option>
-              </select>
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                    settings.allowSpectators ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
             </SettingsField>
 
-            <SettingsField label="Collectibles / Player">
+            <SettingsField
+              label="Board Size"
+              hint="Larger boards create longer routes and more room for strategy."
+            >
+              <CustomSelect
+                className="w-full sm:min-w-[112px] sm:w-auto"
+                value={settings.boardSize}
+                onChange={(value) =>
+                  onChange({
+                    ...settings,
+                    boardSize: value,
+                  })
+                }
+                options={[
+                  { label: "6", value: 6 },
+                  { label: "7", value: 7 },
+                  { label: "8", value: 8 },
+                  { label: "9", value: 9 },
+                ]}
+              />
+            </SettingsField>
+
+            <SettingsField
+              label="Move Time Limit"
+              hint="Time available for each turn before the move expires."
+            >
               <input
                 type="number"
-                min={1}
-                max={7}
+                min={30}
+                max={300}
                 className={inputClassName}
-                value={settings.collectiblesPerPlayer}
+                value={settings.turnDeadline ?? 30}
                 onChange={(e) =>
                   onChange({
                     ...settings,
-                    collectiblesPerPlayer: Number(e.target.value),
+                    turnDeadline: normalizeTurnDeadline(e.target.value),
                   })
                 }
+              />
+            </SettingsField>
+            <SettingsField
+              label="Collectibles / Player"
+              hint="Set how many objectives each player needs to collect."
+            >
+              <CustomSelect
+                className="w-full sm:min-w-[112px] sm:w-auto"
+                value={settings.collectiblesPerPlayer}
+                onChange={(value) =>
+                  onChange({
+                    ...settings,
+                    collectiblesPerPlayer: value,
+                  })
+                }
+                options={[
+                  { label: "1", value: 1 },
+                  { label: "2", value: 2 },
+                  { label: "3", value: 3 },
+                  { label: "4", value: 4 },
+                  { label: "5", value: 5 },
+                  { label: "6", value: 6 },
+                  { label: "7", value: 7 },
+                ]}
               />
             </SettingsField>
           </div>
 
-          {error && <p className="mt-6 text-red-500 text-center">{error}</p>}
-
-          <div className="mt-8 flex flex-col items-center gap-2">
-            <div className={loading ? "opacity-60 pointer-events-none" : ""}>
-              <SimpleButton title="Create Game" onClick={onCreate} />
+          {error ? (
+            <div className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-center text-sm text-red-300">
+              {error}
             </div>
-            <button
-              className="text-sm underline text-blue-hero"
-              onClick={onBack}
-            >
-              Back
-            </button>
+          ) : null}
+
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <div className={loading ? "pointer-events-none opacity-60" : ""}>
+              <SimpleButton
+                title={loading ? "Creating..." : "Create Game"}
+                onClick={onCreate}
+                disabled={loading}
+                className="w-56"
+              />
+            </div>
+            <BackButton onClick={onBack} />
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { SingleLevel } from "../game/models/singleLevel";
 import { MultiGame } from "../game/models/multiGames";
 import { BoardAction } from "../game/models/boardAction";
 import { PrivateGameState } from "../game/models/privatState";
+import { getAllUsers } from "./users";
 import { rethrowAbortError } from "./requestUtils";
 
 export type GameSettings =
@@ -15,6 +16,26 @@ export type PlayerInfo = {
   x?: number;
   y?: number;
 };
+
+function enrichGamePlayers(
+  gameState: PrivateGameState,
+  userById: Map<string, { avatarUrl: string | null }>,
+): PrivateGameState {
+  if (!Array.isArray(gameState.players)) {
+    return gameState;
+  }
+
+  return {
+    ...gameState,
+    players: gameState.players.map((player) => ({
+      ...player,
+      avatarUrl:
+        player.avatarUrl ??
+        userById.get(String(player.id))?.avatarUrl ??
+        null,
+    })),
+  };
+}
 
 export async function createGame(settings: GameSettings, signal?: AbortSignal) {
   try {
@@ -155,7 +176,10 @@ export async function playerMove(gameId: string, path: { x: number; y: number }[
 
 export async function getGameState(gameId: string, signal?: AbortSignal): Promise<PrivateGameState> {
   try {
-    const res = await fetch(`/api/game/${gameId}`, { credentials: 'include', signal });
+    const [res, allUsers] = await Promise.all([
+      fetch(`/api/game/${gameId}`, { credentials: 'include', signal }),
+      getAllUsers(signal),
+    ]);
     const data = await res.json();
 
     if (!res.ok || !data.ok) {
@@ -166,7 +190,14 @@ export async function getGameState(gameId: string, signal?: AbortSignal): Promis
       throw new Error('Game state missing in response');
     }
 
-    return data.state; // full game object
+    const userById = new Map(
+      allUsers.map((appUser) => [
+        String(appUser.id),
+        { avatarUrl: appUser.avatarUrl ?? null },
+      ]),
+    );
+
+    return enrichGamePlayers(data.state, userById);
   } catch (e: any) {
     return rethrowAbortError(e);
   }

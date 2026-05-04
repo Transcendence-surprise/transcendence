@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import * as authApi from "../api/authentification";
 import { toggleTwoFactorAuth } from "../api/users";
+import BackButton from "../components/shared/BackButton";
 
 type CollectableSet = "gemstones" | "numbers";
 type PlayerIconSet = "star" | "space_inv";
@@ -64,12 +65,7 @@ export default function Settings() {
           Login required to access settings
         </h2>
 
-        <button
-          onClick={() => navigate(-1)}
-          className="py-3 px-6 rounded-lg font-medium text-white bg-bg-dark-tertiary border border-[var(--color-border-subtle)] hover:shadow-cyan-light hover:border-cyan-bright transition-all"
-        >
-          Back
-        </button>
+        <BackButton onClick={() => navigate(-1)} variant="outline" />
       </div>
     );
   }

@@ -1,4 +1,8 @@
+import Avatar from "../shared/Avatar";
+
 interface ChatDisplayMessage {
+  userId?: string | number;
+  avatarUrl?: string | null;
   username: string;
   content: string;
   timestamp: number;
@@ -20,39 +24,20 @@ function formatMessageTimestamp(timestamp: number) {
   });
 }
 
-function getAvatarGradient(username: string) {
-  const gradients = [
-    "from-cyan-400/30 via-blue-500/20 to-transparent",
-    "from-pink-400/30 via-fuchsia-500/20 to-transparent",
-    "from-emerald-400/30 via-teal-500/20 to-transparent",
-    "from-yellow-300/30 via-amber-500/20 to-transparent",
-    "from-violet-400/30 via-indigo-500/20 to-transparent",
-    "from-rose-400/30 via-orange-500/20 to-transparent",
-  ];
-
-  const seed = username
-    .split("")
-    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-
-  return gradients[seed % gradients.length];
-}
-
 export default function ChatMessageItem<T extends ChatDisplayMessage>({
   message,
   replyMessage,
   onReply,
 }: ChatMessageItemProps<T>) {
-  const fallbackInitial = message.username.trim().charAt(0).toUpperCase() || "?";
-  const avatarGradient = getAvatarGradient(message.username);
-
   return (
     <div className="group">
       <div className="flex items-start gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-white/[0.03]">
-        <div
-          className={`flex h-11 w-11 min-w-11 items-center justify-center rounded-full border border-white/10 bg-gradient-to-br ${avatarGradient} text-sm font-semibold text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]`}
-        >
-          {fallbackInitial}
-        </div>
+        <Avatar
+          name={message.username}
+          userId={message.userId}
+          avatarUrl={message.avatarUrl}
+          className="h-11 w-11 min-w-11 rounded-full border border-white/10 bg-black/15 object-cover shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+        />
 
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex min-w-0 items-baseline gap-2">
