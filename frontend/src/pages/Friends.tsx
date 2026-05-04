@@ -11,6 +11,7 @@ import ActionConfirmationModal, {
 } from "../components/shared/ActionConfirmationModal";
 import BackButton from "../components/shared/BackButton";
 import Avatar from "../components/shared/Avatar";
+import { FaCheck } from "react-icons/fa6";
 
 type PendingFriendDeleteAction = PendingDeletion & {
   action: "rejectRequest" | "removeFriend";
@@ -161,9 +162,9 @@ export default function Friends() {
                       onClick={() =>
                         void handleAccept(request.targetUserId)
                       }
-                      className="rounded-md bg-green-500/20 px-3 py-1.5 text-sm font-medium text-green-300 transition hover:bg-green-500/30"
+                      className=" px-3 py-1.5 text-m font-medium text-green-400 transition hover:scale-125"
                     >
-                      ✔️
+                     <FaCheck />
                     </button>
                     <DeleteActionButton
                       ariaLabel={`Reject friend request from ${request.name}`}

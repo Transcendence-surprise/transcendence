@@ -73,12 +73,12 @@ export default function SinglePlayerSettingsForm({
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg-dark px-4 py-10 font-sans text-white">
-      <div className="relative w-full max-w-4xl">
-        <div className="absolute -inset-1 rounded-[28px] bg-[radial-gradient(circle_at_top,rgba(0,234,255,0.18),transparent_45%),radial-gradient(circle_at_bottom_right,rgba(92,144,246,0.14),transparent_32%)] blur-2xl" />
-        <div className="absolute -left-10 top-12 h-28 w-28 rounded-full bg-cyan-400/15 blur-3xl" />
-        <div className="absolute -right-10 bottom-8 h-32 w-32 rounded-full bg-blue-500/15 blur-3xl" />
+      <div className="relative w-full max-w-3xl">
+        <div className="absolute -inset-1 rounded-[28px] bg-[radial-gradient(circle_at_top,rgba(0,234,255,0.18),transparent_45%),radial-gradient(circle_at_bottom_right,rgba(92,144,246,0.14),transparent_32%)] blur-xl" />
+        <div className="absolute -left-6 top-12 h-24 w-24 rounded-full bg-cyan-400/12 blur-xl" />
+        <div className="absolute -right-6 bottom-8 h-28 w-28 rounded-full bg-blue-500/12 blur-xl" />
 
-        <div className="relative rounded-[28px] border border-[var(--color-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01))] px-6 py-8 shadow-dark-lg sm:px-8 sm:py-10">
+        <div className="relative rounded-[28px] border border-[var(--color-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01))] px-5 py-7 shadow-dark-lg sm:px-6 sm:py-8">
           <div className="flex flex-col items-center gap-3 text-center">
             <p className="text-xs uppercase tracking-[0.34em] text-light-cyan/70">
               Solo Run
@@ -87,8 +87,7 @@ export default function SinglePlayerSettingsForm({
               Single Player Settings
             </h2>
             <p className="max-w-2xl text-sm leading-6 text-lightest-cyan/80 sm:text-base">
-              Pick a level and launch a solo match with the same polished setup
-              flow as multiplayer.
+              Pick a level and launch a solo match
             </p>
           </div>
 
@@ -101,13 +100,13 @@ export default function SinglePlayerSettingsForm({
             </InfoChip>
           </div>
 
-          <div className="mx-auto mt-8 grid max-w-3xl gap-4">
+          <div className="mx-auto mt-8 grid max-w-lg gap-4">
             <SettingsField
               label="Level"
-              hint="Choose the puzzle layout you want to play in this single-player run."
+              hint="Choose the level"
             >
               <CustomSelect
-                className="w-full sm:min-w-[240px]"
+                className="w-full sm:min-w-[220px]"
                 value={settings.levelId || ""}
                 onChange={(value) =>
                   onChange({ ...settings, levelId: value || undefined })

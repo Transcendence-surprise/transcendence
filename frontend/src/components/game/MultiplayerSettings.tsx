@@ -53,10 +53,10 @@ export default function MultiplayerSettingsForm({
             <h2 className="text-4xl font-bold text-white drop-shadow-lg sm:text-5xl">
               Multiplayer Settings
             </h2>
-            <p className="max-w-2xl text-sm leading-6 text-lightest-cyan/80 sm:text-base">
+            {/* <p className="max-w-2xl text-sm leading-6 text-lightest-cyan/80 sm:text-base">
               Configure your match before creating the lobby. These settings
               control player count, board scale, collectibles, and the pace of each turn.
-            </p>
+            </p> */}
           </div>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
