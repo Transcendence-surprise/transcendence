@@ -7,7 +7,6 @@ export function joinGameEngine(
   playerId: number | string,
   nickname: string,
   role: "PLAYER" | "SPECTATOR",
-  avatarUrl?: string | null,
 ): JoinResult {
 
   // Rule 1: cannot join twice - normalize IDs to strings before comparison
@@ -44,7 +43,6 @@ export function joinGameEngine(
       id: playerId,
       slotId: availableSlot.slotId,
       name: nickname,
-      avatarUrl: avatarUrl ?? null,
       x: availableSlot.x,
       y: availableSlot.y,
       hasMoved: false,

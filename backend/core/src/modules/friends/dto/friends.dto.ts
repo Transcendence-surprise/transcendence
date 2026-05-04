@@ -16,7 +16,6 @@ export class FriendActionDto {
 export class FriendDto {
   id: number;
   username: string;
-  avatarUrl?: string | null;
   isOnline?: boolean;
 }
 

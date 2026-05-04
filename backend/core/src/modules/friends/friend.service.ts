@@ -25,12 +25,6 @@ export class FriendService {
     });
   }
 
-  private getAvatarUrl(user: { id: number; avatarImageId?: number | null }) {
-    return user.avatarImageId
-      ? `/api/images/${user.avatarImageId}/content`
-      : `https://api.dicebear.com/9.x/bottts/svg?seed=user-${user.id}`;
-  }
-
   async sendRequest(currentUserId: number, targetUserId: number) {
     if (currentUserId === targetUserId)
       throw new Error('Cannot friend yourself');
@@ -168,7 +162,6 @@ export class FriendService {
       return {
         id: user.id,
         username: user.username,
-        avatarUrl: this.getAvatarUrl(user),
       };
     });
   }
@@ -185,7 +178,6 @@ export class FriendService {
     return pending.map(f => ({
       id: f.requester.id,
       username: f.requester.username,
-      avatarUrl: this.getAvatarUrl(f.requester),
     }));
   }
 
@@ -196,13 +188,11 @@ export class FriendService {
       friends: friends.map(f => ({
         id: f.id,
         username: f.username,
-        avatarUrl: f.avatarUrl ?? null,
         isOnline: this.presenceService.isOnline(f.id),
       })),
       pendingRequests: pending.map(p => ({
         id: p.id,
         username: p.username,
-        avatarUrl: p.avatarUrl ?? null,
       })),
     };
   }
