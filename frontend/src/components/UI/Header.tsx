@@ -4,7 +4,6 @@ import { LuLogOut } from "react-icons/lu";
 import logoBolt from "/logo-bolt.svg";
 import GameStatusDot from "../game/GameStatusDot";
 
-
 interface HeaderProps {
   onLoginClick: () => void;
   onSignupClick: () => void;
@@ -40,16 +39,18 @@ export default function Header({ onLoginClick, onSignupClick }: HeaderProps) {
           {user ? (
             <>
               <div className="flex items-center gap-3">
-                <div className="flex flex-col items-start">
+                <div className="flex gap-3 items-center">
+                  <div className="flex items-center gap-2 text-sm">
+                    <GameStatusDot user={user ? { id: user.id?.toString() } : null} />
+                  </div>
                   <Link
                     to="/profile"
                     className="py-1.5 text-base text-cyan-bright font-semibold hover:underline"
                   >
                     {user?.username ?? "Guest"}
                   </Link>
-                  <div className="flex items-center gap-2 text-sm">
-                    <GameStatusDot user={user ? { id: user.id?.toString() } : null} />
-                  </div>
+                
+
                 </div>
 
                 <button

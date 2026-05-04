@@ -34,8 +34,8 @@ export default function GameStatusDot({ user }: GameStatusDotProps) {
       disabled={!activeGame || loading}
       aria-label={activeGame ? "Go to active game" : error ? error : "No active game"}
     >
-      <StatusDot active={Boolean(activeGame)} className="w-3 h-3" />
-      {activeGame ? <span>Continue game</span> : error ? <span>{error}</span> : <span>No active game</span>}
+      <StatusDot active={Boolean(activeGame)} className="w-2.5 h-2.5" />
+      {/* {activeGame ? <span>Continue game</span> : error ? <span>{error}</span> : <span>No active game</span>} */}
     </button>
   );
 }
