@@ -7,6 +7,40 @@ import { getGameState, startGame, leaveGame } from "../../api/game";
 import Lobby from "../../components/game/Lobby";
 import { LobbyMessage } from "../models/lobbyMessage";
 import { useAuth } from "../../hooks/useAuth";
+import { getAllUsers } from "../../api/users";
+
+function enrichLobbyMessage(
+  message: LobbyMessage,
+  userByUsername: Map<string, { id: string; avatarUrl: string | null }>,
+): LobbyMessage {
+  const matchedUser = userByUsername.get(message.userName);
+
+  return {
+    ...message,
+    userId: message.userId ?? matchedUser?.id,
+    avatarUrl: message.avatarUrl ?? matchedUser?.avatarUrl ?? null,
+  };
+}
+
+function enrichGamePlayers(
+  gameState: any,
+  userById: Map<string, { avatarUrl: string | null }>,
+) {
+  if (!gameState || !Array.isArray(gameState.players)) {
+    return gameState;
+  }
+
+  return {
+    ...gameState,
+    players: gameState.players.map((player: any) => ({
+      ...player,
+      avatarUrl:
+        player.avatarUrl ??
+        userById.get(String(player.id))?.avatarUrl ??
+        null,
+    })),
+  };
+}
 
 export default function LobbyRoute() {
   const navigate = useNavigate();
@@ -26,6 +60,8 @@ export default function LobbyRoute() {
   const lastFetchRef = useRef(0);
 
   const joinedRef = useRef(false);
+  const userByIdRef = useRef<Map<string, { avatarUrl: string | null }>>(new Map());
+  const userByUsernameRef = useRef<Map<string, { id: string; avatarUrl: string | null }>>(new Map());
 
   const fetchGame = useCallback(async () => {
     if (!gameId) return;
@@ -36,7 +72,26 @@ export default function LobbyRoute() {
     fetchControllerRef.current = controller;
 
     try {
-      const res = await getGameState(gameId, controller.signal);
+      const [res, allUsers] = await Promise.all([
+        getGameState(gameId, controller.signal),
+        getAllUsers(controller.signal),
+      ]);
+
+      userByIdRef.current = new Map(
+        allUsers.map((appUser) => [
+          String(appUser.id),
+          { avatarUrl: appUser.avatarUrl ?? null },
+        ]),
+      );
+      userByUsernameRef.current = new Map(
+        allUsers.map((appUser) => [
+          appUser.username,
+          {
+            id: String(appUser.id),
+            avatarUrl: appUser.avatarUrl ?? null,
+          },
+        ]),
+      );
 
       if (!res) {
         navigate("/game", {
@@ -45,7 +100,7 @@ export default function LobbyRoute() {
         return;
       }
 
-      setGame(res);
+      setGame(enrichGamePlayers(res, userByIdRef.current));
 
       if (res.phase === "PLAY") {
         navigate(`/game/${gameId}`);
@@ -75,7 +130,10 @@ export default function LobbyRoute() {
 
   // Websocket for update game state
   const handleLobbyMessage = useCallback((msg: any) => {
-    setMessages(prev => [...prev, msg]);
+    setMessages((prev) => [
+      ...prev,
+      enrichLobbyMessage(msg, userByUsernameRef.current),
+    ]);
   }, []);
 
   useEffect(() => {

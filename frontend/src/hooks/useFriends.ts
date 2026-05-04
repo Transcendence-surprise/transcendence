@@ -10,6 +10,7 @@ import {
   sendFriendRequestByUsername,
   type FriendUser,
 } from "../api/friend";
+import { getAllUsers } from "../api/users";
 import { useAuth } from "./useAuth";
 
 export type UiPendingRequest = {
@@ -68,16 +69,35 @@ export function useFriends() {
     setLoading(true);
 
     try {
-      const snapshot = await getFriends();
+      const [snapshot, allUsers] = await Promise.all([
+        getFriends(),
+        getAllUsers(),
+      ]);
+      const avatarUrlById = new Map(
+        allUsers.map((friendUser) => [String(friendUser.id), friendUser.avatarUrl ?? null]),
+      );
 
-      setFriends(snapshot.friends.map(mapFriend));
+      setFriends(
+        snapshot.friends.map((friend) =>
+          mapFriend({
+            ...friend,
+            avatarUrl:
+              friend.avatarUrl ??
+              avatarUrlById.get(String(friend.id)) ??
+              null,
+          }),
+        ),
+      );
 
       setPendingRequests(
         snapshot.pendingRequests.map((u) => ({
           id: u.id,
           targetUserId: u.id,
           name: u.username,
-          avatarUrl: u.avatarUrl ?? null,
+          avatarUrl:
+            u.avatarUrl ??
+            avatarUrlById.get(String(u.id)) ??
+            null,
         })),
       );
     } catch (e) {

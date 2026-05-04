@@ -1,5 +1,5 @@
 import type { LeaderboardEntry } from "../../api/leaderboard";
-import { getMockAvatarSrc } from "../../types/mockPlayer";
+import Avatar from "../shared/Avatar";
 
 interface LeaderboardRowProps {
   player: LeaderboardEntry;
@@ -43,19 +43,13 @@ export default function LeaderboardRow({
             {rank}
           </span>
         </div>
-        {player.avatarUrl ? (
-          <img
-            src={player.avatarUrl}
-            alt={username}
-            className="h-12 w-12 rounded-full border border-[var(--color-border-subtle)] object-cover"
-          />
-        ) : (
-          <img
-            src={getMockAvatarSrc(`user-${player.userId}`)}
-            alt={`${username} avatar`}
-            className="h-12 w-12 rounded-full border border-[var(--color-border-subtle)] bg-black/15 object-cover"
-          />
-        )}
+        <Avatar
+          name={username}
+          userId={player.userId}
+          avatarUrl={player.avatarUrl}
+          alt={username}
+          className="h-12 w-12 rounded-full border border-[var(--color-border-subtle)] bg-black/15 object-cover"
+        />
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="truncate text-sm font-semibold text-white sm:text-base">

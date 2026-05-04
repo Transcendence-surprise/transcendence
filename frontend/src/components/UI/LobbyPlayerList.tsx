@@ -1,4 +1,5 @@
 import InfoChip from "../shared/InfoChip";
+import Avatar from "../shared/Avatar";
 
 type PlayerListProps = {
   players: {
@@ -41,24 +42,18 @@ export default function LobbyPlayerList({
             player.username?.trim() ||
             player.name?.trim() ||
             "Unknown player";
-          const initial = playerName.charAt(0).toUpperCase() || "?";
-
           return (
             <div
               key={player.id}
               className="flex items-center gap-3 rounded-lg border border-neutral-500 bg-black/20 px-3 py-2.5 text-sm text-lightest-cyan"
             >
-              {player.avatarUrl ? (
-                <img
-                  src={player.avatarUrl}
-                  alt={playerName}
-                  className="h-9 w-9 shrink-0 rounded-full border border-cyan-400/20 object-cover"
-                />
-              ) : (
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-cyan-400/20 bg-gradient-to-br from-cyan-400/20 via-blue-500/10 to-transparent font-semibold text-cyan-100">
-                  {initial}
-                </div>
-              )}
+              <Avatar
+                name={playerName}
+                userId={player.id}
+                avatarUrl={player.avatarUrl}
+                alt={playerName}
+                className="h-9 w-9 shrink-0 rounded-full border border-cyan-400/20 object-cover"
+              />
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium text-white">
                   {playerName}

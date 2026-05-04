@@ -1,6 +1,6 @@
 // src/components/game/sidebar/PlayerList.tsx
 import { PlayerState } from "../../../game/models/privatState";
-import { getMockAvatarSrc } from "../../../types/mockPlayer";
+import Avatar from "../../shared/Avatar";
 
 interface PlayerListProps {
   players: PlayerState[];
@@ -27,8 +27,10 @@ export default function PlayerList({
             `}
           >
             {/* Avatar */}
-            <img
-              src={p.avatarUrl || getMockAvatarSrc(`user-${p.id}`)}
+            <Avatar
+              name={p.name}
+              userId={p.id}
+              avatarUrl={p.avatarUrl}
               alt={p.name}
               className="w-10 h-10 rounded-full object-cover border-2 border-gray-600"
             />

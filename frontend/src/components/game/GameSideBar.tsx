@@ -4,7 +4,7 @@ import PlayerList from "./sidebar/PlayerList";
 import PlayerPrivatePanel from "./sidebar/PlayerPrivatePanel";
 import { PrivateGameState } from "../../game/models/privatState";
 import InfoChip from "../shared/InfoChip";
-import { getMockAvatarSrc } from "../../types/mockPlayer";
+import Avatar from "../shared/Avatar";
 
 type GameSideBarProps = {
   game: PrivateGameState;
@@ -44,8 +44,10 @@ export default function GameSideBar({
                 Level {game.levelId}
               </p>
             </div>
-            <img
-              src={currentPlayer?.avatarUrl || getMockAvatarSrc(`user-${currentPlayer?.id ?? "player"}`)}
+            <Avatar
+              name={currentPlayer?.name ?? "Player"}
+              userId={currentPlayer?.id}
+              avatarUrl={currentPlayer?.avatarUrl}
               alt={currentPlayer?.name ?? "Player avatar"}
               className="h-11 w-11 shrink-0 rounded-full border border-cyan-400/25 bg-black/15 object-cover shadow-[0_0_0_2px_rgba(34,211,238,0.08)]"
             />
