@@ -1,5 +1,5 @@
-import InfoChip from "../shared/InfoChip";
-import Avatar from "../shared/Avatar";
+import InfoChip from "../../shared/InfoChip";
+import Avatar from "../../shared/Avatar";
 
 type PlayerListProps = {
   players: {

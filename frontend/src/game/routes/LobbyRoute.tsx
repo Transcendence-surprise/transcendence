@@ -261,11 +261,11 @@ export default function LobbyRoute() {
   if (!game) return <div>Loading...</div>;
 
   return (
-    <Lobby
-      game={game}
-      gameId={gameId}
-      onGameStarted={handleStart}
-      onGameLeave={handleLeave}
+        <Lobby
+          game={game}
+          currentUserId={user?.id}
+          onGameStarted={handleStart}
+          onGameLeave={handleLeave}
       error={startError}
       starting={starting}
       leaveError={leaveError}

@@ -44,14 +44,6 @@ export function LobbySettings({ rules }: LobbySettingsProps) {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        {/* <span className="rounded-full border border-cyan-400 bg-cyan-400/8 px-2.5 py-1 text-[11px] font-medium text-cyan-200">
-          {rules.fixedCorners ? "Fixed corners" : "Rotating corners"}
-        </span>
-        <span className="rounded-full border border-cyan-400 bg-cyan-400/8 px-2.5 py-1 text-[11px] font-medium text-cyan-200">
-          {rules.requiresBoardActionPerTurn
-            ? "Board action required"
-            : "Free movement"}
-        </span> */}
       </div>
     </div>
   );
