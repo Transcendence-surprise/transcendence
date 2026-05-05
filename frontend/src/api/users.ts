@@ -12,14 +12,61 @@ export interface User {
 
 import { rethrowAbortError } from "./requestUtils";
 
+const USERS_CACHE_TTL_MS = 10_000;
+
+let cachedUsers: User[] | null = null;
+let cachedUsersAt = 0;
+let inFlightUsersPromise: Promise<User[]> | null = null;
+
+export function invalidateUsersCache() {
+  cachedUsers = null;
+  cachedUsersAt = 0;
+  inFlightUsersPromise = null;
+}
+
 export async function getAllUsers(signal?: AbortSignal): Promise<User[]> {
+  if (signal?.aborted) {
+    throw new DOMException("Request aborted", "AbortError");
+  }
+
+  const now = Date.now();
+
+  if (cachedUsers && now - cachedUsersAt < USERS_CACHE_TTL_MS) {
+    return cachedUsers;
+  }
+
+  if (inFlightUsersPromise) {
+    return inFlightUsersPromise;
+  }
+
   try {
-    const res = await fetch("/api/users/", { credentials: "include", signal });
-    if (!res.ok) throw new Error("Not logged in");
-    const users = await res.json();
-    return users;
+    inFlightUsersPromise = fetch("/api/users/", {
+      credentials: "include",
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          if (res.status === 429) {
+            if (cachedUsers) {
+              return cachedUsers;
+            }
+            throw new Error("Too many requests");
+          }
+
+          throw new Error("Not logged in");
+        }
+        const users = await res.json();
+        cachedUsers = users;
+        cachedUsersAt = Date.now();
+        return users;
+      })
+      .finally(() => {
+        inFlightUsersPromise = null;
+      });
+
+    return await inFlightUsersPromise;
   } catch (e: any) {
     rethrowAbortError(e);
+    throw e;
   }
 }
 
@@ -83,6 +130,7 @@ export async function deleteUser(id: number | string, signal?: AbortSignal) {
       signal,
     });
     if (!res.ok) throw new Error("Failed to delete user");
+    invalidateUsersCache();
   } catch (e: any) {
     rethrowAbortError(e);
   }
@@ -118,9 +166,12 @@ export async function setUserTwoFactor(
 
     const contentType = res.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
-      return res.json();
+      const updatedUser = await res.json();
+      invalidateUsersCache();
+      return updatedUser;
     }
 
+    invalidateUsersCache();
     return { id: numId, twoFactorEnabled: enabled } as User;
   } catch (e: any) {
     rethrowAbortError(e);
@@ -187,6 +238,7 @@ export async function uploadMyAvatar(
     if (contentType && contentType.includes("application/json")) {
       const data = await res.json();
       // console.log("Avatar upload success JSON:", data);
+      invalidateUsersCache();
       return data;
     }
 
