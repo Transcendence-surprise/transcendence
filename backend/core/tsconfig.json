@@ -22,5 +22,6 @@
     "noFallthroughCasesInSwitch": false,
     "types": ["node", "jest"],
     "typeRoots": ["./node_modules/@types", "./src/types"],
+    "ignoreDeprecations": "6.0",
   }
 }
