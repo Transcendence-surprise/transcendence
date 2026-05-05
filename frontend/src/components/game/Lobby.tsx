@@ -1,14 +1,13 @@
-// src/game/components/Lobby.tsx
 import LobbyChat from "./LobbyChat";
-import LobbyPlayerList from "../UI/LobbyPlayerList";
-import { LobbySettings } from "../UI/LobbySettings";
-import LobbyActionButton from "../UI/LobbyActionButton";
+import LobbyPlayerList from "./lobby/LobbyPlayerList";
+import { LobbySettings } from "./lobby/LobbySettings";
+import LobbyActionButton from "./lobby/LobbyActionButton";
 import { LobbyMessage } from "../../game/models/lobbyMessage";
 import InfoChip from "../shared/InfoChip";
 
 export type LobbyProps = {
   game: any;
-  gameId?: string;
+  currentUserId?: string | number;
   onGameStarted: () => void;
   onGameLeave: () => void;
   error?: string | null;
@@ -22,7 +21,7 @@ export type LobbyProps = {
 
 export default function Lobby({
   game,
-  gameId,
+  currentUserId,
   onGameStarted,
   onGameLeave,
   error,
@@ -46,7 +45,10 @@ export default function Lobby({
 
   const players = Array.isArray(game?.players) ? game.players : [];
   const hostId = game?.hostId;
-  const gameIdLabel = gameId ?? game?.id ?? game?.gameId ?? "Unknown";
+  const isHost =
+    currentUserId != null &&
+    hostId != null &&
+    String(currentUserId) === String(hostId);
 
   return (
     <div className="flex min-h-screen items-start justify-center bg-bg-dark px-4 py-10 font-sans text-white">
@@ -87,13 +89,22 @@ export default function Lobby({
 
               <div className="flex flex-col gap-3 sm:flex-row xl:flex-col">
                   {game.phase === "LOBBY" && (
-                    <LobbyActionButton
-                      onClick={onGameStarted}
-                      disabled={starting}
-                      variant="primary"
+                    <span
+                      className={`group relative inline-flex ${!isHost ? "cursor-not-allowed" : ""}`.trim()}
                     >
-                      {starting ? "Starting..." : "Start Game"}
-                    </LobbyActionButton>
+                      <LobbyActionButton
+                        onClick={onGameStarted}
+                        disabled={starting || !isHost}
+                        variant="primary"
+                      >
+                        {starting ? "Starting..." : "Start Game"}
+                      </LobbyActionButton>
+                      {!starting && !isHost ? (
+                        <span className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md border border-white/10 bg-slate-900 px-3 py-1.5 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100">
+                          Only the host can start the game
+                        </span>
+                      ) : null}
+                    </span>
                   )}
 
                   <LobbyActionButton onClick={onGameLeave} variant="leave">

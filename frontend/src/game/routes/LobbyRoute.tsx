@@ -72,26 +72,7 @@ export default function LobbyRoute() {
     fetchControllerRef.current = controller;
 
     try {
-      const [res, allUsers] = await Promise.all([
-        getGameState(gameId, controller.signal),
-        getAllUsers(controller.signal),
-      ]);
-
-      userByIdRef.current = new Map(
-        allUsers.map((appUser) => [
-          String(appUser.id),
-          { avatarUrl: appUser.avatarUrl ?? null },
-        ]),
-      );
-      userByUsernameRef.current = new Map(
-        allUsers.map((appUser) => [
-          appUser.username,
-          {
-            id: String(appUser.id),
-            avatarUrl: appUser.avatarUrl ?? null,
-          },
-        ]),
-      );
+      const res = await getGameState(gameId, controller.signal);
 
       if (!res) {
         navigate("/game", {
@@ -127,6 +108,42 @@ export default function LobbyRoute() {
     }
     fetchGame();
   }, [user, gameId, fetchGame, navigate]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const controller = new AbortController();
+
+    getAllUsers(controller.signal)
+      .then((allUsers) => {
+        userByIdRef.current = new Map(
+          allUsers.map((appUser) => [
+            String(appUser.id),
+            { avatarUrl: appUser.avatarUrl ?? null },
+          ]),
+        );
+        userByUsernameRef.current = new Map(
+          allUsers.map((appUser) => [
+            appUser.username,
+            {
+              id: String(appUser.id),
+              avatarUrl: appUser.avatarUrl ?? null,
+            },
+          ]),
+        );
+        setGame((currentGame: any) =>
+          currentGame
+            ? enrichGamePlayers(currentGame, userByIdRef.current)
+            : currentGame,
+        );
+      })
+      .catch((err: any) => {
+        if (err?.name === "AbortError") return;
+        console.error(err);
+      });
+
+    return () => controller.abort();
+  }, [user]);
 
   // Websocket for update game state
   const handleLobbyMessage = useCallback((msg: any) => {
@@ -261,11 +278,11 @@ export default function LobbyRoute() {
   if (!game) return <div>Loading...</div>;
 
   return (
-    <Lobby
-      game={game}
-      gameId={gameId}
-      onGameStarted={handleStart}
-      onGameLeave={handleLeave}
+        <Lobby
+          game={game}
+          currentUserId={user?.id}
+          onGameStarted={handleStart}
+          onGameLeave={handleLeave}
       error={startError}
       starting={starting}
       leaveError={leaveError}

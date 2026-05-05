@@ -12,7 +12,7 @@ import {
 } from "react-icons/gi";
 import { MdOutlineDangerous } from "react-icons/md";
 
-type RuleTileType = "L" | "I" | "T" | "X" | "W";
+type RuleTileType = "L" | "I" | "T" | "X" | "W" | "FIXED";
 
 const TILE_DETAILS: {
   type: RuleTileType;
@@ -61,10 +61,24 @@ const TILE_DETAILS: {
       "Has no openings at all. It acts as a fully blocked wall tile and cannot be used as part of a path.",
     color: "var(--color-tile-t)",
   },
+  {
+    type: "FIXED",
+    title: "Fixed Tile",
+    subtitle: "Locked",
+    description:
+      "A fixed tile stays in place and cannot be shifted. It may have the shape of any path tile, but its position on the board is locked.",
+    color: "#9CA3AF",
+  },
 ];
 
 function tileSvgDataUri(type: RuleTileType) {
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(TILE_SVGS[type])}`;
+  const svg =
+    type === "FIXED"
+      ? TILE_SVGS.L
+          .replace(/#5c90f6/g, "#9CA3AF")
+      : TILE_SVGS[type];
+
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
 function TileImage({
