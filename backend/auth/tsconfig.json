@@ -23,5 +23,7 @@
     "types": ["node", "jest"],
     "typeRoots": ["node", "jest", "./node_modules/@types"],
     "ignoreDeprecations": "6.0",
-  }
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "exclude": ["dist", "db-entities-dist", "node_modules", "coverage"]
 }
