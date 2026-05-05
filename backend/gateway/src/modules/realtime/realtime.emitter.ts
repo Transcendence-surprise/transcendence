@@ -16,7 +16,6 @@ export class RealtimeEmitter {
   emitPlayerAvailabilityUpdated(userId: string | number) {
     console.log(`playerAvailability:updated for userId ${userId}`);
     this.server.to(`user:${userId}`).emit('playerAvailability:updated', { userId });
-    // this.server.to(`presence:user:${userId}`).emit('playerAvailability:updated', { userId });
   }
 
   emitPresenceUpdated(userId: string | number, isOnline: boolean) {
