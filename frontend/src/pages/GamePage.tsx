@@ -4,6 +4,7 @@ import Sidebar from "../components/game/GameSideBar";
 import LobbyChat from "../components/game/LobbyChat";
 import { PrivateGameState } from "../game/models/privatState";
 import { LobbyMessage } from "../game/models/lobbyMessage";
+import { useGameMessages } from "../hooks/useGameMessages";
 
 type GamePageProps = {
   game: PrivateGameState;
