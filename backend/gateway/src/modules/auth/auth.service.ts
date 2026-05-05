@@ -107,7 +107,7 @@ export class AuthHttpService {
     return this.request('post', `/api/auth/api-keys`)
   }
 
-  async removeApiKeyById<T = unknown>(id: number): Promise<T> {
+  async removeApiKeyById<T = unknown>(id: string): Promise<T> {
     return this.request('delete', `/api/auth/api-keys/${id}`)
   }
 

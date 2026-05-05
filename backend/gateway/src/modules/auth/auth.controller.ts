@@ -130,7 +130,7 @@ export class AuthController {
 
   @Delete('api-keys/:id')
   async removeApiKeyById(@Param('id') id: string) {
-    return this.authClient.removeApiKeyById(Number(id));
+    return this.authClient.removeApiKeyById(id);
   }
 
   @Post('guest-token')
