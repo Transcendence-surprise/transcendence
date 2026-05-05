@@ -26,7 +26,6 @@ export default function LobbyRoute() {
   const fetchControllerRef = useRef<AbortController | null>(null);
 
   const { userById, userByUsername } = useUsersMap(user);
-
   const { messages } = useGameMessages(
     gameId,
     userByUsername,
@@ -79,23 +78,20 @@ export default function LobbyRoute() {
   }, [user, gameId, fetchGame, navigate]);
 
   useEffect(() => {
-    if (!game) return;
-
-    setGame((current: any) =>
-      current ? enrichGamePlayers(current, userById) : current
-    );
-  }, [userById]);
-
-  useEffect(() => {
     if (!gameId) return;
 
     const socket = getRealtimeSocket();
     if (!socket) return;
 
-    const handleLobbyUpdated = (p: { gameId: string }) => {
-      if (p.gameId !== gameId) return;
+    const handleLobbyUpdated = async ({ gameId: updatedId }: any) => {
+      if (updatedId !== gameId) return;
 
-      fetchGame();
+      const res = await getGameState(gameId);
+      setGame(enrichGamePlayers(res, userById));
+
+      if (res.phase === "PLAY") {
+        navigate(`/game/${gameId}`);
+      }
     };
 
     socket.on("lobby:updated", handleLobbyUpdated);
@@ -103,7 +99,7 @@ export default function LobbyRoute() {
     return () => {
       socket.off("lobby:updated", handleLobbyUpdated);
     };
-  }, [gameId, fetchGame]);
+  }, [gameId, userById, navigate]);
 
   // Start game (host only)
   const handleStart = async () => {
