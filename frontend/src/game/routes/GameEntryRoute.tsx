@@ -1,6 +1,6 @@
 //user selects single/multiplayer
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import GameModePicker from "../../components/game/GameModePicker";
 import GuestOrAuthModal from "../../components/auth/GuestOrAuthModal";
@@ -45,7 +45,7 @@ export default function GameEntryRoute() {
   return (
     <div className="w-full h-full min-h-0 bg-bg-dark text-white font-sans flex items-center justify-center px-4 py-2">
       <div className="w-full max-w-5xl flex flex-col items-center gap-8">
-        <ActiveGamesSection user={user ? { username: user.username } : null} />
+        <ActiveGamesSection user={user ? { id: user.id } : null} />
 
         <GameModePicker
           onSelectSingle={() => openModal("single")}
