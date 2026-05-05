@@ -41,7 +41,6 @@ export default function Chat() {
     if (!user) return;
 
     const controller = new AbortController();
-    console.log("Fetching chat history");
     Promise.all([
       getChatHistory(controller.signal),
       getAllUsers(controller.signal),
@@ -61,8 +60,13 @@ export default function Chat() {
           setMessages([]);
         }
       })
-      .catch(console.error);
-    console.log("Chat history fetched");
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+
+        console.error(error);
+      });
     return () => controller.abort();
   }, [user]);
 
