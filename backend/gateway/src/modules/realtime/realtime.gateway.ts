@@ -28,9 +28,7 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   constructor(
     private readonly wsAuth: WsAuthService,
     private readonly presenceClient: PresenceHTTPService,
-  ) {
-    console.log('RealtimeGateway CREATED');
-  }
+  ) {}
 
   afterInit(server: Server) {
     this.server = server;

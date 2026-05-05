@@ -235,7 +235,7 @@ const FindOneByEmailDocs = () =>
 const UpdateUserDocs = () =>
   applyDecorators(
     ApiOperation({
-      summary: 'Create or replace user (PUT)',
+      summary: 'Create or replace user',
       description: 'Create user with specified ID if not exists (201), or replace all user data (200). Implements idempotent upsert behavior.',
       operationId: 'updateUser',
     }),
@@ -264,7 +264,7 @@ const UpdateUserDocs = () =>
 const UpdateUserPartialDocs = () =>
   applyDecorators(
     ApiOperation({
-      summary: 'Update user fields (PATCH)',
+      summary: 'Update user fields',
       description: 'Update specific user fields (partial update)',
       operationId: 'updateUserPartial',
     }),
