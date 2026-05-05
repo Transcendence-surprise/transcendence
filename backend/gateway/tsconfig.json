@@ -26,8 +26,8 @@
     "paths": {
       "src/*": ["src/*"]
     },
-    "ignoreDeprecations": "6.0",
   },
+  "ignoreDeprecations": "6.0",
   "include": ["src/**/*.ts", "test/**/*.ts"],
   "exclude": ["dist", "db-entities-dist", "node_modules", "coverage"]
 }
