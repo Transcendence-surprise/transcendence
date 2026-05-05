@@ -1,4 +1,5 @@
 import { MultiGame } from "../../../game/models/multiGames";
+import { getLobbyGameStatus } from "./gameStatus";
 
 type GameActionProps = {
   game: MultiGame;
@@ -13,7 +14,9 @@ export default function GameAction({
   onJoin,
   onSpectate,
 }: GameActionProps) {
-  if (game.phase === "LOBBY" && game.joinedPlayers < game.maxPlayers) {
+  const status = getLobbyGameStatus(game);
+
+  if (status === "OPEN") {
     return (
       <button className={actionButtonClass} onClick={() => onJoin(game.id)}>
         Join
@@ -21,7 +24,7 @@ export default function GameAction({
     );
   }
 
-  if (game.phase === "PLAY" && game.allowSpectators) {
+  if (status === "LIVE") {
     return (
       <button className={actionButtonClass} onClick={() => onSpectate(game.id)}>
         Spectate

@@ -24,19 +24,52 @@ export function invalidateUsersCache() {
   inFlightUsersPromise = null;
 }
 
-export async function getAllUsers(signal?: AbortSignal): Promise<User[]> {
-  if (signal?.aborted) {
-    throw new DOMException("Request aborted", "AbortError");
+function createAbortError() {
+  return new DOMException("Request aborted", "AbortError");
+}
+
+function withAbortSignal<T>(
+  promise: Promise<T>,
+  signal?: AbortSignal,
+): Promise<T> {
+  if (!signal) {
+    return promise;
   }
 
+  if (signal.aborted) {
+    return Promise.reject(createAbortError());
+  }
+
+  return new Promise<T>((resolve, reject) => {
+    const handleAbort = () => {
+      signal.removeEventListener("abort", handleAbort);
+      reject(createAbortError());
+    };
+
+    signal.addEventListener("abort", handleAbort, { once: true });
+
+    promise.then(
+      (value) => {
+        signal.removeEventListener("abort", handleAbort);
+        resolve(value);
+      },
+      (error) => {
+        signal.removeEventListener("abort", handleAbort);
+        reject(error);
+      },
+    );
+  });
+}
+
+export async function getAllUsers(signal?: AbortSignal): Promise<User[]> {
   const now = Date.now();
 
   if (cachedUsers && now - cachedUsersAt < USERS_CACHE_TTL_MS) {
-    return cachedUsers;
+    return withAbortSignal(Promise.resolve(cachedUsers), signal);
   }
 
   if (inFlightUsersPromise) {
-    return inFlightUsersPromise;
+    return withAbortSignal(inFlightUsersPromise, signal);
   }
 
   try {
@@ -63,7 +96,7 @@ export async function getAllUsers(signal?: AbortSignal): Promise<User[]> {
         inFlightUsersPromise = null;
       });
 
-    return await inFlightUsersPromise;
+    return await withAbortSignal(inFlightUsersPromise, signal);
   } catch (e: any) {
     rethrowAbortError(e);
     throw e;
@@ -85,9 +118,12 @@ export async function toggleTwoFactorAuth(enabled: boolean, signal?: AbortSignal
 
     const contentType = res.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
-      return res.json();
+      const updatedUser = await res.json();
+      invalidateUsersCache();
+      return updatedUser;
     }
     // If no JSON response, return a placeholder user object
+    invalidateUsersCache();
     return {} as User;
   } catch (e: any) {
     rethrowAbortError(e);

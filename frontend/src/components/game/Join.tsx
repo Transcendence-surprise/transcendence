@@ -5,6 +5,10 @@ import InfoChip from "../shared/InfoChip";
 import DesktopHeader from "./join/DesktopHeader";
 import DesktopRow from "./join/DesktopRow";
 import MobileCard from "./join/MobileCard";
+import {
+  getLobbyGameStatus,
+  getLobbyGameStatusLabel,
+} from "./join/gameStatus";
 
 const actionButtonClass =
   "inline-flex items-center justify-center rounded-lg border border-cyan-300/30 bg-button-cyan-bg px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-button-cyan-hover sm:px-4 sm:text-sm";
@@ -139,7 +143,7 @@ export default function JoinLobbyList({
                 <MobileCard
                   key={game.id}
                   game={game}
-                  statusLabel={getMobileGameStatus(game)}
+                  statusLabel={getLobbyGameStatusLabel(getLobbyGameStatus(game))}
                   actionButtonClass={`${actionButtonClass} w-full`}
                   onJoin={onJoin}
                   onSpectate={onSpectate}
@@ -155,16 +159,4 @@ export default function JoinLobbyList({
       </div>
     </div>
   );
-}
-
-function getMobileGameStatus(game: MultiGame) {
-  if (game.phase === "LOBBY" && game.joinedPlayers < game.maxPlayers) {
-    return "Open";
-  }
-
-  if (game.phase === "PLAY" && game.allowSpectators) {
-    return "Live";
-  }
-
-  return "Full";
 }

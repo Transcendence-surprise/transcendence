@@ -159,10 +159,11 @@ export default function Friends() {
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
+                      aria-label={`Accept friend request from ${request.name}`}
                       onClick={() =>
                         void handleAccept(request.targetUserId)
                       }
-                      className=" px-3 py-1.5 text-m font-medium text-green-400 transition hover:scale-125"
+                      className="px-3 py-1.5 text-m font-medium text-green-400 transition hover:scale-125"
                     >
                      <FaCheck />
                     </button>
