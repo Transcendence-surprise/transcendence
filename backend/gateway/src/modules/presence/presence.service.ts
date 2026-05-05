@@ -3,17 +3,6 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
-import type { FastifyRequest } from 'fastify';
-
-interface JwtPayload {
-  sub: number;
-  username: string;
-  email: string;
-  roles: string[];
-}
-interface RequestWithUser extends FastifyRequest {
-  user?: JwtPayload;
-}
 
 @Injectable()
 export class PresenceHTTPService {

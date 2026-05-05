@@ -19,6 +19,12 @@ export class RealtimeEmitter {
     // this.server.to(`presence:user:${userId}`).emit('playerAvailability:updated', { userId });
   }
 
+  emitPresenceUpdated(userId: string | number, isOnline: boolean) {
+    console.log(`presence:updated for userId ${userId}`);
+    this.server.to(`user:${userId}`).emit('presence:updated', { userId, isOnline });
+    this.server.to(`presence:user:${userId}`).emit('presence:updated', { userId, isOnline });
+  }
+
   emitMultiplayerGamesListUpdated() {
     console.log(`multiplayerGamesList:updated`);
     this.server.emit('multiplayerGamesList:updated');

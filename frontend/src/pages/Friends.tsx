@@ -28,8 +28,6 @@ export default function Friends() {
     sendStatus,
     sendError,
     pageError,
-    pendingActionError,
-    removeFriendError,
     setSendError,
     setSendStatus,
     handleSendRequest,
@@ -132,11 +130,7 @@ export default function Friends() {
             <p className="mt-3 text-sm text-red-300">{pageError}</p>
           ) : null}
 
-          {pendingActionError ? (
-            <p className="mt-3 text-sm text-red-300">{pendingActionError}</p>
-          ) : null}
-
-          <div className="mt-4 divide-y divide-[var(--color-border-gray)]">
+           <div className="mt-4 divide-y divide-[var(--color-border-gray)]">
             {pendingRequests.length > 0 ? (
               pendingRequests.map((request) => (
                 <div
@@ -195,10 +189,6 @@ export default function Friends() {
 
           {pageError ? (
             <p className="mt-3 text-sm text-red-300">{pageError}</p>
-          ) : null}
-
-          {removeFriendError ? (
-            <p className="mt-3 text-sm text-red-300">{removeFriendError}</p>
           ) : null}
 
           <div className="mt-4 divide-y divide-[var(--color-border-gray)]">
