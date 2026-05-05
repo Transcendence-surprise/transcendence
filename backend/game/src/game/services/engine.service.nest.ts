@@ -268,12 +268,13 @@ export class EngineService {
     if (result.ok && state.gameEnded) {
       await this.userUpdateService.updateUserStats(state);
       /// Update badges here if needed, e.g. for multiplayer games with multiple winners or specific achievements.
-
-      await this.coreBadgeService.incrementProgress({
-        userIds: state.players.map(p => Number(p.id)),
-        type: "games",
-        value: 1,
-      });
+      if (state.rules.mode === "MULTI") {
+        await this.coreBadgeService.incrementProgress({
+          userIds: state.players.map(p => Number(p.id)),
+          type: "games",
+          value: 1,
+        });
+      }
     }
 
     return result;
