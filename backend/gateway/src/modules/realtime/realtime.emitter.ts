@@ -13,9 +13,10 @@ export class RealtimeEmitter {
     this.server.to(`lobby:${gameId}`).emit('lobby:updated', { gameId });
   }
 
-  emitPlayerAvailabilityUpdated(gameId: string) {
-    console.log(`playerAvailability:updated for gameId ${gameId}`);
-    this.server.to(`game:${gameId}`).emit("playerAvailability:updated", { gameId });
+  emitPlayerAvailabilityUpdated(userId: string | number) {
+    console.log(`playerAvailability:updated for userId ${userId}`);
+    this.server.to(`user:${userId}`).emit('playerAvailability:updated', { userId });
+    // this.server.to(`presence:user:${userId}`).emit('playerAvailability:updated', { userId });
   }
 
   emitMultiplayerGamesListUpdated() {
