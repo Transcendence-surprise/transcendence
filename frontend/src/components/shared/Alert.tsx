@@ -7,9 +7,7 @@ type AlertDialogProps = {
   title?: string;
   message: ReactNode;
   variant?: AlertVariant;
-  confirmLabel?: string;
   onClose: () => void;
-  onConfirm?: () => void | Promise<void>;
   dismissOnBackdropClick?: boolean;
 };
 
@@ -43,26 +41,17 @@ const variantStyles: Record<
   },
 };
 
-export default function AlertDialog({
+export default function Alert({
   open,
   title = "Notice",
   message,
   variant = "info",
-  confirmLabel = "OK",
   onClose,
-  onConfirm,
   dismissOnBackdropClick = true,
 }: AlertDialogProps) {
   if (!open) return null;
 
   const styles = variantStyles[variant];
-
-  const handleConfirm = async () => {
-    if (onConfirm) {
-      await onConfirm();
-    }
-    onClose();
-  };
 
   const handleBackdropClick = () => {
     if (dismissOnBackdropClick) {
@@ -84,7 +73,9 @@ export default function AlertDialog({
         aria-describedby="shared-alert-dialog-message"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${styles.badge}`}>
+        <div
+          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${styles.badge}`}
+        >
           {variant}
         </div>
 
@@ -102,20 +93,13 @@ export default function AlertDialog({
           {message}
         </div>
 
-        <div className="mt-6 flex justify-end gap-3">
+        <div className="mt-6 flex justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-[var(--color-border-subtle)] px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/5"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleConfirm}
             className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${styles.button}`}
           >
-            {confirmLabel}
+            OK
           </button>
         </div>
       </div>
