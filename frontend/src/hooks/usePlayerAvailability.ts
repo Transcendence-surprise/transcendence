@@ -42,6 +42,8 @@ export function usePlayerAvailability(user: { id?: string | number } | null) {
   useEffect(() => {
     if (!user) {
       setAvailability(null);
+      setLoading(false);
+      setError(null);
       setHydrated(true);
       return;
     }
