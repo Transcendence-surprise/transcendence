@@ -1,9 +1,13 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { getAllUsers } from "../api/users";
 
 export function useUsersMap(user: any) {
-  const userByIdRef = useRef(new Map());
-  const userByUsernameRef = useRef(new Map());
+  const [userById, setUserById] = useState<
+    Map<string, { avatarUrl: string | null }>
+  >(new Map());
+  const [userByUsername, setUserByUsername] = useState<
+    Map<string, { id: string; avatarUrl: string | null }>
+  >(new Map());
 
   useEffect(() => {
     if (!user) return;
@@ -12,14 +16,17 @@ export function useUsersMap(user: any) {
 
     getAllUsers(controller.signal)
       .then((allUsers) => {
-        userByIdRef.current = new Map(
+        setUserById(
+          new Map(
           allUsers.map((u) => [
             String(u.id),
             { avatarUrl: u.avatarUrl ?? null },
           ]),
+          ),
         );
 
-        userByUsernameRef.current = new Map(
+        setUserByUsername(
+          new Map(
           allUsers.map((u) => [
             u.username,
             {
@@ -27,6 +34,7 @@ export function useUsersMap(user: any) {
               avatarUrl: u.avatarUrl ?? null,
             },
           ]),
+          ),
         );
       })
       .catch((err) => {
@@ -39,7 +47,7 @@ export function useUsersMap(user: any) {
   }, [user]);
 
   return {
-    userById: userByIdRef.current,
-    userByUsername: userByUsernameRef.current,
+    userById,
+    userByUsername,
   };
 }
