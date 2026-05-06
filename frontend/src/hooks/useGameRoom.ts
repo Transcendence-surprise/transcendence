@@ -15,11 +15,6 @@ export function useGameRoom(id: string) {
   const [error, setError] = useState<string | null>(null);
 
   const socketRef = useRef<any>(null);
-  const gameRef = useRef<PrivateGameState | null>(null);
-
-  useEffect(() => {
-    gameRef.current = game;
-  }, [game]);
 
   useEffect(() => {
     if (!id || !user) return;
