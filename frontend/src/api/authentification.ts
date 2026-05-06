@@ -190,7 +190,9 @@ export async function logout(signal?: AbortSignal): Promise<void> {
       signal,
     });
 
-    if (!res.ok) throw new Error("Logout failed");
+    if (!res.ok && res.status !== 401 && res.status !== 404) {
+      throw new Error("Logout failed");
+    }
     setAuthHint(false);
   } catch (e: any) {
     rethrowAbortError(e);
