@@ -10,6 +10,8 @@ import ActionConfirmationModal, {
   type PendingDeletion,
 } from "../components/shared/ActionConfirmationModal";
 
+type AlertVariant = "info" | "success" | "warning" | "error";
+
 interface PendingTwoFactorChange extends PendingDeletion {
   enabled: boolean;
 }
@@ -29,10 +31,16 @@ export default function AdminPanel() {
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("Notice");
+  const [alertVariant, setAlertVariant] = useState<AlertVariant>("info");
 
-  const showAlert = (message: string, title: string = "Notice") => {
+  const showAlert = (
+    message: string,
+    title: string = "Notice",
+    variant: AlertVariant = "info",
+  ) => {
     setAlertMessage(message);
     setAlertTitle(title);
+    setAlertVariant(variant);
     setAlertOpen(true);
   };
 
@@ -56,6 +64,7 @@ export default function AdminPanel() {
       showAlert(
         err?.message || "Failed to update 2FA for user.",
         "2FA Update Failed",
+        "error",
       );
       console.error(err);
     } finally {
@@ -101,7 +110,7 @@ export default function AdminPanel() {
         ),
       );
     } catch (err) {
-      showAlert("Failed to delete user.", "Delete User Failed");
+      showAlert("Failed to delete user.", "Delete User Failed", "error");
       console.error(err);
     } finally {
       setDeletingUsers((prev) => ({ ...prev, [key]: false }));
@@ -188,6 +197,7 @@ export default function AdminPanel() {
         open={alertOpen}
         title={alertTitle}
         message={alertMessage}
+        variant={alertVariant}
         onClose={() => setAlertOpen(false)}
       />
       <h1 className="text-2xl text-light-cyan font-bold mb-4">Admin Panel</h1>
