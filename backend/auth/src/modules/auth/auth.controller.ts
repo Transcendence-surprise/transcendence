@@ -135,5 +135,4 @@ export class AuthController {
     this.setAccessTokenCookie(reply, token);
     return { ok: true };
   }
-
 }

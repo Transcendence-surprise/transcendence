@@ -263,7 +263,7 @@ export default function Profile() {
           ) : latestGamesError ? (
             <p className="text-sm text-red-400">{latestGamesError}</p>
           ) : latestGames.length > 0 ? (
-            latestGames.slice(0, 4).map((game, index) => (
+            latestGames.slice(0, 7).map((game, index) => (
               <div
                 key={`${game.createdAt}-${index}`}
                 className="flex items-center justify-between py-3 border-b border-[var(--color-border-gray)] last:border-b-0"

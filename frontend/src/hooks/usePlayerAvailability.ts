@@ -7,6 +7,12 @@ export interface PlayerAvailability {
   phase?: string;
 }
 
+const MIN_INTERVAL_MS = 10000;
+let cachedAvailability: PlayerAvailability | null = null;
+let cachedAt = 0;
+let nextAllowedAt = 0;
+let inFlight: Promise<PlayerAvailability | null> | null = null;
+
 export function usePlayerAvailability(user: { id?: string | number } | null) {
   const [availability, setAvailability] = useState<PlayerAvailability | null>(null);
   const [loading, setLoading] = useState(false);
@@ -22,16 +28,59 @@ export function usePlayerAvailability(user: { id?: string | number } | null) {
     setLoading(true);
     setError(null);
 
+    const now = Date.now();
+    if ((cachedAt && now - cachedAt < MIN_INTERVAL_MS) || now < nextAllowedAt) {
+      setAvailability(cachedAvailability);
+      setLoading(false);
+      setHydrated(true);
+      return;
+    }
+
+    if (inFlight) {
+      const data = await inFlight;
+      setAvailability(data);
+      setLoading(false);
+      setHydrated(true);
+      return;
+    }
+
     controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;
 
     try {
-      const data = await checkPlayerAvailability(controller.signal);
-      setAvailability(data?.gameId ? data : null);
+      inFlight = checkPlayerAvailability(controller.signal)
+        .then((data) => {
+          cachedAvailability = data?.gameId ? data : null;
+          cachedAt = Date.now();
+          nextAllowedAt = cachedAt + MIN_INTERVAL_MS;
+          return cachedAvailability;
+        })
+        .catch((e: any) => {
+          if (e?.name === "AbortError") {
+            return cachedAvailability;
+          }
+          throw e;
+        })
+        .finally(() => {
+          inFlight = null;
+        });
+
+      const data = await inFlight;
+      setAvailability(data);
     } catch (e: any) {
       if (e?.name !== "AbortError") {
-        setError("Failed to load player status");
+        if (e?.status === 429) {
+          const retryAfterMs = Number(e?.retryAfterMs);
+          if (!Number.isNaN(retryAfterMs) && retryAfterMs > 0) {
+            nextAllowedAt = Date.now() + retryAfterMs;
+          } else {
+            nextAllowedAt = Date.now() + MIN_INTERVAL_MS;
+          }
+          setAvailability(cachedAvailability);
+        } else {
+          setError("Failed to load player status");
+        }
       }
     } finally {
       setLoading(false);

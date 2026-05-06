@@ -57,7 +57,10 @@ export default function LobbyRoute() {
     } catch (err: any) {
       if (err?.name === "AbortError") return;
 
-      if (err?.message?.includes("GAME_NOT_FOUND")) {
+      if (
+        err?.message?.includes("GAME_NOT_FOUND") ||
+        err?.message?.includes("PLAYER_NOT_FOUND")
+      ) {
         navigate("/game", {
           state: { message: "Lobby was closed" },
         });
@@ -95,6 +98,15 @@ export default function LobbyRoute() {
         }
       } catch (err: any) {
         if (err?.name === "AbortError") return;
+        if (
+          err?.message?.includes("PLAYER_NOT_FOUND") ||
+          err?.message?.includes("GAME_NOT_FOUND")
+        ) {
+          navigate("/game", {
+            state: { message: "Lobby was closed" },
+          });
+          return;
+        }
         console.error(err);
       }
     };

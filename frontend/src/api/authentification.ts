@@ -2,28 +2,6 @@
 
 import { rethrowAbortError } from "./requestUtils";
 
-const AUTH_HINT_KEY = "transcendence.auth.hasSession";
-
-function setAuthHint(hasSession: boolean): void {
-  try {
-    if (hasSession) {
-      localStorage.setItem(AUTH_HINT_KEY, "1");
-    } else {
-      localStorage.removeItem(AUTH_HINT_KEY);
-    }
-  } catch {
-    // Ignore storage errors (private mode, disabled storage, etc.)
-  }
-}
-
-export function hasAuthHint(): boolean {
-  try {
-    return localStorage.getItem(AUTH_HINT_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
 export interface User {
   id: number | string;
   username: string;
@@ -72,7 +50,6 @@ export async function signup(
     const user = (data?.user ?? data) as User | undefined;
 
     if (user && user.username) {
-      setAuthHint(true);
       return user;
     }
 
@@ -81,7 +58,6 @@ export async function signup(
     if (!refreshed) {
       throw new Error("Signup succeeded but user session is unavailable");
     }
-    setAuthHint(true);
     return refreshed;
   } catch (e: any) {
     rethrowAbortError(e);
@@ -120,7 +96,6 @@ export async function login(
     }
 
     const user = (data?.user ?? data) as User;
-    setAuthHint(true);
     return user;
   } catch (e: any) {
     rethrowAbortError(e);
@@ -148,34 +123,26 @@ export async function loginWith2FA(
 
     const data = await res.json();
     const user = (data?.user ?? data) as User;
-    setAuthHint(true);
     return user;
   } catch (e: any) {
     rethrowAbortError(e);
   }
 }
 
-export async function getCurrentUser(signal?: AbortSignal): Promise<User>;
-export async function getCurrentUser(
-  signal: AbortSignal | undefined,
-  options: { allowUnauthorized: true },
-): Promise<User | null>;
 export async function getCurrentUser(
   signal?: AbortSignal,
   options?: { allowUnauthorized?: boolean },
 ): Promise<User | null> {
   try {
     const res = await fetch("/api/users/me", { credentials: "include", signal });
+    // 401 = unauthorized, 404 = user deleted
+    if (res.status === 401 || res.status === 404) return null;
+
     if (!res.ok) {
-      // 401 = unauthorized, 404 = user deleted
-      if ((res.status === 401 || res.status === 404) && options?.allowUnauthorized) {
-        setAuthHint(false);
-        return null;
-      }
-      throw new Error("Not logged in");
+      throw new Error("Failed to fetch user");
     }
+
     const data = await res.json();
-    setAuthHint(true);
     return data;
   } catch (e: any) {
     rethrowAbortError(e);
@@ -190,8 +157,9 @@ export async function logout(signal?: AbortSignal): Promise<void> {
       signal,
     });
 
-    if (!res.ok) throw new Error("Logout failed");
-    setAuthHint(false);
+    if (!res.ok && res.status !== 401 && res.status !== 404) {
+      throw new Error("Logout failed");
+    }
   } catch (e: any) {
     rethrowAbortError(e);
   }
@@ -213,7 +181,9 @@ export async function createGuestToken(nickname: string, signal?: AbortSignal): 
     }
 
     const user = await getCurrentUser(signal);
-    setAuthHint(true);
+    if (!user) {
+      throw new Error("Guest token created but user session is unavailable");
+    }
     return user;
   } catch (e: any) {
     rethrowAbortError(e);

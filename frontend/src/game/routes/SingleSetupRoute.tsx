@@ -6,6 +6,7 @@ import { createGame } from "../../api/game";
 import { SinglePlayerSettings } from "../models/gameSettings";
 import SinglePlayerSettingsForm from "../../components/game/SinglePlayerSettings";
 import { useAuth } from "../../hooks/useAuth";
+import { usePlayerAvailability } from "../../hooks/usePlayerAvailability";
 
 export default function SingleSetupRoute() {
   const navigate = useNavigate();
@@ -16,15 +17,24 @@ export default function SingleSetupRoute() {
   });
   
   const { user } = useAuth();
+  const { availability } = usePlayerAvailability(user);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-     if (!user) {
+    if (!user) {
       navigate("/game");
       return;
     }
-  }, [user, navigate]);
+
+    if (availability?.gameId) {
+      if (availability.phase === "PLAY") {
+        navigate(`/game/${availability.gameId}`);
+      } else {
+        navigate(`/multiplayer/lobby/${availability.gameId}`);
+      }
+    }
+  }, [user, availability, navigate]);
 
   useEffect(() => {
     return () => {
@@ -42,6 +52,15 @@ export default function SingleSetupRoute() {
 
     if (!user) {
       navigate("/game");
+      return;
+    }
+
+    if (availability?.gameId) {
+      if (availability.phase === "PLAY") {
+        navigate(`/game/${availability.gameId}`);
+      } else {
+        navigate(`/multiplayer/lobby/${availability.gameId}`);
+      }
       return;
     }
 
