@@ -149,7 +149,7 @@ export function useDrawBoard(
         ctx.restore();
       }
 
-      // Slightly gray-out fixed corner tiles so players can quickly identify
+      // Slightly gray-out fixed tiles so players can quickly identify
       // the immovable board anchors without hiding tile details.
       if (tile.fixed) {
         ctx.fillStyle = "rgba(107, 114, 128, 0.28)";
