@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createGame, checkPlayerAvailability } from "../../api/game";
+import { createGame } from "../../api/game";
 import { MultiplayerSettings } from "../models/gameSettings";
 import MultiplayerSettingsForm from "../../components/game/MultiplayerSettings";
 import { useAuth } from "../../hooks/useAuth";
+import { usePlayerAvailability } from "../../hooks/usePlayerAvailability";
 
 
 export default function MultiplayerCreateRoute() {
@@ -19,13 +20,22 @@ export default function MultiplayerCreateRoute() {
     turnDeadline: 30,
   });
   const requestControllerRef = useRef<AbortController | null>(null);
+  const { availability } = usePlayerAvailability(user);
 
   useEffect(() => {
-     if (!user) {
+    if (!user) {
       navigate("/game");
       return;
     }
-  }, [settings, user]);
+
+    if (availability?.gameId) {
+      if (availability.phase === "PLAY") {
+        navigate(`/game/${availability.gameId}`);
+      } else {
+        navigate(`/multiplayer/lobby/${availability.gameId}`);
+      }
+    }
+  }, [user, availability, navigate]);
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -48,19 +58,12 @@ export default function MultiplayerCreateRoute() {
 
     try {
       const signal = nextSignal();
-      const availability = await checkPlayerAvailability(signal);
-
-
-      if (!availability.ok) {
-        if (!availability.gameId) {
-          setError("Player is busy but no game found.");
-          return;
+      if (availability?.gameId) {
+        if (availability.phase === "PLAY") {
+          navigate(`/game/${availability.gameId}`);
+        } else {
+          navigate(`/multiplayer/lobby/${availability.gameId}`);
         }
-        navigate(
-          availability.phase === "PLAY"
-            ? `/game/${availability.gameId}`
-            : `/multiplayer/lobby/${availability.gameId}`
-        );
         return;
       }
 
