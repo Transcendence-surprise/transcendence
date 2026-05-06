@@ -1,6 +1,7 @@
 import { useAuth } from "../hooks/useAuth";
 import type { User } from "../api/users";
 import { useEffect, useState } from "react";
+import Alert from "../components/shared/Alert";
 import { getAllUsers, deleteUser, setUserTwoFactor } from "../api/users";
 import { checkAllServicesHealth, type ServiceHealth } from "../api/health";
 import AdminServicesSection from "../components/admin/AdminServicesSection";
@@ -8,6 +9,8 @@ import AdminUsersSection from "../components/admin/AdminUsersSection";
 import ActionConfirmationModal, {
   type PendingDeletion,
 } from "../components/shared/ActionConfirmationModal";
+
+type AlertVariant = "info" | "success" | "warning" | "error";
 
 interface PendingTwoFactorChange extends PendingDeletion {
   enabled: boolean;
@@ -18,11 +21,28 @@ export default function AdminPanel() {
   const [users, setUsers] = useState<User[]>([]);
   const [services, setServices] = useState<ServiceHealth[]>([]);
   const [updating2FA, setUpdating2FA] = useState<Record<string, boolean>>({});
-  const [deletingUsers, setDeletingUsers] = useState<Record<string, boolean>>({});
+  const [deletingUsers, setDeletingUsers] = useState<Record<string, boolean>>(
+    {},
+  );
   const [pending2FAChange, setPending2FAChange] =
     useState<PendingTwoFactorChange | null>(null);
   const [pendingUserDeletion, setPendingUserDeletion] =
     useState<PendingDeletion | null>(null);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertTitle, setAlertTitle] = useState("Notice");
+  const [alertVariant, setAlertVariant] = useState<AlertVariant>("info");
+
+  const showAlert = (
+    message: string,
+    title: string = "Notice",
+    variant: AlertVariant = "info",
+  ) => {
+    setAlertMessage(message);
+    setAlertTitle(title);
+    setAlertVariant(variant);
+    setAlertOpen(true);
+  };
 
   const handleToggle2FA = async (id: number | string, enabled: boolean) => {
     const key = String(id);
@@ -37,11 +57,15 @@ export default function AdminPanel() {
         users.map((user) =>
           String(user.id) === String(id)
             ? { ...user, twoFactorEnabled: updated.twoFactorEnabled ?? enabled }
-            : user
-        )
+            : user,
+        ),
       );
     } catch (err: any) {
-      alert(err?.message || "Failed to update 2FA for user.");
+      showAlert(
+        err?.message || "Failed to update 2FA for user.",
+        "2FA Update Failed",
+        "error",
+      );
       console.error(err);
     } finally {
       setUpdating2FA((prev) => ({ ...prev, [key]: false }));
@@ -82,13 +106,11 @@ export default function AdminPanel() {
       setUsers((users) =>
         users.filter(
           (user) =>
-            user.id !== id &&
-            user.id !== String(id) &&
-            user.id !== Number(id)
-        )
+            user.id !== id && user.id !== String(id) && user.id !== Number(id),
+        ),
       );
     } catch (err) {
-      alert("Failed to delete user.");
+      showAlert("Failed to delete user.", "Delete User Failed", "error");
       console.error(err);
     } finally {
       setDeletingUsers((prev) => ({ ...prev, [key]: false }));
@@ -106,7 +128,8 @@ export default function AdminPanel() {
   };
 
   const closeDeleteModal = () => {
-    if (pendingUserDeletion && deletingUsers[String(pendingUserDeletion.id)]) return;
+    if (pendingUserDeletion && deletingUsers[String(pendingUserDeletion.id)])
+      return;
     setPendingUserDeletion(null);
   };
 
@@ -165,12 +188,18 @@ export default function AdminPanel() {
         <h2 className="text-xl font-bold text-icon-red">Access Denied</h2>
         <p className="text-icon-red/80">You do not have admin privileges.</p>
       </div>
-      
     );
   }
 
   return (
     <div className="p-6 space-y-8">
+      <Alert
+        open={alertOpen}
+        title={alertTitle}
+        message={alertMessage}
+        variant={alertVariant}
+        onClose={() => setAlertOpen(false)}
+      />
       <h1 className="text-2xl text-light-cyan font-bold mb-4">Admin Panel</h1>
       <p className="mb-4 text-white">Welcome, {user?.username}!</p>
 
@@ -205,9 +234,7 @@ export default function AdminPanel() {
         }
         note="This will change the security settings for this account."
         loading={
-          pending2FAChange
-            ? updating2FA[String(pending2FAChange.id)]
-            : false
+          pending2FAChange ? updating2FA[String(pending2FAChange.id)] : false
         }
         onCancel={close2FAModal}
         onConfirm={confirmToggle2FA}

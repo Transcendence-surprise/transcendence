@@ -1,19 +1,22 @@
-import { createContext, useCallback, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
 import * as authApi from "../api/authentification";
-import { connectRealtimeSocket, disconnectRealtimeSocket } from "../services/realtimeSocket";
+import {
+  connectRealtimeSocket,
+  disconnectRealtimeSocket,
+} from "../services/realtimeSocket";
 
 export interface AuthContextType {
   user: authApi.User | null;
   loading: boolean;
   refreshUser: () => Promise<authApi.User | null>;
-  login: (
-    username: string,
-    password: string,
-  ) => Promise<authApi.LoginResponse>;
-  loginWith2FA: (
-    email: string,
-    code: string,
-  ) => Promise<authApi.User>;
+  login: (username: string, password: string) => Promise<authApi.LoginResponse>;
+  loginWith2FA: (email: string, code: string) => Promise<authApi.User>;
   signup: (
     username: string,
     email: string,
@@ -79,7 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return u;
       }
 
-      alert(`Welcome, ${u.username}!`);
       setUser(u);
       return u;
     } catch (err: any) {
@@ -93,7 +95,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       const u = await authApi.loginWith2FA(email, code);
-      alert(`Welcome, ${u.username}!`);
       setUser(u);
       return u;
     } catch (err: any) {
@@ -107,7 +108,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       const u = await authApi.signup(username, email, password);
-      alert(`Welcome, ${u.username}!`);
       setUser(u);
       return u;
     } catch (err: any) {
@@ -141,8 +141,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       currentUser ? { ...currentUser, ...updates } : currentUser,
     );
   };
-
-
 
   // Role-based computed values
   const isAdmin = user?.roles?.includes("admin") ?? false;

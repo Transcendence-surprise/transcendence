@@ -64,8 +64,11 @@ export default function Friends() {
 
   if (!user || user.roles.includes("guest")) {
     return (
-      <div>
-        <h2>Login required</h2>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <h2 className="text-3xl font-bold mb-6 text-cyan-400">
+          Login required to access friends list
+        </h2>
+
         <BackButton onClick={() => navigate(-1)} variant="outline" />
       </div>
     );
@@ -94,11 +97,10 @@ export default function Friends() {
               type="text"
               value={friendName}
               onChange={(event) => {
-                setFriendName(event.target.value)
+                setFriendName(event.target.value);
                 setSendError(null);
                 setSendStatus(null);
-              }
-            }
+              }}
               placeholder="Enter username"
               className="w-full rounded-lg border border-[var(--color-border-subtle)] bg-black/30 px-4 py-2 text-white outline-none transition focus:border-cyan-bright"
             />
@@ -106,15 +108,11 @@ export default function Friends() {
           </form>
 
           {sendStatus ? (
-            <p className="mt-3 text-sm text-cyan-300">
-              {sendStatus}
-            </p>
+            <p className="mt-3 text-sm text-cyan-300">{sendStatus}</p>
           ) : null}
 
           {sendError ? (
-            <p className="mt-3 text-sm text-red-300">
-              {sendError}
-            </p>
+            <p className="mt-3 text-sm text-red-300">{sendError}</p>
           ) : null}
         </section>
 
@@ -123,14 +121,16 @@ export default function Friends() {
           <h3 className="text-xl font-semibold text-white">Pending Requests</h3>
 
           {loading ? (
-            <p className="mt-3 text-sm text-gray-400">Loading pending requests...</p>
+            <p className="mt-3 text-sm text-gray-400">
+              Loading pending requests...
+            </p>
           ) : null}
 
           {pageError ? (
             <p className="mt-3 text-sm text-red-300">{pageError}</p>
           ) : null}
 
-           <div className="mt-4 divide-y divide-[var(--color-border-gray)]">
+          <div className="mt-4 divide-y divide-[var(--color-border-gray)]">
             {pendingRequests.length > 0 ? (
               pendingRequests.map((request) => (
                 <div
@@ -154,12 +154,10 @@ export default function Friends() {
                     <button
                       type="button"
                       aria-label={`Accept friend request from ${request.name}`}
-                      onClick={() =>
-                        void handleAccept(request.targetUserId)
-                      }
+                      onClick={() => void handleAccept(request.targetUserId)}
                       className="px-3 py-1.5 text-m font-medium text-green-400 transition hover:scale-125"
                     >
-                     <FaCheck />
+                      <FaCheck />
                     </button>
                     <DeleteActionButton
                       ariaLabel={`Reject friend request from ${request.name}`}
@@ -206,7 +204,9 @@ export default function Friends() {
                       alt={friend.name}
                       className="h-10 w-10 rounded-full border border-[var(--color-border-subtle)] object-cover"
                     />
-                    <span className="font-medium text-white">{friend.name}</span>
+                    <span className="font-medium text-white">
+                      {friend.name}
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-3">

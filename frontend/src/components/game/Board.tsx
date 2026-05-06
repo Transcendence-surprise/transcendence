@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BackButton from "../shared/BackButton";
+import Alert from "../shared/Alert";
 import { Board } from "../../game/models/board";
 import { useGameActions } from "../../hooks/useGameActions";
 import { PlayerState } from "../../game/models/privatState";
@@ -26,6 +27,17 @@ export default function BoardView({
 }: Props) {
   const navigate = useNavigate();
 
+  // --- Alert state ---
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertTitle, setAlertTitle] = useState("Notice");
+
+  const showAlert = (message: string, title: string = "Notice") => {
+    setAlertMessage(message);
+    setAlertTitle(title);
+    setAlertOpen(true);
+  };
+
   // --- Game actions (API driven) ---
   const {
     handleRowClick,
@@ -35,7 +47,7 @@ export default function BoardView({
     handlePlayerAction,
     handleLeaveGame,
     handleSkip,
-  } = useGameActions(gameId, undefined, navigate);
+  } = useGameActions(gameId, undefined, navigate, showAlert);
 
   // Actions
   const handleArrowClick = async (
@@ -57,7 +69,7 @@ export default function BoardView({
   // Swap button pressed
   const handleSwapButton = async () => {
     if (selectedTiles.length !== 2) {
-      alert("Select two tiles to swap!");
+      showAlert("Select two tiles to swap!", "Swap Tiles");
       return;
     }
 
@@ -69,7 +81,7 @@ export default function BoardView({
     const isAdjacent = (dx === 1 && dy === 0) || (dx === 0 && dy === 1);
 
     if (!isAdjacent) {
-      alert("Tiles must be adjacent!");
+      showAlert("Tiles must be adjacent!", "Swap Tiles");
       return;
     }
 
@@ -80,7 +92,7 @@ export default function BoardView({
 
   const handleRotateButton = async () => {
     if (selectedTiles.length !== 1) {
-      alert("Select ONE tile to rotate");
+      showAlert("Select ONE tile to rotate", "Rotate Tile");
       return;
     }
 
@@ -99,6 +111,12 @@ export default function BoardView({
 
   return (
     <div className="flex flex-col items-center gap-3">
+      <Alert
+        open={alertOpen}
+        title={alertTitle}
+        message={alertMessage}
+        onClose={() => setAlertOpen(false)}
+      />
       <div className="w-fit rounded-[1.75rem] border border-[var(--color-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.022),rgba(255,255,255,0.008))] px-5 py-5 shadow-[0_18px_44px_rgba(0,0,0,0.22)]">
         <BoardCanvas
           board={board}
