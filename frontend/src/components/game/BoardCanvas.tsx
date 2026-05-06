@@ -4,6 +4,7 @@ import { Board } from "../../game/models/board";
 import { PlayerState } from "../../game/models/privatState";
 import { useDrawBoard } from "../../hooks/useDrawBoard";
 import { ArrowButton } from "./utils/ArrowButton";
+import Alert from "../shared/Alert";
 import {
   MdOutlineKeyboardArrowDown,
   MdOutlineKeyboardArrowLeft,
@@ -126,6 +127,9 @@ export function BoardCanvas({
   } | null>(null);
   const [movePath, setMovePath] = useState<{ x: number; y: number }[]>([]);
   const [isSubmittingMove, setIsSubmittingMove] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertTitle, setAlertTitle] = useState("Notice");
   const getPlayerAt = (x: number, y: number) =>
     players.find((p) => p.x === x && p.y === y);
   const currentPlayer = players.find(
@@ -144,6 +148,12 @@ export function BoardCanvas({
     setSelectedTiles([]);
   };
 
+  const showAlert = (message: string, title: string = "Notice") => {
+    setAlertMessage(message);
+    setAlertTitle(title);
+    setAlertOpen(true);
+  };
+
   const submitMovePath = async () => {
     if (movePath.length === 0 || isSubmittingMove) return;
     setIsSubmittingMove(true);
@@ -151,7 +161,7 @@ export function BoardCanvas({
       await onPlayerMove(movePath);
       resetMoveSelection();
     } catch (e: any) {
-      alert(e.message || "Move failed");
+      showAlert(e.message || "Move failed", "Move Failed");
     } finally {
       setIsSubmittingMove(false);
     }
@@ -182,7 +192,7 @@ export function BoardCanvas({
       }
 
       if (isPlayerTile) {
-        alert("Target tile is occupied");
+        showAlert("Target tile is occupied");
         return;
       }
 
@@ -193,12 +203,12 @@ export function BoardCanvas({
       const isAdjacent = (dx === 1 && dy === 0) || (dx === 0 && dy === 1);
 
       if (!isAdjacent) {
-        alert("Each step must be adjacent to the previous one");
+        showAlert("Each step must be adjacent to the previous one");
         return;
       }
 
       if (!canMoveOnBoard(board, current, { x, y })) {
-        alert("Path is blocked by walls between these tiles");
+        showAlert("Path is blocked by walls between these tiles");
         return;
       }
 
@@ -223,7 +233,7 @@ export function BoardCanvas({
         currentPlayer &&
         playerAtTile.id.toString() !== currentPlayer.id.toString()
       ) {
-        alert("That is not your player. Please click your own piece to move.");
+        showAlert("That is not your player. Please click your own piece to move.");
         return;
       }
 
@@ -246,6 +256,12 @@ export function BoardCanvas({
 
   return (
     <div className="flex flex-col items-center gap-5">
+      <Alert
+        open={alertOpen}
+        title={alertTitle}
+        message={alertMessage}
+        onClose={() => setAlertOpen(false)}
+      />
       {!isSpectator && (
         <div className="mb-3 w-[600px] max-w-full">
           <div className="rounded-xl border border-[var(--color-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.022),rgba(255,255,255,0.008))] px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.16)]">

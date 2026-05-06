@@ -6,7 +6,8 @@ import { boardModification, leaveGame, playerMove } from "../api/game";
 export function useGameActions(
   gameId: string,
   setSelectedButton: ((id: string) => void) | undefined,
-  navigate: (n: number) => void
+  navigate: (n: number) => void,
+  onAlert?: (message: string, title?: string) => void
 ) {
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -34,7 +35,7 @@ export function useGameActions(
       }, signal);
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
-        alert(err?.message || err);
+        onAlert?.(err?.message || err, "Row Shift Failed");
         console.error(err);
       }
     }
@@ -52,7 +53,7 @@ export function useGameActions(
       }, signal);
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
-        alert(err?.message || err);
+        onAlert?.(err?.message || err, "Column Shift Failed");
         console.error(err);
       }
     }
@@ -68,7 +69,7 @@ export function useGameActions(
       }, signal);
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
-        alert(err?.message || err);
+        onAlert?.(err?.message || err, "Rotate Failed");
         console.error(err);
       }
     }
@@ -86,7 +87,7 @@ export function useGameActions(
       }, signal);
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
-        alert(err?.message || err);
+        onAlert?.(err?.message || err, "Swap Failed");
         console.error(err);
       }
     }
@@ -98,7 +99,7 @@ export function useGameActions(
       await playerMove(gameId, path, false, signal);
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
-        alert(err?.message || err);
+        onAlert?.(err?.message || err, "Move Failed");
         console.error(err);
       }
     }
@@ -110,7 +111,7 @@ export function useGameActions(
       await playerMove(gameId, [], true, signal);
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
-        alert(err?.message || err);
+        onAlert?.(err?.message || err, "Skip Failed");
         console.error(err);
       }
     }
@@ -120,10 +121,10 @@ export function useGameActions(
     try {
       const signal = nextAbortSignal();
       const result = await leaveGame(gameId, signal);
-      if (!result.ok) alert("Error leaving game");
+      if (!result.ok) onAlert?.("Error leaving game", "Leave Game Failed");
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
-        alert(err?.message || err);
+        onAlert?.(err?.message || err, "Leave Game Failed");
         console.error(err);
       }
     } finally {
