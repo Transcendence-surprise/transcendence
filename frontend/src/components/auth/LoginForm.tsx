@@ -130,7 +130,12 @@ export default function LoginForm({
           title={notice.title}
           message={notice.message}
           variant={notice.variant}
-          onClose={() => setNotice(null)}
+          onClose={() => {
+            setNotice(null);
+            if (notice?.variant === "success") {
+              onClose();
+            }
+          }}
         />
       )}
       <div className="relative bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 border border-cyan-500/30 rounded-3xl p-10 w-full max-w-md shadow-2xl shadow-cyan-500/20 max-h-[90vh] overflow-y-auto">
