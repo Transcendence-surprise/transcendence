@@ -2,17 +2,46 @@
 
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { getGameState } from "../../api/game";
-import { usePlayerAvailability } from "../../hooks/usePlayerAvailability";
+import { usePlayerAvailability, type PlayerAvailability } from "../../hooks/usePlayerAvailability";
 
 interface ActiveGamesSectionProps {
-  user: { id?: string } | null;
+  user: { id?: string | number } | null;
+}
+
+function isActiveGame(
+  availability: PlayerAvailability | null,
+): availability is PlayerAvailability & { gameId: string } {
+  return !!availability?.gameId;
 }
 
 export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
   const navigate = useNavigate();
-  const { availability, loading, error } = usePlayerAvailability(user);
+  const { availability, loading, error, hydrated } = usePlayerAvailability(user);
   const [loadingGame, setLoadingGame] = useState(false);
+
+  const hasActiveGame = isActiveGame(availability);
+
+  if (!user) {
+    return (
+      <div className="w-full max-w-md px-4">
+        <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
+          <p className="text-gray-400">
+            You are not logged in. No active games available.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hydrated || loading) {
+    return (
+      <div className="w-full max-w-md px-4">
+        <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
+          <p className="text-gray-400">Checking active games...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -21,50 +50,44 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
       </h2>
 
       {/* Active Games Section */}
-      {availability?.gameId ? (
+      {hasActiveGame ? (
         <div className="w-full max-w-md px-4">
           <div className="space-y-2">
-            <div
-              key={availability.gameId}
-              className="bg-green-500/10 border border-green-500/30 rounded-lg p-3"
-            >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <div>
-                      <p className="text-green-400 font-semibold text-sm">
-                        Game in Progress
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        ID: {availability.gameId.slice(0, 8)}...
-                      </p>
-                    </div>
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3" >
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <div>
+                    <p className="text-green-400 font-semibold text-sm">
+                      Game in Progress
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      ID: {availability.gameId.slice(0, 8)}..
+                    </p>
                   </div>
-                  <button
-                    onClick={async () => {
-                      setLoadingGame(true);
-                      try {
-                        const game = await getGameState(availability.gameId!);
-                        if (game?.phase === "PLAY") {
-                          navigate(`/game/${availability.gameId}`);
-                        } else {
-                          navigate(`/multiplayer/lobby/${availability.gameId}`);
-                        }
-                      } catch (err: any) {
-                        if (err?.name !== "AbortError") {
-                          console.error(err);
-                        }
-                      } finally {
-                        setLoadingGame(false);
-                      }
-                    }}
-                    disabled={loadingGame}
-                    className="px-3 py-1 bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 text-white rounded text-sm transition-colors font-semibold whitespace-nowrap"
-                  >
-                    {loadingGame ? "Loading..." : "Resume"}
-                  </button>
                 </div>
+                <button
+                  onClick={() => {
+                    const gameId = availability.gameId;
+                    setLoadingGame(true);
+
+                    try {
+                      navigate(
+                        availability.phase === "PLAY"
+                          ? `/game/${gameId}`
+                          : `/multiplayer/lobby/${gameId}`,
+                      );
+                    } finally {
+                      setLoadingGame(false);
+                    }
+                  }}
+                  disabled={loadingGame}
+                  className="px-3 py-1 bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 text-white rounded text-sm transition-colors font-semibold whitespace-nowrap"
+                >
+                  {loadingGame ? "Loading..." : "Resume"}
+                </button>
               </div>
+            </div>
           </div>
         </div>
       ) : (

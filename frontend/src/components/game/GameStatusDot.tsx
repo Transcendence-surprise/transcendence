@@ -5,7 +5,7 @@ import StatusDot from "../shared/StatusDot";
 import { usePlayerAvailability } from "../../hooks/usePlayerAvailability";
 
 interface GameStatusDotProps {
-  user: { id?: string } | null;
+  user: { id?: string | number } | null;
 }
 
 export default function GameStatusDot({ user }: GameStatusDotProps) {

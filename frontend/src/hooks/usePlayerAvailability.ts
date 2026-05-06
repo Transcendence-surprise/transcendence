@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { getRealtimeSocket } from "../services/realtimeSocket";
 import { checkPlayerAvailability } from "../api/game";
 
@@ -7,79 +7,70 @@ export interface PlayerAvailability {
   phase?: string;
 }
 
-export function usePlayerAvailability(user: { id?: string } | null) {
+export function usePlayerAvailability(user: { id?: string | number } | null) {
   const [availability, setAvailability] = useState<PlayerAvailability | null>(null);
   const [loading, setLoading] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const controllerRef = useRef<AbortController | null>(null);
-  const inFlightRef = useRef(false);
+  const debounceRef = useRef<any>(null);
 
-  const lastCallRef = useRef(0);
-  const DEBOUNCE_MS = 1500;
+  const load = useCallback(async () => {
+    if (!user) return;
+
+    setLoading(true);
+    setError(null);
+
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+
+    try {
+      const data = await checkPlayerAvailability(controller.signal);
+      setAvailability(data?.gameId ? data : null);
+    } catch (e: any) {
+      if (e?.name !== "AbortError") {
+        setError("Failed to load player status");
+      }
+    } finally {
+      setLoading(false);
+      setHydrated(true);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!user) {
       setAvailability(null);
-      setError(null);
       setLoading(false);
+      setError(null);
+      setHydrated(true);
       return;
     }
 
     const socket = getRealtimeSocket();
+    if (!socket) return;
 
-    if (!socket) {
-      console.error("Socket not initialized");
-      return;
-    }
-
-    // abort previous request if any
-    controllerRef.current?.abort();
-
-    const controller = new AbortController();
-    controllerRef.current = controller;
-
-    const loadStatus = async () => {
-      const now = Date.now();
-
-      if (now - lastCallRef.current < DEBOUNCE_MS) return;
-      lastCallRef.current = now;
-
-      if (inFlightRef.current) return;
-      inFlightRef.current = true;
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const data = await checkPlayerAvailability(controller.signal);
-
-        setAvailability(data?.gameId ? data : null);
-      } catch (e: any) {
-        if (e?.name !== "AbortError") {
-          setError("Failed to load player status");
-        }
-      } finally {
-        setLoading(false);
-        inFlightRef.current = false;
-      }
+    // debounce wrapper (stable)
+    const scheduleReload = () => {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        load();
+      }, 300);
     };
 
-    // Initial load (ONLY ONCE per mount)
-    loadStatus();
+    setLoading(true);
+    // initial load
+    load();
 
-    // Socket-driven refresh
-    const handleUpdate = () => {
-      loadStatus();
-    };
-
-    socket.on("playerAvailability:updated", handleUpdate);
+    socket.on("playerAvailability:updated", scheduleReload);
 
     return () => {
-      controller.abort();
-      socket.off("playerAvailability:updated", handleUpdate);
+      socket.off("playerAvailability:updated", scheduleReload);
+      clearTimeout(debounceRef.current);
+      controllerRef.current?.abort();
     };
-  }, [user]);
+  }, [user?.id, load]);
 
-  return { availability, loading, error };
+  return { availability, loading, error, hydrated };
 }

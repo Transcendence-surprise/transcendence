@@ -103,11 +103,6 @@ export function useDrawBoard(
 
     const width = board.tiles[0]?.length ?? 0;
     const height = board.tiles.length;
-    const isFixedCornerTile = (x: number, y: number) =>
-      (x === 0 && y === 0) ||
-      (x === width - 1 && y === 0) ||
-      (x === 0 && y === height - 1) ||
-      (x === width - 1 && y === height - 1);
 
     const dpr = window.devicePixelRatio || 1;
     canvas.width = width * CELL_SIZE * dpr;
@@ -154,9 +149,9 @@ export function useDrawBoard(
         ctx.restore();
       }
 
-      // Slightly gray-out fixed corner tiles so players can quickly identify
+      // Slightly gray-out fixed tiles so players can quickly identify
       // the immovable board anchors without hiding tile details.
-      if (tile.fixed && isFixedCornerTile(tile.x, tile.y)) {
+      if (tile.fixed) {
         ctx.fillStyle = "rgba(107, 114, 128, 0.28)";
         ctx.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
       }

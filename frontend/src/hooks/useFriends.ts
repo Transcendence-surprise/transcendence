@@ -127,23 +127,23 @@ export function useFriends() {
       socket.emit("presence:subscribe", { userIds: friendIds });
     };
 
-    const handleAvailabilityUpdated = () => {
+    const handleFriendsUpdated = () => {
       void loadData();
     };
 
-    const handleFriendsUpdated = () => {
+    const handlePresenceUpdated = () => {
       void loadData();
     };
 
     if (socket.connected) subscribe();
     socket.on("connect", subscribe);
-    socket.on("playerAvailability:updated", handleAvailabilityUpdated);
     socket.on("friends:update", handleFriendsUpdated);
+    socket.on("presence:updated", handlePresenceUpdated);
 
     return () => {
       socket.off("connect", subscribe);
-      socket.off("playerAvailability:updated", handleAvailabilityUpdated);
       socket.off("friends:update", handleFriendsUpdated);
+      socket.off("presence:updated", handlePresenceUpdated);
       socket.emit("presence:unsubscribe", {
         userIds: friendIdsRef.current,
       });

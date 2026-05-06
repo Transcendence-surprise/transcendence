@@ -2,6 +2,7 @@
 
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import type { AxiosResponse } from 'axios';
 import { lastValueFrom } from 'rxjs';
 import type { FastifyRequest } from 'fastify';
 import { RealtimeGateway } from '../realtime/realtime.gateway';
@@ -131,7 +132,7 @@ export class FriendHttpService {
 		}
 
 		const config = { headers };
-		let response;
+		let response: AxiosResponse<T>;
 
 		if (method === 'get') {
 			response = await lastValueFrom(this.http.get<T>(path, config));

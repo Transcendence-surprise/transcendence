@@ -15,17 +15,14 @@ export function useGameRoom(id: string) {
   const [error, setError] = useState<string | null>(null);
 
   const socketRef = useRef<any>(null);
-  const isFetching = useRef(false);
 
   useEffect(() => {
     if (!id || !user) return;
 
     const controller = new AbortController();
 
-    if (!socketRef.current) {
-      socketRef.current = connectRealtimeSocket();
-    }
-    const socket = socketRef.current;
+    const socket = socketRef.current ?? connectRealtimeSocket();
+    socketRef.current = socket;
 
     setGame(null);
     setLoading(true);
@@ -48,12 +45,11 @@ export function useGameRoom(id: string) {
       };
     };
 
-    const handleUpdate = async ({ gameId }: any) => {
-      if (isFetching.current) return;
-      isFetching.current = true;
+    const handleGameUpdated = async ({ gameId }: any) => {
+      if (gameId !== id) return;
 
       try {
-        const updated = await getGameState(gameId);
+        const updated = await getGameState(gameId, controller.signal);
 
         setGame((prev) => {
           if (!prev) return prev;
@@ -69,8 +65,6 @@ export function useGameRoom(id: string) {
         } else if (e?.name !== "AbortError") {
           setError("Failed to load game");
         }
-      } finally {
-        isFetching.current = false;
       }
     };
 
@@ -80,7 +74,7 @@ export function useGameRoom(id: string) {
         setGame(initial);
 
         socket.emit("game:join", { gameId: id });
-        socket.on("game:updated", handleUpdate);
+        socket.on("game:updated", handleGameUpdated);
       })
       .catch((e) => {
         if (
@@ -95,11 +89,10 @@ export function useGameRoom(id: string) {
       })
       .finally(() => setLoading(false));
 
-    // ✅ cleanup (now works correctly)
     return () => {
       controller.abort();
       socket.emit("game:leave", { gameId: id });
-      socket.off("game:updated", handleUpdate);
+      socket.off("game:updated", handleGameUpdated);
     };
   }, [id, user]);
 
