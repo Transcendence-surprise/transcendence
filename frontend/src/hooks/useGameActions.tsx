@@ -121,14 +121,17 @@ export function useGameActions(
     try {
       const signal = nextAbortSignal();
       const result = await leaveGame(gameId, signal);
-      if (!result.ok) onAlert?.("Error leaving game", "Leave Game Failed");
+      if (!result.ok) {
+        onAlert?.("Error leaving game", "Leave Game Failed");
+        return;
+      }
+
+      navigate(-1);
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
         onAlert?.(err?.message || err, "Leave Game Failed");
         console.error(err);
       }
-    } finally {
-      navigate(-1);
     }
   };
 
