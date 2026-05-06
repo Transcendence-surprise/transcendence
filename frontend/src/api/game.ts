@@ -276,7 +276,25 @@ export async function checkPlayerAvailability(signal?: AbortSignal): Promise<{
     });
 
     if (!res.ok) {
-      throw new Error("Failed to check player availability");
+      const retryAfter = res.headers.get("retry-after");
+      let retryAfterMs: number | undefined;
+
+      if (retryAfter) {
+        const asSeconds = Number(retryAfter);
+        if (!Number.isNaN(asSeconds)) {
+          retryAfterMs = asSeconds * 1000;
+        } else {
+          const asDate = Date.parse(retryAfter);
+          if (!Number.isNaN(asDate)) {
+            retryAfterMs = Math.max(0, asDate - Date.now());
+          }
+        }
+      }
+
+      const error: any = new Error("Failed to check player availability");
+      error.status = res.status;
+      error.retryAfterMs = retryAfterMs;
+      throw error;
     }
 
     return res.json();
