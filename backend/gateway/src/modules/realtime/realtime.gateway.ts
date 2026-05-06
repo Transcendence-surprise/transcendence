@@ -42,14 +42,17 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
       const user = await this.wsAuth.authenticate(client);
       client.user = user;
 
-      const userId = Number(user.sub);
+      const isGuest = Array.isArray(user.roles) && user.roles.includes('guest');
+      const userId = isGuest ? String(user.sub) : Number(user.sub);
 
       await client.join(`user:${userId}`);
       await client.join('chat:global');
 
-      const result = await this.presenceClient.markOnline(userId);
-      if (result) {
-        this.emitter.emitPresenceUpdated(userId, true);
+      if (!isGuest && Number.isInteger(userId as number)) {
+        const result = await this.presenceClient.markOnline(userId as number);
+        if (result) {
+          this.emitter.emitPresenceUpdated(userId as number, true);
+        }
       }
 
       bindGameEvents(this.server, client);
@@ -62,8 +65,12 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   async handleDisconnect(client: TypedSocket) {
+    const roles = client.user?.roles ?? [];
+    const isGuest = Array.isArray(roles) && roles.includes('guest');
+    if (isGuest) return;
+
     const userId = Number(client.user?.sub);
-    if (!userId) return;
+    if (!Number.isInteger(userId) || userId <= 0) return;
 
     const result = await this.presenceClient.markOffline(userId);
     if (result) {
