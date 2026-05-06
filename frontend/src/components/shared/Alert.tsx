@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 
 type AlertVariant = "info" | "success" | "warning" | "error";
 
@@ -51,6 +51,10 @@ export default function Alert({
 }: AlertDialogProps) {
   if (!open) return null;
 
+  const instanceId = useId();
+  const titleId = `${instanceId}-title`;
+  const messageId = `${instanceId}-message`;
+
   const styles = variantStyles[variant];
 
   const handleBackdropClick = () => {
@@ -69,8 +73,8 @@ export default function Alert({
         className={`w-full max-w-md rounded-2xl border ${styles.border} bg-[linear-gradient(180deg,rgba(10,14,25,0.98),rgba(10,14,25,0.92))] p-6 shadow-2xl`}
         role="alertdialog"
         aria-modal="true"
-        aria-labelledby="shared-alert-dialog-title"
-        aria-describedby="shared-alert-dialog-message"
+        aria-labelledby={titleId}
+        aria-describedby={messageId}
         onClick={(event) => event.stopPropagation()}
       >
         <div
@@ -79,17 +83,11 @@ export default function Alert({
           {variant}
         </div>
 
-        <h3
-          id="shared-alert-dialog-title"
-          className={`mt-4 text-xl font-bold ${styles.accent}`}
-        >
+        <h3 id={titleId} className={`mt-4 text-xl font-bold ${styles.accent}`}>
           {title}
         </h3>
 
-        <div
-          id="shared-alert-dialog-message"
-          className="mt-3 text-sm leading-6 text-white/75"
-        >
+        <div id={messageId} className="mt-3 text-sm leading-6 text-white/75">
           {message}
         </div>
 
