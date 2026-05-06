@@ -8,7 +8,7 @@ interface ActiveGamesSectionProps {
   user: { id?: string | number } | null;
 }
 
-function hasActiveGame(
+function isActiveGame(
   availability: PlayerAvailability | null,
 ): availability is PlayerAvailability & { gameId: string } {
   return !!availability?.gameId;
@@ -19,7 +19,7 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
   const { availability, loading, error, hydrated } = usePlayerAvailability(user);
   const [loadingGame, setLoadingGame] = useState(false);
 
-  const hasActiveGame = !!availability?.gameId;
+  const hasActiveGame = isActiveGame(availability);
 
   if (!user) {
     return (
@@ -62,18 +62,18 @@ export default function ActiveGamesSection({ user }: ActiveGamesSectionProps) {
                       Game in Progress
                     </p>
                     <p className="text-xs text-gray-400">
-                      ID: {availability!.gameId!.slice(0, 8)}..
+                      ID: {availability.gameId.slice(0, 8)}..
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => {
-                    const gameId = availability!.gameId!;
+                    const gameId = availability.gameId;
                     setLoadingGame(true);
 
                     try {
                       navigate(
-                        availability!.phase === "PLAY"
+                        availability.phase === "PLAY"
                           ? `/game/${gameId}`
                           : `/multiplayer/lobby/${gameId}`,
                       );
