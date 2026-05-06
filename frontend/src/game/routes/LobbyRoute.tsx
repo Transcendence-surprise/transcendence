@@ -86,11 +86,16 @@ export default function LobbyRoute() {
     const handleLobbyUpdated = async ({ gameId: updatedId }: any) => {
       if (updatedId !== gameId) return;
 
-      const res = await getGameState(gameId);
-      setGame(enrichGamePlayers(res, userById));
+      try {
+        const res = await getGameState(gameId);
+        setGame(enrichGamePlayers(res, userById));
 
-      if (res.phase === "PLAY") {
-        navigate(`/game/${gameId}`);
+        if (res.phase === "PLAY") {
+          navigate(`/game/${gameId}`);
+        }
+      } catch (err: any) {
+        if (err?.name === "AbortError") return;
+        console.error(err);
       }
     };
 
