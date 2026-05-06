@@ -57,7 +57,6 @@ export default function BoardView({
   // Swap button pressed
   const handleSwapButton = async () => {
     if (selectedTiles.length !== 2) {
-      alert("Select two tiles to swap!");
       return;
     }
 
@@ -69,7 +68,6 @@ export default function BoardView({
     const isAdjacent = (dx === 1 && dy === 0) || (dx === 0 && dy === 1);
 
     if (!isAdjacent) {
-      alert("Tiles must be adjacent!");
       return;
     }
 
@@ -80,7 +78,6 @@ export default function BoardView({
 
   const handleRotateButton = async () => {
     if (selectedTiles.length !== 1) {
-      alert("Select ONE tile to rotate");
       return;
     }
 
