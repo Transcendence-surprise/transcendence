@@ -25,6 +25,7 @@ export default function GameContainer({ gameId, user }: Props) {
   const { messages } = useGameMessages(
     gameId,
     userByUsername,
+    "playMessage",
   );
 
   if (loading) return <div>Loading game...</div>;
@@ -69,7 +70,7 @@ export default function GameContainer({ gameId, user }: Props) {
     const socket = getRealtimeSocket(); // get the existing socket instance
     if (!socket || !input.trim() || !gameId) return;
 
-    socket.emit("lobbyMessage", {
+    socket.emit("playMessage", {
       gameId,
       message: input,
     });

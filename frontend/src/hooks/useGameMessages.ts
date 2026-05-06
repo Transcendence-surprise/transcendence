@@ -20,6 +20,7 @@ function enrichLobbyMessage(
 export function useGameMessages(
   gameId: string | undefined,
   userByUsername: Map<string, { id: string; avatarUrl: string | null }>,
+  messageEvent: "lobbyMessage" | "playMessage" = "lobbyMessage",
 ) {
   const [messages, setMessages] = useState<LobbyMessage[]>([]);
   const joinedRef = useRef(false);
@@ -59,15 +60,15 @@ export function useGameMessages(
     if (socket.connected) join();
     else socket.once("connect", join);
 
-    socket.on("lobbyMessage", handleLobbyMessage);
+    socket.on(messageEvent, handleLobbyMessage);
 
     return () => {
-      socket.off("lobbyMessage", handleLobbyMessage);
+      socket.off(messageEvent, handleLobbyMessage);
       socket.off("connect", join);
       socket.emit("game:leave", { gameId });
       joinedRef.current = false;
     };
-  }, [gameId, handleLobbyMessage]);
+  }, [gameId, handleLobbyMessage, messageEvent]);
 
   return { messages, setMessages };
 }
