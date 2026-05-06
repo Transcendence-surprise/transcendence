@@ -23,16 +23,25 @@ export function useGameMessages(
 ) {
   const [messages, setMessages] = useState<LobbyMessage[]>([]);
   const joinedRef = useRef(false);
+  const maxMessagesRef = useRef(200);
 
   const handleLobbyMessage = useCallback(
     (msg: LobbyMessage) => {
-      setMessages((prev) => [
-        ...prev,
-        enrichLobbyMessage(msg, userByUsername),
-      ]);
+      setMessages((prev) => {
+        const next = [...prev, enrichLobbyMessage(msg, userByUsername)];
+        const maxMessages = maxMessagesRef.current;
+
+        if (next.length <= maxMessages) return next;
+        return next.slice(-maxMessages);
+      });
     },
     [userByUsername],
   );
+
+  useEffect(() => {
+    setMessages([]);
+    joinedRef.current = false;
+  }, [gameId]);
 
   useEffect(() => {
     if (!gameId) return;
