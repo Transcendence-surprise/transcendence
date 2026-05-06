@@ -63,6 +63,8 @@ export function useGameMessages(
 
     return () => {
       socket.off("lobbyMessage", handleLobbyMessage);
+      socket.off("connect", join);
+      socket.emit("game:leave", { gameId });
       joinedRef.current = false;
     };
   }, [gameId, handleLobbyMessage]);
