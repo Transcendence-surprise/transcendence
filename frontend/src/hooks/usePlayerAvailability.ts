@@ -56,6 +56,12 @@ export function usePlayerAvailability(user: { id?: string | number } | null) {
           nextAllowedAt = cachedAt + MIN_INTERVAL_MS;
           return cachedAvailability;
         })
+        .catch((e: any) => {
+          if (e?.name === "AbortError") {
+            return cachedAvailability;
+          }
+          throw e;
+        })
         .finally(() => {
           inFlight = null;
         });
