@@ -118,8 +118,8 @@ export class EngineService {
   }
 
   async createGame(
-    hostId: number | string, 
-    nickname:string, 
+    hostId: number | string,
+    nickname:string,
     settings: GameSettings
   ) {
     const state = createGameEngine(hostId, nickname, settings);
@@ -304,10 +304,8 @@ export class EngineService {
       state.endReason = undefined;
       await saveGameToDB(gameId, state, this.persistence);
       this.games.delete(gameId);
-      // console.log(`Game ${gameId} deleted after player left ${playerId}`);
       return { ok: true, deleteGame: true, previousPlayers, previousSpectators };
     }
-    // console.log(`Player ${playerId} left game ${gameId}`);
     return { ok: true, previousPlayers, previousSpectators };
   }
 

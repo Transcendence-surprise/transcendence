@@ -53,7 +53,6 @@ export class BadgeController {
     const userIds = Array.isArray(dto?.userIds) ? dto.userIds : [];
     const value = Number(dto?.value);
     const type = typeof dto?.type === 'string' ? dto.type.trim() : '';
-    console.log('Controller: Received increment request with payload:', { userIds, type, value });
     if (
       !userIds.length ||
       userIds.some(id => !Number.isInteger(id) || id <= 0) ||

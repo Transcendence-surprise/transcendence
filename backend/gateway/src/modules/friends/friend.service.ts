@@ -43,7 +43,6 @@ export class FriendHttpService {
 	async acceptFriendRequest<T = unknown>(body: unknown, req: FastifyRequest): Promise<T> {
 		const result =   await this.request<T>('post', '/api/friends/accept', body, req, true);
     this.notifyFriendsChanged(req, body);
-    console.log('Friend accepted, emitted update');
     return result;
 	}
 
@@ -56,7 +55,6 @@ export class FriendHttpService {
 	async removeFriend<T = unknown>(body: unknown, req: FastifyRequest): Promise<T> {
 		const result =   await this.request<T>('delete', '/api/friends', body, req, true);
     this.notifyFriendsChanged(req, body);
-    console.log('Friend removed, emitted update');
     return result;
 	}
 

@@ -54,11 +54,10 @@ describe('Game Engine', () => {
 
     const state = createGame(123, "HOST1", settings);
 
-    expect(state.phase).toBe('LOBBY');      // multiplayer still starts in lobby
+    expect(state.phase).toBe('LOBBY');
     expect(state.rules.mode).toBe('MULTI');
     expect(state.hostId).toBe(123);
     expect(state.hostName).toBe("HOST1");
-    // console.log("collectibles:", state.players);
     expect(state.players.length).toBe(1);
   });
 });

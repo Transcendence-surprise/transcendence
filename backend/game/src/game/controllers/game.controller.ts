@@ -77,8 +77,8 @@ export class GameController {
     @CurrentUser() user: PlayerContext
   ) : Promise<JoinResponseDto> {
     const result = await this.engine.joinGame(
-      body.gameId, 
-      user.id, 
+      body.gameId,
+      user.id,
       user.username,
       body.role);
     return result;
@@ -95,7 +95,6 @@ export class GameController {
     if (!user.id) {
       throw new UnauthorizedException('User id missing');
     }
-    console.log(`Received board move request for gameId ${body.gameId} from user ${user.id}`);
     const result = await this.engine.boardModification(body.gameId, body.action, user.id);
     return result;
   }
@@ -111,7 +110,6 @@ export class GameController {
       if (!user.id) {
       throw new UnauthorizedException('User id missing');
     }
-    console.log(`Received player move request for gameId ${body.gameId} from user ${user.id}`);
     const action: PlayerAction = {
       path: body.path,
       skip: body.skip || false,

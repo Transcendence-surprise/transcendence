@@ -20,7 +20,6 @@ export class BadgeController {
 	@Auth(AuthType.JWT)
 	@UseGuards(AuthGuard)
 	getUserBadges(@Req() req: FastifyRequest) {
-    console.log('Received request for user badges');
 		return this.badgeClient.getUserBadges(req);
 	}
 }

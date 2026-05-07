@@ -28,7 +28,6 @@ export class ChatService {
   message?: ChatMessage;
   error?: string;
   } {
-    console.log('Adding chat message:', input);
     const content = String(input.content ?? '').trim();
 
     if (!content) {
@@ -61,7 +60,6 @@ export class ChatService {
       this.messages.splice(0, this.messages.length - MAX_CHAT_MESSAGES);
     }
 
-    console.log('Chat message added:', msg);
     return { ok: true, message: msg };
   }
 

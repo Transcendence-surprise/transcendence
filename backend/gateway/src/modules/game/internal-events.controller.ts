@@ -19,7 +19,6 @@ export class InternalEventsController {
   ) {
     const expected = process.env.INTERNAL_SERVICE_KEY;
 
-    console.log('Received internal event:', event);
     if (!key || key !== expected) {
       throw new UnauthorizedException('Invalid internal key');
     }
