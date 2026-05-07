@@ -6,7 +6,6 @@ import type { AxiosResponse } from 'axios';
 import { lastValueFrom } from 'rxjs';
 import type { FastifyRequest } from 'fastify';
 import { RealtimeGateway } from '../realtime/realtime.gateway';
-import type { AxiosResponse } from 'axios';
 
 interface JwtPayload {
 	sub: number | string;
