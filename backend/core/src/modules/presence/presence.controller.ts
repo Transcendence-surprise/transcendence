@@ -4,8 +4,10 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { PresenceService } from './presence.service';
 import { UseGuards } from '@nestjs/common';
 import { InternalGuard } from '../../guards/internal.guard';
+import { ApiExcludeController } from '@nestjs/swagger';
 
 @Controller('presence')
+@ApiExcludeController()
 @UseGuards(InternalGuard)
 export class PresenceController {
   constructor(private readonly presenceService: PresenceService) {}
