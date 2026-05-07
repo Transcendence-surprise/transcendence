@@ -2,28 +2,6 @@
 
 import { rethrowAbortError } from "./requestUtils";
 
-const AUTH_HINT_KEY = "transcendence.auth.hasSession";
-
-function setAuthHint(hasSession: boolean): void {
-  try {
-    if (hasSession) {
-      localStorage.setItem(AUTH_HINT_KEY, "1");
-    } else {
-      localStorage.removeItem(AUTH_HINT_KEY);
-    }
-  } catch {
-    // Ignore storage errors (private mode, disabled storage, etc.)
-  }
-}
-
-export function hasAuthHint(): boolean {
-  try {
-    return localStorage.getItem(AUTH_HINT_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
 export interface User {
   id: number | string;
   username: string;
@@ -48,6 +26,25 @@ export interface TwoFactorRequiredResponse {
 
 export type LoginResponse = User | TwoFactorRequiredResponse;
 
+async function parseErrorMessage(
+  res: Response,
+  fallback: string,
+): Promise<string> {
+  if (res.status === 502 || res.status === 503) {
+    return "Service unavailable.";
+  }
+
+  const text = await res.text();
+  if (!text) return fallback;
+
+  try {
+    const data = JSON.parse(text);
+    return data?.message || data?.error || fallback;
+  } catch {
+    return `${fallback}: ${res.status} ${res.statusText}`;
+  }
+}
+
 export async function signup(
   username: string,
   email: string,
@@ -64,15 +61,14 @@ export async function signup(
     });
 
     if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error?.message || "Signup failed");
+      const message = await parseErrorMessage(res, "Signup failed");
+      throw new Error(message);
     }
 
     const data = await res.json();
     const user = (data?.user ?? data) as User | undefined;
 
     if (user && user.username) {
-      setAuthHint(true);
       return user;
     }
 
@@ -81,7 +77,6 @@ export async function signup(
     if (!refreshed) {
       throw new Error("Signup succeeded but user session is unavailable");
     }
-    setAuthHint(true);
     return refreshed;
   } catch (e: any) {
     rethrowAbortError(e);
@@ -109,8 +104,8 @@ export async function login(
     });
 
     if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error?.message || "Login failed");
+      const message = await parseErrorMessage(res, "Login failed");
+      throw new Error(message);
     }
 
     const data = await res.json();
@@ -120,7 +115,6 @@ export async function login(
     }
 
     const user = (data?.user ?? data) as User;
-    setAuthHint(true);
     return user;
   } catch (e: any) {
     rethrowAbortError(e);
@@ -142,40 +136,33 @@ export async function loginWith2FA(
     });
 
     if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error?.message || "Verification code failed");
+      const message = await parseErrorMessage(res, "Verification code failed");
+      throw new Error(message);
     }
 
     const data = await res.json();
     const user = (data?.user ?? data) as User;
-    setAuthHint(true);
     return user;
   } catch (e: any) {
     rethrowAbortError(e);
   }
 }
 
-export async function getCurrentUser(signal?: AbortSignal): Promise<User>;
-export async function getCurrentUser(
-  signal: AbortSignal | undefined,
-  options: { allowUnauthorized: true },
-): Promise<User | null>;
 export async function getCurrentUser(
   signal?: AbortSignal,
   options?: { allowUnauthorized?: boolean },
 ): Promise<User | null> {
   try {
     const res = await fetch("/api/users/me", { credentials: "include", signal });
+    // 401 = unauthorized, 404 = user deleted
+    if (res.status === 401 || res.status === 404) return null;
+
     if (!res.ok) {
-      // 401 = unauthorized, 404 = user deleted
-      if ((res.status === 401 || res.status === 404) && options?.allowUnauthorized) {
-        setAuthHint(false);
-        return null;
-      }
-      throw new Error("Not logged in");
+      const message = await parseErrorMessage(res, "Failed to fetch user");
+      throw new Error(message);
     }
+
     const data = await res.json();
-    setAuthHint(true);
     return data;
   } catch (e: any) {
     rethrowAbortError(e);
@@ -190,8 +177,9 @@ export async function logout(signal?: AbortSignal): Promise<void> {
       signal,
     });
 
-    if (!res.ok) throw new Error("Logout failed");
-    setAuthHint(false);
+    if (!res.ok && res.status !== 401 && res.status !== 404) {
+      throw new Error("Logout failed");
+    }
   } catch (e: any) {
     rethrowAbortError(e);
   }
@@ -208,12 +196,14 @@ export async function createGuestToken(nickname: string, signal?: AbortSignal): 
     });
 
     if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error?.message || "Guest token creation failed");
+      const message = await parseErrorMessage(res, "Guest token creation failed");
+      throw new Error(message);
     }
 
     const user = await getCurrentUser(signal);
-    setAuthHint(true);
+    if (!user) {
+      throw new Error("Guest token created but user session is unavailable");
+    }
     return user;
   } catch (e: any) {
     rethrowAbortError(e);
@@ -234,8 +224,11 @@ export async function requestPasswordReset(
     });
 
     if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error?.message || "Failed to request password reset");
+      const message = await parseErrorMessage(
+        res,
+        "Failed to request password reset",
+      );
+      throw new Error(message);
     }
 
     return res.json();
@@ -259,8 +252,11 @@ export async function confirmPasswordReset(
     });
 
     if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error?.message || "Failed to confirm password reset");
+      const message = await parseErrorMessage(
+        res,
+        "Failed to confirm password reset",
+      );
+      throw new Error(message);
     }
 
     return res.json();

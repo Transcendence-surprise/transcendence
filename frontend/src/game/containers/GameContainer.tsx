@@ -3,8 +3,12 @@
 import { useNavigate } from "react-router-dom";
 import GameEndModal from "../../components/game/GameEndModal";
 import { useGameRoom } from "../../hooks/useGameRoom";
-import { useGameChat } from "../../hooks/useGameChat";
 import GamePage from "../../pages/GamePage";
+import { useGameMessages } from "../../hooks/useGameMessages";
+import { useUsersMap } from "../../hooks/useUsersMap";
+import { useEffect, useState } from "react";
+import { getRealtimeSocket } from "../../services/realtimeSocket";
+import Alert from "../../components/shared/Alert";
 
 type Props = {
   gameId: string;
@@ -15,11 +19,56 @@ export default function GameContainer({ gameId, user }: Props) {
   const navigate = useNavigate();
 
   const { game, loading, error } = useGameRoom(gameId);
-  const chat = useGameChat(gameId);
+
+  const { userByUsername } = useUsersMap(user);
+  const [input, setInput] = useState("");
+
+  const { messages } = useGameMessages(
+    gameId,
+    userByUsername,
+    "playMessage",
+  );
+
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!error && game) return;
+
+    if (error === "Game not found or has ended." || !game) {
+      setAlertMessage(
+        "This game is no longer available. It may have ended or been removed.",
+      );
+    } else if (error) {
+      setAlertMessage(String(error));
+    }
+
+    setAlertOpen(true);
+  }, [error, game]);
+
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+    navigate("/game");
+  };
 
   if (loading) return <div>Loading game...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!game) return <div>Game not found</div>;
+  if (error || !game) {
+    return (
+      <>
+        <Alert
+          open={alertOpen}
+          title="Game unavailable"
+          message={
+            alertMessage ??
+            "This game is no longer available. It may have ended or been removed."
+          }
+          variant="warning"
+          onClose={handleAlertClose}
+          dismissOnBackdropClick={false}
+        />
+      </>
+    );
+  }
 
   const rawResult = game.gameResult as
     | { winnerIds?: (string | number)[]; winnerId?: string | number }
@@ -50,8 +99,22 @@ export default function GameContainer({ gameId, user }: Props) {
   const didLose = !iWon && (Boolean(endReasonText) || hasWinner);
   const modalVariant = iWon ? "victory" : didLose ? "defeat" : "neutral";
   const modalBadgeLabel = iWon ? "Victory" : didLose ? "Defeat" : "Complete";
-  const modalTitle = iWon ? "You won!" : didLose ? "You lose!" : "Draw";
+  const modalTitle = iWon ? "You won!" : didLose ? "Game finished!" : "Draw";
   const modalWinnerText = winnerNames ? `Winner: ${winnerNames}` : null;
+
+  const sendMessage = () => {
+    if (!input.trim() || !gameId) return;
+
+    const socket = getRealtimeSocket(); // get the existing socket instance
+    if (!socket || !input.trim() || !gameId) return;
+
+    socket.emit("playMessage", {
+      gameId,
+      message: input,
+    });
+
+    setInput("");
+  };
 
   return (
     <>
@@ -59,10 +122,10 @@ export default function GameContainer({ gameId, user }: Props) {
         game={game}
         gameId={gameId}
         userId={user.id}
-        messages={chat.messages}
-        input={chat.input}
-        setInput={chat.setInput}
-        sendMessage={chat.sendMessage}
+        messages={messages}
+        input={input}
+        setInput={setInput}
+        sendMessage={sendMessage}
         showChat={game.players.length > 1}
       />
 

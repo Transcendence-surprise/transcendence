@@ -30,11 +30,17 @@ export class GameHttpService {
     private readonly realtimeGateway: RealtimeGateway,
   ) {}
 
+  private getUserId(req?: FastifyRequest): number | null {
+    const user = (req as RequestWithUser | undefined)?.user;
+    return user?.sub ?? null;
+  }
+
   async createGame(body: unknown, req?: FastifyRequest): Promise<CreateGameResponseDto> {
     const result = await this.request<CreateGameResponseDto>('post', '/api/game/create', body, req);
     if (result?.gameId) {
       this.realtimeGateway.emitter.emitMultiplayerGamesListUpdated();
-      this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated(result.gameId);
+      const userId = this.getUserId(req);
+      if (userId) this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated(userId);
     }
     return result;
   }
@@ -43,7 +49,8 @@ export class GameHttpService {
     const result = await this.request<T>('post', '/api/game/join', body, req);
     if (body?.gameId) {
       this.realtimeGateway.emitter.emitLobbyUpdated(body.gameId);
-      this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated(body.gameId);
+      const userId = this.getUserId(req);
+      if (userId) this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated(userId);
       this.realtimeGateway.emitter.emitMultiplayerGamesListUpdated();
     }
     return result;
@@ -54,7 +61,8 @@ export class GameHttpService {
     if (body?.gameId) {
       this.realtimeGateway.emitter.emitLobbyUpdated(body.gameId);
       this.realtimeGateway.emitter.emitGameUpdated(body.gameId);
-      this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated(body.gameId);
+      const userId = this.getUserId(req);
+      if (userId) this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated(userId);
       this.realtimeGateway.emitter.emitMultiplayerGamesListUpdated();
     }
     return result;
@@ -65,6 +73,8 @@ export class GameHttpService {
     const result = await this.request<T>('post', '/api/game/start', body, req);
     this.realtimeGateway.emitter.emitMultiplayerGamesListUpdated();
     this.realtimeGateway.emitter.emitLobbyUpdated(body.gameId);
+    const userId = this.getUserId(req);
+    if (userId) this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated(userId);
     return result;
   }
 
@@ -97,6 +107,8 @@ export class GameHttpService {
     if (body.gameId) {
       this.realtimeGateway.emitter.emitGameUpdated(body.gameId);
     }
+    const userId = this.getUserId(req);
+    if (userId) this.realtimeGateway.emitter.emitPlayerAvailabilityUpdated(userId);
     return result;
   }
 

@@ -1,53 +1,20 @@
-// // multiplayer lobby
+// src/game/routes/LobbyRoute.tsx
 
 import { useNavigate, useParams } from "react-router-dom";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getRealtimeSocket } from "../../services/realtimeSocket";
 import { getGameState, startGame, leaveGame } from "../../api/game";
 import Lobby from "../../components/game/Lobby";
-import { LobbyMessage } from "../models/lobbyMessage";
 import { useAuth } from "../../hooks/useAuth";
-import { getAllUsers } from "../../api/users";
-
-function enrichLobbyMessage(
-  message: LobbyMessage,
-  userByUsername: Map<string, { id: string; avatarUrl: string | null }>,
-): LobbyMessage {
-  const matchedUser = userByUsername.get(message.userName);
-
-  return {
-    ...message,
-    userId: message.userId ?? matchedUser?.id,
-    avatarUrl: message.avatarUrl ?? matchedUser?.avatarUrl ?? null,
-  };
-}
-
-function enrichGamePlayers(
-  gameState: any,
-  userById: Map<string, { avatarUrl: string | null }>,
-) {
-  if (!gameState || !Array.isArray(gameState.players)) {
-    return gameState;
-  }
-
-  return {
-    ...gameState,
-    players: gameState.players.map((player: any) => ({
-      ...player,
-      avatarUrl:
-        player.avatarUrl ??
-        userById.get(String(player.id))?.avatarUrl ??
-        null,
-    })),
-  };
-}
+import { useGameMessages } from "../../hooks/useGameMessages";
+import { enrichGamePlayers } from "../utils/enrichGamePlayers";
+import { useUsersMap } from "../../hooks/useUsersMap";
 
 export default function LobbyRoute() {
   const navigate = useNavigate();
   const { gameId } = useParams();
   const { user } = useAuth();
 
-  const [messages, setMessages] = useState<LobbyMessage[]>([]);
   const [input, setInput] = useState("");
   const [game, setGame] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -57,11 +24,12 @@ export default function LobbyRoute() {
   const [starting, setStarting] = useState(false);
 
   const fetchControllerRef = useRef<AbortController | null>(null);
-  const lastFetchRef = useRef(0);
 
-  const joinedRef = useRef(false);
-  const userByIdRef = useRef<Map<string, { avatarUrl: string | null }>>(new Map());
-  const userByUsernameRef = useRef<Map<string, { id: string; avatarUrl: string | null }>>(new Map());
+  const { userById, userByUsername } = useUsersMap(user);
+  const { messages } = useGameMessages(
+    gameId,
+    userByUsername,
+  );
 
   const fetchGame = useCallback(async () => {
     if (!gameId) return;
@@ -81,7 +49,7 @@ export default function LobbyRoute() {
         return;
       }
 
-      setGame(enrichGamePlayers(res, userByIdRef.current));
+      setGame(enrichGamePlayers(res, userById));
 
       if (res.phase === "PLAY") {
         navigate(`/game/${gameId}`);
@@ -89,7 +57,10 @@ export default function LobbyRoute() {
     } catch (err: any) {
       if (err?.name === "AbortError") return;
 
-      if (err?.message?.includes("GAME_NOT_FOUND")) {
+      if (
+        err?.message?.includes("GAME_NOT_FOUND") ||
+        err?.message?.includes("PLAYER_NOT_FOUND")
+      ) {
         navigate("/game", {
           state: { message: "Lobby was closed" },
         });
@@ -110,103 +81,42 @@ export default function LobbyRoute() {
   }, [user, gameId, fetchGame, navigate]);
 
   useEffect(() => {
-    if (!user) return;
-
-    const controller = new AbortController();
-
-    getAllUsers(controller.signal)
-      .then((allUsers) => {
-        userByIdRef.current = new Map(
-          allUsers.map((appUser) => [
-            String(appUser.id),
-            { avatarUrl: appUser.avatarUrl ?? null },
-          ]),
-        );
-        userByUsernameRef.current = new Map(
-          allUsers.map((appUser) => [
-            appUser.username,
-            {
-              id: String(appUser.id),
-              avatarUrl: appUser.avatarUrl ?? null,
-            },
-          ]),
-        );
-        setGame((currentGame: any) =>
-          currentGame
-            ? enrichGamePlayers(currentGame, userByIdRef.current)
-            : currentGame,
-        );
-      })
-      .catch((err: any) => {
-        if (err?.name === "AbortError") return;
-        console.error(err);
-      });
-
-    return () => controller.abort();
-  }, [user]);
-
-  // Websocket for update game state
-  const handleLobbyMessage = useCallback((msg: any) => {
-    setMessages((prev) => [
-      ...prev,
-      enrichLobbyMessage(msg, userByUsernameRef.current),
-    ]);
-  }, []);
-
-  useEffect(() => {
-    if (!gameId || !user?.id) {
-      navigate("/game");
-      return;
-    }
+    if (!gameId) return;
 
     const socket = getRealtimeSocket();
+    if (!socket) return;
 
-    if (!socket) {
-      console.error("Socket not initialized");
-      return;
-    }
+    const handleLobbyUpdated = async ({ gameId: updatedId }: any) => {
+      if (updatedId !== gameId) return;
 
-    const join = () => {
-      if (joinedRef.current) return;
-      joinedRef.current = true;
+      try {
+        const res = await getGameState(gameId);
+        setGame(enrichGamePlayers(res, userById));
 
-      socket.emit("game:join", { gameId });
-    };
-
-    if (socket.connected) {
-      join();
-    } else {
-      socket.once("connect", join);
-    }
-
-    const handleLobbyUpdated = (p: { gameId: string }) => {
-      if (p.gameId !== gameId) return;
-
-      const now = Date.now();
-      if (now - lastFetchRef.current < 300) return;
-
-      lastFetchRef.current = now;
-      fetchGame();
-    };
-
-    const handleError = (err: any) => {
-      setError(err.error || "Failed to join lobby");
+        if (res.phase === "PLAY") {
+          navigate(`/game/${gameId}`);
+        }
+      } catch (err: any) {
+        if (err?.name === "AbortError") return;
+        if (
+          err?.message?.includes("PLAYER_NOT_FOUND") ||
+          err?.message?.includes("GAME_NOT_FOUND")
+        ) {
+          navigate("/game", {
+            state: { message: "Lobby was closed" },
+          });
+          return;
+        }
+        console.error(err);
+      }
     };
 
     socket.on("lobby:updated", handleLobbyUpdated);
-    socket.on("lobbyMessage", handleLobbyMessage);
-    socket.on("error", handleError);
 
     return () => {
-      fetchControllerRef.current?.abort();
-      joinedRef.current = false;
-
-      socket.off("connect", join);
       socket.off("lobby:updated", handleLobbyUpdated);
-      socket.off("lobbyMessage", handleLobbyMessage);
-      socket.off("error", handleError);
     };
-  }, [gameId, user, fetchGame, navigate, handleLobbyMessage]);
+  }, [gameId, userById, navigate]);
 
   // Start game (host only)
   const handleStart = async () => {
@@ -278,11 +188,11 @@ export default function LobbyRoute() {
   if (!game) return <div>Loading...</div>;
 
   return (
-        <Lobby
-          game={game}
-          currentUserId={user?.id}
-          onGameStarted={handleStart}
-          onGameLeave={handleLeave}
+    <Lobby
+      game={game}
+      currentUserId={user?.id}
+      onGameStarted={handleStart}
+      onGameLeave={handleLeave}
       error={startError}
       starting={starting}
       leaveError={leaveError}

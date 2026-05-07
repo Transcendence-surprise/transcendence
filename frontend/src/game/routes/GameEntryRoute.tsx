@@ -1,7 +1,8 @@
 //user selects single/multiplayer
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Alert from "../../components/shared/Alert";
 import GameModePicker from "../../components/game/GameModePicker";
 import GuestOrAuthModal from "../../components/auth/GuestOrAuthModal";
 import { useAuth } from "../../hooks/useAuth";
@@ -14,6 +15,15 @@ export default function GameEntryRoute() {
   const [selectedMode, setSelectedMode] = useState<"single" | "multi" | null>(
     null,
   );
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertTitle, setAlertTitle] = useState("Notice");
+
+  const showAlert = (message: string, title: string = "Notice") => {
+    setAlertMessage(message);
+    setAlertTitle(title);
+    setAlertOpen(true);
+  };
 
   const openModal = (mode: "single" | "multi") => {
     // If user already logged in
@@ -38,14 +48,20 @@ export default function GameEntryRoute() {
       setShowModal(false);
       handleContinue();
     } catch (err: any) {
-      alert(err.message || "Failed to continue as guest");
+      showAlert(err.message || "Failed to continue as guest", "Guest Login Failed");
     }
   };
 
   return (
     <div className="w-full h-full min-h-0 bg-bg-dark text-white font-sans flex items-center justify-center px-4 py-2">
+      <Alert
+        open={alertOpen}
+        title={alertTitle}
+        message={alertMessage}
+        onClose={() => setAlertOpen(false)}
+      />
       <div className="w-full max-w-5xl flex flex-col items-center gap-8">
-        <ActiveGamesSection user={user ? { username: user.username } : null} />
+        <ActiveGamesSection user={user ? { id: user.id } : null} />
 
         <GameModePicker
           onSelectSingle={() => openModal("single")}

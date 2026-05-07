@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
+import Alert from "../shared/Alert";
 
 interface SignupFormProps {
   onClose: () => void;
@@ -19,6 +20,11 @@ export default function SignupForm({
   });
   const [guestNickname, setGuestNickname] = useState("");
   const [authError, setAuthError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{
+    title: string;
+    message: string;
+    variant: "info" | "success" | "warning" | "error";
+  } | null>(null);
 
   const { signup, continueAsGuest } = useAuth();
 
@@ -42,7 +48,11 @@ export default function SignupForm({
         formData.email,
         formData.password,
       );
-      onClose();
+      setNotice({
+        title: "Account created",
+        message: `Welcome, ${data.username}!`,
+        variant: "success",
+      });
     } catch (err: any) {
       if (err?.name === "AbortError") {
         return;
@@ -75,20 +85,47 @@ export default function SignupForm({
 
   const handleContinueAsGuest = async () => {
     if (!guestNickname.trim()) {
-      alert("Please enter a nickname");
+      setNotice({
+        title: "Guest sign-in",
+        message: "Please enter a nickname.",
+        variant: "warning",
+      });
       return;
     }
 
     try {
-      await continueAsGuest(guestNickname.trim());
-      onClose();
+      const guestUser = await continueAsGuest(guestNickname.trim());
+      setNotice({
+        title: "Guest sign-in successful",
+        message: `Welcome, ${guestUser.username}!`,
+        variant: "success",
+      });
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to continue as guest");
+      setNotice({
+        title: "Guest sign-in failed",
+        message:
+          err instanceof Error ? err.message : "Failed to continue as guest",
+        variant: "error",
+      });
     }
   };
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-purple-900/50 via-black/90 to-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      {notice && (
+        <Alert
+          open
+          title={notice.title}
+          message={notice.message}
+          variant={notice.variant}
+          onClose={() => {
+            setNotice(null);
+            if (notice?.variant === "success") {
+              onClose();
+            }
+          }}
+        />
+      )}
       <div className="relative bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 border border-cyan-500/30 rounded-3xl p-10 w-full max-w-md shadow-2xl shadow-cyan-500/20 max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}

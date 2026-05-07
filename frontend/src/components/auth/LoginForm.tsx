@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
+import Alert from "../shared/Alert";
 
 interface LoginFormProps {
   onClose: () => void;
@@ -20,6 +21,11 @@ export default function LoginForm({
   const [isTwoFactorStep, setIsTwoFactorStep] = useState(false);
   const [twoFactorEmail, setTwoFactorEmail] = useState("");
   const [authError, setAuthError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{
+    title: string;
+    message: string;
+    variant: "info" | "success" | "warning" | "error";
+  } | null>(null);
 
   const { login, loginWith2FA, continueAsGuest, loading } = useAuth();
 
@@ -34,7 +40,11 @@ export default function LoginForm({
         }
 
         await loginWith2FA(twoFactorEmail, formData.code.trim());
-        onClose();
+        setNotice({
+          title: "Login successful",
+          message: "You are now signed in.",
+          variant: "success",
+        });
         return;
       }
 
@@ -47,7 +57,11 @@ export default function LoginForm({
         return;
       }
 
-      onClose();
+      setNotice({
+        title: "Login successful",
+        message: `Welcome, ${result.username}!`,
+        variant: "success",
+      });
     } catch (err: any) {
       if (err?.name === "AbortError") {
         return;
@@ -76,15 +90,28 @@ export default function LoginForm({
 
   const handleContinueAsGuest = async () => {
     if (!guestNickname.trim()) {
-      alert("Please enter a nickname");
+      setNotice({
+        title: "Guest sign-in",
+        message: "Please enter a nickname.",
+        variant: "warning",
+      });
       return;
     }
 
     try {
-      await continueAsGuest(guestNickname.trim());
-      onClose();
+      const guestUser = await continueAsGuest(guestNickname.trim());
+      setNotice({
+        title: "Guest sign-in successful",
+        message: `Welcome, ${guestUser.username}!`,
+        variant: "success",
+      });
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to continue as guest");
+      setNotice({
+        title: "Guest sign-in failed",
+        message:
+          err instanceof Error ? err.message : "Failed to continue as guest",
+        variant: "error",
+      });
     }
   };
 
@@ -97,6 +124,20 @@ export default function LoginForm({
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-purple-900/50 via-black/90 to-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      {notice && (
+        <Alert
+          open
+          title={notice.title}
+          message={notice.message}
+          variant={notice.variant}
+          onClose={() => {
+            setNotice(null);
+            if (notice?.variant === "success") {
+              onClose();
+            }
+          }}
+        />
+      )}
       <div className="relative bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 border border-cyan-500/30 rounded-3xl p-10 w-full max-w-md shadow-2xl shadow-cyan-500/20 max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
@@ -255,7 +296,11 @@ export default function LoginForm({
             disabled={loading}
             className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50"
           >
-            {loading ? "Please wait..." : isTwoFactorStep ? "Verify code" : "Login"}
+            {loading
+              ? "Please wait..."
+              : isTwoFactorStep
+                ? "Verify code"
+                : "Login"}
           </button>
 
           {isTwoFactorStep && (

@@ -1,10 +1,11 @@
 // src/routes/MultiplayerJoinRoute.tsx
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMultiplayerGames, joinGame, checkPlayerAvailability } from "../../api/game";
+import { getMultiplayerGames, joinGame } from "../../api/game";
+import { usePlayerAvailability } from "../../hooks/usePlayerAvailability";
 import { MultiGame } from "../models/multiGames";
 import JoinTable from "../../components/game/Join";
-import { getRealtimeSocket, connectRealtimeSocket } from "../../services/realtimeSocket";
+import { getRealtimeSocket } from "../../services/realtimeSocket";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function MultiplayerJoinRoute() {
@@ -14,6 +15,7 @@ export default function MultiplayerJoinRoute() {
   const [games, setGames] = useState<MultiGame[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { availability } = usePlayerAvailability(user);
 
   const fetchGames = useCallback(async () => {
     try {
@@ -32,6 +34,18 @@ export default function MultiplayerJoinRoute() {
 
     fetchGames().finally(() => setLoading(false));
   }, [user, fetchGames]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    if (availability?.gameId) {
+      if (availability.phase === "PLAY") {
+        navigate(`/game/${availability.gameId}`);
+      } else {
+        navigate(`/multiplayer/lobby/${availability.gameId}`);
+      }
+    }
+  }, [user, availability, navigate]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -60,14 +74,7 @@ export default function MultiplayerJoinRoute() {
     const controller = new AbortController();
     try {
       setLoading(true);
-
-      const availability = await checkPlayerAvailability(controller.signal);
-
-      if (!availability.ok) {
-        if (!availability.gameId) {
-          setError("Player is busy but no game found.");
-          return;
-        }
+      if (availability?.gameId) {
         if (availability.phase === "PLAY") {
           navigate(`/game/${availability.gameId}`);
         } else {
@@ -92,6 +99,14 @@ export default function MultiplayerJoinRoute() {
     const controller = new AbortController();
     try {
       setLoading(true);
+      if (availability?.gameId) {
+        if (availability.phase === "PLAY") {
+          navigate(`/game/${availability.gameId}`);
+        } else {
+          navigate(`/multiplayer/lobby/${availability.gameId}`);
+        }
+        return;
+      }
       await joinGame(gameId, "SPECTATOR", controller.signal);
       navigate(`/game/${gameId}`);
     } catch (err: any) {

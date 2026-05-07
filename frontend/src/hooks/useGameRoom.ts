@@ -15,17 +15,23 @@ export function useGameRoom(id: string) {
   const [error, setError] = useState<string | null>(null);
 
   const socketRef = useRef<any>(null);
-  const isFetching = useRef(false);
+  const inFlightRef = useRef(false);
+  const pendingRef = useRef(false);
+  const lastFetchAtRef = useRef(0);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelledRef = useRef(false);
+
+  const MIN_UPDATE_INTERVAL_MS = 300;
+  const DEBOUNCE_MS = 150;
 
   useEffect(() => {
     if (!id || !user) return;
 
     const controller = new AbortController();
+    cancelledRef.current = false;
 
-    if (!socketRef.current) {
-      socketRef.current = connectRealtimeSocket();
-    }
-    const socket = socketRef.current;
+    const socket = socketRef.current ?? connectRealtimeSocket();
+    socketRef.current = socket;
 
     setGame(null);
     setLoading(true);
@@ -48,12 +54,24 @@ export function useGameRoom(id: string) {
       };
     };
 
-    const handleUpdate = async ({ gameId }: any) => {
-      if (isFetching.current) return;
-      isFetching.current = true;
+    const fetchLatest = async (gameId: string) => {
+      if (inFlightRef.current) {
+        pendingRef.current = true;
+        return;
+      }
+
+      const now = Date.now();
+      const sinceLast = now - lastFetchAtRef.current;
+      if (sinceLast < MIN_UPDATE_INTERVAL_MS) {
+        pendingRef.current = true;
+        return;
+      }
+
+      inFlightRef.current = true;
+      lastFetchAtRef.current = now;
 
       try {
-        const updated = await getGameState(gameId);
+        const updated = await getGameState(gameId, controller.signal);
 
         setGame((prev) => {
           if (!prev) return prev;
@@ -70,8 +88,24 @@ export function useGameRoom(id: string) {
           setError("Failed to load game");
         }
       } finally {
-        isFetching.current = false;
+        inFlightRef.current = false;
+        if (cancelledRef.current || controller.signal.aborted) return;
+        if (pendingRef.current) {
+          pendingRef.current = false;
+          if (debounceRef.current) clearTimeout(debounceRef.current);
+          debounceRef.current = setTimeout(() => {
+            fetchLatest(gameId);
+          }, DEBOUNCE_MS);
+        }
       }
+    };
+
+    const handleGameUpdated = async ({ gameId }: any) => {
+      if (gameId !== id) return;
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        fetchLatest(gameId);
+      }, DEBOUNCE_MS);
     };
 
     getGameState(id, controller.signal)
@@ -80,7 +114,7 @@ export function useGameRoom(id: string) {
         setGame(initial);
 
         socket.emit("game:join", { gameId: id });
-        socket.on("game:updated", handleUpdate);
+        socket.on("game:updated", handleGameUpdated);
       })
       .catch((e) => {
         if (
@@ -95,11 +129,16 @@ export function useGameRoom(id: string) {
       })
       .finally(() => setLoading(false));
 
-    // ✅ cleanup (now works correctly)
     return () => {
+      cancelledRef.current = true;
+      pendingRef.current = false;
       controller.abort();
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+      }
       socket.emit("game:leave", { gameId: id });
-      socket.off("game:updated", handleUpdate);
+      socket.off("game:updated", handleGameUpdated);
     };
   }, [id, user]);
 

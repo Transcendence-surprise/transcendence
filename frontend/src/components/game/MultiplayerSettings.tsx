@@ -22,18 +22,6 @@ export default function MultiplayerSettingsForm({
   error,
   loading,
 }: Props) {
-  const normalizeTurnDeadline = (value: string) => {
-    if (value.trim() === "") {
-      return undefined;
-    }
-
-    const parsed = Number(value);
-    if (!Number.isFinite(parsed)) {
-      return settings.turnDeadline ?? 30;
-    }
-
-    return Math.min(300, Math.max(30, parsed));
-  };
 
   const inputClassName =
     "w-full rounded-lg border border-[var(--color-border-subtle)] bg-bg-dark px-4 py-2.5 text-base text-white transition-colors focus:border-cyan-300 focus:outline-none sm:w-24";
@@ -149,18 +137,23 @@ export default function MultiplayerSettingsForm({
               label="Move Time Limit"
               hint="Time available for each turn before the move expires."
             >
-              <input
-                type="number"
-                min={30}
-                max={300}
-                className={inputClassName}
+              <CustomSelect
+                className="w-full sm:min-w-[112px] sm:w-auto"
                 value={settings.turnDeadline ?? 30}
-                onChange={(e) =>
+                onChange={(value) =>
                   onChange({
                     ...settings,
-                    turnDeadline: normalizeTurnDeadline(e.target.value),
+                    turnDeadline: value,
                   })
                 }
+                options={[
+                  { label: "30s", value: 30 },
+                  { label: "1min", value: 60 },
+                  { label: "1.5min", value: 90 },
+                  { label: "2min", value: 120 },
+                  { label: "2.5min", value: 150 },
+                  { label: "3min", value: 180 },
+                ]}
               />
             </SettingsField>
             <SettingsField

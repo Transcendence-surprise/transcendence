@@ -153,5 +153,4 @@ export class AuthController {
       reply.header('set-cookie', cookies);
     }
   }
-
 }

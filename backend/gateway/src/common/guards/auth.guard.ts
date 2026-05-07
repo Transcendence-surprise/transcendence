@@ -70,10 +70,19 @@ export class AuthGuard implements CanActivate {
 
     try {
       const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
-      // Verify user still exists in core service (check for deletion)
-      const userExists = await this.checkUserExists(payload.sub as number);
-      if (!userExists) {
-        throw new UnauthorizedException('User account has been deleted');
+      const isGuest = Array.isArray(payload.roles) && payload.roles.includes('guest');
+
+      if (!isGuest) {
+        const numericId = Number(payload.sub);
+        if (!Number.isInteger(numericId) || numericId <= 0) {
+          throw new UnauthorizedException('Invalid user id in token');
+        }
+
+        // Verify user still exists in core service (check for deletion)
+        const userExists = await this.checkUserExists(numericId);
+        if (!userExists) {
+          throw new UnauthorizedException('User account has been deleted');
+        }
       }
 
       (request as RequestWithUser).user = payload;

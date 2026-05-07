@@ -21,6 +21,7 @@ services:
   gateway:
     build:
       target: development
+    restart: unless-stopped
     container_name: gateway-dev
     ports:
       - "3002:3002"

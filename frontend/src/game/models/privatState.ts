@@ -46,6 +46,10 @@ export interface PrivateGameState {
       maxMoves?: number;
       levelLimitSec?: number;
     };
+    exitPoints?: {
+      x: number;
+      y: number;
+    }[];
   };                                  // optional level details for single-player constraints display
   hostName: string;                   // game owner nickname
   hostId?: string | number;
