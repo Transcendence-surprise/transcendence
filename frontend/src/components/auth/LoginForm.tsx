@@ -127,7 +127,12 @@ export default function LoginForm({
 
   return (
     <>
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/50 via-black/90 to-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div
+        className="fixed inset-0 bg-gradient-to-br from-purple-900/50 via-black/90 to-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="login-modal-title"
+      >
         {notice && (
           <Alert
             open
@@ -144,15 +149,17 @@ export default function LoginForm({
         )}
         <div className="relative bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 border border-cyan-500/30 rounded-3xl p-10 w-full max-w-md shadow-2xl shadow-cyan-500/20 max-h-[90vh] overflow-y-auto">
         <button
+          type="button"
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl"
+          aria-label="Close"
         >
           <RxCross2 />
         </button>
 
 
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-3">Welcome Back</h1>
+          <h1 id="login-modal-title" className="text-4xl font-bold text-white mb-3">Welcome Back</h1>
           <p className="text-gray-400 text-lg">Sign in to your account</p>
         </div>
 

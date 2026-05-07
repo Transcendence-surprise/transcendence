@@ -30,7 +30,7 @@ export default function ForgotPasswordModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
       <div className="bg-bg-dark rounded-xl border border-[var(--color-border-subtle)] p-6 max-w-md w-full">
-        <h3 className="text-2xl font-bold text-white mb-4">Forgot Password ?</h3>
+        <h3 className="text-2xl font-bold text-white mb-4">Forgot Password?</h3>
 
         {success && (
           <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500 text-green-300 text-sm">

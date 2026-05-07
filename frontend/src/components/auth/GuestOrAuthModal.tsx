@@ -1,6 +1,7 @@
 import { useState } from "react";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
+import { RxCross2 } from "react-icons/rx";
 
 interface Props {
   onClose: () => void;
@@ -38,17 +39,23 @@ export default function GuestOrAuthModal({
     );
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="guest-auth-modal-title"
+    >
       <div className="relative w-full max-w-3xl bg-bg-dark text-text-white font-sans border border-[var(--color-border-subtle)] rounded-xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto">
         <button
+          type="button"
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-text-white text-2xl"
           aria-label="Close"
         >
-          ×
+          <RxCross2 />
         </button>
 
-        <h2 className="text-3xl md:text-4xl font-bold text-center">
+        <h2 id="guest-auth-modal-title" className="text-3xl md:text-4xl font-bold text-center">
           Choose How to Play
         </h2>
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
