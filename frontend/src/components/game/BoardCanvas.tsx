@@ -193,11 +193,6 @@ export function BoardCanvas({
         return;
       }
 
-      if (isPlayerTile) {
-        showAlert("Target tile is occupied");
-        return;
-      }
-
       const current =
         movePath.length > 0 ? movePath[movePath.length - 1] : selectedPlayer;
       const dx = Math.abs(current.x - x);
