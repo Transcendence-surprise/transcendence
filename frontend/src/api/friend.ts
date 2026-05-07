@@ -137,16 +137,16 @@ export async function resolveUserIdByUsername(
 
 	const matched = users.find((u) => u.username === trimmed);
 	if (!matched) {
-		throw new Error("User not found");
+		throw new Error("USER_NOT_FOUND");
 	}
 
 	const isGuest = matched.roles?.includes("guest") ?? false;
 	if (isGuest) {
-		throw new Error("You can only add registered users");
+		throw new Error("ONLY_REGISTERED_USERS");
 	}
 
 	if (currentUserId !== undefined && matched.id === currentUserId) {
-		throw new Error("You cannot send a request to yourself");
+		throw new Error("CANNOT_FRIEND_SELF");
 	}
 
 	return matched.id;

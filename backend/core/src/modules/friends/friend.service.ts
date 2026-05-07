@@ -1,5 +1,11 @@
 
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FriendStatus } from '@transcendence/db-entities';
@@ -27,13 +33,13 @@ export class FriendService {
 
   async sendRequest(currentUserId: number, targetUserId: number) {
     if (currentUserId === targetUserId)
-      throw new Error('Cannot friend yourself');
+      throw new BadRequestException('CANNOT_FRIEND_SELF');
 
     const existing = await this.findPair(currentUserId, targetUserId);
 
     if (existing) {
       if (existing.status === FriendStatus.ACCEPTED)
-        throw new Error('Already friends');
+        throw new ConflictException('ALREDY_FRIEND');
 
       if (existing.status === FriendStatus.PENDING) {
         if (existing.requestedBy === currentUserId) {
@@ -46,10 +52,10 @@ export class FriendService {
             existing.receiverId = targetUserId;
             await this.repo.save(existing);
           }
-          throw new Error('Request already exists');
+          throw new ConflictException('REQUEST_ALREADY_EXISTS');
         }
 
-        throw new Error('This user already sent you a request');
+        throw new ConflictException('REQUEST_ALREADY_SENT_TO_YOU');
       }
 
       if (existing.status === FriendStatus.REJECTED) {
@@ -88,10 +94,10 @@ export class FriendService {
     });
 
     if (!friendship)
-      throw new Error('Request not found');
+      throw new NotFoundException('REQUEST_NOT_FOUND');
 
     if (friendship.requestedBy !== otherUserId) {
-      throw new Error('Not authorized');
+      throw new ForbiddenException('NOT_AUTHORIZED');
     }
 
     friendship.status = FriendStatus.REJECTED;
@@ -117,10 +123,10 @@ export class FriendService {
     });
 
     if (!friendship)
-      throw new Error('Request not found');
+      throw new NotFoundException('REQUEST_NOT_FOUND');
 
     if (friendship.requestedBy !== otherUserId) {
-      throw new Error('Not authorized');
+      throw new ForbiddenException('NOT_AUTHORIZED');
     }
 
     friendship.status = FriendStatus.ACCEPTED;
@@ -135,13 +141,13 @@ export class FriendService {
     const friendship = await this.findPair(userId, otherUserId);
 
     if (!friendship)
-      throw new Error('Friendship not found');
+      throw new NotFoundException('FRIENDSHIP_NOT_FOUND');
 
     if (
       friendship.requesterId !== userId &&
       friendship.receiverId !== userId
     ) {
-      throw new Error('Not authorized');
+      throw new ForbiddenException('NOT_AUTHORIZED');
     }
 
     await this.repo.remove(friendship);

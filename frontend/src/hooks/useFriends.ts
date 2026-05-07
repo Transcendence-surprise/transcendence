@@ -59,6 +59,68 @@ export function useFriends() {
     [friendIds],
   );
 
+  const extractErrorCode = (error: unknown): string | null => {
+    const message = error instanceof Error ? error.message : null;
+    if (!message) return null;
+
+    const upper = message.toUpperCase();
+    const knownCodes = [
+      "ALREDY_FRIEND",
+      "REQUEST_ALREADY_EXISTS",
+      "REQUEST_ALREADY_SENT_TO_YOU",
+      "CANNOT_FRIEND_SELF",
+      "USER_NOT_FOUND",
+      "ONLY_REGISTERED_USERS",
+      "REQUEST_NOT_FOUND",
+      "NOT_AUTHORIZED",
+      "FRIENDSHIP_NOT_FOUND",
+    ];
+
+    const matched = knownCodes.find((code) => upper.includes(code));
+    return matched ?? message;
+  };
+
+  const getSendErrorMessage = (code: string | null): string => {
+    switch (code) {
+      case "ALREDY_FRIEND":
+        return "You are already friends with this user.";
+      case "REQUEST_ALREADY_EXISTS":
+        return "Friend request already sent.";
+      case "REQUEST_ALREADY_SENT_TO_YOU":
+        return "This user already sent you a request.";
+      case "CANNOT_FRIEND_SELF":
+        return "You cannot add yourself.";
+      case "USER_NOT_FOUND":
+        return "User not found.";
+      case "ONLY_REGISTERED_USERS":
+        return "You can only add registered users.";
+      default:
+        return "Failed to send friend request.";
+    }
+  };
+
+  const getPendingActionErrorMessage = (code: string | null): string => {
+    switch (code) {
+      case "REQUEST_NOT_FOUND":
+        return "Request no longer exists.";
+      case "NOT_AUTHORIZED":
+        return "You are not allowed to perform this action.";
+      default:
+        return "Failed to process request.";
+    }
+  };
+
+  const getRemoveFriendErrorMessage = (code: string | null): string => {
+    switch (code) {
+      case "FRIENDSHIP_NOT_FOUND":
+        return "Friendship no longer exists.";
+      case "NOT_AUTHORIZED":
+        return "You are not allowed to remove this friend.";
+      default:
+        return "Failed to remove friend.";
+    }
+  };
+
   const loadData = useCallback(async () => {
     if (!user || user.roles.includes("guest")) return;
     if (isLoadingRef.current) return;
@@ -161,8 +223,8 @@ export function useFriends() {
       await sendFriendRequestByUsername(name);
       setSendStatus(`Friend request sent to ${name}`);
       return true;
-    } catch {
-      setSendError("Failed to send friend request");
+    } catch (e) {
+      setSendError(getSendErrorMessage(extractErrorCode(e)));
       return false;
     }
   };
@@ -174,7 +236,7 @@ export function useFriends() {
       await acceptFriendRequest(id);
       await loadData();
     } catch (e) {
-      setPendingActionError("Failed to accept friend request");
+      setPendingActionError(getPendingActionErrorMessage(extractErrorCode(e)));
     }
   };
 
@@ -185,7 +247,7 @@ export function useFriends() {
       await rejectFriendRequest(id);
       await loadData();
     } catch (e) {
-      setPendingActionError("Failed to reject friend request");
+      setPendingActionError(getPendingActionErrorMessage(extractErrorCode(e)));
     }
   };
 
@@ -196,7 +258,7 @@ export function useFriends() {
       await removeFriend(id);
       await loadData();
     } catch (e) {
-      setRemoveFriendError("Failed to remove friend");
+      setRemoveFriendError(getRemoveFriendErrorMessage(extractErrorCode(e)));
     }
   };
 
