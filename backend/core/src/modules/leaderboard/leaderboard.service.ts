@@ -86,6 +86,7 @@ async getAllTimeLeaderboard(limit = 100): Promise<LeaderboardEntryDto[]> {
         JOIN games g ON g.id = gp.game_id
         WHERE g.phase = 'END'
           AND g.type = 'MULTI'
+          AND gp.registered_user_id IS NOT NULL
         GROUP BY gp.registered_user_id
       ) ranked
       WHERE "userId" = $1

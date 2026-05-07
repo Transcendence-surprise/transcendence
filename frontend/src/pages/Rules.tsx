@@ -74,7 +74,7 @@ const TILE_DETAILS: {
 		title: "Exit Point",
 		subtitle: "Goal",
 		description:
-			"If a level has an exit, the exit tile. Reach it to complete the objective.",
+			"If a level has an exit, its tile is highlighted. Reach it to complete the objective.",
 		color: "#FACC15",
 	},
 ];

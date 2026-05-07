@@ -2,7 +2,7 @@ import { LevelMeta } from "../models/levelMeta";
 
 export const Puzzle01Meta: LevelMeta = {
   id: "puzzle-01",
-  name: "1. Lets start!",
+  name: "1. Let's start!",
 
   objectives: [
     { type: "COLLECT_ALL", amount: 3 }

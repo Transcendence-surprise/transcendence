@@ -39,7 +39,7 @@ export class FriendService {
 
     if (existing) {
       if (existing.status === FriendStatus.ACCEPTED)
-        throw new ConflictException('ALREDY_FRIEND');
+        throw new ConflictException('ALREADY_FRIEND');
 
       if (existing.status === FriendStatus.PENDING) {
         if (existing.requestedBy === currentUserId) {

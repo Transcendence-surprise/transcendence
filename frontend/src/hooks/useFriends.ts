@@ -65,7 +65,7 @@ export function useFriends() {
 
     const upper = message.toUpperCase();
     const knownCodes = [
-      "ALREDY_FRIEND",
+        "ALREADY_FRIEND",
       "REQUEST_ALREADY_EXISTS",
       "REQUEST_ALREADY_SENT_TO_YOU",
       "CANNOT_FRIEND_SELF",
@@ -82,7 +82,7 @@ export function useFriends() {
 
   const getSendErrorMessage = (code: string | null): string => {
     switch (code) {
-      case "ALREDY_FRIEND":
+        case "ALREADY_FRIEND":
         return "You are already friends with this user.";
       case "REQUEST_ALREADY_EXISTS":
         return "Friend request already sent.";
