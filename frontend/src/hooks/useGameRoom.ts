@@ -15,6 +15,13 @@ export function useGameRoom(id: string) {
   const [error, setError] = useState<string | null>(null);
 
   const socketRef = useRef<any>(null);
+  const inFlightRef = useRef(false);
+  const pendingRef = useRef(false);
+  const lastFetchAtRef = useRef(0);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const MIN_UPDATE_INTERVAL_MS = 300;
+  const DEBOUNCE_MS = 150;
 
   useEffect(() => {
     if (!id || !user) return;
@@ -45,8 +52,21 @@ export function useGameRoom(id: string) {
       };
     };
 
-    const handleGameUpdated = async ({ gameId }: any) => {
-      if (gameId !== id) return;
+    const fetchLatest = async (gameId: string) => {
+      if (inFlightRef.current) {
+        pendingRef.current = true;
+        return;
+      }
+
+      const now = Date.now();
+      const sinceLast = now - lastFetchAtRef.current;
+      if (sinceLast < MIN_UPDATE_INTERVAL_MS) {
+        pendingRef.current = true;
+        return;
+      }
+
+      inFlightRef.current = true;
+      lastFetchAtRef.current = now;
 
       try {
         const updated = await getGameState(gameId, controller.signal);
@@ -65,7 +85,24 @@ export function useGameRoom(id: string) {
         } else if (e?.name !== "AbortError") {
           setError("Failed to load game");
         }
+      } finally {
+        inFlightRef.current = false;
+        if (pendingRef.current) {
+          pendingRef.current = false;
+          if (debounceRef.current) clearTimeout(debounceRef.current);
+          debounceRef.current = setTimeout(() => {
+            fetchLatest(gameId);
+          }, DEBOUNCE_MS);
+        }
       }
+    };
+
+    const handleGameUpdated = async ({ gameId }: any) => {
+      if (gameId !== id) return;
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        fetchLatest(gameId);
+      }, DEBOUNCE_MS);
     };
 
     getGameState(id, controller.signal)
@@ -91,6 +128,10 @@ export function useGameRoom(id: string) {
 
     return () => {
       controller.abort();
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+      }
       socket.emit("game:leave", { gameId: id });
       socket.off("game:updated", handleGameUpdated);
     };

@@ -61,7 +61,7 @@ export default function GameContainer({ gameId, user }: Props) {
   const didLose = !iWon && (Boolean(endReasonText) || hasWinner);
   const modalVariant = iWon ? "victory" : didLose ? "defeat" : "neutral";
   const modalBadgeLabel = iWon ? "Victory" : didLose ? "Defeat" : "Complete";
-  const modalTitle = iWon ? "You won!" : didLose ? "You lose!" : "Draw";
+  const modalTitle = iWon ? "You won!" : didLose ? "Game finished!" : "Draw";
   const modalWinnerText = winnerNames ? `Winner: ${winnerNames}` : null;
 
   const sendMessage = () => {
