@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import Alert from "../shared/Alert";
+import ForgotPasswordModal from "./ForgotPasswordModal";
+import { RxCross2 } from "react-icons/rx";
 
 interface LoginFormProps {
   onClose: () => void;
@@ -20,6 +22,7 @@ export default function LoginForm({
   const [guestNickname, setGuestNickname] = useState("");
   const [isTwoFactorStep, setIsTwoFactorStep] = useState(false);
   const [twoFactorEmail, setTwoFactorEmail] = useState("");
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [notice, setNotice] = useState<{
     title: string;
@@ -123,31 +126,33 @@ export default function LoginForm({
   };
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-purple-900/50 via-black/90 to-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      {notice && (
-        <Alert
-          open
-          title={notice.title}
-          message={notice.message}
-          variant={notice.variant}
-          onClose={() => {
-            setNotice(null);
-            if (notice?.variant === "success") {
-              onClose();
-            }
-          }}
-        />
-      )}
-      <div className="relative bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 border border-cyan-500/30 rounded-3xl p-10 w-full max-w-md shadow-2xl shadow-cyan-500/20 max-h-[90vh] overflow-y-auto">
+    <>
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/50 via-black/90 to-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        {notice && (
+          <Alert
+            open
+            title={notice.title}
+            message={notice.message}
+            variant={notice.variant}
+            onClose={() => {
+              setNotice(null);
+              if (notice?.variant === "success") {
+                onClose();
+              }
+            }}
+          />
+        )}
+        <div className="relative bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 border border-cyan-500/30 rounded-3xl p-10 w-full max-w-md shadow-2xl shadow-cyan-500/20 max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl"
         >
-          ×
+          <RxCross2 />
         </button>
 
+
         <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-white mb-3">Welcome Back</h1>
+          <h1 className="text-4xl font-bold text-white mb-3">Welcome Back</h1>
           <p className="text-gray-400 text-lg">Sign in to your account</p>
         </div>
 
@@ -285,6 +290,7 @@ export default function LoginForm({
             </label>
             <button
               type="button"
+              onClick={() => setShowForgotPasswordModal(true)}
               className="text-cyan-400 hover:text-cyan-300 transition-colors"
             >
               Forgot password?
@@ -402,7 +408,13 @@ export default function LoginForm({
             Sign up
           </button>
         </p>
+        </div>
       </div>
-    </div>
+
+      <ForgotPasswordModal
+        isOpen={showForgotPasswordModal}
+        onClose={() => setShowForgotPasswordModal(false)}
+      />
+    </>
   );
 }
