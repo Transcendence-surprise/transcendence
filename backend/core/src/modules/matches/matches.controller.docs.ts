@@ -5,7 +5,8 @@ import {
   ApiOkResponse,
   ApiCreatedResponse,
   ApiParam,
-  ApiBody
+  ApiBody,
+  ApiSecurity
 } from '@nestjs/swagger';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { UpdateMatchDto } from './dto/update-match.dto';
@@ -42,6 +43,7 @@ const FindMatchByIdDocs = () =>
 
 const CreateMatchDocs = () =>
   applyDecorators(
+    ApiSecurity('API Key'),
     ApiOperation({
       summary: 'Create a match',
       description: 'Create a new match record',
@@ -53,6 +55,7 @@ const CreateMatchDocs = () =>
 
 const UpdateMatchDocs = () =>
   applyDecorators(
+    ApiSecurity('API Key'),
     ApiOperation({
       summary: 'Update a match',
       description: 'Update an existing match by id',
@@ -70,6 +73,7 @@ const UpdateMatchDocs = () =>
 
 const PartialUpdateMatchDocs = () =>
   applyDecorators(
+    ApiSecurity('API Key'),
     ApiOperation({
       summary: 'Partial update a match',
       description: 'Partially update an existing match by id',
@@ -87,6 +91,7 @@ const PartialUpdateMatchDocs = () =>
 
 const DeleteMatchDocs = () =>
   applyDecorators(
+    ApiSecurity('API Key'),
     ApiOperation({
       summary: 'Delete a match',
       description: 'Delete a match by its id',
@@ -103,6 +108,7 @@ const DeleteMatchDocs = () =>
 
 const LatestMatchesDocs = () =>
   applyDecorators(
+    ApiSecurity('JWT'),
     ApiOperation({
       summary: 'Get user latest matches',
       description: 'Retrieve the latest matches of the authenticated user',
