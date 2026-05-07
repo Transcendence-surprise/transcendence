@@ -224,19 +224,17 @@ export function BoardCanvas({
 
     // --- SELECT PLAYER ---
     if (isPlayerTile) {
-      const playerAtTile = getPlayerAt(x, y);
-      if (
-        playerAtTile &&
-        currentPlayer &&
-        playerAtTile.id.toString() !== currentPlayer.id.toString()
-      ) {
-        showAlert("That is not your player. Please click your own piece to move.");
+      const isCurrentPlayerClicked =
+        currentPlayer?.x === x && currentPlayer?.y === y;
+
+      if (isCurrentPlayerClicked) {
+        setSelectedPlayer({ x, y });
+        setMovePath([]);
+        setSelectedTiles([]);
         return;
       }
 
-      setSelectedPlayer({ x, y });
-      setMovePath([]);
-      setSelectedTiles([]);
+      // ignore all other players completely
       return;
     }
 
