@@ -14,8 +14,8 @@ import type { FastifyReply } from 'fastify';
 import { AuthHttpService } from './auth.service';
 import { OAuth42Params } from '../../common/decorator/oauth42-params.decorator';
 import { CreateGuestTokenDto } from './dto/create-guest-token.dto';
-import { Auth, AuthType } from 'src/common/decorator/auth-type.decorator';
-import { AuthGuard } from 'src/common/guards/auth.guard';
+import { Auth, AuthType } from '../../common/decorator/auth-type.decorator';
+import { AuthGuard } from '../../common/guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
