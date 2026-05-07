@@ -18,7 +18,7 @@ export const Puzzle07Meta: LevelMeta = {
   ],
 
   collectibles: [
-    { id: "C01", x: 2, y: 0 },
+    { id: "C01", x: 2, y: 1 },
     { id: "C02", x: 0, y: 2 },
     { id: "C03", x: 3, y: 3 }
   ]

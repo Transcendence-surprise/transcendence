@@ -27,6 +27,6 @@ export const Puzzle04Meta: LevelMeta = {
     { id: "C01", x: 2, y: 0 },
     { id: "C02", x: 0, y: 4 },
     { id: "C03", x: 4, y: 4 },
-    { id: "C04", x: 5, y: 2 } // bait again 😏
+    { id: "C04", x: 5, y: 2 } // bait again
   ]
 };

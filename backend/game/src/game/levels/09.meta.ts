@@ -15,7 +15,7 @@ export const Puzzle09Meta: LevelMeta = {
   },
 
   startingPoints: [
-    { slotId: "P1", x: 0, y: 3 }
+    { slotId: "P1", x: 0, y: 0 }
   ],
 
   exitPoints: [
