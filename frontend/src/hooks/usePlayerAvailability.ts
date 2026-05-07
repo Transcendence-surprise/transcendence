@@ -7,7 +7,7 @@ export interface PlayerAvailability {
   phase?: string;
 }
 
-const MIN_INTERVAL_MS = 10000;
+const MIN_INTERVAL_MS = 1000;
 let cachedAvailability: PlayerAvailability | null = null;
 let cachedAt = 0;
 let nextAllowedAt = 0;

@@ -109,8 +109,7 @@ export default function Profile() {
         <div>
           <h2 className="text-4xl font-bold text-white">{displayName}</h2>
           <p className="text-base text-gray-400 mt-1">
-            Rank {rankNumber} • {winStreak} wins
-            streak
+             {rankNumber ? `Rank ${rankNumber}` : 'Unranked'} • {winStreak} wins streak
           </p>
           {user?.avatarUrl ? (
             <p className="text-sm mt-2">

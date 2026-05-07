@@ -81,6 +81,7 @@ export type BoardCanvasProps = {
   board: Board;
   players: PlayerState[];
   currentPlayerId: string | number;
+  exitPoints?: { x: number; y: number }[];
   selectedTiles: { x: number; y: number }[];
   setSelectedTiles: React.Dispatch<
     React.SetStateAction<{ x: number; y: number }[]>
@@ -104,6 +105,7 @@ export function BoardCanvas({
   board,
   players,
   currentPlayerId,
+  exitPoints,
   selectedTiles,
   setSelectedTiles,
   onArrowClick,
@@ -119,7 +121,7 @@ export function BoardCanvas({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Draw board and players, highlight selected tiles
-  useDrawBoard(canvasRef, board, players, selectedTiles);
+  useDrawBoard(canvasRef, board, players, selectedTiles, exitPoints);
 
   const [selectedPlayer, setSelectedPlayer] = useState<{
     x: number;
@@ -191,11 +193,6 @@ export function BoardCanvas({
         return;
       }
 
-      if (isPlayerTile) {
-        showAlert("Target tile is occupied");
-        return;
-      }
-
       const current =
         movePath.length > 0 ? movePath[movePath.length - 1] : selectedPlayer;
       const dx = Math.abs(current.x - x);
@@ -227,19 +224,17 @@ export function BoardCanvas({
 
     // --- SELECT PLAYER ---
     if (isPlayerTile) {
-      const playerAtTile = getPlayerAt(x, y);
-      if (
-        playerAtTile &&
-        currentPlayer &&
-        playerAtTile.id.toString() !== currentPlayer.id.toString()
-      ) {
-        showAlert("That is not your player. Please click your own piece to move.");
+      const isCurrentPlayerClicked =
+        currentPlayer?.x === x && currentPlayer?.y === y;
+
+      if (isCurrentPlayerClicked) {
+        setSelectedPlayer({ x, y });
+        setMovePath([]);
+        setSelectedTiles([]);
         return;
       }
 
-      setSelectedPlayer({ x, y });
-      setMovePath([]);
-      setSelectedTiles([]);
+      // ignore all other players completely
       return;
     }
 

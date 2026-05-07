@@ -27,8 +27,8 @@ import { GuardModule } from './common/guards/internal.guard.module';
     ThrottlerModule.forRoot({
       throttlers: [
         {
-          ttl: seconds(10),
-          limit: 10,
+          ttl: seconds(5),
+          limit: 20,
         },
       ],
     }),

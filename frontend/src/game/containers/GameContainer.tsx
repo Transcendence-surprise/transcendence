@@ -6,8 +6,9 @@ import { useGameRoom } from "../../hooks/useGameRoom";
 import GamePage from "../../pages/GamePage";
 import { useGameMessages } from "../../hooks/useGameMessages";
 import { useUsersMap } from "../../hooks/useUsersMap";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getRealtimeSocket } from "../../services/realtimeSocket";
+import Alert from "../../components/shared/Alert";
 
 type Props = {
   gameId: string;
@@ -28,9 +29,46 @@ export default function GameContainer({ gameId, user }: Props) {
     "playMessage",
   );
 
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!error && game) return;
+
+    if (error === "Game not found or has ended." || !game) {
+      setAlertMessage(
+        "This game is no longer available. It may have ended or been removed.",
+      );
+    } else if (error) {
+      setAlertMessage(String(error));
+    }
+
+    setAlertOpen(true);
+  }, [error, game]);
+
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+    navigate("/game");
+  };
+
   if (loading) return <div>Loading game...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!game) return <div>Game not found</div>;
+  if (error || !game) {
+    return (
+      <>
+        <Alert
+          open={alertOpen}
+          title="Game unavailable"
+          message={
+            alertMessage ??
+            "This game is no longer available. It may have ended or been removed."
+          }
+          variant="warning"
+          onClose={handleAlertClose}
+          dismissOnBackdropClick={false}
+        />
+      </>
+    );
+  }
 
   const rawResult = game.gameResult as
     | { winnerIds?: (string | number)[]; winnerId?: string | number }
@@ -61,7 +99,7 @@ export default function GameContainer({ gameId, user }: Props) {
   const didLose = !iWon && (Boolean(endReasonText) || hasWinner);
   const modalVariant = iWon ? "victory" : didLose ? "defeat" : "neutral";
   const modalBadgeLabel = iWon ? "Victory" : didLose ? "Defeat" : "Complete";
-  const modalTitle = iWon ? "You won!" : didLose ? "You lose!" : "Draw";
+  const modalTitle = iWon ? "You won!" : didLose ? "Game finished!" : "Draw";
   const modalWinnerText = winnerNames ? `Winner: ${winnerNames}` : null;
 
   const sendMessage = () => {

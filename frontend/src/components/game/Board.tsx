@@ -13,6 +13,7 @@ type Props = {
   players: PlayerState[];
   currentPlayerId: string | number;
   gameId: string;
+  exitPoints?: { x: number; y: number }[];
   boardActionsPending?: boolean;
   isSpectator?: boolean;
 };
@@ -22,6 +23,7 @@ export default function BoardView({
   players,
   currentPlayerId,
   gameId,
+  exitPoints,
   boardActionsPending = false,
   isSpectator = false,
 }: Props) {
@@ -122,6 +124,7 @@ export default function BoardView({
           board={board}
           players={players}
           currentPlayerId={currentPlayerId}
+          exitPoints={exitPoints}
           selectedTiles={selectedTiles}
           setSelectedTiles={setSelectedTiles}
           onArrowClick={handleArrowClick}

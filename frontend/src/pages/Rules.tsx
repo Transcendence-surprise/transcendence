@@ -12,7 +12,7 @@ import {
 } from "react-icons/gi";
 import { MdOutlineDangerous } from "react-icons/md";
 
-type RuleTileType = "L" | "I" | "T" | "X" | "W" | "FIXED";
+type RuleTileType = "L" | "I" | "T" | "X" | "W" | "FIXED" | "EXIT";
 
 const TILE_DETAILS: {
   type: RuleTileType;
@@ -66,19 +66,29 @@ const TILE_DETAILS: {
     title: "Fixed Tile",
     subtitle: "Locked",
     description:
-      "A fixed tile stays in place and cannot be shifted. It may have the shape of any path tile, but its position on the board is locked.",
+			"A fixed tile stays in place and cannot be shifted. It may have the shape of any path tile.",
     color: "#9CA3AF",
   },
+	{
+		type: "EXIT",
+		title: "Exit Point",
+		subtitle: "Goal",
+		description:
+			"If a level has an exit, its tile is highlighted. Reach it to complete the objective.",
+		color: "#FACC15",
+	},
 ];
 
 function tileSvgDataUri(type: RuleTileType) {
-  const svg =
-    type === "FIXED"
-      ? TILE_SVGS.L
-          .replace(/#5c90f6/g, "#9CA3AF")
-      : TILE_SVGS[type];
+	const svg = type === "FIXED" || type === "EXIT" ? TILE_SVGS.L : TILE_SVGS[type];
 
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+function tileBackgroundColor(type: RuleTileType) {
+	if (type === "FIXED") return "rgba(107, 114, 128, 0.28)";
+	if (type === "EXIT") return "rgba(255, 214, 102, 0.25)";
+	return "transparent";
 }
 
 function TileImage({
@@ -87,11 +97,16 @@ function TileImage({
   type: RuleTileType;
 }) {
   return (
-    <img
-      src={tileSvgDataUri(type)}
-      alt={`${type} tile`}
-      className="h-[68px] w-[68px] shrink-0"
-    />
+		<div
+			className="flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-lg"
+			style={{ backgroundColor: tileBackgroundColor(type) }}
+		>
+			<img
+				src={tileSvgDataUri(type)}
+				alt={`${type} tile`}
+				className="h-[68px] w-[68px]"
+			/>
+		</div>
   );
 }
 
@@ -195,6 +210,9 @@ export default function Rules() {
 			  <p className="mt-4 text-sm">
 				<strong>Rotation:</strong> All tiles can be rotated 90°, 180°, or 270° to change their orientation. 
 				In multiplayer mode, corner tiles are fixed and cannot be rotated.
+			  </p>
+			  <p className="text-sm text-white/80">
+				<strong>Exit points:</strong> If a level has an exit, its tile is highlighted with a subtle yellow tint.
 			  </p>
 			</div>
 		  </section>

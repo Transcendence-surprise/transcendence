@@ -26,6 +26,25 @@ export interface TwoFactorRequiredResponse {
 
 export type LoginResponse = User | TwoFactorRequiredResponse;
 
+async function parseErrorMessage(
+  res: Response,
+  fallback: string,
+): Promise<string> {
+  if (res.status === 502 || res.status === 503) {
+    return "Service unavailable.";
+  }
+
+  const text = await res.text();
+  if (!text) return fallback;
+
+  try {
+    const data = JSON.parse(text);
+    return data?.message || data?.error || fallback;
+  } catch {
+    return `${fallback}: ${res.status} ${res.statusText}`;
+  }
+}
+
 export async function signup(
   username: string,
   email: string,
@@ -42,8 +61,8 @@ export async function signup(
     });
 
     if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error?.message || "Signup failed");
+      const message = await parseErrorMessage(res, "Signup failed");
+      throw new Error(message);
     }
 
     const data = await res.json();
@@ -85,8 +104,8 @@ export async function login(
     });
 
     if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error?.message || "Login failed");
+      const message = await parseErrorMessage(res, "Login failed");
+      throw new Error(message);
     }
 
     const data = await res.json();
@@ -117,8 +136,8 @@ export async function loginWith2FA(
     });
 
     if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error?.message || "Verification code failed");
+      const message = await parseErrorMessage(res, "Verification code failed");
+      throw new Error(message);
     }
 
     const data = await res.json();
@@ -139,7 +158,8 @@ export async function getCurrentUser(
     if (res.status === 401 || res.status === 404) return null;
 
     if (!res.ok) {
-      throw new Error("Failed to fetch user");
+      const message = await parseErrorMessage(res, "Failed to fetch user");
+      throw new Error(message);
     }
 
     const data = await res.json();
@@ -176,8 +196,8 @@ export async function createGuestToken(nickname: string, signal?: AbortSignal): 
     });
 
     if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error?.message || "Guest token creation failed");
+      const message = await parseErrorMessage(res, "Guest token creation failed");
+      throw new Error(message);
     }
 
     const user = await getCurrentUser(signal);
@@ -204,8 +224,11 @@ export async function requestPasswordReset(
     });
 
     if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error?.message || "Failed to request password reset");
+      const message = await parseErrorMessage(
+        res,
+        "Failed to request password reset",
+      );
+      throw new Error(message);
     }
 
     return res.json();
@@ -229,8 +252,11 @@ export async function confirmPasswordReset(
     });
 
     if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error?.message || "Failed to confirm password reset");
+      const message = await parseErrorMessage(
+        res,
+        "Failed to confirm password reset",
+      );
+      throw new Error(message);
     }
 
     return res.json();

@@ -1,6 +1,7 @@
 const STATUS_REDIRECTS: Record<number, string> = {
   400: '/400',
   403: '/403',
+  404: '/404',
   500: '/500',
   502: '/502',
   503: '/503',
@@ -25,7 +26,7 @@ function resolvePathFromRequest(input: RequestInfo | URL): string {
 
 function shouldRedirectForRequest(input: RequestInfo | URL): boolean {
   const path = resolvePathFromRequest(input);
-  return path.startsWith('/api/') && path !== '/api/health';
+  return path.startsWith('/api/') && !path.endsWith('/health');
 }
 
 function redirectToErrorPage(status: number): void {
@@ -37,6 +38,10 @@ function redirectToErrorPage(status: number): void {
   if (window.location.pathname !== target) {
     window.location.replace(target);
   }
+}
+
+function shouldRedirectForStatus(status: number): boolean {
+  return status in STATUS_REDIRECTS;
 }
 
 export function installGlobalApiErrorHandling(): void {
@@ -63,7 +68,7 @@ export function installGlobalApiErrorHandling(): void {
       const response = await originalFetch(input, init);
 
       if (shouldRedirectForRequest(input) && !response.ok) {
-        if (response.status >= 700) {
+        if (shouldRedirectForStatus(response.status)) {
           redirectToErrorPage(response.status);
         }
       }
