@@ -4,6 +4,7 @@ import { BadgeControllerDocs } from './badge.controller.docs';
 import { CurrentUser } from '../../decorators/current-user.decorator';
 import type { JwtPayload } from '../../decorators/current-user.decorator';
 import { InternalGuard } from '../../guards/internal.guard';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 
 interface BadgeUnlockDto {
@@ -34,6 +35,7 @@ export class BadgeController {
   }
 
   @Post('internal/unlock')
+  @ApiExcludeEndpoint()
   async unlockByKey(@Body() dto: BadgeUnlockDto) {
     const userId = Number(dto?.userId);
     if (!Number.isInteger(userId) || userId <= 0 || typeof dto?.key !== 'string' || !dto.key.trim()) {
@@ -45,6 +47,7 @@ export class BadgeController {
   }
 
   @Post('internal/increment')
+  @ApiExcludeEndpoint()
   @UseGuards(InternalGuard)
   async increment(@Body() dto: BadgeIncrementDto) {
     const userIds = Array.isArray(dto?.userIds) ? dto.userIds : [];

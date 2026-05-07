@@ -1,14 +1,14 @@
 // src/modules/badges/badge.controller.docs.ts
 
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { BadgeDto } from './dto/badge.dto';
 import { UserBadgeDto } from './dto/badge.dto';
 
 export const BadgeControllerDocs = {
   getAllBadges() {
     return applyDecorators(
-      ApiTags('Badges'),
+      ApiTags('Badge'),
       ApiOperation({ summary: 'Get all badges' }),
       ApiResponse({
         status: 200,
@@ -20,7 +20,8 @@ export const BadgeControllerDocs = {
 
   getUserBadges() {
     return applyDecorators(
-      ApiTags('Badges'),
+      ApiTags('Badge'),
+      ApiSecurity('JWT'),
       ApiOperation({ summary: 'Get user unlocked badges' }),
       ApiResponse({
         status: 200,

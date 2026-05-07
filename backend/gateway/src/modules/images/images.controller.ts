@@ -68,8 +68,7 @@ export class ImagesController {
 
   @Post()
   @Auth(AuthType.JWT_OR_API_KEY)
-  @Roles(['user', 'admin'])
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard)
   @HttpCode(201)
   async create(
     @Body() body: unknown,

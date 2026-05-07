@@ -9,7 +9,6 @@ import gatewayConfig from '../../common/config/gateway.config';
 export class AuthHttpService {
   constructor(
     @Inject(gatewayConfig.KEY)
-    private readonly config: ConfigType<typeof gatewayConfig>,
     private readonly http: HttpService
   ) {}
   async login<T = unknown>(body: unknown) {
@@ -119,7 +118,6 @@ export class AuthHttpService {
           params: { token },
       }),
     );
-
     return res.data;
   }
 
@@ -147,18 +145,17 @@ export class AuthHttpService {
   }
 
   async createGuestToken(nickname: string): Promise<{ ok: boolean; cookies: string[] }> {
-    // call auth-service
     const res = await lastValueFrom(
       this.http.post<{ ok: boolean }>(
-        '/api/auth/guest-token',  // endpoint on auth-service
+        '/api/auth/guest-token',
         { nickname },
-        { withCredentials: true }, // so auth-service cookie comes back
+        { withCredentials: true },
       ),
     );
 
     return {
       ok: res.data.ok,
-      cookies: this.extractCookies(res), // parse Set-Cookie headers from auth-service
+      cookies: this.extractCookies(res),
     };
   }
 
