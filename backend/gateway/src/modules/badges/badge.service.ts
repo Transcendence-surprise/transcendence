@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import type { FastifyRequest } from 'fastify';
+import type { AxiosResponse } from 'axios';
 
 interface JwtPayload {
 	sub: number;
@@ -78,31 +79,32 @@ export class BadgeHttpService {
       headers['content-type'] = 'application/json';
     }
 
-    const config = { headers };
+		const config = { headers };
+		let res: AxiosResponse<T> | undefined;
 
-    let res;
+		switch (method) {
+			case 'get':
+				res = await lastValueFrom(this.http.get<T>(path, config));
+				break;
+			case 'delete':
+				res = await lastValueFrom(this.http.delete<T>(path, config));
+				break;
+			case 'post':
+				res = await lastValueFrom(this.http.post<T>(path, body, config));
+				break;
+			case 'put':
+				res = await lastValueFrom(this.http.put<T>(path, body, config));
+				break;
+			case 'patch':
+				res = await lastValueFrom(this.http.patch<T>(path, body, config));
+				break;
+			default:
+				throw new Error(`Unsupported method`);
+		}
 
-    switch (method) {
-      case 'get':
-        res = await lastValueFrom(this.http.get<T>(path, config));
-        break;
-
-      case 'delete':
-        res = await lastValueFrom(this.http.delete<T>(path, config));
-        break;
-
-      case 'post':
-        res = await lastValueFrom(this.http.post<T>(path, body, config));
-        break;
-
-      case 'put':
-        res = await lastValueFrom(this.http.put<T>(path, body, config));
-        break;
-
-      case 'patch':
-        res = await lastValueFrom(this.http.patch<T>(path, body, config));
-        break;
-    }
+		if (!res) {
+			throw new Error('No response from badges service');
+		}
 
     return {
       statusCode: res.status,

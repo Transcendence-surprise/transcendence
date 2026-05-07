@@ -100,18 +100,25 @@ export class SwapTilesDto {
 }
 
 /* ======== Transform function ======== */
-export function transformAction(value: any) {
-  if (!value?.type) return value;
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
 
-  switch (value.type) {
-    case 'SHIFT':
-      if (value.axis === 'ROW') return plainToInstance(ShiftRowDto, value);
-      if (value.axis === 'COL') return plainToInstance(ShiftColDto, value);
+export function transformAction(value: unknown): unknown {
+  if (!isRecord(value)) return value;
+
+  const type = value.type;
+  if (typeof type !== 'string') return value;
+
+  switch (type) {
+    case 'SHIFT': {
+      const axis = value.axis;
+      if (axis === 'ROW') return plainToInstance(ShiftRowDto, value);
+      if (axis === 'COL') return plainToInstance(ShiftColDto, value);
       break;
-
+    }
     case 'ROTATE_TILE':
       return plainToInstance(RotateTileDto, value);
-
     case 'SWAP_TILES':
       return plainToInstance(SwapTilesDto, value);
   }

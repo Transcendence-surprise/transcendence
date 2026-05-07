@@ -34,7 +34,7 @@ export class GameController {
 
   @Post('leave')
   leaveGame(@Body() body: LeaveGameDto, @Req() req: FastifyRequest) {
-    console.log(`Received leave game request for gameId ${body}`);
+    console.log(`Received leave game request for gameId ${body.gameId}`);
     return this.gameClient.leaveGame(body, req);
   }
 

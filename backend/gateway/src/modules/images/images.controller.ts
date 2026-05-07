@@ -40,6 +40,7 @@ export class ImagesController {
 
   private async proxyContent(id: number, res: FastifyReply) {
     const upstream = await this.imagesClient.getContent(id);
+    const upstreamHeaders = upstream.headers as Record<string, unknown>;
 
     const allowedHeaders = [
       'content-type',
@@ -51,7 +52,7 @@ export class ImagesController {
     ];
 
     for (const header of allowedHeaders) {
-      const value = upstream.headers[header];
+      const value = upstreamHeaders[header];
       if (typeof value === 'string') {
         res.header(header, value);
       }

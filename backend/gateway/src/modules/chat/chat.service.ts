@@ -5,6 +5,7 @@ import { HttpService } from '@nestjs/axios';
 import { FastifyRequest } from 'fastify';
 import { lastValueFrom } from 'rxjs';
 import { RealtimeGateway } from '../realtime/realtime.gateway';
+import type { AxiosResponse } from 'axios';
 
 export interface ChatMessage {
   id: string;
@@ -34,12 +35,11 @@ export class ChatHttpService {
   ) {}
 
   async getHistory(req: FastifyRequest): Promise<ChatMessage[]> {
-    const headers = this.buildForwardHeaders(req, true);
     return this.request<ChatMessage[]>('get', '/api/chat/history', undefined, req, true);
   }
 
-  async addMessage(body: unknown, req: FastifyRequest) {
-    const result = await this.request<any>(
+  async addMessage(body: unknown, req: FastifyRequest): Promise<unknown> {
+    const result = await this.request<unknown>(
       'post',
       '/api/chat/messages',
       body,
@@ -47,7 +47,7 @@ export class ChatHttpService {
       true,
     );
 
-    if (result?.ok && result?.message) {
+    if (isChatMessageResult(result)) {
       this.notifyNewMessage(result.message);
     }
 
@@ -64,13 +64,33 @@ export class ChatHttpService {
     const headers = this.buildForwardHeaders(req, requireUser);
 
     const config = { headers };
+    let response: AxiosResponse<T> | undefined;
 
-    const response =
-      method === 'get'
-        ? await lastValueFrom(this.http.get<T>(path, config))
-        : method === 'delete'
-        ? await lastValueFrom(this.http.delete<T>(path, { ...config, data: body ?? {} }))
-        : await lastValueFrom(this.http[method]<T>(path, body ?? {}, config));
+    switch (method) {
+      case 'get':
+        response = await lastValueFrom(this.http.get<T>(path, config));
+        break;
+      case 'delete':
+        response = await lastValueFrom(
+          this.http.delete<T>(path, { ...config, data: body ?? {} }),
+        );
+        break;
+      case 'post':
+        response = await lastValueFrom(this.http.post<T>(path, body ?? {}, config));
+        break;
+      case 'put':
+        response = await lastValueFrom(this.http.put<T>(path, body ?? {}, config));
+        break;
+      case 'patch':
+        response = await lastValueFrom(this.http.patch<T>(path, body ?? {}, config));
+        break;
+      default:
+        throw new Error(`Unsupported method`);
+    }
+
+    if (!response) {
+      throw new Error('No response from chat service');
+    }
 
     return response.data;
   }
@@ -116,4 +136,30 @@ export class ChatHttpService {
 
     this.realtimeGateway.emitter.emitNewMessage(message);
   }
+}
+
+type ChatMessageResult = {
+  ok: true;
+  message: ChatMessage;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function isChatMessage(value: unknown): value is ChatMessage {
+  if (!isRecord(value)) return false;
+  return (
+    (typeof value.id === 'string' || typeof value.id === 'number') &&
+    (typeof value.userId === 'string' || typeof value.userId === 'number') &&
+    typeof value.username === 'string' &&
+    typeof value.content === 'string' &&
+    typeof value.timestamp === 'number'
+  );
+}
+
+function isChatMessageResult(value: unknown): value is ChatMessageResult {
+  if (!isRecord(value)) return false;
+  if (value.ok !== true) return false;
+  return isChatMessage(value.message);
 }

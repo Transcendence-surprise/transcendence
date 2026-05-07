@@ -28,13 +28,22 @@ export class ChatController {
   }
 
   @Post('messages')
-  async addMessage(@Req() req: FastifyRequest, @Body() body: any) {
+  async addMessage(@Req() req: FastifyRequest, @Body() body: unknown) {
     const result = await this.chatClient.addMessage(body, req);
 
-    if (result?.ok && result?.message) {
+    if (isOkMessageResult(result)) {
       console.log('User added a chat message');
     }
 
     return result;
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function isOkMessageResult(value: unknown): value is { ok: true; message: unknown } {
+  if (!isRecord(value)) return false;
+  return value.ok === true && 'message' in value;
 }

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Headers, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Headers, Post, UnauthorizedException } from '@nestjs/common';
 import { RealtimeGateway } from '../realtime/realtime.gateway';
 import { UseGuards } from '@nestjs/common';
 import { InternalGuard } from '../../common/guards/internal.guard';
@@ -12,7 +12,7 @@ export class InternalEventsController {
 
   @Post('events')
   handleEvent(
-    @Body() event: any,
+    @Body() event: unknown,
     @Headers('x-internal-key') key: string,
   ) {
     const expected = process.env.INTERNAL_SERVICE_KEY;
@@ -22,9 +22,14 @@ export class InternalEventsController {
       throw new UnauthorizedException('Invalid internal key');
     }
 
-    switch (event.type) {
+    const parsedEvent = parseInternalEvent(event);
+    if (!parsedEvent) {
+      throw new BadRequestException('Invalid internal event payload');
+    }
+
+    switch (parsedEvent.type) {
       case 'GAME_UPDATED':
-        this.realtimeGateway.emitter.emitGameUpdated(event.gameId);
+        this.realtimeGateway.emitter.emitGameUpdated(parsedEvent.gameId);
         break;
 
     //   case 'GAME_ENDED':
@@ -34,4 +39,20 @@ export class InternalEventsController {
 
     return { ok: true };
   }
+}
+
+type InternalEvent = {
+  type: 'GAME_UPDATED';
+  gameId: string;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function parseInternalEvent(value: unknown): InternalEvent | null {
+  if (!isRecord(value)) return null;
+  if (value.type !== 'GAME_UPDATED') return null;
+  if (typeof value.gameId !== 'string') return null;
+  return { type: value.type, gameId: value.gameId };
 }
