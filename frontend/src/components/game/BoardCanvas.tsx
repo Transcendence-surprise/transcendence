@@ -81,6 +81,7 @@ export type BoardCanvasProps = {
   board: Board;
   players: PlayerState[];
   currentPlayerId: string | number;
+  exitPoints?: { x: number; y: number }[];
   selectedTiles: { x: number; y: number }[];
   setSelectedTiles: React.Dispatch<
     React.SetStateAction<{ x: number; y: number }[]>
@@ -104,6 +105,7 @@ export function BoardCanvas({
   board,
   players,
   currentPlayerId,
+  exitPoints,
   selectedTiles,
   setSelectedTiles,
   onArrowClick,
@@ -119,7 +121,7 @@ export function BoardCanvas({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Draw board and players, highlight selected tiles
-  useDrawBoard(canvasRef, board, players, selectedTiles);
+  useDrawBoard(canvasRef, board, players, selectedTiles, exitPoints);
 
   const [selectedPlayer, setSelectedPlayer] = useState<{
     x: number;

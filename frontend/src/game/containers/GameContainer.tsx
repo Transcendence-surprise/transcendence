@@ -6,8 +6,9 @@ import { useGameRoom } from "../../hooks/useGameRoom";
 import GamePage from "../../pages/GamePage";
 import { useGameMessages } from "../../hooks/useGameMessages";
 import { useUsersMap } from "../../hooks/useUsersMap";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getRealtimeSocket } from "../../services/realtimeSocket";
+import Alert from "../../components/shared/Alert";
 
 type Props = {
   gameId: string;
@@ -28,9 +29,41 @@ export default function GameContainer({ gameId, user }: Props) {
     "playMessage",
   );
 
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (error === "Game not found or has ended.") {
+      setAlertMessage(
+        "This game is no longer available. It may have ended or been removed.",
+      );
+      setAlertOpen(true);
+    }
+  }, [error]);
+
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+    navigate("/game");
+  };
+
   if (loading) return <div>Loading game...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!game) return <div>Game not found</div>;
+  if (error || !game) {
+    return (
+      <>
+        <Alert
+          open={alertOpen}
+          title="Game unavailable"
+          message={
+            alertMessage ??
+            "This game is no longer available. It may have ended or been removed."
+          }
+          variant="warning"
+          onClose={handleAlertClose}
+          dismissOnBackdropClick={false}
+        />
+      </>
+    );
+  }
 
   const rawResult = game.gameResult as
     | { winnerIds?: (string | number)[]; winnerId?: string | number }

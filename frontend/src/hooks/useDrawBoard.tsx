@@ -16,6 +16,7 @@ export function useDrawBoard(
   board: Board,
   players: PlayerState[],
   swapTiles: { x: number; y: number }[] = [],
+  exitPoints: { x: number; y: number }[] = [],
 ) {
   const tileImagesRef = useRef<Record<string, HTMLImageElement>>({});
   const playerImagesRef = useRef<Record<string, HTMLImageElement>>({});
@@ -156,6 +157,12 @@ export function useDrawBoard(
         ctx.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
       }
 
+      // Exit point highlight
+      if (exitPoints.some((point) => point.x === tile.x && point.y === tile.y)) {
+        ctx.fillStyle = "rgba(255, 214, 102, 0.25)";
+        ctx.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
+      }
+
       // Collectible
       if (tile.collectableId) {
         const colId = String(parseInt(tile.collectableId.slice(1), 10));
@@ -213,5 +220,5 @@ export function useDrawBoard(
         ctx.restore();
       }
     });
-  }, [board, players, swapTiles, imagesLoaded]);
+  }, [board, players, swapTiles, exitPoints, imagesLoaded]);
 }

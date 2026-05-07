@@ -42,6 +42,7 @@ export default function GamePage({
             players={game.players}
             currentPlayerId={game.currentPlayerId}
             gameId={gameId}
+            exitPoints={game.level?.exitPoints}
             boardActionsPending={game.boardActionsPending}
             isSpectator={isSpectator}
           />
