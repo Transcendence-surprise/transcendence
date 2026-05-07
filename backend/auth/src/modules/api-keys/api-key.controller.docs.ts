@@ -44,7 +44,7 @@ const CreateApiKeyDocs = () =>
 
 const RemoveApiKeyDocs = () =>
   applyDecorators(
-    ApiSecurity('Api Key'),
+    ApiSecurity('API Key'),
     ApiOperation({
       summary: 'Delete API key',
       description: 'Remove an API key by id',

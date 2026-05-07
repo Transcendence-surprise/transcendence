@@ -53,6 +53,11 @@ async function bootstrap() {
       name: 'access_token',
       in: 'cookie',
     }, 'JWT')
+    .addSecurity('API Key', {
+      type: 'apiKey',
+      in: 'header',
+      name: 'x-api-key',
+    })
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

@@ -86,11 +86,11 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
         name: 'access_token',
         in: 'cookie',
       }, 'JWT')
-      .addApiKey({
+      .addSecurity('API Key', {
         type: 'apiKey',
+        in: 'header',
         name: 'x-api-key',
-        in: 'header'
-      }, 'Api Key')
+      })
       .build();
 
     const gatewayDoc = SwaggerModule.createDocument(app, baseConfig);

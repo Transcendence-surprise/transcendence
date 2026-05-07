@@ -12,6 +12,7 @@ import {
   ApiConflictResponse,
   ApiExcludeEndpoint,
   ApiCookieAuth,
+  ApiSecurity,
 } from '@nestjs/swagger';
 import { ValidateCredDto } from './dto/validate-credentials.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -116,6 +117,7 @@ const RemoveByUsernameDocs = () =>
 
 const RemoveByIdDocs = () =>
   applyDecorators(
+    ApiSecurity('API Key'),
     ApiOperation({
       summary: 'Delete user by ID',
       description: 'Delete a user by their ID',
@@ -133,6 +135,7 @@ const RemoveByIdDocs = () =>
 
 const CreateDocs = () =>
   applyDecorators(
+    ApiSecurity('API Key'),
     ApiOperation({
       summary: 'Create a new user',
       description: 'Create a new user with the provided data',
@@ -234,6 +237,7 @@ const FindOneByEmailDocs = () =>
 
 const UpdateUserDocs = () =>
   applyDecorators(
+    ApiSecurity('API Key'),
     ApiOperation({
       summary: 'Create or replace user',
       description: 'Create user with specified ID if not exists (201), or replace all user data (200). Implements idempotent upsert behavior.',
@@ -263,6 +267,7 @@ const UpdateUserDocs = () =>
 
 const UpdateUserPartialDocs = () =>
   applyDecorators(
+    ApiSecurity('API Key'),
     ApiOperation({
       summary: 'Update user fields',
       description: 'Update specific user fields (partial update)',

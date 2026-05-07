@@ -68,6 +68,9 @@ export class UsersController {
   }
 
   @Put('id/:id')
+  @Auth(AuthType.JWT_OR_API_KEY)
+  @Roles(['admin'])
+  @UseGuards(AuthGuard, RolesGuard)
   async updateUser(
     @Param('id') id: string,
     @Body() body: unknown,
@@ -79,6 +82,9 @@ export class UsersController {
   }
 
   @Patch('id/:id')
+  @Auth(AuthType.JWT_OR_API_KEY)
+  @Roles(['admin'])
+  @UseGuards(AuthGuard, RolesGuard)
   async updateUserPartial(
     @Param('id') id: string,
     @Body() body: unknown,
@@ -90,12 +96,18 @@ export class UsersController {
   }
 
   @Delete('id/:id')
+  @Auth(AuthType.JWT_OR_API_KEY)
+  @Roles(['admin'])
+  @UseGuards(AuthGuard, RolesGuard)
   async removeById(@Param('id') id: string, @Res() res: FastifyReply) {
     const result = await this.usersClient.removeById(Number(id));
     return res.status(result.statusCode).send(result.data);
   }
 
   @Post()
+  @Auth(AuthType.JWT_OR_API_KEY)
+  @Roles(['admin'])
+  @UseGuards(AuthGuard, RolesGuard)
   async create(@Body() body: unknown, @Res() res: FastifyReply) {
     const result = await this.usersClient.create(body);
     return res.status(result.statusCode).send(result.data);
