@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import LayoutWithSidebar from "./components/LayoutWithSidebar";
@@ -21,6 +21,7 @@ import Friends from "./pages/Friends";
 import AdminPanel from "./pages/AdminPanel";
 import BadRequestPage from "./pages/error/400";
 import ForbiddenPage from "./pages/error/403";
+import NotFoundPage from "./pages/error/404";
 import ServerErrorPage from "./pages/error/500";
 import BadGatewayPage from "./pages/error/502";
 import ServiceUnavailablePage from "./pages/error/503";
@@ -96,9 +97,9 @@ export default function App() {
               {<Route path="friends" element={<Friends />} />}
             </Route>
 
-            {/* Redirect unknown/obsolete routes to home */}
-            <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
+
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </GlobalErrorBoundary>
     </BrowserRouter>
