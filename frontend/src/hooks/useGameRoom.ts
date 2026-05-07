@@ -19,6 +19,7 @@ export function useGameRoom(id: string) {
   const pendingRef = useRef(false);
   const lastFetchAtRef = useRef(0);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelledRef = useRef(false);
 
   const MIN_UPDATE_INTERVAL_MS = 300;
   const DEBOUNCE_MS = 150;
@@ -27,6 +28,7 @@ export function useGameRoom(id: string) {
     if (!id || !user) return;
 
     const controller = new AbortController();
+    cancelledRef.current = false;
 
     const socket = socketRef.current ?? connectRealtimeSocket();
     socketRef.current = socket;
@@ -87,6 +89,7 @@ export function useGameRoom(id: string) {
         }
       } finally {
         inFlightRef.current = false;
+        if (cancelledRef.current || controller.signal.aborted) return;
         if (pendingRef.current) {
           pendingRef.current = false;
           if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -127,6 +130,8 @@ export function useGameRoom(id: string) {
       .finally(() => setLoading(false));
 
     return () => {
+      cancelledRef.current = true;
+      pendingRef.current = false;
       controller.abort();
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
