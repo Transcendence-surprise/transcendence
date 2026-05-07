@@ -41,3 +41,15 @@ jobs:
       - name: Run frontend tests
         run: |
           make test-front
+
+      - name: Dump Docker logs on failure
+        if: failure()
+        run: |
+          docker compose -f docker-compose.dev.yml logs > docker-logs.txt
+
+      - name: Upload logs artifact
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-logs
+          path: docker-logs.txt
