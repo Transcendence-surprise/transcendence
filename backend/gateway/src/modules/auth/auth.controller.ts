@@ -8,11 +8,14 @@ import {
   Delete,
   Param,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
 import { AuthHttpService } from './auth.service';
 import { OAuth42Params } from '../../common/decorator/oauth42-params.decorator';
 import { CreateGuestTokenDto } from './dto/create-guest-token.dto';
+import { Auth, AuthType } from '../../common/decorator/auth-type.decorator';
+import { AuthGuard } from '../../common/guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -129,8 +132,10 @@ export class AuthController {
   }
 
   @Delete('api-keys/:id')
+  @Auth(AuthType.JWT_OR_API_KEY)
+  @UseGuards(AuthGuard)
   async removeApiKeyById(@Param('id') id: string) {
-    return this.authClient.removeApiKeyById(Number(id));
+    return this.authClient.removeApiKeyById(id);
   }
 
   @Post('guest-token')
@@ -138,8 +143,8 @@ export class AuthController {
     @Body() body: CreateGuestTokenDto,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    const res = await this.authClient.createGuestToken(body.nickname); // calls auth-service internally
-    this.forwardCookies(reply, res.cookies); // forward auth-service Set-Cookie to client
+    const res = await this.authClient.createGuestToken(body.nickname);
+    this.forwardCookies(reply, res.cookies);
     return { ok: res.ok };
   }
 

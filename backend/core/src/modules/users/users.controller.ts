@@ -124,7 +124,6 @@ export class UsersController {
     return this.usersService.updateMe(user.sub as number, { avatarImageId: image.id });
   }
 
-  // Auth-test: allows to find user by id only if this user logged in
   @Get('id/:id')
   @FindOneByIdDocs()
   getUserById(@Param('id', ParseIntPipe) id: number) {

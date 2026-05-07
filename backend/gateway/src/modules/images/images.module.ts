@@ -5,6 +5,7 @@ import { ConfigType } from '@nestjs/config';
 import { ImagesHttpService } from './images.service';
 import { ImagesController } from './images.controller';
 import gatewayConfig from '../../common/config/gateway.config';
+import { AuthHttpModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import gatewayConfig from '../../common/config/gateway.config';
         maxRedirects: 5,
       }),
     }),
+    AuthHttpModule,
   ],
   controllers: [ImagesController],
   providers: [ImagesHttpService],

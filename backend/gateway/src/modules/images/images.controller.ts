@@ -10,9 +10,14 @@ import {
   Req,
   HttpCode,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ImagesHttpService } from './images.service';
+import { Auth, AuthType } from 'src/common/decorator/auth-type.decorator';
+import { Roles } from 'src/common/decorator/roles.decorator';
+import { AuthGuard } from 'src/common/guards/auth.guard';
+import { RolesGuard } from 'src/common/guards/roles.guard';
 
 @Controller('images')
 export class ImagesController {
@@ -40,6 +45,7 @@ export class ImagesController {
 
   private async proxyContent(id: number, res: FastifyReply) {
     const upstream = await this.imagesClient.getContent(id);
+    const upstreamHeaders = upstream.headers as Record<string, unknown>;
 
     const allowedHeaders = [
       'content-type',
@@ -51,7 +57,7 @@ export class ImagesController {
     ];
 
     for (const header of allowedHeaders) {
-      const value = upstream.headers[header];
+      const value = upstreamHeaders[header];
       if (typeof value === 'string') {
         res.header(header, value);
       }
@@ -61,6 +67,8 @@ export class ImagesController {
   }
 
   @Post()
+  @Auth(AuthType.JWT_OR_API_KEY)
+  @UseGuards(AuthGuard)
   @HttpCode(201)
   async create(
     @Body() body: unknown,
@@ -72,6 +80,9 @@ export class ImagesController {
   }
 
   @Patch(':id')
+  @Auth(AuthType.JWT_OR_API_KEY)
+  @Roles(['admin'])
+  @UseGuards(AuthGuard, RolesGuard)
   async update(
     @Param('id') id: string,
     @Body() body: unknown,
@@ -83,6 +94,9 @@ export class ImagesController {
   }
 
   @Delete(':id')
+  @Auth(AuthType.JWT_OR_API_KEY)
+  @Roles(['admin'])
+  @UseGuards(AuthGuard, RolesGuard)
   async remove(@Param('id') id: string, @Res() res: FastifyReply) {
     const result = await this.imagesClient.remove(Number(id));
     return res.status(result.statusCode).send(result.data);

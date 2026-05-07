@@ -23,18 +23,12 @@ export class ChatController {
 
   @Get('history')
   getHistory(@Req() req: FastifyRequest) {
-    console.log(`User requested chat history`);
     return this.chatClient.getHistory(req);
   }
 
   @Post('messages')
-  async addMessage(@Req() req: FastifyRequest, @Body() body: any) {
+  async addMessage(@Req() req: FastifyRequest, @Body() body: unknown) {
     const result = await this.chatClient.addMessage(body, req);
-
-    if (result?.ok && result?.message) {
-      console.log('User added a chat message');
-    }
-
     return result;
   }
 }

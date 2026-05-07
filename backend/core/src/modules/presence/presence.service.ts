@@ -11,7 +11,6 @@ export class PresenceService {
     this.online.add(userId);
 
     if (!wasOnline) {
-      console.log(`User ${userId} marked online in PresenceService`);
       return { userId, isOnline: true };
     }
 
@@ -22,7 +21,6 @@ export class PresenceService {
     const existed = this.online.delete(userId);
 
     if (existed) {
-      console.log(`User ${userId} marked offline in PresenceService`);
       return { userId, isOnline: false };
     }
     return null;

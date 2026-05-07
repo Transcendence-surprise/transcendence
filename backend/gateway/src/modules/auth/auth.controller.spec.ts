@@ -5,6 +5,7 @@ import { AuthController } from './auth.controller';
 import { AuthHttpService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SignupUserDto } from './dto/signup-user.dto';
+import { AuthGuard } from '../../common/guards/auth.guard';
 
 /* eslint-disable @typescript-eslint/unbound-method */
 
@@ -13,6 +14,7 @@ describe('AuthController', () => {
   let service: jest.Mocked<AuthHttpService>;
 
   beforeEach(async () => {
+    const mockAuthGuard = { canActivate: jest.fn(() => true) };
     const mockService = {
       login: jest.fn(),
       loginWith2FA: jest.fn(),
@@ -32,7 +34,10 @@ describe('AuthController', () => {
           useValue: mockService,
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(AuthGuard)
+      .useValue(mockAuthGuard)
+      .compile();
 
     controller = module.get<AuthController>(AuthController);
     service = module.get(AuthHttpService);

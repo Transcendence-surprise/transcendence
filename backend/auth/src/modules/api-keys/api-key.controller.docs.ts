@@ -9,6 +9,7 @@ import {
   ApiNotFoundResponse,
   ApiExcludeEndpoint,
   ApiQuery,
+  ApiSecurity,
 } from '@nestjs/swagger';
 import { CreateApiKeyResDto } from './dto/api-key/create-api-key-res.dto';
 import { GetApiKeyResDto } from './dto/api-key/get-api-key-res.dto';
@@ -43,6 +44,7 @@ const CreateApiKeyDocs = () =>
 
 const RemoveApiKeyDocs = () =>
   applyDecorators(
+    ApiSecurity('API Key'),
     ApiOperation({
       summary: 'Delete API key',
       description: 'Remove an API key by id',

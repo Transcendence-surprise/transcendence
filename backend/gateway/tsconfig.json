@@ -20,10 +20,14 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
+    "types": ["node", "jest"],
     "typeRoots": ["node", "jest", "./node_modules/@types"],
     "baseUrl": "./",
     "paths": {
       "src/*": ["src/*"]
-    }
-  }
+    },
+  },
+  "ignoreDeprecations": "6.0",
+  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "exclude": ["dist", "db-entities-dist", "node_modules", "coverage"]
 }

@@ -55,7 +55,7 @@ export class AuthGuard implements CanActivate {
       case AuthType.JWT_OR_API_KEY:
         return this.validateJwtOrApiKey(request);
       default: {
-        console.log('AuthType: Unknown type');
+        console.warn('AuthType: Unknown type');
         return false;
       }
     }

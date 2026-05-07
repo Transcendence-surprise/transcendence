@@ -34,7 +34,6 @@ export class GameController {
 
   @Post('leave')
   leaveGame(@Body() body: LeaveGameDto, @Req() req: FastifyRequest) {
-    console.log(`Received leave game request for gameId ${body}`);
     return this.gameClient.leaveGame(body, req);
   }
 
@@ -60,13 +59,11 @@ export class GameController {
 
   @Post('boardmove')
   boardMove(@Body() body: BoardMoveDto, @Req() req: FastifyRequest) {
-    console.log(`Received board move request for gameId ${body.gameId}`);
     return this.gameClient.boardMove(body, req);
   }
 
   @Post('playermove')
   playerMove(@Body() body: PlayerMoveDto, @Req() req: FastifyRequest) {
-    console.log(`Received player move request for gameId ${body.gameId}`);
     return this.gameClient.playerMove(body, req);
   }
 }

@@ -10,6 +10,7 @@ import {
   ApiParam,
   ApiNoContentResponse,
   ApiProduces,
+  ApiSecurity,
 } from '@nestjs/swagger';
 import { CreateImageDto } from './dto/create-image.dto';
 import { GetImageResDto } from './dto/get-image-res.dto';
@@ -71,6 +72,7 @@ const GetImageContentDocs = () =>
 
 const UploadImageDocs = () =>
   applyDecorators(
+    ApiSecurity('API Key'),
     ApiOperation({
       summary: 'Upload an image',
       description: 'Upload image data via multipart/form-data',
@@ -89,6 +91,7 @@ const UploadImageDocs = () =>
 
 const UpdateImageDocs = () =>
   applyDecorators(
+    ApiSecurity('API Key'),
     ApiOperation({
       summary: 'Update image metadata',
       description: 'Update image metadata (filename, mimeType, size or url)',
@@ -114,6 +117,7 @@ const UpdateImageDocs = () =>
 
 const RemoveImageDocs = () =>
   applyDecorators(
+    ApiSecurity('API Key'),
     ApiOperation({
       summary: 'Delete image',
       description: 'Delete image by ID',

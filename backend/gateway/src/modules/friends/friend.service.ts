@@ -43,7 +43,6 @@ export class FriendHttpService {
 	async acceptFriendRequest<T = unknown>(body: unknown, req: FastifyRequest): Promise<T> {
 		const result =   await this.request<T>('post', '/api/friends/accept', body, req, true);
     this.notifyFriendsChanged(req, body);
-    console.log('Friend accepted, emitted update');
     return result;
 	}
 
@@ -56,7 +55,6 @@ export class FriendHttpService {
 	async removeFriend<T = unknown>(body: unknown, req: FastifyRequest): Promise<T> {
 		const result =   await this.request<T>('delete', '/api/friends', body, req, true);
     this.notifyFriendsChanged(req, body);
-    console.log('Friend removed, emitted update');
     return result;
 	}
 
@@ -69,7 +67,7 @@ export class FriendHttpService {
   ): Promise<T> {
     const headers = this.buildHeadersFromUser(user);
 
-    const response = await lastValueFrom(
+		const response: AxiosResponse<T> = await lastValueFrom(
       this.http.get<T>('/api/friends/snapshot', { headers }),
     );
 
@@ -132,19 +130,35 @@ export class FriendHttpService {
 		}
 
 		const config = { headers };
-		let response: AxiosResponse<T>;
+		let response: AxiosResponse<T> | undefined;
 
-		if (method === 'get') {
-			response = await lastValueFrom(this.http.get<T>(path, config));
-		} else if (method === 'delete') {
-			response = await lastValueFrom(
-				this.http.delete<T>(path, {
-					...config,
-					data: body ?? {},
-				}),
-			);
-		} else {
-			response = await lastValueFrom(this.http[method]<T>(path, body ?? {}, config));
+		switch (method) {
+			case 'get':
+				response = await lastValueFrom(this.http.get<T>(path, config));
+				break;
+			case 'delete':
+				response = await lastValueFrom(
+					this.http.delete<T>(path, {
+						...config,
+						data: body ?? {},
+					}),
+				);
+				break;
+			case 'post':
+				response = await lastValueFrom(this.http.post<T>(path, body ?? {}, config));
+				break;
+			case 'put':
+				response = await lastValueFrom(this.http.put<T>(path, body ?? {}, config));
+				break;
+			case 'patch':
+				response = await lastValueFrom(this.http.patch<T>(path, body ?? {}, config));
+				break;
+			default:
+				throw new Error(`Unsupported method`);
+		}
+
+		if (!response) {
+			throw new Error('No response from friends service');
 		}
 
 		return response.data;

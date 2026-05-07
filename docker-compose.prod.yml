@@ -54,6 +54,9 @@ services:
 
   nginx:
     container_name: nginx-prod
+    build:
+      args:
+        MODSEC: "true"
     ports:
       - "80:80"
       - "443:443"

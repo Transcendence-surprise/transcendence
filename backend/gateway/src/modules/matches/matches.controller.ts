@@ -37,11 +37,15 @@ export class MatchesController {
   }
 
   @Post()
+  @Auth(AuthType.JWT_OR_API_KEY)
+  @UseGuards(AuthGuard)
   async createMatch(@Body() body: unknown, @Req() req: FastifyRequest) {
     return this.matchesClient.create(body, req);
   }
 
   @Put(':id')
+  @Auth(AuthType.JWT_OR_API_KEY)
+  @UseGuards(AuthGuard)
   async updateMatch(
     @Param('id') id: string,
     @Body() body: unknown,
@@ -51,6 +55,8 @@ export class MatchesController {
   }
 
   @Patch(':id')
+  @Auth(AuthType.JWT_OR_API_KEY)
+  @UseGuards(AuthGuard)
   async partialUpdateMatch(
     @Param('id') id: string,
     @Body() body: unknown,
@@ -60,6 +66,8 @@ export class MatchesController {
   }
 
   @Delete(':id')
+  @Auth(AuthType.JWT_OR_API_KEY)
+  @UseGuards(AuthGuard)
   async removeMatch(@Param('id') id: string, @Req() req: FastifyRequest) {
     return this.matchesClient.remove(id, req);
   }

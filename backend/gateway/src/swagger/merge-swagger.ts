@@ -54,7 +54,6 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
       components: { schemas: {} },
     };
 
-    // Simple merge: copy schemas if name not present, merge paths and methods.
     function mergeSimple(doc: Record<string, any> | null) {
       if (!doc) return;
 
@@ -87,11 +86,11 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
         name: 'access_token',
         in: 'cookie',
       }, 'JWT')
-      .addApiKey({
+      .addSecurity('API Key', {
         type: 'apiKey',
+        in: 'header',
         name: 'x-api-key',
-        in: 'header'
-      }, 'Api Key')
+      })
       .build();
 
     const gatewayDoc = SwaggerModule.createDocument(app, baseConfig);
@@ -113,9 +112,7 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
     merged.tags = baseConfig.tags;
     merged.components.securitySchemes = baseConfig.components.securitySchemes;
 
-    // expose merged spec via SwaggerModule
-    const mergedSpec: NestOpenAPIObject =
-      merged as unknown as NestOpenAPIObject;
+    const mergedSpec = merged as unknown as NestOpenAPIObject;
 
     SwaggerModule.setup('api/docs', app, mergedSpec, {
       customSiteTitle: 'Transcendence Merged API Docs',

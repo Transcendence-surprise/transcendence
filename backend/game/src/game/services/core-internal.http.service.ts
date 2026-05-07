@@ -51,7 +51,6 @@ export class CoreBadgeHTTPService {
     type: string;
     value: number;
   }) {
-    console.log('Game Service:Incrementing badge progress with payload:', payload);
     return this.request('post', '/badges/internal/increment', payload);
   }
 }

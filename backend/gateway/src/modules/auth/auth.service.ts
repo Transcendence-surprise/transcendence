@@ -1,17 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import type { AxiosResponse } from 'axios';
-import type { ConfigType } from '@nestjs/config';
-import gatewayConfig from '../../common/config/gateway.config';
 
 @Injectable()
 export class AuthHttpService {
-  constructor(
-    @Inject(gatewayConfig.KEY)
-    private readonly config: ConfigType<typeof gatewayConfig>,
-    private readonly http: HttpService
-  ) {}
+  constructor(private readonly http: HttpService) {}
   async login<T = unknown>(body: unknown) {
     return this.requestWithCookies<T>('post', '/api/auth/login', body);
   }
@@ -107,7 +101,7 @@ export class AuthHttpService {
     return this.request('post', `/api/auth/api-keys`)
   }
 
-  async removeApiKeyById<T = unknown>(id: number): Promise<T> {
+  async removeApiKeyById<T = unknown>(id: string): Promise<T> {
     return this.request('delete', `/api/auth/api-keys/${id}`)
   }
 
@@ -119,7 +113,6 @@ export class AuthHttpService {
           params: { token },
       }),
     );
-
     return res.data;
   }
 
@@ -147,18 +140,17 @@ export class AuthHttpService {
   }
 
   async createGuestToken(nickname: string): Promise<{ ok: boolean; cookies: string[] }> {
-    // call auth-service
     const res = await lastValueFrom(
       this.http.post<{ ok: boolean }>(
-        '/api/auth/guest-token',  // endpoint on auth-service
+        '/api/auth/guest-token',
         { nickname },
-        { withCredentials: true }, // so auth-service cookie comes back
+        { withCredentials: true },
       ),
     );
 
     return {
       ok: res.data.ok,
-      cookies: this.extractCookies(res), // parse Set-Cookie headers from auth-service
+      cookies: this.extractCookies(res),
     };
   }
 

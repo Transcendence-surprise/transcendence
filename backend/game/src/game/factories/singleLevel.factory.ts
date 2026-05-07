@@ -10,7 +10,7 @@ export function createSingleplayerLevel(
   mapTokens: string[][],
   meta: LevelMeta
 ): Level {
-  
+
   validateSingleLevelMeta(meta);
   validateMapTokens(mapTokens, meta.id);
 
@@ -24,8 +24,6 @@ export function createSingleplayerLevel(
     ...c,
     ownerSlotId: playerSlotId,
   }));
-
-  // console.log("collectibles:", meta.collectibles);
 
   for (const c of collectibles) {
     if (typeof c.x !== "number" || typeof c.y !== "number") continue;

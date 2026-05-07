@@ -18,7 +18,6 @@ export class BadgeService {
   ) {}
 
   async unlockByKey(userId: number, key: string) {
-    console.log(`Unlocking badge for user ${userId} with key "${key}"`);
     const badge = await this.badgeRepo.findOne({ where: { key } });
     if (!badge) {
       console.warn(`Badge with key "${key}" not found`);
@@ -52,7 +51,6 @@ export class BadgeService {
     });
 
     if (!badges.length) return;
-    console.log(`Service: Incrementing badge progress for type "${type}" and userIds:`, userIds);
     const badgeIds = badges.map(b => b.id);
 
     const userBadges = await this.userBadgeRepo.find({

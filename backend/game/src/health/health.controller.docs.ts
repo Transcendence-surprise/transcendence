@@ -1,7 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
-const HealthControllerDocs = () => ApiTags('Game Health');
+const HealthControllerDocs = () => ApiTags('Game');
 
 const HealthDocs = () =>
   applyDecorators(
