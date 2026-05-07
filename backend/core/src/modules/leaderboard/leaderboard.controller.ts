@@ -4,6 +4,7 @@ import { LeaderboardEntryDto } from './dto/leaderboard.dto';
 import {
   LeaderboardControllerDocs,
   GetAllTimeLeaderboardDocs,
+  GetUserRankingDocs,
 } from './leaderboard.controller.docs';
 import { CurrentUser } from '../../decorators/current-user.decorator';
 import type { JwtPayload } from '../../decorators/current-user.decorator';
@@ -20,6 +21,7 @@ export class LeaderboardController {
   }
 
   @Get('user-ranking')
+  @GetUserRankingDocs()
   async getUserRanking(
     @CurrentUser() user: JwtPayload,
   ): Promise<number | null> {
