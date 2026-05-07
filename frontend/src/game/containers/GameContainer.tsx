@@ -33,13 +33,18 @@ export default function GameContainer({ gameId, user }: Props) {
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (error === "Game not found or has ended.") {
+    if (!error && game) return;
+
+    if (error === "Game not found or has ended." || !game) {
       setAlertMessage(
         "This game is no longer available. It may have ended or been removed.",
       );
-      setAlertOpen(true);
+    } else if (error) {
+      setAlertMessage(String(error));
     }
-  }, [error]);
+
+    setAlertOpen(true);
+  }, [error, game]);
 
   const handleAlertClose = () => {
     setAlertOpen(false);
