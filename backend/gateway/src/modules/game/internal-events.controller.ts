@@ -2,8 +2,10 @@ import { BadRequestException, Body, Controller, Headers, Post, UnauthorizedExcep
 import { RealtimeGateway } from '../realtime/realtime.gateway';
 import { UseGuards } from '@nestjs/common';
 import { InternalGuard } from '../../common/guards/internal.guard';
+import { ApiExcludeController } from '@nestjs/swagger';
 
 @Controller('internal')
+@ApiExcludeController()
 @UseGuards(InternalGuard)
 export class InternalEventsController {
   constructor(

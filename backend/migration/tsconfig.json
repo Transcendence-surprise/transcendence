@@ -14,7 +14,6 @@
       "@transcendence/db-entities": ["./db-entities-dist"]
     }
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"],
   "exclude": ["dist", "db-entities-dist", "node_modules", "coverage"],
   "ignoreDeprecations": "6.0"
 }

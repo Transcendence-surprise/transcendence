@@ -22,21 +22,29 @@ export class FriendController {
 	) {}
 
   @Get()
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
   getFriends(@Req() req: FastifyRequest) {
     return this.friendClient.getFriends(req);
   }
 
   @Get('requests')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
   getFriendRequests(@Req() req: FastifyRequest) {
     return this.friendClient.getFriendRequests(req);
   }
 
   @Get('snapshot')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
   getFriendsSnapshot(@Req() req: FastifyRequest) {
     return this.friendClient.getFriendsSnapshot(req);
   }
 
   @Post('request')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
   async sendFriendRequest(
     @Body() body: unknown,
     @Req() req: FastifyRequest,
@@ -46,6 +54,8 @@ export class FriendController {
   }
 
   @Post('accept')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
   async acceptFriendRequest(
     @Body() body: unknown,
     @Req() req: FastifyRequest,
@@ -55,6 +65,8 @@ export class FriendController {
   }
 
   @Post('reject')
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
   async rejectFriendRequest(
     @Body() body: unknown,
     @Req() req: FastifyRequest,
@@ -64,6 +76,8 @@ export class FriendController {
   }
 
   @Delete()
+  @Auth(AuthType.JWT)
+  @UseGuards(AuthGuard)
   async removeFriend(@Body() body: unknown, @Req() req: FastifyRequest) {
     const result = await this.friendClient.removeFriend(body, req);
     return result;
