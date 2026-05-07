@@ -30,7 +30,7 @@ export function updatePlayerObjectives(
       case "RETURN_HOME": {
         // we expect targetX/Y already injected earlier
         if (obj.targetX !== undefined && obj.targetY !== undefined) {
-          obj.done = player.x === obj.targetX && player.y === obj.targetY;
+          obj.done = obj.done || (player.x === obj.targetX && player.y === obj.targetY);
         }
         break;
       }
@@ -38,7 +38,7 @@ export function updatePlayerObjectives(
       case "REACH_EXIT": {
         const exit = state.level.exitPoints?.[0];
         if (exit) {
-          obj.done = player.x === exit.x && player.y === exit.y;
+          obj.done = obj.done || (player.x === exit.x && player.y === exit.y);
         }
         break;
       }
