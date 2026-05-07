@@ -76,13 +76,17 @@ async getAllTimeLeaderboard(limit = 100): Promise<LeaderboardEntryDto[]> {
       `
       SELECT rank FROM (
         SELECT
-          g.winner_user_id AS "userId",
-          RANK() OVER (ORDER BY COUNT(*) DESC) AS rank
-        FROM games g
+          gp.registered_user_id AS "userId",
+          RANK() OVER (
+            ORDER BY COUNT(g.id) FILTER (
+              WHERE g.winner_user_id = gp.user_id
+            ) DESC
+          ) AS rank
+        FROM game_players gp
+        JOIN games g ON g.id = gp.game_id
         WHERE g.phase = 'END'
           AND g.type = 'MULTI'
-          AND g.winner_user_id IS NOT NULL
-        GROUP BY g.winner_user_id
+        GROUP BY gp.registered_user_id
       ) ranked
       WHERE "userId" = $1
     `,
