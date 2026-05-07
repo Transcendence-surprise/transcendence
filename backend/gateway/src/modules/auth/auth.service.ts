@@ -1,16 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import type { AxiosResponse } from 'axios';
-import type { ConfigType } from '@nestjs/config';
-import gatewayConfig from '../../common/config/gateway.config';
 
 @Injectable()
 export class AuthHttpService {
-  constructor(
-    @Inject(gatewayConfig.KEY)
-    private readonly http: HttpService
-  ) {}
+  constructor(private readonly http: HttpService) {}
   async login<T = unknown>(body: unknown) {
     return this.requestWithCookies<T>('post', '/api/auth/login', body);
   }
