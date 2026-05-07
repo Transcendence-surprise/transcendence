@@ -136,7 +136,7 @@ export default function Chat() {
           Login required to access chat
         </h2>
 
-        <BackButton onClick={() => navigate(-1)} variant="outline" />
+        <BackButton onClick={() => navigate("/")} variant="outline" />
       </div>
     );
   }

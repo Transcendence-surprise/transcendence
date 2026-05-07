@@ -69,7 +69,7 @@ export default function Friends() {
           Login required to access friends list
         </h2>
 
-        <BackButton onClick={() => navigate(-1)} variant="outline" />
+        <BackButton onClick={() => navigate("/")} variant="outline" />
       </div>
     );
   }

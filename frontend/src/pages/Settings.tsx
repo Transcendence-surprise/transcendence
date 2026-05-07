@@ -62,7 +62,7 @@ export default function Settings() {
           Login required to access settings
         </h2>
 
-        <BackButton onClick={() => navigate(-1)} variant="outline" />
+        <BackButton onClick={() => navigate("/")} variant="outline" />
       </div>
     );
   }
