@@ -11,6 +11,45 @@ export function useGameActions(
 ) {
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  const extractGameErrorCode = (error: unknown): string | null => {
+    const message = error instanceof Error ? error.message : null;
+    if (!message) return null;
+
+    const upper = message.toUpperCase();
+    const knownCodes = [
+      "GAME_NOT_FOUND",
+      "PLAYER_NOT_FOUND",
+      "NOT_IN_GAME",
+      "NOT_YOUR_TURN",
+      "INVALID_ACTION",
+      "REQUIRED_BOARD_ACTION",
+      "BOARD_ACTION_ALREADY_PERFORMED",
+    ];
+
+    return knownCodes.find((code) => upper.includes(code)) ?? null;
+  };
+
+  const getGameErrorMessage = (code: string | null, fallback: string): string => {
+    switch (code) {
+      case "GAME_NOT_FOUND":
+        return "Game not found.";
+      case "PLAYER_NOT_FOUND":
+        return "Player not found.";
+      case "NOT_IN_GAME":
+        return "You are not in this game.";
+      case "NOT_YOUR_TURN":
+        return "It is not your turn.";
+      case "REQUIRED_BOARD_ACTION":
+        return "You must perform a board action first.";
+      case "BOARD_ACTION_ALREADY_PERFORMED":
+        return "You already performed a board action this turn.";
+      case "INVALID_ACTION":
+        return "That action is not allowed.";
+      default:
+        return fallback;
+    }
+  };
+
   useEffect(() => {
     return () => {
       abortControllerRef.current?.abort();
@@ -35,7 +74,13 @@ export function useGameActions(
       }, signal);
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
-        onAlert?.(err?.message || err, "Row Shift Failed");
+        onAlert?.(
+          getGameErrorMessage(
+            extractGameErrorCode(err),
+            "Unable to shift row. Please try a different move.",
+          ),
+          "Row Shift Failed",
+        );
         console.error(err);
       }
     }
@@ -53,7 +98,13 @@ export function useGameActions(
       }, signal);
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
-        onAlert?.(err?.message || err, "Column Shift Failed");
+        onAlert?.(
+          getGameErrorMessage(
+            extractGameErrorCode(err),
+            "Unable to shift column. Please try a different move.",
+          ),
+          "Column Shift Failed",
+        );
         console.error(err);
       }
     }
@@ -69,7 +120,13 @@ export function useGameActions(
       }, signal);
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
-        onAlert?.(err?.message || err, "Rotate Failed");
+        onAlert?.(
+          getGameErrorMessage(
+            extractGameErrorCode(err),
+            "Unable to rotate tile. Please try a different move.",
+          ),
+          "Rotate Failed",
+        );
         console.error(err);
       }
     }
@@ -87,7 +144,13 @@ export function useGameActions(
       }, signal);
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
-        onAlert?.(err?.message || err, "Swap Failed");
+        onAlert?.(
+          getGameErrorMessage(
+            extractGameErrorCode(err),
+            "Unable to swap tiles. Please try a different move.",
+          ),
+          "Swap Failed",
+        );
         console.error(err);
       }
     }
@@ -99,7 +162,13 @@ export function useGameActions(
       await playerMove(gameId, path, false, signal);
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
-        onAlert?.(err?.message || err, "Move Failed");
+        onAlert?.(
+          getGameErrorMessage(
+            extractGameErrorCode(err),
+            "Unable to move. Please try again.",
+          ),
+          "Move Failed",
+        );
         console.error(err);
       }
     }
@@ -111,7 +180,13 @@ export function useGameActions(
       await playerMove(gameId, [], true, signal);
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
-        onAlert?.(err?.message || err, "Skip Failed");
+        onAlert?.(
+          getGameErrorMessage(
+            extractGameErrorCode(err),
+            "Unable to skip your turn. Please try again.",
+          ),
+          "Skip Failed",
+        );
         console.error(err);
       }
     }
@@ -129,7 +204,13 @@ export function useGameActions(
       navigate(-1);
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
-        onAlert?.(err?.message || err, "Leave Game Failed");
+        onAlert?.(
+          getGameErrorMessage(
+            extractGameErrorCode(err),
+            "Unable to leave the game. Please try again.",
+          ),
+          "Leave Game Failed",
+        );
         console.error(err);
       }
     }
