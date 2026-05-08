@@ -358,7 +358,7 @@ export default function Rules() {
 
 		{/* Footer */}
 		<div className="mt-12 text-center text-light-cyan text-sm border-t border-[var(--color-border-subtle)] pt-8">
-		  <p>Master your strategy and become the Labyrinth champion! Good luck! 🎮</p>
+		  <p>Master your strategy and become the Labyrinth champion! Good luck!</p>
 		</div>
 	  </div>
 	</div>

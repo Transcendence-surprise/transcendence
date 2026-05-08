@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import Alert from "../shared/Alert";
+import { RxCross2 } from "react-icons/rx";
 
 interface SignupFormProps {
   onClose: () => void;
@@ -111,7 +112,12 @@ export default function SignupForm({
   };
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-purple-900/50 via-black/90 to-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div
+      className="fixed inset-0 bg-gradient-to-br from-purple-900/50 via-black/90 to-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="signup-modal-title"
+    >
       {notice && (
         <Alert
           open
@@ -128,14 +134,16 @@ export default function SignupForm({
       )}
       <div className="relative bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 border border-cyan-500/30 rounded-3xl p-10 w-full max-w-md shadow-2xl shadow-cyan-500/20 max-h-[90vh] overflow-y-auto">
         <button
+          type="button"
           onClick={onClose}
-          className="sticky top-0 float-right text-gray-400 hover:text-white text-2xl z-10 -mt-2 -mr-2"
+          className="absolute right-4 top-4 text-gray-400 hover:text-white text-2xl z-10"
+          aria-label="Close"
         >
-          ×
+          <RxCross2 />
         </button>
 
         <div className="text-center mb-6">
-          <h1 className="text-4xl font-bold text-white mb-2">Create Account</h1>
+          <h1 id="signup-modal-title" className="text-4xl font-bold text-white mb-3">Create Account</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">

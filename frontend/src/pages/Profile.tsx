@@ -43,7 +43,7 @@ export default function Profile() {
           Login required to access profile
         </h2>
 
-        <BackButton onClick={() => navigate(-1)} variant="outline" />
+        <BackButton onClick={() => navigate("/")} variant="outline" />
       </div>
     );
   }
