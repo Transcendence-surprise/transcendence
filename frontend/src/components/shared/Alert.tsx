@@ -1,6 +1,6 @@
 import { useId, type ReactNode } from "react";
 
-type AlertVariant = "info" | "success" | "warning" | "error";
+export type AlertVariant = "info" | "success" | "warning" | "error";
 
 type AlertDialogProps = {
   open: boolean;
