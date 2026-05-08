@@ -197,6 +197,7 @@ describe('AuthHttpService', () => {
         status: 302,
         location: 'http://localhost:3000/',
         cookies: ['auth_payload=xyz; HttpOnly'],
+        data: {},
       });
     });
 

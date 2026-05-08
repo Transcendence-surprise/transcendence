@@ -159,7 +159,7 @@ describe('AuthController', () => {
       });
 
       await expect(controller.intra42Auth()).rejects.toThrow(
-        'No redirect from auth',
+        'Auth service did not provide redirect',
       );
     });
   });
@@ -195,21 +195,25 @@ describe('AuthController', () => {
       );
     });
 
-    it('should throw error if no redirect location', async () => {
+    it('should return upstream error if no redirect location', async () => {
       const params = { code: 'auth_code', state: 'state_value' };
       const mockReply: any = {
         header: jest.fn().mockReturnThis(),
         redirect: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
       };
 
       service.intra42AuthCallback.mockResolvedValue({
         status: 200,
         location: undefined,
+        data: { message: 'Auth error' },
       });
 
-      await expect(
-        controller.intra42AuthCallback(params, mockReply),
-      ).rejects.toThrow('No redirect from auth');
+      await controller.intra42AuthCallback(params, mockReply);
+
+      expect(mockReply.status).toHaveBeenCalledWith(200);
+      expect(mockReply.send).toHaveBeenCalledWith({ message: 'Auth error' });
     });
   });
 });
