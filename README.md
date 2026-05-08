@@ -1,6 +1,6 @@
 *This project has been created as part of the 42 curriculum by mzhivoto, mzhitnik, ekashirs, mlitvino, and imunaev-.*
 
-# ft_transcendence — Valinor
+# ft_transcendence — Maze is Lava
 
 **A multiplayer real-time web game** built as part of the 42 curriculum by Marina Zhivotova, Mariia Zhytnikova, Evgeniia Kashirskaia, Mykhailo Litvinov, and Ilia Munaev.
 
@@ -8,7 +8,7 @@
 
 ## Description
 
-Valinor is a browser-based multiplayer puzzle game where players navigate tile-based boards, collect items, and compete for the top spot on the global leaderboard. The game supports both single-player and real-time multiplayer modes.
+Maze is Lava is a browser-based multiplayer puzzle game where players navigate tile-based boards, collect items, and compete for the top spot on the global leaderboard. The game supports both single-player and real-time multiplayer modes.
 
 **Key features:**
 
@@ -100,29 +100,29 @@ make prod-fclean
 ### Frontend
 
 
-| Technology       | Version | Purpose                           |
-| ---------------- | ------- | --------------------------------- |
-| React            | 18      | UI component framework            |
-| Vite             | —       | Build tool and dev server         |
-| Tailwind CSS     | —       | Utility-first styling             |
-| React Router DOM | —       | Client-side routing               |
-| Socket.io-client | —       | Real-time WebSocket communication |
-| TypeScript       | —       | Type safety                       |
-| Vitest           | —       | Unit and e2e tests                |
+| Technology       | Purpose                           |
+| ---------------- | --------------------------------- |
+| React            | UI component framework            |
+| Vite             | Build tool and dev server         |
+| Tailwind CSS     | Utility-first styling             |
+| React Router DOM | Client-side routing               |
+| Socket.io-client | Real-time WebSocket communication |
+| TypeScript       | Type safety                       |
+| Vitest           | Unit and e2e tests                |
 
 
 ### Backend
 
 
-| Technology      | Version | Purpose                                         |
-| --------------- | ------- | ----------------------------------------------- |
-| NestJS          | —       | Server framework                                |
-| Fastify         | —       | HTTP adapter (replaces Express for performance) |
-| TypeORM         | —       | ORM and schema migrations                       |
-| Socket.IO       | —       | WebSocket server                                |
-| JWT             | —       | Stateless authentication tokens                 |
-| Swagger/OpenAPI | —       | API documentation                               |
-| Jest / ts-jest  | —       | Backend testing                                 |
+| Technology      | Purpose                                         |
+| --------------- | ----------------------------------------------- |
+| NestJS          | Server framework                                |
+| Fastify         | HTTP adapter (replaces Express for performance) |
+| TypeORM         | ORM and schema migrations                       |
+| Socket.IO       | WebSocket server                                |
+| JWT             | Stateless authentication tokens                 |
+| Swagger/OpenAPI | API documentation                               |
+| Jest / ts-jest  | Backend testing                                 |
 
 
 ### Database
@@ -160,23 +160,22 @@ make prod-fclean
 
 | Feature                    | Description                                                                                               | Team member(s) |
 | -------------------------- | --------------------------------------------------------------------------------------------------------- | -------------- |
-| Single-player puzzle mode  | Navigate a tile-based board, collect items within move/time limits across multiple levels                 | To be updated  |
-| Real-time multiplayer game | Up to N players on a shared board with turn-based board actions (shift, rotate, swap) and player movement | To be updated  |
-| Multiplayer lobby          | Pre-game chat room and player ready system before match starts                                            | To be updated  |
-| User profiles              | Avatar upload, stats display (games played, wins, rank, win streak)                                       | To be updated  |
-| Global leaderboard         | Ranked list of all users by win count and streak                                                          | To be updated  |
-| Achievement badges         | Unlockable badges for reaching milestones (first game, 20 games, etc.)                                    | To be updated  |
-| Friend system              | Send/accept/reject/block friend requests; view friends list                                               | To be updated  |
-| Local authentication       | Register and log in with email + password (bcrypt-hashed)                                                 | To be updated  |
-| Google OAuth               | Sign in with Google account                                                                               | To be updated  |
-| 42 Intra OAuth             | Sign in with 42 school account                                                                            | To be updated  |
-| Two-factor authentication  | TOTP-based 2FA support for registered users                                                               | To be updated  |
-| Role-based access control  | `user` and `admin` roles with decorator-based guards on all protected endpoints                           | To be updated  |
-| API key authentication     | Machine-to-machine authentication via `x-api-key` header                                                  | To be updated  |
-| REST API with Swagger      | Full OpenAPI documentation aggregated from all services, available at `/api/docs`                         | To be updated  |
-| WAF (ModSecurity)          | Web Application Firewall integrated with Nginx to filter malicious requests                               | To be updated  |
-| Secrets management (Vault) | HashiCorp Vault manages all credentials with AppRole auth in production                                   | To be updated  |
-| Guest access               | Unregistered users can play games as guests (UUID-based identity)                                         | To be updated  |
+| Single-player puzzle mode  | Navigate a tile-based board, collect items within move/time limits across multiple levels                 | Mariia, Marina, Evgeniia |
+| Real-time multiplayer game | Up to N players on a shared board with turn-based board actions (shift, rotate, swap) and player movement | Mariia, Marina, Evgeniia |
+| Multiplayer lobby          | Pre-game chat room and player ready system before match starts                                            | Mariia, Marina, Evgeniia |
+| User profiles              | Avatar upload, stats display (games played, wins, rank, win streak)                                       | Marina, Mikhail, Evgeniia |
+| Global leaderboard         | Ranked list of all users by win count and streak                                                          | Mikhail, Evgeniia  |
+| Achievement badges         | Unlockable badges for reaching milestones (first game, 20 games, etc.)                                    | Mariia |
+| Friend system              | Send/accept/reject/block friend requests; view friends list                                               | Mariia, Marina|
+| Local authentication       | Register and log in with email + password (bcrypt-hashed)                                                 | Marina, Mikhail |
+| Google OAuth               | Sign in with Google account                                                                               | Mikhail |
+| 42 Intra OAuth             | Sign in with 42 school account                                                                            | Mikhail  |
+| Two-factor authentication  | TOTP-based 2FA support for registered users                                                               | Mariia, Marina, Mikhail |
+| Role-based access control  | `user`, `guest` and `admin` roles with decorator-based guards on all protected endpoints                           | Mariia, Marina, Mikhail |
+| API key authentication     | Machine-to-machine authentication via `x-api-key` header                                                  | Mikhail  |
+| REST API with Swagger      | Full OpenAPI documentation aggregated from all services, available at `/api/docs`                         | Mikhail  |
+| WAF (ModSecurity)          | Web Application Firewall integrated with Nginx to filter malicious requests                               | Ilia  |
+| Secrets management (Vault) | HashiCorp Vault manages all credentials with AppRole auth in production                                   | Ilia, Mikhail  |
 
 
 ---
@@ -237,12 +236,110 @@ make prod-fclean
 
 | Member               | Login    | Role(s)       | Responsibilities |
 | -------------------- | -------- | ------------- | ---------------- |
-| Marina Zhivotova     | mzhivoto | Product Owner / Developer  | To be updated    |
-| Mariia Zhytnikova    | mzhitnik | Product Owner / Developer | To be updated    |
-| Evgeniia Kashirskaia | ekashirs | Product Owner / Developer | To be updated    |
-| Mykhailo Litvinov    | mlitvino | Technical Lead / Architect | To be updated    |
-| Ilia Munaev          | imunaev- | Project Manager | Organizes team meetings, tracks progress and deadlines, ensures team communication.   |
+| Marina Zhivotova     | mzhivoto | Product Owner / Developer  | Defines the product vision, prioritizes features, and ensures the project meets user needs. Implement features and modules.|
+| Mariia Zhytnikova    | mzhitnik | Product Owner / Developer | Defines the product vision, prioritizes features, and ensures the project meets user needs. Implement features and modules.|
+| Evgeniia Kashirskaia | ekashirs | Product Owner / Developer | Defines the product vision, prioritizes features, and ensures the project meets user needs. Implement features and modules.|
+| Mykhailo Litvinov    | mlitvino | Technical Lead / Developer | Oversees technical decisions and architecture. Implement features and modules.|
+| Ilia Munaev          | imunaev- | Project Manager / Developer | Organizes team meetings, tracks progress and deadlines, ensures team communication. Implement features and modules.|
 
+
+---
+
+## Individual Contributions
+
+## Marina Zhivotova (`mzhivoto`)
+**Role:** Product Owner / Developer
+
+### Responsibilities
+- Defined product vision and participated in feature prioritization
+- Implemented core gameplay and backend functionality
+- Contributed to authentication and security modules
+- Participated in multiplayer systems and social features development
+
+### Implemented Features
+- Single-player puzzle mode
+- Real-time multiplayer game
+- Multiplayer lobby
+- User profiles
+- Friend system
+- Local authentication
+- Two-factor authentication
+- Role-based access control
+
+---
+
+## Mariia Zhytnikova (`mzhitnik`)
+**Role:** Product Owner / Developer
+
+### Responsibilities
+- Defined product vision and participated in feature prioritization
+- Developed gameplay mechanics and multiplayer interaction systems
+- Implemented user progression and security-related features
+- Contributed to social systems and access control
+
+### Implemented Features
+- Single-player puzzle mode
+- Real-time multiplayer game
+- Multiplayer lobby
+- Achievement badges
+- Friend system
+- Two-factor authentication
+- Role-based access control
+
+---
+
+## Evgeniia Kashirskaia (`ekashirs`)
+**Role:** Product Owner / Developer
+
+### Responsibilities
+- Defined product vision and participated in feature prioritization
+- Developed gameplay systems and multiplayer functionality
+- Implemented profile and ranking-related modules
+- Contributed to API integration and frontend/backend interaction
+
+### Implemented Features
+- Single-player puzzle mode
+- Real-time multiplayer game
+- Multiplayer lobby
+- User profiles
+- Global leaderboard
+
+---
+
+## Mykhailo Litvinov (`mlitvino`)
+**Role:** Technical Lead / Developer
+
+### Responsibilities
+- Oversaw technical architecture and engineering decisions
+- Implemented authentication and API infrastructure
+- Developed security-related modules and service integrations
+- Managed backend documentation and production integrations
+
+### Implemented Features
+- User profiles
+- Global leaderboard
+- Local authentication
+- Google OAuth
+- 42 Intra OAuth
+- Two-factor authentication
+- Role-based access control
+- API key authentication
+- REST API with Swagger
+- Secrets management with HashiCorp Vault
+
+---
+
+## Ilia Munaev (`imunaev-`)
+**Role:** Project Manager / Developer
+
+### Responsibilities
+- Organized team meetings and coordinated development workflow
+- Tracked progress, deadlines, and communication between team members
+- Implemented infrastructure and production security solutions
+
+### Implemented Features
+- WAF (ModSecurity)
+- Secrets management with HashiCorp Vault
 
 ---
 
@@ -291,5 +388,10 @@ All AI-generated code was reviewed, tested, and integrated by the team.
 ## Known Limitations
 
 - Vault data is in-memory in dev mode and lost on container restart — re-seed before each dev session.
+  
+---
 
+## License
 
+- This project has been created as part of the 42 curriculum. It is intended for educational use.
+- MIT.
