@@ -16,7 +16,7 @@ export class LoginUserDto {
     example: 'securePassword123',
   })
   @IsString()
-  @MinLength(1)
+  @MinLength(8)
   @MaxLength(72)
   password: string;
 }

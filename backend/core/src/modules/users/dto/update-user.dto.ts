@@ -39,7 +39,7 @@ export class UpdateUserDto {
   })
   @IsOptional()
   @IsString()
-  @MinLength(1)
+  @MinLength(8)
   @MaxLength(255)
   @Matches(/\S/, { message: 'password must contain a non-whitespace character' })
   password?: string;
