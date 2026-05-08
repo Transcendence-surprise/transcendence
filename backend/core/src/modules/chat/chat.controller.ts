@@ -5,12 +5,14 @@ import { CurrentUser } from '../../decorators/current-user.decorator';
 import type { JwtPayload } from '../../decorators/current-user.decorator';
 import { ChatService } from './chat.service';
 import type { AddChatMessageDto } from './dto/chat.dto';
+import { ApiSecurity } from '@nestjs/swagger';
 
 @Controller('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   @Get('history')
+  @ApiSecurity('JWT')
   getHistory(@CurrentUser() user: JwtPayload) {
     if (!user) {
       throw new UnauthorizedException();
@@ -22,6 +24,7 @@ export class ChatController {
   }
 
   @Post('messages')
+  @ApiSecurity('JWT')
   addMessage(
     @CurrentUser() user: JwtPayload,
     @Body() dto: AddChatMessageDto,

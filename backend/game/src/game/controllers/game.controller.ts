@@ -2,7 +2,7 @@ import { Controller, Post, Body, Get, Param, HttpCode } from '@nestjs/common';
 import { EngineService } from '../services/engine.service.nest';
 import { UnauthorizedException } from '@nestjs/common';
 import { GameSettings } from '../models/state';
-import { ApiBody, ApiOkResponse, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiParam, ApiResponse, ApiSecurity } from '@nestjs/swagger';
 import {
   CreateGameDto,
   CreateGameResponseDto,
@@ -27,6 +27,7 @@ import { BoardMoveDto } from '../dtos/board-move.dto';
 import { PlayerAction } from '../models/playerAction';
 
 @Controller('game')
+@ApiSecurity('JWT')
 export class GameController {
   constructor(
     private readonly engine: EngineService,
