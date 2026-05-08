@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+	Injectable,
+	UnauthorizedException,
+	BadRequestException,
+	BadGatewayException,
+} from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import type { FastifyRequest } from 'fastify';
@@ -99,11 +104,11 @@ export class BadgeHttpService {
 				res = await lastValueFrom(this.http.patch<T>(path, body, config));
 				break;
 			default:
-				throw new Error(`Unsupported method`);
+				throw new BadRequestException('Unsupported method');
 		}
 
 		if (!res) {
-			throw new Error('No response from badges service');
+			throw new BadGatewayException('No response from badges service');
 		}
 
     return {

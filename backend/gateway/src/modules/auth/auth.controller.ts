@@ -9,6 +9,7 @@ import {
   Param,
   Query,
   UseGuards,
+  BadGatewayException,
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
 import { AuthHttpService } from './auth.service';
@@ -75,7 +76,7 @@ export class AuthController {
     if (res.location) {
       return { url: res.location, statusCode: res.status };
     }
-    throw new Error('No redirect from auth');
+    throw new BadGatewayException('Auth service did not provide redirect');
   }
 
   @Get('google/callback')
@@ -100,7 +101,7 @@ export class AuthController {
     if (res.location) {
       return { url: res.location, statusCode: res.status };
     }
-    throw new Error('No redirect from auth');
+    throw new BadGatewayException('Auth service did not provide redirect');
   }
 
   @Get('intra42/callback')
