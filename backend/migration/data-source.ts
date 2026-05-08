@@ -12,7 +12,7 @@ if (!(Number(process.env.POSTGRES_PORT) &&
     process.env.POSTGRES_PASSWORD &&
     process.env.POSTGRES_DB))
 {
-      console.log('Error: some env variables not set');
+      console.error('Error: some env variables not set');
       process.exit(1);
 }
 

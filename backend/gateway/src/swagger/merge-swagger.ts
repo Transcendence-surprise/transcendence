@@ -122,10 +122,7 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
       },
     });
 
-    console.log(
-      'Manual merged Swagger docs available at /api/docs and /api/docs-json',
-    );
   } catch (err: unknown) {
-    console.warn('Error while manually merging OpenAPI docs:', String(err));
+    console.error('Error while manually merging OpenAPI docs:', String(err));
   }
 }
