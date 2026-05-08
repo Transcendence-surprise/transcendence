@@ -6,6 +6,7 @@ It is intended for the evaluation sheet and is based on:
 - commit authors
 - commit messages
 - the main subsystems touched by those commits
+- a full pass through the repository history from the initial commit onward
 
 ## Notes
 
@@ -19,6 +20,10 @@ It is intended for the evaluation sheet and is based on:
 
 Aliases seen in git history:
 - `Misha <darkrabbit240@gmail.com>`
+
+History coverage:
+- commits in history: `398`
+- active range in git log: `2025-12-13` → `2026-05-02`
 
 Main implemented areas:
 - Backend authentication architecture
@@ -53,6 +58,10 @@ Aliases seen in git history:
 - `Mariia Zhytnikova <allusio@gmail.com>`
 - `mzhitnik <119492493+MariiaZhytnikova@users.noreply.github.com>`
 
+History coverage:
+- commits in history: `385`
+- active range in git log: `2025-12-09` → `2026-05-07`
+
 Main implemented areas:
 - Core game logic and multiplayer flow
 - Game setup, routes, state models, and level registry integration
@@ -66,6 +75,8 @@ Main implemented areas:
 - New levels, exit tile, objectives, and gameplay balancing
 
 Representative work from commit history:
+- `Initial commit`
+- `setup projects architecture`
 - `create game with settings resieved from front, tests for functions`
 - `add screen for game mode and settings`
 - `websocket for Lobby Game`
@@ -93,6 +104,10 @@ Aliases seen in git history:
 - `Marina Zhivotova <78799773+marinezh@users.noreply.github.com>`
 - `Marina Zhivotova <mazhivotova@gmail.com>`
 
+History coverage:
+- commits in history: `137`
+- active range in git log: `2025-12-12` → `2026-05-08`
+
 Main implemented areas:
 - Frontend UI foundation and layout
 - Auth forms and frontend auth UX
@@ -106,6 +121,7 @@ Main implemented areas:
 - Password reset frontend flow
 
 Representative work from commit history:
+- `improve README.md formatting and structure`
 - `setup typescript and tailwindcss`
 - `add basic frontend layout`
 - `update auth forms`
@@ -130,6 +146,10 @@ Marina’s work is mainly frontend product/UI implementation: shared components,
 Aliases seen in git history:
 - `Ilia Munaev <ilyamunaev@gmail.com>`
 - `BackerStreetZero <ilyamunaev@gmail.com>`
+
+History coverage:
+- commits in history: `80`
+- active range in git log: `2026-01-12` → `2026-04-29`
 
 Main implemented areas:
 - Database foundation, migrations, and schema changes
@@ -160,13 +180,24 @@ Aliases seen in git history:
 - `Jane Years <janeletoxx@gmail.com>`
 - `Evgeniia Kashirskaia <94862708+janeyears@users.noreply.github.com>`
 
+History coverage:
+- commits in history: `127`
+- active range in git log: `2026-01-20` → `2026-05-06`
+
 Main implemented areas:
+- Frontend layout and navigation work in earlier project stages
+- Join/lobby/game visual polish and reusable UI pieces
 - Reusable alert/notification component
 - Replacing raw alerts across frontend flows
 - Login/signup success/error UX cleanup
 - Admin/game/auth alert consistency fixes
 
 Representative work from commit history:
+- `add sidebar`
+- `split header into separate component, create pages for different parts of website`
+- `refactor JoinOrCreate with components, create SimpleButton component`
+- `update ui for join, lobby, lobby chat anf multiplayer settings`
+- `update ui for home`
 - `add reusable component for alerts`
 - `replace alerts in authentification with new componnent`
 - `change alertts in UseGameActions with component`
@@ -186,6 +217,10 @@ Evgeniia’s work is centered on frontend feedback and messaging UX, especially 
 
 Alias seen in git history:
 - `Mykhailo Litvinov <106635805+mlitvino@users.noreply.github.com>`
+
+History coverage:
+- commits in history: `24`
+- active range in git log: `2025-12-15` → `2026-05-02`
 
 Visible implemented areas:
 - GitHub Actions / deployment workflow support
