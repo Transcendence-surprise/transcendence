@@ -40,9 +40,6 @@ export default function GameSideBar({
               <h3 className="truncate text-lg font-bold text-white">
                 {currentPlayer?.name ?? "Player"}
               </h3>
-              <p className="mt-0.5 text-xs text-lightest-cyan/70">
-                Level {game.levelId}
-              </p>
             </div>
             <Avatar
               name={currentPlayer?.name ?? "Player"}
