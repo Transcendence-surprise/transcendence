@@ -430,7 +430,7 @@ Tablet-responsive layouts were specifically tested for the following viewports:
 
 ## Project Management
 
-**Task distribution:** Tasks were distributed by feature domain. Each team member owned one or more modules end-to-end (frontend + backend). Assignments are detailed in the Features List and Individual Contributions sections above. 
+**Task distribution:** Tasks were distributed by feature domain. Each team member owned one or more modules end-to-end (frontend + backend). Assignments are detailed in the Features List and Individual Contributions sections above.
 
 **Project management tools:** GitHub Issues and GitHub Projects — used to track tasks, bugs, and feature progress. Pull requests to the `development` branch required review before merge. CI runs automatically on every PR via GitHub Actions.
 
@@ -473,7 +473,7 @@ All AI-generated code was reviewed, tested, and integrated by the team.
 ## Known Limitations
 
 - Vault data is in-memory in dev mode and lost on container restart — re-seed before each dev session.
-  
+
 ---
 
 ## License

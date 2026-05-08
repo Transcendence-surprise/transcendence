@@ -7,14 +7,14 @@ services:
     build:
       target: development
     container_name: frontend-dev
+    ports:
+      - "5173:5173"
     volumes:
       - ./frontend/package.json:/app/package.json:ro
       - ./frontend/tsconfig.json:/app/tsconfig.json:ro
       - ./frontend/vite.config.js:/app/vite.config.js:ro
       - ./frontend/public:/app/public:rw
       - ./frontend/src:/app/src:rw
-    ports:
-      - "5173:5173"
 
   # === Backend Microservices ===
 
@@ -35,14 +35,14 @@ services:
     build:
       target: development
     container_name: core-dev
+    ports:
+      - "3000:3000"
     volumes:
       - ./backend/core/src:/app/src:ro
       - ./backend/core/package.json:/app/package.json:ro
       - ./backend/core/tsconfig.json:/app/tsconfig.json:ro
       - ./backend/core/nest-cli.json:/app/nest-cli.json:ro
       - ./common/db-entities/dist:/app/db-entities-dist:ro
-    ports:
-      - "3000:3000"
 
   auth:
     build:
@@ -79,6 +79,15 @@ services:
       - ./common/db-entities/dist:/app/db-entities-dist:ro
 
   # === Infrastructure ===
+
+  vault:
+    container_name: vault-dev
+    volumes:
+      - ./vault/scripts:/vault/scripts:ro
+      - ./.env:/vault/seeds/.env:ro
+    ports:
+      - "127.0.0.1:8200:8200"
+    command: ["/bin/sh", "/vault/scripts/vault-dev-entrypoint.sh"]
 
   db:
     container_name: db-dev

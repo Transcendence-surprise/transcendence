@@ -6,8 +6,13 @@ yarn-error.log*
 
 # --- Environment files ---
 .env
+.seed.env
 .env.local
 .env.*.local
+
+# --- Vault sensitive files ---
+vault/.unseal_keys
+vault/config/.unseal_keys
 
 # --- Dist / Build ---
 dist/
@@ -56,5 +61,10 @@ instructions
 
 # VS Code settings
 .vscode/
+
+# Others
+CLAUDE.md
+
+.ilia_private/
 
 .ilia_private/
