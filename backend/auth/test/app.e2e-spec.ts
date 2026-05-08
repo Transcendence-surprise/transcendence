@@ -33,7 +33,7 @@ describe('Auth Service (e2e)', () => {
 
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
-  }, 30000); // 30s timeout for DB connection
+  }, 30000);
 
   afterAll(async () => {
     if (app) {

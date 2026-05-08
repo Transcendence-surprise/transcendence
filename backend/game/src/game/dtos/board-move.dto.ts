@@ -116,7 +116,7 @@ export function transformAction(value: any) {
       return plainToInstance(SwapTilesDto, value);
   }
 
-  return value; // fallback
+  return value;
 }
 
 /* ======== BoardMoveDto ======== */

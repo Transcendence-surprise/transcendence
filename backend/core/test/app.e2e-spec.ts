@@ -10,7 +10,6 @@ describe('AppController (e2e)', () => {
   let app: NestFastifyApplication;
 
   beforeEach(async () => {
-    // Set required mail env vars for testing
     process.env.MAIL_HOST = 'localhost';
     process.env.MAIL_PORT = '1025';
     process.env.MAIL_SECURE = 'false';

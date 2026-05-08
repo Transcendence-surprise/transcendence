@@ -1,6 +1,6 @@
 // src/modules/friends/friend.service.ts
 
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import type { AxiosResponse } from 'axios';
 import { lastValueFrom } from 'rxjs';
@@ -154,11 +154,11 @@ export class FriendHttpService {
 				response = await lastValueFrom(this.http.patch<T>(path, body ?? {}, config));
 				break;
 			default:
-				throw new Error(`Unsupported method`);
+				throw new BadRequestException(`Unsupported method`);
 		}
 
 		if (!response) {
-			throw new Error('No response from friends service');
+			throw new BadRequestException('No response from friends service');
 		}
 
 		return response.data;

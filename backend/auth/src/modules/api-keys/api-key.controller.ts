@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ApiKeyService } from './api-key.service';
 import {
   ApiKeyControllerDocs,
@@ -27,7 +27,9 @@ export class ApiKeyController {
 
   @Delete(':id')
   @RemoveApiKeyDocs()
-  removeApiKeyById(@Param('id') id: string) {
+  removeApiKeyById(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
     return this.apiKeyService.removeApiKeyById(id);
   }
 

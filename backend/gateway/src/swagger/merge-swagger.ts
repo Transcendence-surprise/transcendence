@@ -54,28 +54,28 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
       components: { schemas: {} },
     };
 
-    function mergeSimple(doc: Record<string, any> | null) {
+    const mergeSchemas = (src: Record<string, any> | undefined) => {
+      if (!src) return;
+      for (const [name, schema] of Object.entries(src)) {
+        merged.components.schemas[name] ??= schema;
+      }
+    };
+
+    const mergePaths = (src: Record<string, any> | undefined) => {
+      if (!src) return;
+      for (const [path, methods] of Object.entries(src)) {
+        merged.paths[path] ??= {};
+        for (const [method, operation] of Object.entries(methods)) {
+          merged.paths[path][method] ??= operation;
+        }
+      }
+    };
+
+    const mergeSimple = (doc: Record<string, any> | null) => {
       if (!doc) return;
-
-      const srcSchemas: Record<string, any> =
-        (doc.components && doc.components.schemas) || {};
-      for (const name of Object.keys(srcSchemas)) {
-        if (!merged.components.schemas[name]) {
-          merged.components.schemas[name] = srcSchemas[name];
-        }
-      }
-
-      if (doc.paths) {
-        for (const p of Object.keys(doc.paths)) {
-          if (!merged.paths[p]) merged.paths[p] = doc.paths[p];
-          else {
-            for (const m of Object.keys(doc.paths[p])) {
-              if (!merged.paths[p][m]) merged.paths[p][m] = doc.paths[p][m];
-            }
-          }
-        }
-      }
-    }
+      mergeSchemas(doc.components?.schemas);
+      mergePaths(doc.paths);
+    };
 
     const baseConfig = new DocumentBuilder()
       .setTitle('Transcendence API')
@@ -122,10 +122,7 @@ export default async function setupMergedSwagger(app: NestFastifyApplication) {
       },
     });
 
-    console.log(
-      'Manual merged Swagger docs available at /api/docs and /api/docs-json',
-    );
   } catch (err: unknown) {
-    console.warn('Error while manually merging OpenAPI docs:', String(err));
+    console.error('Error while manually merging OpenAPI docs:', String(err));
   }
 }

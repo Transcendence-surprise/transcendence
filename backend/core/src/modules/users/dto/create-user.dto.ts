@@ -31,11 +31,6 @@ export class CreateUserDto {
   @Matches(/\S/, { message: 'password must contain a non-whitespace character' })
   password?: string;
 
-  @ApiProperty({
-    description: 'Avatar image id from images table',
-    example: 42,
-    required: false,
-  })
   @IsOptional()
   @IsInt()
   avatarImageId?: number;

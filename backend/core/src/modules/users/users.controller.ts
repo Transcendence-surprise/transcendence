@@ -23,6 +23,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserPartialDto } from './dto/update-user-partial.dto';
+import { EmailParamDto } from './dto/email-param.dto';
 
 type MaybeMultipartRequest = FastifyRequest & {
   isMultipart?: () => boolean;
@@ -69,8 +70,8 @@ export class UsersController {
 
   @Get('by-email/:email')
   @FindOneByEmailDocs()
-  getUserByEmail(@Param('email') email: string) {
-    return this.usersService.findOneByEmail(email);
+  getUserByEmail(@Param() params: EmailParamDto) {
+    return this.usersService.findOneByEmail(params.email);
   }
 
   @Get('me')
