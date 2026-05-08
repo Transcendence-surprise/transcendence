@@ -36,13 +36,13 @@ export default function SidebarLink({
       </span>
 
       {/* Label: hidden when sidebar is collapsed (default). Revealed when parent .group is hovered or when aside has .expanded */}
-  <span className="sidebar-link-label ml-2 transition-all duration-300 ease-in-out whitespace-nowrap opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0">
+      <span className="sidebar-link-label ml-2 whitespace-nowrap opacity-0 -translate-x-4 transition-all duration-300 ease-in-out xl:group-hover:opacity-100 xl:group-hover:translate-x-0">
         {label}
       </span>
 
       {/* Active dot: keep hidden when collapsed, show on hover or when active */}
       {isActive && (
-  <span className="sidebar-link-dot ml-auto w-2 h-2 rounded-full bg-[rgba(0,234,255,1)] shadow-[0_0_8px_rgba(0,234,255,0.8)] opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-in-out" />
+  <span className="sidebar-link-dot ml-auto h-2 w-2 rounded-full bg-[rgba(0,234,255,1)] opacity-0 translate-x-2 shadow-[0_0_8px_rgba(0,234,255,0.8)] transition-all duration-300 ease-in-out xl:group-hover:opacity-100 xl:group-hover:translate-x-0" />
       )}
     </Link>
   );

@@ -59,8 +59,8 @@ export default function Sidebar({ forceCollapsed = false }: SidebarProps) {
             ? "sidebar-font h-full w-18 overflow-hidden border-r border-gray-600 bg-[background: rgba(26, 26, 31, 0.95)] p-4 transition-all duration-300 ease-in-out"
             : "sidebar-font h-full w-18 self-stretch overflow-hidden border-r border-gray-600 bg-[background: rgba(26, 26, 31, 0.95)] p-4 transition-all duration-300 ease-in-out"
           : isViewportLockedPage
-          ? "sidebar-font group h-full w-16 overflow-hidden border-r border-gray-600 bg-[background: rgba(26, 26, 31, 0.95)] p-4 transition-all duration-300 ease-in-out hover:w-[240px] hover:overflow-y-auto"
-          : "sidebar-font group min-h-full self-stretch w-16 overflow-hidden border-r border-gray-600 bg-[background: rgba(26, 26, 31, 0.95)] p-4 transition-all duration-300 ease-in-out hover:w-[240px] hover:overflow-y-auto"
+          ? "sidebar-font group h-full w-16 overflow-hidden border-r border-gray-600 bg-[background: rgba(26, 26, 31, 0.95)] p-4 transition-all duration-300 ease-in-out xl:hover:w-[240px] xl:hover:overflow-y-auto"
+          : "sidebar-font group min-h-full self-stretch w-16 overflow-hidden border-r border-gray-600 bg-[background: rgba(26, 26, 31, 0.95)] p-4 transition-all duration-300 ease-in-out xl:hover:w-[240px] xl:hover:overflow-y-auto"
       }
     >
       <div className="flex h-full flex-col justify-between">
@@ -78,7 +78,7 @@ export default function Sidebar({ forceCollapsed = false }: SidebarProps) {
         <div className="mt-4 pt-3 border-t border-gray-500 w-full">
           <div className="flex flex-col items-center">
             {/* Brand name: only visible when sidebar is expanded (group-hover) */}
-            <p className="text-[11px] uppercase tracking-[0.18em] text-gray-500 hidden group-hover:block">
+            <p className="hidden text-[11px] uppercase tracking-[0.18em] text-gray-500 xl:group-hover:block">
               Transcendence
             </p>
 
@@ -89,7 +89,7 @@ export default function Sidebar({ forceCollapsed = false }: SidebarProps) {
                 aria-label="Terms of Service"
               >
                 <FiFileText className="w-5 h-5 text-gray-400" />
-                <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity">
+                <span className="text-xs text-gray-400 opacity-0 whitespace-nowrap transition-opacity xl:group-hover:opacity-100">
                   Terms of Service
                 </span>
               </Link>
@@ -100,12 +100,12 @@ export default function Sidebar({ forceCollapsed = false }: SidebarProps) {
                 aria-label="Privacy Policy"
               >
                 <FiLock className="w-5 h-5 text-gray-400" />
-                <span className="text-xs text-gray-400 opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity">
+                <span className="text-xs text-gray-400 opacity-0 whitespace-nowrap transition-opacity xl:group-hover:opacity-100">
                   Privacy Policy
                 </span>
               </Link>
 
-              <p className="text-xs text-gray-500 mt-2 hidden group-hover:block">© 2026</p>
+              <p className="mt-2 hidden text-xs text-gray-500 xl:group-hover:block">© 2026</p>
             </div>
           </div>
         </div>
