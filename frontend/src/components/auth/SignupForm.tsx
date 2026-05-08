@@ -33,6 +33,11 @@ export default function SignupForm({
     e.preventDefault();
     setAuthError(null);
 
+    if (formData.password.length < 8) {
+      setAuthError("Password must be at least 8 characters long");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setAuthError("Passwords do not match");
       return;
@@ -143,7 +148,12 @@ export default function SignupForm({
         </button>
 
         <div className="text-center mb-6">
-          <h1 id="signup-modal-title" className="text-4xl font-bold text-white mb-3">Create Account</h1>
+          <h1
+            id="signup-modal-title"
+            className="text-4xl font-bold text-white mb-3"
+          >
+            Create Account
+          </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -255,6 +265,7 @@ export default function SignupForm({
                 value={formData.password}
                 onChange={handleChange}
                 required
+                minLength={8}
                 className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
                 placeholder="Create a strong password"
               />
