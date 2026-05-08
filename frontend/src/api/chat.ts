@@ -44,7 +44,6 @@ export async function sendChatMessage(
   body: { content: string; replyTo?: string },
   signal?: AbortSignal
 ): Promise<AddMessageResult> {
-  console.log("Sending message", body);
   try {
     const res = await fetch("/api/chat/messages", {
       method: "POST",
