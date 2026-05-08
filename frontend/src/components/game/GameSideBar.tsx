@@ -29,7 +29,7 @@ export default function GameSideBar({
     0;
   const maxMoves = game.level?.constraints?.maxMoves;
   return (
-    <div className="flex w-[21.5rem] flex-col gap-3 p-3 xl:w-[22.5rem]">
+    <div className="mx-auto flex w-full max-w-[22.5rem] flex-col gap-3 px-4 py-3 xl:mx-0 xl:w-[22.5rem] xl:max-w-none xl:px-3">
       {isSingleMode ? (
         <div className="rounded-2xl border border-[var(--color-border-subtle)] bg-[linear-gradient(180deg,rgba(255,255,255,0.028),rgba(255,255,255,0.01))] px-3 py-3 shadow-[0_12px_28px_rgba(0,0,0,0.2)]">
           <p className="text-[11px] uppercase tracking-[0.24em] text-light-cyan/65">

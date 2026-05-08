@@ -34,9 +34,9 @@ export default function GamePage({
 
   return (
     <div className="flex min-h-full flex-col">
-      <div className="flex w-full items-start justify-center gap-4">
+      <div className="flex w-full flex-col items-center gap-4 xl:flex-row xl:items-start xl:justify-center">
         {/* Board centered */}
-        <div className="flex-1 flex justify-center self-start">
+        <div className="flex w-full justify-center self-start xl:flex-1">
           <BoardView
             board={game.board}
             players={game.players}
@@ -48,13 +48,13 @@ export default function GamePage({
           />
         </div>
 
-        <div className="flex-shrink-0 self-start">
+        <div className="w-full xl:w-auto xl:flex-shrink-0 xl:self-start">
           <Sidebar game={game} isSpectator={isSpectator} />
         </div>
       </div>
 
       {showChat && (
-        <div className="mt-4 w-5/6 mx-auto">
+        <div className="mx-auto mt-4 w-full max-w-5xl px-4 xl:w-5/6 xl:px-0">
           <LobbyChat
             messages={messages}
             input={input}
