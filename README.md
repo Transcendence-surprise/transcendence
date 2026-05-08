@@ -295,9 +295,13 @@ erDiagram
 | Gaming and User Experience | Minor | Gamification system to reward users | 1 | Achievements / badges / leaderboards implemented<br>Persistent in database<br>Visual feedback for users<br>Clear progression mechanics |
 | Gaming and User Experience | Minor | Spectator mode for games | 1 | Users can watch ongoing games<br>Real-time updates for spectators<br>Spectator chat supported |
 | DevOps | Major | Backend as microservices | 2 | Loosely-coupled services with clear interfaces<br>REST-based communication between services<br>Each service has a single responsibility |
+| Modules of Choice | Major | Swagger / OpenAPI integration as a cross-service API platform | 2 | Chosen because the project uses multiple backend services and a public API surface, so navigation and verification of endpoints would otherwise be fragmented<br>Addresses the technical challenge of documenting a distributed architecture with multiple services, DTOs, guards, auth flows, and internal/public endpoints<br>Adds value by giving evaluators and developers a single, structured interface to inspect endpoints, payloads, auth requirements, and service contracts<br>Deserves Major status because it is not just “docs”: it required systematic endpoint annotation, DTO integration, auth-aware API exposure, and continuous maintenance as the backend evolved |
+| Modules of Choice | Minor | Single-player mode for the game | 1 | Adds a meaningful standalone gameplay path beyond multiplayer<br>Required dedicated level design, solo rules, objective handling, move/time constraints, and separate UX flows<br>Brings value by making the project playable and testable even without multiple connected users |
+| Modules of Choice | Minor | Backend testing with Jest | 1 | Jest / ts-jest test coverage for backend services and APIs<br>Used to validate DTOs, auth/user flows, game logic, and service behavior<br>Adds technical value by improving stability and regression safety during a multi-service project |
+
 
 ## Total
-**31 points claimed**
+**35 points claimed**
 
 > Minimum required to pass: 14 pts.
 ---
