@@ -315,7 +315,7 @@ Tablet-responsive layouts were specifically tested for the following viewports:
 - `820 × 1180`
 - `1280 × 800`
 
-Because the game board, controls, and in-game sidebar require substantial interactive space, full gameplay responsiveness for phone-sized screens is not an official target of the project. On smaller mobile devices, some game views may be limited compared to the supported desktop and tablet experience.
+> Because the game board, controls, and in-game sidebar require substantial interactive space, full gameplay responsiveness for phone-sized screens is not an official target of the project. On smaller mobile devices, some game views may be limited compared to the supported desktop and tablet experience.
 ---
 
 ## Team Information
