@@ -16,15 +16,14 @@ export const CurrentUser = createParamDecorator(
     const username = request.headers['x-user-username']?.toString();
     const email = request.headers['x-user-email']?.toString();
     const rolesHeader = request.headers['x-user-roles'];
-    const roles = typeof rolesHeader === 'string' 
-      ? rolesHeader.split(',') 
+    const roles = typeof rolesHeader === 'string'
+      ? rolesHeader.split(',')
       : rolesHeader as string[];
 
     if (!rawSub || !username || !roles) {
       throw new BadRequestException('Invalid payload in headers');
     }
 
-    // For guests, sub is a UUID string; for regular users, it's a number
     const isGuest = roles.includes('guest');
     const sub: number | string = isGuest ? rawSub : Number(rawSub);
 
@@ -32,7 +31,6 @@ export const CurrentUser = createParamDecorator(
       throw new BadRequestException('Invalid user ID');
     }
 
-    // email can be empty for guests
     if (!isGuest && !email) {
       throw new BadRequestException('Invalid payload in headers');
     }

@@ -26,7 +26,6 @@ async function bootstrap() {
     }),
   );
 
-  // **Register global exception filter**
   app.useGlobalFilters(new AllExceptionsFilter());
 
   app.setGlobalPrefix('api');

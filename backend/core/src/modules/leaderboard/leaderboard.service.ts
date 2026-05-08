@@ -11,25 +11,20 @@ async getAllTimeLeaderboard(limit = 100): Promise<LeaderboardEntryDto[]> {
   const qb = this.dataSource
     .createQueryBuilder()
 
-    // base user id
     .select('gp.registered_user_id', 'userId')
 
-    // user info
     .addSelect('u.username', 'username')
     .addSelect('u.win_streak', 'winStreak')
     .addSelect('u.avatar_image_id', 'avatarImageId')
 
-    // wins (IMPORTANT: from games)
     .addSelect(`
       COUNT(g.id) FILTER (
         WHERE g.winner_user_id = gp.user_id
       )
     `, 'wins')
 
-    // total games played
     .addSelect('COUNT(gp.game_id)', 'totalGames')
 
-    // rank (same logic as getUserRanking)
     .addSelect(`
       RANK() OVER (
         ORDER BY COUNT(g.id) FILTER (
@@ -38,7 +33,6 @@ async getAllTimeLeaderboard(limit = 100): Promise<LeaderboardEntryDto[]> {
       )
     `, 'rank')
 
-    // FROM players (not games!)
     .from('game_players', 'gp')
 
     .innerJoin('games', 'g', 'g.id = gp.game_id')

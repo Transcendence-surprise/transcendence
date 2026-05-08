@@ -42,7 +42,6 @@ export class FriendService {
 
       if (existing.status === FriendStatus.PENDING) {
         if (existing.requestedBy === currentUserId) {
-          // normalize legacy rows created with sorted requester/receiver ids
           if (
             existing.requesterId !== currentUserId ||
             existing.receiverId !== targetUserId
@@ -131,7 +130,6 @@ export class FriendService {
     friendship.status = FriendStatus.ACCEPTED;
     await this.repo.save(friendship);
 
-    // Unlock first-friend badge if this is their first friend
     await this.badgeService.unlockByKey(currentUserId, 'first-friend');
     await this.badgeService.unlockByKey(otherUserId, 'first-friend');
   }

@@ -99,7 +99,6 @@ describe('UsersService', () => {
     service = module.get<UsersService>(UsersService);
     repository = module.get<Repository<User>>(getRepositoryToken(User));
 
-    // Clear all mocks before each test
     jest.clearAllMocks();
     mockQueryBuilder.where.mockReturnThis();
     mockQueryBuilder.addSelect.mockReturnThis();

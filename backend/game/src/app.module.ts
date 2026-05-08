@@ -19,7 +19,7 @@ import gameConfig from './config/game.config';
       password: process.env.POSTGRES_PASSWORD ?? 'transcendence',
       database: process.env.POSTGRES_DB ?? 'transcendence',
       autoLoadEntities: true,
-      synchronize: false, // keep false since we use migrations
+      synchronize: false,
     }),
     GameModule,
   ],
