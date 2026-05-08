@@ -211,34 +211,6 @@ export default function PlayerPrivatePanel({ game }: PlayerPrivatePanelProps) {
         </div>
       </div>
 
-      {/* <div className="rounded-xl border border-neutral-500/30 bg-black/20 px-3 py-3">
-        <p className="text-xs uppercase tracking-[0.14em] text-light-cyan/70">
-          Objective Progress
-        </p>
-        <ul className="mt-2.5 flex flex-col gap-1.5 text-sm">
-          {objectives.map((obj, idx) => {
-            const isActive = primaryObjective === obj;
-            return (
-              <li
-                key={idx}
-                className={`flex items-start gap-3 rounded-lg px-3 py-1.5 ${
-                  isActive ? "bg-cyan-400/8" : ""
-                }`}
-              >
-                <StatusDot active={obj.done} className="mt-1 h-3 w-3" />
-                <span
-                  className={
-                    obj.done ? "text-white/45 line-through" : "text-white/85"
-                  }
-                >
-                  {formatObjectiveMessage(obj)}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      </div> */}
-
       <div className="rounded-xl border border-neutral-500/30 bg-black/20 px-3 py-3">
         <p className="text-xs uppercase tracking-[0.14em] text-light-cyan/70">
           Run Stats
