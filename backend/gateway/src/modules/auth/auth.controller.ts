@@ -90,7 +90,7 @@ export class AuthController {
     if (res.location) {
       return reply.redirect(res.location, res.status);
     }
-    throw new Error('No redirect from auth');
+    return reply.status(res.status).send(res.data ?? { message: 'Auth error' });
   }
 
   @Get('intra42')
@@ -118,7 +118,7 @@ export class AuthController {
     if (res.location) {
       return reply.redirect(res.location, res.status);
     }
-    throw new Error('No redirect from auth');
+    return reply.status(res.status).send(res.data ?? { message: 'Auth error' });
   }
 
   @Get('api-keys')

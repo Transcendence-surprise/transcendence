@@ -33,7 +33,12 @@ export class AuthHttpService {
 
   async googleAuthCallback(
     code: string,
-  ): Promise<{ status: number; location?: string; cookies?: string[] }> {
+  ): Promise<{
+    status: number;
+    location?: string;
+    cookies?: string[];
+    data?: unknown;
+  }> {
     const res = await lastValueFrom(
       this.http.get('/api/auth/google/callback', {
         maxRedirects: 0,
@@ -46,6 +51,7 @@ export class AuthHttpService {
       status: res.status,
       location: res.headers?.location as string | undefined,
       cookies: this.extractCookies(res),
+      data: res.data,
     };
   }
 
@@ -65,7 +71,12 @@ export class AuthHttpService {
   async intra42AuthCallback(
     code: string,
     state: string,
-  ): Promise<{ status: number; location?: string; cookies?: string[] }> {
+  ): Promise<{
+    status: number;
+    location?: string;
+    cookies?: string[];
+    data?: unknown;
+  }> {
     const res = await lastValueFrom(
       this.http.get('/api/auth/intra42/callback', {
         maxRedirects: 0,
@@ -78,6 +89,7 @@ export class AuthHttpService {
       status: res.status,
       location: res.headers?.location as string | undefined,
       cookies: this.extractCookies(res),
+      data: res.data,
     };
   }
 

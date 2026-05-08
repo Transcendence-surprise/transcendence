@@ -9,7 +9,9 @@ import { AuthTokenResponseDto } from '../auth/dto/auth-token-response.dto';
 interface OAuth42CallbackParams {
   code: string;
   state: string;
+  error: string;
 }
+
 import {
   OAuthControllerDocs,
   GoogleAuthDocs,
@@ -38,7 +40,14 @@ export class OAuthController {
 
   @Get('google/callback')
   @GoogleAuthCallbackDocs()
-  async googleAuthCallback(@Query('code') code: string, @Res() reply: FastifyReply) {
+  async googleAuthCallback(
+    @Query('error') error: string,
+    @Query('code') code: string,
+    @Res() reply: FastifyReply
+  ) {
+    if (error || !code) {
+      return reply.redirect(this.config.frontend.url, HttpStatus.FOUND);
+    }
     const result = await this.oauthService.googleAuthCallback(code) as AuthTokenResponseDto;
     this.setAccessTokenCookie(reply, result.access_token);
     return reply.redirect(this.config.frontend.url, HttpStatus.FOUND);
@@ -55,6 +64,9 @@ export class OAuthController {
   @Get('intra42/callback')
   @Intra42AuthCallbackDocs()
   async intra42AuthCallback(@OAuth42Data() params: OAuth42CallbackParams, @Res() reply: FastifyReply) {
+    if (params.error || !params.code) {
+      return reply.redirect(this.config.frontend.url, HttpStatus.FOUND);
+    }
     const result = await this.oauthService.intra42AuthCallback(params.code, params.state) as AuthTokenResponseDto;
     this.setAccessTokenCookie(reply, result.access_token);
     return reply.redirect(this.config.frontend.url, HttpStatus.FOUND);
