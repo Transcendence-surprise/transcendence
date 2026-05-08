@@ -335,7 +335,6 @@ make prod-fclean
 ### Responsibilities
 - Organized team meetings and coordinated development workflow
 - Tracked progress, deadlines, and communication between team members
-- Implemented infrastructure and production security solutions
 
 ### Implemented Features
 - WAF (ModSecurity)
@@ -345,13 +344,13 @@ make prod-fclean
 
 ## Project Management
 
-**Task distribution:** To be updated
+**Task distribution:** Tasks were distributed by feature domain. Each team member owned one or more modules end-to-end (frontend + backend). Assignments are detailed in the Features List and Individual Contributions sections above. 
 
-**Project management tools:** To be updated (GitHub Issues, etc.)
+**Project management tools:** GitHub Issues and GitHub Projects — used to track tasks, bugs, and feature progress. Pull requests to the `development` branch required review before merge. CI runs automatically on every PR via GitHub Actions.
 
-**Communication channels:** To be updated (Discord, Slack, etc.)
+**Communication channels:** Discord — primary channel for daily communication, code reviews, and async updates. In-person meetings at Hive Helsinki campus for planning and unblocking sessions.
 
-**Meeting cadence:** To be updated
+**Meeting cadence:** Weekly planning meetings to set goals and review progress. Ad-hoc syncs as needed when blockers arose. Final integration and testing sessions held in the last week before evaluation.
 
 ---
 
