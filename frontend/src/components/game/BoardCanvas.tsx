@@ -264,10 +264,17 @@ export function BoardCanvas({
               {boardHint}
             </div>
           </div>
-          {boardActionsPending && (
+          {boardActionsPending &&  players.length > 1 && (
             <div className="mt-2 flex justify-center">
               <span className="rounded-full border border-rose-400/25 bg-rose-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-rose-200">
                 Board action required
+              </span>
+            </div>
+          )}
+          {!boardActionsPending && players.length > 1 && (
+            <div className="mt-2 flex justify-center">
+              <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200">
+                Board action is already done
               </span>
             </div>
           )}

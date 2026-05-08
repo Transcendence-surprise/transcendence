@@ -204,7 +204,6 @@ export async function getGameState(gameId: string, signal?: AbortSignal): Promis
 }
 
 export async function leaveGame(gameId: string, signal?: AbortSignal ) {
-  console.log(`Attempting to leave game with gameId ${gameId}`);
   try {
     const res = await fetch('/api/game/leave', {
       method: 'POST',
@@ -213,7 +212,6 @@ export async function leaveGame(gameId: string, signal?: AbortSignal ) {
       credentials: 'include',
       signal,
     });
-    console.log(`Leave game response status: ${res.status}`);
     let data: any = {};
     try {
       data = await res.json();

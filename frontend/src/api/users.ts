@@ -233,12 +233,6 @@ export async function uploadMyAvatar(
   const form = new FormData();
   form.append("file", file);
 
-  // console.log("About to send avatar upload request", {
-  //   name: file.name,
-  //   type: file.type,
-  //   size: file.size,
-  // });
-
   try {
     const res = await fetch("/api/users/me/avatar", {
       method: "POST",
@@ -247,25 +241,18 @@ export async function uploadMyAvatar(
       signal,
     });
 
-    // console.log("Avatar upload response status:", res.status);
-    // console.log("Avatar upload response ok:", res.ok);
-    // console.log("Avatar upload response content-type:", res.headers.get("content-type"));
-
     if (!res.ok) {
       let message = "Failed to upload avatar";
       try {
         const contentType = res.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
           const data = await res.json();
-          // console.log("Avatar upload error JSON:", data);
           message = data?.message || message;
         } else {
           const text = await res.text();
-          // console.log("Avatar upload error text:", text);
           if (text) message = text;
         }
       } catch (parseError) {
-        // console.error("Failed to parse error response:", parseError);
       }
       throw new Error(message);
     }
@@ -273,17 +260,13 @@ export async function uploadMyAvatar(
     const contentType = res.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
       const data = await res.json();
-      // console.log("Avatar upload success JSON:", data);
       invalidateUsersCache();
       return data;
     }
-
-    // console.log("Avatar upload success but no JSON body returned");
     throw new Error(
       `Unexpected avatar upload response content-type: ${contentType ?? "missing"}`,
     );
   } catch (e: unknown) {
-    // console.error("uploadMyAvatar caught error:", e);
     rethrowAbortError(e);
     throw e;
   }

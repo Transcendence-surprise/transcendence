@@ -104,7 +104,9 @@ export default function Friends() {
               placeholder="Enter username"
               className="w-full rounded-lg border border-[var(--color-border-subtle)] bg-black/30 px-4 py-2 text-white outline-none transition focus:border-cyan-bright"
             />
-            <button type="submit">Send</button>
+            <button type="submit" className="px-4 py-2 bg-cyan-bright text-black font-bold rounded-lg hover:bg-cyan-400 transition">
+              Send
+            </button>
           </form>
 
           {sendStatus ? (

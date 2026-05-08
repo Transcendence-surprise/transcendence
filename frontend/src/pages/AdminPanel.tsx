@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Alert from "../components/shared/Alert";
 import { getAllUsers, deleteUser, setUserTwoFactor } from "../api/users";
 import { checkAllServicesHealth, type ServiceHealth } from "../api/health";
-import AdminServicesSection from "../components/admin/AdminServicesSection";
 import AdminUsersSection from "../components/admin/AdminUsersSection";
 import ActionConfirmationModal, {
   type PendingDeletion,
@@ -19,7 +18,6 @@ interface PendingTwoFactorChange extends PendingDeletion {
 export default function AdminPanel() {
   const { user, isAdmin } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
-  const [services, setServices] = useState<ServiceHealth[]>([]);
   const [updating2FA, setUpdating2FA] = useState<Record<string, boolean>>({});
   const [deletingUsers, setDeletingUsers] = useState<Record<string, boolean>>(
     {},
@@ -150,31 +148,6 @@ export default function AdminPanel() {
             console.error(err);
           }
         });
-
-      // Check services health
-      checkAllServicesHealth(controller.signal)
-        .then(setServices)
-        .catch((err) => {
-          if (err?.name !== "AbortError") {
-            console.error(err);
-          }
-        });
-
-      // Poll services health every 30 seconds
-      const healthInterval = setInterval(() => {
-        checkAllServicesHealth(controller.signal)
-          .then(setServices)
-          .catch((err) => {
-            if (err?.name !== "AbortError") {
-              console.error(err);
-            }
-          });
-      }, 30000);
-
-      return () => {
-        clearInterval(healthInterval);
-        controller.abort();
-      };
     }
 
     return () => {
@@ -203,7 +176,6 @@ export default function AdminPanel() {
       <h1 className="text-2xl text-light-cyan font-bold mb-4">Admin Panel</h1>
       <p className="mb-4 text-white">Welcome, {user?.username}!</p>
 
-      <AdminServicesSection services={services} />
 
       <AdminUsersSection
         users={users}

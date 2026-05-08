@@ -41,10 +41,6 @@ export default function Footer() {
           <p className="text-center text-sm text-gray-400 tracking-wide mb-1">
             © 2026 Transcendence Game
            </p>
-          {/* <span className="mx-2">•</span> */}
-          {/* <a href="/terms" className="text-gray-500 hover:text-gray-300 hover:underline transition-colors">
-            Terms of Service
-          </a> */}
         </div>
       </div>
     </footer>

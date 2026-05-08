@@ -83,8 +83,6 @@ export default function App() {
               {/* Game screen */}
               <Route path="game/:id" element={<GameRoute />} />
 
-              {/* Other XD routes */}
-
               {/* Future routes - uncomment when ready */}
               {<Route path="profile" element={<Profile />} />}
               {<Route path="leaderboard" element={<Leaderboard />} />}

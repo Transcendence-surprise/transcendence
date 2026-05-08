@@ -49,7 +49,7 @@ export class BadgeBootstrapService {
       conditionType: 'games',
       conditionValue: 20,
       imageUrl: '/assets/badges/badge_20_games.svg',
-      description: 'Play 20 multiplayer games',
+      description: 'Play 20 completed multiplayer games',
     },
     {
       key: 'games-50',
@@ -57,7 +57,7 @@ export class BadgeBootstrapService {
       conditionType: 'games',
       conditionValue: 50,
       imageUrl: '/assets/badges/badge_50_games.svg',
-      description: 'Play 50 multiplayer games',
+      description: 'Play 50 completed multiplayer games',
     },
   ];
 

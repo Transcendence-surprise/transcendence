@@ -38,7 +38,10 @@ export function updatePlayerObjectives(
       case "REACH_EXIT": {
         const exit = state.level.exitPoints?.[0];
         if (exit) {
-          obj.done = obj.done || (player.x === exit.x && player.y === exit.y);
+          const atExit = player.x === exit.x && player.y === exit.y;
+          obj.done = state.rules.mode === "SINGLE" 
+            ? obj.done || atExit
+            : atExit;
         }
         break;
       }

@@ -1,6 +1,8 @@
 import { processBoardAction } from '../engine/boardAction.engine';
 import { BoardAction, BoardActionError } from '../models/boardAction';
 import { GameState } from '../models/state';
+import { GamePhase } from '@transcendence/db-entities';
+
 
 function createMockBoard(): import('../models/board').Board {
   return {
@@ -32,7 +34,7 @@ function createMockState(overrides: Partial<GameState> = {}): GameState {
   return {
     levelId: 'level1',
     level: createMockLevel(),
-    phase: 'PLAY',
+    phase: GamePhase.PLAY,
     hostId: 1,
     hostName: 'host',
     players: [{ id: 1, slotId: 'P1', name: 'Player1', x: 0, y: 0, hasMoved: false, skipsLeft: 0, totalMoves: 0 }],

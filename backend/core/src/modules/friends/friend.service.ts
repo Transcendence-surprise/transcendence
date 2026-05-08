@@ -1,6 +1,5 @@
 
 import {
-  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -33,7 +32,7 @@ export class FriendService {
 
   async sendRequest(currentUserId: number, targetUserId: number) {
     if (currentUserId === targetUserId)
-      throw new BadRequestException('CANNOT_FRIEND_SELF');
+      throw new ConflictException('CANNOT_FRIEND_SELF');
 
     const existing = await this.findPair(currentUserId, targetUserId);
 

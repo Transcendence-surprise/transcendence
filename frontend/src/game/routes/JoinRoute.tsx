@@ -59,7 +59,6 @@ export default function MultiplayerJoinRoute() {
     socket.emit("joinMultiplayerList");
 
   const handleUpdate = () => {
-    console.log("WS UPDATE RECEIVED");
     fetchGames();
   };
 
