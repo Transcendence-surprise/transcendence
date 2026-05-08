@@ -127,7 +127,7 @@ export default function Profile() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-3 gap-4 mb-8 max-w-2xl">
+      <div className="mb-8 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <StatCard
           icon={
             <svg
@@ -256,7 +256,7 @@ export default function Profile() {
       {/* Recent Matches */}
       <div>
         <h3 className="text-2xl font-bold text-white mb-4">Recent Games</h3>
-        <div className="bg-bg-modal rounded-lg border border-[var(--color-border-subtle)] p-4 max-w-2xl">
+        <div className="w-full rounded-lg border border-[var(--color-border-subtle)] bg-bg-modal p-4">
           {latestGamesLoading ? (
             <p className="text-sm text-gray-400">Loading recent games...</p>
           ) : latestGamesError ? (
