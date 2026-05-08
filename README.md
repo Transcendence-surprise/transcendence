@@ -270,55 +270,36 @@ erDiagram
 
 ---
 
-## Modules
+# Evaluation Modules Summary
 
-> Major module = 2 pts · Minor module = 1 pt · **Total: 27 pts**  
+| Section | Type | Module Name | Points | Notes |
+|---|---|---|---:|---|
+| Web | Minor | Use a frontend framework | 1 | React frontend |
+| Web | Minor | Use a backend framework | 1 | NestJS / Fastify-based backend services |
+| Web | Major | Implement real-time features using WebSockets or similar technology | 2 | Real-time updates across clients<br>Handle connection/disconnection gracefully<br>Efficient message broadcasting |
+| Web | Major | Allow users to interact with other users | 2 | Basic chat system (send/receive messages between users)<br>Profile system (view user information)<br>Friends system (add/remove friends, see friends list) |
+| Web | Major | Public API to interact with the database with secured API key, rate limiting, documentation, and at least 5 endpoints | 2 | GET `/api/{something}`<br>POST `/api/{something}`<br>PUT `/api/{something}`<br>DELETE `/api/{something} |
+| Web | Minor | Use an ORM for the database | 1 | ORM-based database layer |
+| Web | Minor | Custom-made design system with reusable components | 1 | Reusable components<br>Consistent color palette<br>Typography and icons<br>At least 10 reusable components |
+| Accessibility and Internationalization | Minor | Support for additional browsers | 1 | Full compatibility with at least 2 additional browsers (Firefox, Safari, Edge, etc.)<br>Test and fix all features in each browser<br>Document browser-specific limitations<br>Consistent UI/UX across supported browsers |
+| User Management | Major | Standard user management and authentication | 2 | Users can update profile information<br>Users can upload an avatar with default fallback<br>Users can add friends and see online status<br>Users have a profile page |
+| User Management | Minor | Game statistics and match history | 1 | Track game statistics (wins, losses, ranking, streaks, etc.)<br>Display match history with dates, results, opponents<br>Show achievements and progression<br>Leaderboard integration |
+| User Management | Minor | Remote authentication with OAuth 2.0 | 1 | OAuth authentication implemented |
+| User Management | Major | Advanced permissions system | 2 | View, edit, and delete users (CRUD)<br>Roles management (admin, user, guest, etc.)<br>Different views and actions based on user role |
+| User Management | Minor | Complete 2FA system | 1 | Two-factor authentication for users |
+| Cybersecurity | Major | Implement WAF/ModSecurity + HashiCorp Vault for secrets | 2 | Strict ModSecurity/WAF configuration<br>Secrets managed in Vault (API keys, credentials, environment variables) |
+| Gaming and User Experience | Major | Implement a complete web-based game where users can play against each other | 2 | Real-time multiplayer gameplay<br>Live matches<br>Clear rules and win/loss conditions<br>2D game implementation |
+| Gaming and User Experience | Major | Remote players on separate computers can play the same game in real-time | 2 | Handle network latency and disconnections gracefully<br>Smooth remote gameplay experience<br>Reconnection logic implemented |
+| Gaming and User Experience | Major | Multiplayer game (more than two players) | 2 | Support for 3 or more players<br>Fair gameplay mechanics<br>Proper synchronization across clients |
+| Gaming and User Experience | Minor | Game customization options | 1 | Different maps/themes<br>Customizable game settings<br>Default options available |
+| Gaming and User Experience | Minor | Gamification system to reward users | 1 | Achievements / badges / leaderboards implemented<br>Persistent in database<br>Visual feedback for users<br>Clear progression mechanics |
+| Gaming and User Experience | Minor | Spectator mode for games | 1 | Users can watch ongoing games<br>Real-time updates for spectators<br>Spectator chat supported |
+| DevOps | Major | Backend as microservices | 2 | Loosely-coupled services with clear interfaces<br>REST-based communication between services<br>Each service has a single responsibility |
+
+## Total
+**31 points claimed**
+
 > Minimum required to pass: 14 pts.
-
-### IV.1 — Web
-
-| Module | Type | Pts | What the subject requires | How we implemented it | Team member(s) |
-|--------|------|-----|--------------------------|----------------------|----------------|
-| Frontend framework | Minor | 1 | Use a frontend framework (React, Vue, Angular, Svelte, etc.) | **React 18** with Vite as the build tool and Tailwind CSS for styling | To be updated |
-| Backend framework | Minor | 1 | Use a backend framework (Express, Fastify, NestJS, Django, etc.) | **NestJS** with the Fastify HTTP adapter across all four backend services | To be updated |
-| Real-time features (WebSockets) | Major | 2 | Real-time updates across clients; handle connection/disconnection gracefully; efficient message broadcasting | **Socket.IO** (`@nestjs/platform-socket.io`) powers live game state, in-game chat, lobby messages, and multiplayer-list updates. Disconnect/reconnect is handled in `WsGateway` | To be updated |
-| User interaction | Major | 2 | Basic chat system (send/receive messages); profile system (view user information); friends system (add/remove friends, see friends list) | In-game and lobby **chat** over WebSockets; **profile pages** with stats and avatar; **friends** system with add/accept/reject/block via `Friendship` entity | To be updated |
-| Public API | Major | 2 | Secured API key, rate limiting, documentation, at least 5 endpoints: GET, POST, PUT, DELETE | REST API secured via `x-api-key` header (HMAC-SHA256), rate-limited with `@nestjs/throttler`, full **Swagger/OpenAPI** docs at `/api/docs`, 5+ CRUD endpoints covering users, games, profiles, leaderboard | To be updated |
-| ORM | Minor | 1 | Use an ORM for the database | **TypeORM** manages all entity definitions and runs TypeScript migrations via a dedicated migration container | To be updated |
-
-### IV.3 — User Management
-
-| Module | Type | Pts | What the subject requires | How we implemented it | Team member(s) |
-|--------|------|-----|--------------------------|----------------------|----------------|
-| Standard user management | Major | 2 | Update profile info; upload avatar (default if none); add friends and see online status; profile page | Users can edit their profile, upload an avatar (default avatar served if none set), add/remove friends, and see their friends' online status on their profile page | To be updated |
-| Game statistics & match history | Minor | 1 | Track user game statistics (wins, losses, ranking, level, etc.); display match history; show achievements and progression; leaderboard integration | `users` table stores `totalGames`, `totalWins`, `winStreak`, `rankNumber`. Completed games are persisted to the `games` table. Leaderboard and per-user match history are exposed via the `core` service API | To be updated |
-| Remote authentication (OAuth 2.0) | Minor | 1 | Implement remote authentication with OAuth 2.0 (Google, GitHub, 42, etc.) | **Google OAuth** and **42 Intra OAuth** via Passport.js strategies in the `auth` service; JWT cookie issued on successful OAuth callback | To be updated |
-| Advanced permissions system | Major | 2 | View, edit, and delete users (CRUD); roles management (admin, user, guest, moderator, etc.); different views and actions based on user role | RBAC with `user` and `admin` roles stored in a PostgreSQL array. `@Auth()` and `@Roles()` decorators on all gateway routes enforce access. Admin users can perform full user CRUD; UI adapts to role | To be updated |
-| Two-Factor Authentication (2FA) | Minor | 1 | Implement a complete 2FA system for users | TOTP-based 2FA: users enrol via QR code, and the `auth` service validates the one-time code at login before issuing the JWT cookie | To be updated |
-
-### IV.5 — Cybersecurity
-
-| Module | Type | Pts | What the subject requires | How we implemented it | Team member(s) |
-|--------|------|-----|--------------------------|----------------------|----------------|
-| WAF/ModSecurity + HashiCorp Vault | Major | 2 | Configure strict ModSecurity/WAF; manage secrets in Vault (API keys, credentials, environment variables), encrypted and isolated | **ModSecurity** with OWASP Core Rule Set embedded in the Nginx container filters all inbound traffic. **HashiCorp Vault** (AppRole auth in production) injects all credentials at container startup via `loadVaultSecrets()` — no secrets in images or environment files | To be updated |
-
-### IV.6 — Gaming and User Experience
-
-| Module | Type | Pts | What the subject requires | How we implemented it | Team member(s) |
-|--------|------|-----|--------------------------|----------------------|----------------|
-| Web-based game | Major | 2 | Real-time multiplayer game; live matches; clear rules and win/loss conditions; 2D or 3D | **Valinor** — a 2D tile-puzzle board game. Players navigate a sliding-tile board, collect items, and race to the exit. Clear win/loss conditions; single-player levels with move and time limits | To be updated |
-| Remote players | Major | 2 | Two players on separate computers in real-time; handle network latency and disconnections gracefully; reconnection logic | All game state is broadcast via Socket.IO rooms (`play:<gameId>`). Disconnected players are detected by the `WsGateway` and the game can continue or be flagged as abandoned; clients reconnect by re-joining the room | To be updated |
-| Multiplayer (3+ players) | Major | 2 | Support for three or more players simultaneously; fair gameplay mechanics; proper synchronization across all clients | The game engine supports an arbitrary number of players. Turn management (`advanceTurn()`) is fair round-robin; `PrivateGameState` per player ensures each client only receives its own data; board actions are broadcast to all | To be updated |
-| Spectator mode | Minor | 1 | Allow users to watch ongoing games; real-time updates for spectators | Users with `role: SPECTATOR` in `GamePlayer` join the same Socket.IO room and receive all `playUpdate` events in real time without being able to take actions | To be updated |
-
-### IV.7 — DevOps
-
-| Module | Type | Pts | What the subject requires | How we implemented it | Team member(s) |
-|--------|------|-----|--------------------------|----------------------|----------------|
-| Backend as microservices | Major | 2 | Loosely-coupled services with clear interfaces; REST APIs or message queues for communication; each service has a single responsibility | Four services — **gateway** (routing + auth), **core** (users/profiles/leaderboard), **auth** (authentication/OAuth/2FA), **game** (game logic/WebSocket) — each containerised independently and communicating over HTTP REST | To be updated |
-
-**Total: 10 major × 2 pts + 7 minor × 1 pt = 27 pts**
-
 ---
 
 ## Team Information
@@ -331,7 +312,6 @@ erDiagram
 | Evgeniia Kashirskaia | ekashirs | Product Owner / Developer | Defines the product vision, prioritizes features, and ensures the project meets user needs. Implement features and modules.|
 | Mykhailo Litvinov    | mlitvino | Technical Lead / Developer | Oversees technical decisions and architecture. Implement features and modules.|
 | Ilia Munaev          | imunaev- | Project Manager / Developer | Organizes team meetings, tracks progress and deadlines, ensures team communication. Implement features and modules.|
-
 
 ---
 
