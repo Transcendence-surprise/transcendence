@@ -1,7 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 import { HealthControllerDocs, HealthDocs } from './health.controller.docs';
+import { ApiExcludeController } from '@nestjs/swagger';
 
 @HealthControllerDocs()
+@ApiExcludeController()
 @Controller('auth/health')
 export class HealthController {
   @Get()
