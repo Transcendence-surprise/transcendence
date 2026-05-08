@@ -24,10 +24,9 @@ Maze is Lava is a browser-based multiplayer puzzle game where players navigate t
 - Web Application Firewall (ModSecurity) via Nginx
 - REST API with full Swagger/OpenAPI documentation
 
-Live application: **[https://valinor.ink/](https://valinor.ink/)**
-API documentation: **[https://valinor.ink/api/docs](https://valinor.ink/api/docs)**
-Database schema: **[https://drawsql.app/teams/ilias-team-10/diagrams/transcendence-db](https://drawsql.app/teams/ilias-team-10/diagrams/transcendence-db)**
-Architecture diagram: **[https://s.icepanel.io/GVOJBUo15pQ7B3/lvV5](https://s.icepanel.io/GVOJBUo15pQ7B3/lvV5)**
+Live application: **[https://valinor.ink/](https://valinor.ink/)**<br>
+API documentation: **[https://valinor.ink/api/docs](https://valinor.ink/api/docs)**<br>
+Architecture diagram: **[https://s.icepanel.io/GVOJBUo15pQ7B3/lvV5](https://s.icepanel.io/GVOJBUo15pQ7B3/lvV5)**<br>
 
 ---
 
@@ -37,16 +36,25 @@ Architecture diagram: **[https://s.icepanel.io/GVOJBUo15pQ7B3/lvV5](https://s.ic
 
 - Docker and Docker Compose v5+
 - A `.env` file with secrets (see `.env.example`)
-- TLS certificate files in `nginx/cert/` (for HTTPS in production)
-- HashiCorp Vault (started automatically via Docker Compose in production)
 
 ### Environment setup
 
-Copy the example environment file and fill in all fields marked `SECRET`:
+Copy the example environment
 
 ```bash
-cp .env.example ~/transcendence-secrets.env
-# Edit ~/transcendence-secrets.env and set all SECRET values
+cp .env.example .env
+```
+
+### Install dependencies
+
+```bash
+make dev-install
+```
+
+### Run application in development mode
+
+```bash
+make dev
 ```
 
 Required secrets include:
@@ -58,40 +66,17 @@ Required secrets include:
 - `MAIL_*` — SMTP credentials (Brevo relay)
 - `ADMIN_PASSWORD` — initial admin account password
 
-### Vault setup (first time only)
-
-```bash
-make vault-init                                      # Start Vault container
-make vault-seed FILE=~/transcendence-secrets.env     # Seed secrets into Vault
-```
-
-In production, Vault runs in server mode with AppRole authentication. Vault must be unsealed after every restart (run `make vault-unseal KEY=<key>` three times). See `docs/VAULT-GUIDE.md` for full production Vault setup.
-
-### Running in production
-
-```bash
-make prod           # Build images, run DB migrations, start all services
-```
-
-To stop and fully reset (removes all data):
-
-```bash
-make prod-fclean
-```
-
 ### Useful commands
-
 
 | Command              | Description                                                                             |
 | -------------------- | --------------------------------------------------------------------------------------- |
-| `make prod`          | Build and start the production stack                                                    |
-| `make prod-fclean`   | Stop and remove all production volumes                                                  |
+| `make dev-build`     | Build and start the development stack                                                    |
+| `make dev-fclean`    | Stop and remove all production volumes                                                  |
 | `make logs`          | Stream logs from all services                                                           |
 | `make log-<service>` | Stream logs for one service (`core`, `auth`, `gateway`, `game`, `nginx`, `db`, `vault`) |
-| `make clean`         | Stop containers, keep volumes                                                           |
+| `make down`          | Stop containers, keep volumes                                                           |
 | `make fclean`        | Stop containers and remove volumes                                                      |
 | `make prune`         | Remove dangling images                                                                  |
-
 
 ---
 
@@ -131,6 +116,111 @@ make prod-fclean
 
 ### Database Schema
 
+<details><summary>Screenshot</summary>
+<img width="943" height="713" alt="image" src="https://github.com/user-attachments/assets/b5875e10-9f22-41be-81b5-d22262aca35a" />
+</details>
+
+<details><summary>Mermaid Schema</summary>
+
+```mermaid
+erDiagram
+	API_KEYS {
+		uuid id
+		string hash
+		timestamptz created_at
+		timestamptz expires_at
+	}
+
+	USERS {
+		int id
+		string username
+		string email
+		string password
+		int avatar_image_id
+		string[] roles
+		boolean two_factor_enabled
+		int rank_number
+		int win_streak
+		int total_games
+		int total_wins
+		timestamptz created_at
+		timestamptz updated_at
+	}
+
+	IMAGES {
+		int id
+		string url
+		string filename
+		string mime_type
+		int size
+		timestamptz created_at
+	}
+
+	BADGES {
+		int id
+		string key
+		string name
+		string condition_type
+		int condition_value
+		string image_url
+		string description
+		timestamptz created_at
+	}
+
+	USER_BADGES {
+		int id
+		int user_id
+		int badge_id
+		int progress
+		boolean completed
+		timestamptz unlocked_at
+		timestamptz created_at
+	}
+
+	FRIENDSHIPS {
+		int id
+		int requester_id
+		int receiver_id
+		int requested_by
+		string status
+		timestamptz created_at
+		timestamptz updated_at
+	}
+
+	GAMES {
+		uuid id
+		string type
+		string phase
+		string host_user_id
+		jsonb state
+		string winner_user_id
+		string completion_status
+		timestamptz created_at
+		timestamptz ended_at
+		timestamptz updated_at
+	}
+
+	GAME_PLAYERS {
+		int id
+		uuid game_id
+		string user_id
+		int registered_user_id
+		string role
+		string user_type
+		timestamptz joined_at
+	}
+
+	USERS ||--o{ USER_BADGES : "user_id to users.id"
+	BADGES ||--o{ USER_BADGES : "badge_id to badges.id"
+	USERS ||--o{ FRIENDSHIPS : "requester_id to users.id"
+	USERS ||--o{ FRIENDSHIPS : "receiver_id to users.id"
+	USERS ||--o{ FRIENDSHIPS : "requested_by to users.id"
+	IMAGES ||--o{ USERS : "avatar_image_id to images.id"
+	GAMES ||--o{ GAME_PLAYERS : "game_id to games.id"
+	USERS ||--o{ GAME_PLAYERS : "registered_user_id to users.id (nullable)"
+```
+
+</details>
 
 
 ### Infrastructure
