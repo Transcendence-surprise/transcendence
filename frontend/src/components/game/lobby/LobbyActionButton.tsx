@@ -12,7 +12,7 @@ export default function LobbyActionButton({
   children,
 }: LobbyActionButtonProps) {
   const baseClass =
-    "inline-flex min-w-[148px] items-center justify-center rounded-lg px-6 py-2.5 font-semibold transition-all duration-200 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50";
+    "flex w-full min-w-[148px] items-center justify-center rounded-lg px-6 py-2.5 font-semibold transition-all duration-200 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50";
 
   const variantClass =
     variant === "leave"
