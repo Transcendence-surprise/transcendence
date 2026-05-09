@@ -41,6 +41,7 @@ async getAllTimeLeaderboard(limit = 100): Promise<LeaderboardEntryDto[]> {
     .where('g.phase = :phase', { phase: 'END' })
     .andWhere('g.type = :type', { type: 'MULTI' })
     .andWhere('gp.registered_user_id IS NOT NULL')
+    .andWhere('g.status != :status', { status: 'ABANDONED' })
 
     .groupBy('gp.registered_user_id')
     .addGroupBy('u.username')
