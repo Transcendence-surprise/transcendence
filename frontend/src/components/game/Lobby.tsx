@@ -90,7 +90,7 @@ export default function Lobby({
               <div className="flex flex-col gap-3 sm:flex-row xl:flex-col">
                   {game.phase === "LOBBY" && (
                     <span
-                      className={`group relative inline-flex ${!isHost ? "cursor-not-allowed" : ""}`.trim()}
+                      className={`group relative w-full ${!isHost ? "cursor-not-allowed" : ""}`.trim()}
                     >
                       <LobbyActionButton
                         onClick={onGameStarted}
