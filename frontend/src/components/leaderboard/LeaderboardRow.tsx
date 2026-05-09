@@ -78,7 +78,7 @@ export default function LeaderboardRow({
           <p className="text-base font-bold text-cyan-400 sm:text-lg">
             {player.totalGames}
           </p>
-          <p className="text-[11px] text-gray-400 sm:text-xs">Matches</p>
+          <p className="text-[11px] text-gray-400 sm:text-xs">Games</p>
         </div>
         <div className="text-center">
           <p className="text-base font-bold text-green-400 sm:text-lg">
