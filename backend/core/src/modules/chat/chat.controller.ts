@@ -4,7 +4,7 @@ import { Body, Controller, Get, Post, UnauthorizedException } from '@nestjs/comm
 import { CurrentUser } from '../../decorators/current-user.decorator';
 import type { JwtPayload } from '../../decorators/current-user.decorator';
 import { ChatService } from './chat.service';
-import type { AddChatMessageDto } from './dto/chat.dto';
+import { AddChatMessageDto } from './dto/chat.dto';
 import { ApiSecurity } from '@nestjs/swagger';
 
 @Controller('chat')
@@ -14,7 +14,7 @@ export class ChatController {
   @Get('history')
   @ApiSecurity('JWT')
   getHistory(@CurrentUser() user: JwtPayload) {
-    if (!user) {
+	if (!user) {
       throw new UnauthorizedException();
     }
 
