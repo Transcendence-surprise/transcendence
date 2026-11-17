@@ -182,9 +182,10 @@ prod-fclean:
 	@echo "$(CYAN)Stopping prod containers and removing prod volumes...$(RESET)"
 	$(COMPOSE) -f docker-compose.prod.yml down -v
 
+# Shared VPS: only dangling images, never other apps' containers/networks/volumes
 prod-prune:
-	@echo "$(CYAN)Pruning dangling images and anonymous volumes...$(RESET)"
-	docker system prune --volumes
+	@echo "$(CYAN)Pruning dangling images...$(RESET)"
+	docker image prune -f
 
 # =========== Utility commands ===========
 
@@ -213,6 +214,6 @@ ps:
 	up down dev dev-build dev-db dev-down dev-clean dev-fclean dev-prune \
 	dev-front dev-back dev-migrate dev-seed dev-install dev-ci clean fclean \
 	re logs ps \
-	dev-build prune prod edge-network test test-back test-front ts-client \
+	dev-build prune prod edge-network prod-prune test test-back test-front ts-client \
 	vault-init vault-seed vault-stop vault-ui dev-vault \
 	vault-start-prod vault-init-prod vault-unseal-prod vault-status-prod \
