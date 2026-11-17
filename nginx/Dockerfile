@@ -62,6 +62,6 @@ RUN chmod +x /nginx-entrypoint.sh
 
 # Frontend build comes from volume, not COPY.
 
-EXPOSE 80 443
+EXPOSE 8080
 
 ENTRYPOINT ["/nginx-entrypoint.sh"]

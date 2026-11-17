@@ -15,13 +15,19 @@ RESET = \033[0m
 # -------- Variables --------
 COMPOSE = docker compose
 PROJECT = transcendence
+EDGE_NETWORK = edge_transcendence
 
 # =========== Prod commands ===========
 
 # Start prod
-prod:
+prod: edge-network
 	make pack-deps
 	$(COMPOSE) -f docker-compose.prod.yml up -d --build
+
+# Isolated network shared only with the server's edge proxy (Caddy). Idempotent.
+edge-network:
+	@docker network inspect $(EDGE_NETWORK) >/dev/null 2>&1 || \
+		docker network create --internal $(EDGE_NETWORK)
 
 # =========== Build commands ===========
 
@@ -207,6 +213,6 @@ ps:
 	up down dev dev-build dev-db dev-down dev-clean dev-fclean dev-prune \
 	dev-front dev-back dev-migrate dev-seed dev-install dev-ci clean fclean \
 	re logs ps \
-	dev-build prune prod test test-back test-front ts-client \
+	dev-build prune prod edge-network test test-back test-front ts-client \
 	vault-init vault-seed vault-stop vault-ui dev-vault \
 	vault-start-prod vault-init-prod vault-unseal-prod vault-status-prod \

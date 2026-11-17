@@ -106,7 +106,7 @@ started yet.
 Verify it is running:
 
 ```bash
-docker ps | grep vault-prod
+docker ps | grep transcendence-vault
 ```
 
 Expected output: container is `Up`, status is not yet `healthy` — that is
@@ -338,7 +338,7 @@ Then repeat **Part 1** from Step 3 onward.
 
 ### Services fail to start with "Failed to load secrets from Vault"
 
-1. Check Vault is running: `docker ps | grep vault-prod`
+1. Check Vault is running: `docker ps | grep transcendence-vault`
 2. Check seal status: `make vault-status-prod`
 3. If sealed: unseal with 3 keys (Part 2, Step 2)
 4. Check `VAULT_ROLE_ID` and `VAULT_SECRET_ID` are set: `echo $VAULT_ROLE_ID`
