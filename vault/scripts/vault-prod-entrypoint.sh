@@ -104,7 +104,8 @@ auto_unseal() {
 }
 
 require_seeded_secret() {
-  if VAULT_ADDR="$VAULT_ADDR" vault kv get "$VAULT_SECRET_PATH" >/dev/null 2>&1; then
+  # `vault kv get` inserts /data/ itself for KV v2, so pass mount + key, not the API path.
+  if VAULT_ADDR="$VAULT_ADDR" vault kv get -mount=secret transcendence >/dev/null 2>&1; then
     echo "Vault secret '$VAULT_SECRET_PATH' is present."
     return
   fi
