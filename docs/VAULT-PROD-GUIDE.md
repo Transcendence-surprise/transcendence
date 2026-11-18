@@ -223,7 +223,7 @@ Loaded 26 secrets from Vault
 Check the app is reachable:
 
 ```bash
-curl -sf https://valinor.ink/api/health
+curl -sf https://transcendence.mlitvino.dev/api/health
 ```
 
 ---
@@ -304,7 +304,7 @@ Open the Vault UI via SSH port-forwarding from your laptop:
 
 ```bash
 # On your laptop:
-ssh -L 8200:127.0.0.1:8200 user@valinor.ink
+ssh -L 8200:127.0.0.1:8200 user@transcendence.mlitvino.dev
 ```
 
 Then open **http://localhost:8200/ui** in your browser and sign in with the
@@ -378,6 +378,6 @@ Port 8200 is bound to `127.0.0.1` and is not reachable from the internet by
 design. Use SSH port-forwarding to access it from your laptop:
 
 ```bash
-ssh -L 8200:127.0.0.1:8200 user@valinor.ink
+ssh -L 8200:127.0.0.1:8200 user@transcendence.mlitvino.dev
 # then open http://localhost:8200/ui
 ```

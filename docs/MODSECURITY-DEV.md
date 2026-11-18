@@ -10,7 +10,7 @@ WebSocket (`/socket.io/`, `/rt/socket.io/`) and frontend (`/`) traffic bypass th
 Client
   │
   ▼
-Nginx (port 8080 dev / 443 prod)
+Nginx (port 8080 dev / 8080 prod behind the edge proxy)
   ├─ /api/*        ──► ModSecurity ──► gateway:3002
   ├─ /socket.io/*  ──► game:3003          (no WAF)
   └─ /             ──► frontend           (no WAF)
@@ -25,7 +25,7 @@ Nginx (port 8080 dev / 443 prod)
 | `nginx/modsecurity/main.conf`        | Entry point — only includes `modsecurity.conf`                         |
 | `nginx/modsecurity/modsecurity.conf` | Engine settings + all WAF rules                                        |
 | `nginx/conf/nginx-dev.conf`          | Dev nginx config — loads module, enables WAF on `/api/`                |
-| `nginx/conf/nginx-prod.conf`         | Prod nginx config — same, plus TLS                                     |
+| `nginx/conf/nginx-prod.conf`         | Prod nginx config — same, plain HTTP behind the edge proxy (TLS at edge) |
 
 
 ## Engine modes
