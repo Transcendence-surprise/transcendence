@@ -16,7 +16,7 @@ export default function TermsOfService() {
           <section className="bg-bg-dark-secondary border border-[var(--color-border-subtle)] rounded-lg p-6">
             <h2 className="text-2xl font-bold text-cyan-bright mb-4">1. Acceptance of Terms</h2>
             <p className="text-white leading-relaxed">
-              By accessing or using Valinor at <strong>valinor.ink</strong>, you agree to be bound
+              By accessing or using Valinor at <strong>transcendence.mlitvino.dev</strong>, you agree to be bound
               by these Terms of Service. If you do not agree to these terms, you must not use the
               application.
             </p>

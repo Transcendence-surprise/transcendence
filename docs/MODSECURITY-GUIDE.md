@@ -34,7 +34,7 @@ ModSecurity is not a replacement for input validation in the backend — it is a
 Client
   │
   ▼
-Nginx (port 80 → redirect, port 443 prod / 8080 dev)
+Nginx (port 8080; in prod TLS is terminated by the edge proxy)
   ├── /            → frontend static files   (no WAF)
   ├── /api/*       → gateway:3002            ← ModSecurity runs here
   └── /socket.io/* → game:3003              (no WAF — WebSocket upgrade)
@@ -178,7 +178,7 @@ A rebuild is only needed when changing the `Dockerfile` or adding new files that
 
 ## Manual testing
 
-All tests below assume the prod environment (`https://valinor.ink`). For local dev, replace the URL with `http://localhost:8080` and note that ModSecurity is inactive in dev — requests will pass through and nothing will be logged.
+All tests below assume the prod environment (`https://transcendence.mlitvino.dev`). For local dev, replace the URL with `http://localhost:8080` and note that ModSecurity is inactive in dev — requests will pass through and nothing will be logged.
 
 ### Confirm ModSecurity is loaded
 
@@ -207,7 +207,7 @@ Then restart and confirm it blocks:
 
 ```bash
 docker compose restart nginx
-curl -i 'https://valinor.ink/api/waf-test'
+curl -i 'https://transcendence.mlitvino.dev/api/waf-test'
 # Expected: HTTP/1.1 403 Forbidden
 ```
 
@@ -219,20 +219,20 @@ Re-comment the rule and restart again when done.
 
 ```bash
 # Classic OR-based injection
-curl -i 'https://valinor.ink/api/core/users?id=1+OR+1=1--'
+curl -i 'https://transcendence.mlitvino.dev/api/core/users?id=1+OR+1=1--'
 
 # UNION-based
-curl -i 'https://valinor.ink/api/core/users?id=1+UNION+SELECT+null,null,null--'
+curl -i 'https://transcendence.mlitvino.dev/api/core/users?id=1+UNION+SELECT+null,null,null--'
 
 # Stacked query
-curl -i "https://valinor.ink/api/core/users?id=1;DROP+TABLE+users--"
+curl -i "https://transcendence.mlitvino.dev/api/core/users?id=1;DROP+TABLE+users--"
 
 # Blind injection via boolean
-curl -i "https://valinor.ink/api/core/users?id=1+AND+1=1"
-curl -i "https://valinor.ink/api/core/users?id=1+AND+1=2"
+curl -i "https://transcendence.mlitvino.dev/api/core/users?id=1+AND+1=1"
+curl -i "https://transcendence.mlitvino.dev/api/core/users?id=1+AND+1=2"
 
 # In POST body
-curl -i -X POST https://valinor.ink/api/auth/login \
+curl -i -X POST https://transcendence.mlitvino.dev/api/auth/login \
   -H 'Content-Type: application/json' \
   -d '{"username":"admin'\''--","password":"anything"}'
 ```
@@ -243,19 +243,19 @@ curl -i -X POST https://valinor.ink/api/auth/login \
 
 ```bash
 # Script tag in query param
-curl -i 'https://valinor.ink/api/core/users?search=<script>alert(1)</script>'
+curl -i 'https://transcendence.mlitvino.dev/api/core/users?search=<script>alert(1)</script>'
 
 # URL-encoded
-curl -i 'https://valinor.ink/api/core/users?search=%3Cscript%3Ealert%281%29%3C%2Fscript%3E'
+curl -i 'https://transcendence.mlitvino.dev/api/core/users?search=%3Cscript%3Ealert%281%29%3C%2Fscript%3E'
 
 # Event handler injection
-curl -i 'https://valinor.ink/api/core/users?name=<img+src=x+onerror=alert(1)>'
+curl -i 'https://transcendence.mlitvino.dev/api/core/users?name=<img+src=x+onerror=alert(1)>'
 
 # SVG-based
-curl -i 'https://valinor.ink/api/core/users?bio=<svg/onload=alert(1)>'
+curl -i 'https://transcendence.mlitvino.dev/api/core/users?bio=<svg/onload=alert(1)>'
 
 # In POST body
-curl -i -X POST https://valinor.ink/api/core/users \
+curl -i -X POST https://transcendence.mlitvino.dev/api/core/users \
   -H 'Content-Type: application/json' \
   -d '{"username":"<script>document.cookie</script>"}'
 ```
@@ -266,19 +266,19 @@ curl -i -X POST https://valinor.ink/api/core/users \
 
 ```bash
 # Basic traversal
-curl -i 'https://valinor.ink/api/../etc/passwd'
+curl -i 'https://transcendence.mlitvino.dev/api/../etc/passwd'
 
 # URL-encoded dot-dot
-curl -i 'https://valinor.ink/api/%2e%2e%2fetc%2fpasswd'
+curl -i 'https://transcendence.mlitvino.dev/api/%2e%2e%2fetc%2fpasswd'
 
 # Double-encoded
-curl -i 'https://valinor.ink/api/%252e%252e%252fetc%252fpasswd'
+curl -i 'https://transcendence.mlitvino.dev/api/%252e%252e%252fetc%252fpasswd'
 
 # Windows-style
-curl -i 'https://valinor.ink/api/..%5C..%5Cetc%5Cpasswd'
+curl -i 'https://transcendence.mlitvino.dev/api/..%5C..%5Cetc%5Cpasswd'
 
 # Null byte injection
-curl -i $'https://valinor.ink/api/file?name=../../etc/passwd\x00.jpg'
+curl -i $'https://transcendence.mlitvino.dev/api/file?name=../../etc/passwd\x00.jpg'
 ```
 
 ---
@@ -287,19 +287,19 @@ curl -i $'https://valinor.ink/api/file?name=../../etc/passwd\x00.jpg'
 
 ```bash
 # Semicolon injection
-curl -i 'https://valinor.ink/api/core/users?name=foo;id'
+curl -i 'https://transcendence.mlitvino.dev/api/core/users?name=foo;id'
 
 # Pipe injection
-curl -i 'https://valinor.ink/api/core/users?name=foo|cat+/etc/passwd'
+curl -i 'https://transcendence.mlitvino.dev/api/core/users?name=foo|cat+/etc/passwd'
 
 # Backtick injection
-curl -i 'https://valinor.ink/api/core/users?name=`whoami`'
+curl -i 'https://transcendence.mlitvino.dev/api/core/users?name=`whoami`'
 
 # $() subshell
-curl -i 'https://valinor.ink/api/core/users?name=$(cat+/etc/passwd)'
+curl -i 'https://transcendence.mlitvino.dev/api/core/users?name=$(cat+/etc/passwd)'
 
 # In JSON body
-curl -i -X POST https://valinor.ink/api/core/users \
+curl -i -X POST https://transcendence.mlitvino.dev/api/core/users \
   -H 'Content-Type: application/json' \
   -d '{"username":"admin; cat /etc/passwd"}'
 ```
@@ -310,19 +310,19 @@ curl -i -X POST https://valinor.ink/api/core/users \
 
 ```bash
 # Common misconfig files
-curl -i 'https://valinor.ink/api/.env'
-curl -i 'https://valinor.ink/api/.git/config'
-curl -i 'https://valinor.ink/api/.ssh/id_rsa'
+curl -i 'https://transcendence.mlitvino.dev/api/.env'
+curl -i 'https://transcendence.mlitvino.dev/api/.git/config'
+curl -i 'https://transcendence.mlitvino.dev/api/.ssh/id_rsa'
 
 # PHP / CMS fingerprinting
-curl -i 'https://valinor.ink/api/phpinfo.php'
-curl -i 'https://valinor.ink/api/wp-admin/'
-curl -i 'https://valinor.ink/api/admin.php'
+curl -i 'https://transcendence.mlitvino.dev/api/phpinfo.php'
+curl -i 'https://transcendence.mlitvino.dev/api/wp-admin/'
+curl -i 'https://transcendence.mlitvino.dev/api/admin.php'
 
 # Backup files
-curl -i 'https://valinor.ink/api/backup.sql'
-curl -i 'https://valinor.ink/api/dump.zip'
-curl -i 'https://valinor.ink/api/config.bak'
+curl -i 'https://transcendence.mlitvino.dev/api/backup.sql'
+curl -i 'https://transcendence.mlitvino.dev/api/dump.zip'
+curl -i 'https://transcendence.mlitvino.dev/api/config.bak'
 ```
 
 ---
@@ -331,15 +331,15 @@ curl -i 'https://valinor.ink/api/config.bak'
 
 ```bash
 # sqlmap User-Agent
-curl -i 'https://valinor.ink/api/core/users' \
+curl -i 'https://transcendence.mlitvino.dev/api/core/users' \
   -H 'User-Agent: sqlmap/1.7.8'
 
 # Nikto
-curl -i 'https://valinor.ink/api/core/users' \
+curl -i 'https://transcendence.mlitvino.dev/api/core/users' \
   -H 'User-Agent: Nikto/2.1.6'
 
 # Gobuster
-curl -i 'https://valinor.ink/api/core/users' \
+curl -i 'https://transcendence.mlitvino.dev/api/core/users' \
   -H 'User-Agent: gobuster/3.6'
 ```
 
@@ -349,14 +349,14 @@ curl -i 'https://valinor.ink/api/core/users' \
 
 ```bash
 # Oversized header
-curl -i 'https://valinor.ink/api/core/users' \
+curl -i 'https://transcendence.mlitvino.dev/api/core/users' \
   -H "X-Custom: $(python3 -c 'print("A"*8192)')"
 
 # Invalid HTTP method
-curl -i -X FAKEMETHOD 'https://valinor.ink/api/core/users'
+curl -i -X FAKEMETHOD 'https://transcendence.mlitvino.dev/api/core/users'
 
 # Host header injection
-curl -i 'https://valinor.ink/api/core/users' \
+curl -i 'https://transcendence.mlitvino.dev/api/core/users' \
   -H 'Host: evil.com'
 ```
 

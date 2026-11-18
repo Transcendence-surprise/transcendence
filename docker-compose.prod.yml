@@ -6,7 +6,7 @@ services:
   frontend:
     build:
       target: production
-    container_name: frontend-prod
+    container_name: transcendence-frontend
     volumes:
       - frontend_build:/usr/share/nginx/html
 
@@ -15,35 +15,35 @@ services:
   gateway:
     build:
       target: production
-    container_name: gateway-prod
+    container_name: transcendence-gateway
     expose:
       - "3002"
 
   core:
     build:
       target: production
-    container_name: core-prod
+    container_name: transcendence-core
     expose:
       - "3000"
 
   auth:
     build:
       target: production
-    container_name: auth-prod
+    container_name: transcendence-auth
     expose:
       - "3001"
 
   game:
     build:
       target: production
-    container_name: game-prod
+    container_name: transcendence-game
     expose:
       - "3003"
 
   # === Infrastructure ===
 
   vault:
-    container_name: vault-prod
+    container_name: transcendence-vault
     volumes:
       - ./vault:/vault
       - ./.env:/vault/seeds/.env:ro
@@ -53,26 +53,36 @@ services:
     command: ["/bin/sh", "/vault/scripts/vault-prod-entrypoint.sh"]
 
   db:
-    container_name: db-prod
+    container_name: transcendence-db
     expose:
       - "5432"
     volumes:
       - db_data_prod:/var/lib/postgresql/data
 
   nginx:
-    container_name: nginx-prod
+    container_name: transcendence-nginx
     build:
       args:
         MODSEC: "true"
-    ports:
-      - "80:80"
-      - "443:443"
     depends_on:
       frontend:
         condition: service_completed_successfully
     volumes:
       - frontend_build:/usr/share/nginx/html:ro
-      - ./nginx/cert:/etc/nginx/cert:ro
+    networks:
+      edge_transcendence:
+        aliases: [transcendence-proxy]
+      transcendence_net: {}
+
+  migration:
+    container_name: transcendence-migration
+
+  healthchecker:
+    container_name: transcendence-healthchecker
+
+networks:
+  edge_transcendence:
+    external: true
 
 volumes:
   db_data_prod:

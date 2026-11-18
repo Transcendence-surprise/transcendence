@@ -6,8 +6,8 @@
 
 - [Database Structure](https://drawsql.app/teams/ilias-team-10/diagrams/transcendence-db) - Visualizes the database schema.
 - [Application Architecture](https://s.icepanel.io/GVOJBUo15pQ7B3/lvV5) - Visualizes the app architecture.
-- Application available at: https://valinor.ink/
-- API documentation avaiable at: https://valinor.ink/api/docs
+- Application available at: https://transcendence.mlitvino.dev/
+- API documentation avaiable at: https://transcendence.mlitvino.dev/api/docs
 
 ## Prerequisites
 

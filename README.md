@@ -24,8 +24,8 @@ Maze is Lava is a browser-based multiplayer puzzle game where players navigate t
 - Web Application Firewall (ModSecurity) via Nginx
 - REST API with full Swagger/OpenAPI documentation
 
-Live application: **[https://valinor.ink/](https://valinor.ink/)**<br>
-API documentation: **[https://valinor.ink/api/docs](https://valinor.ink/api/docs)**<br>
+Live application: **[https://transcendence.mlitvino.dev/](https://transcendence.mlitvino.dev/)**<br>
+API documentation: **[https://transcendence.mlitvino.dev/api/docs](https://transcendence.mlitvino.dev/api/docs)**<br>
 Architecture diagram: **[https://s.icepanel.io/GVOJBUo15pQ7B3/lvV5](https://s.icepanel.io/GVOJBUo15pQ7B3/lvV5)**<br>
 
 ---
@@ -229,7 +229,7 @@ erDiagram
 | Technology              | Purpose                                             |
 | ----------------------- | --------------------------------------------------- |
 | Docker & Docker Compose | Container orchestration                             |
-| Nginx                   | Reverse proxy, TLS termination, static file serving |
+| Nginx                   | Reverse proxy, static file serving (TLS terminated by the server's edge proxy) |
 | ModSecurity (WAF)       | Web Application Firewall integrated with Nginx      |
 | HashiCorp Vault         | Secrets management (AppRole auth in production)     |
 | Hetzner VPS             | Production hosting                                  |

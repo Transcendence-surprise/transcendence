@@ -106,7 +106,7 @@ started yet.
 Verify it is running:
 
 ```bash
-docker ps | grep vault-prod
+docker ps | grep transcendence-vault
 ```
 
 Expected output: container is `Up`, status is not yet `healthy` — that is
@@ -223,7 +223,7 @@ Loaded 26 secrets from Vault
 Check the app is reachable:
 
 ```bash
-curl -sf https://valinor.ink/api/health
+curl -sf https://transcendence.mlitvino.dev/api/health
 ```
 
 ---
@@ -304,7 +304,7 @@ Open the Vault UI via SSH port-forwarding from your laptop:
 
 ```bash
 # On your laptop:
-ssh -L 8200:127.0.0.1:8200 user@valinor.ink
+ssh -L 8200:127.0.0.1:8200 user@transcendence.mlitvino.dev
 ```
 
 Then open **http://localhost:8200/ui** in your browser and sign in with the
@@ -338,7 +338,7 @@ Then repeat **Part 1** from Step 3 onward.
 
 ### Services fail to start with "Failed to load secrets from Vault"
 
-1. Check Vault is running: `docker ps | grep vault-prod`
+1. Check Vault is running: `docker ps | grep transcendence-vault`
 2. Check seal status: `make vault-status-prod`
 3. If sealed: unseal with 3 keys (Part 2, Step 2)
 4. Check `VAULT_ROLE_ID` and `VAULT_SECRET_ID` are set: `echo $VAULT_ROLE_ID`
@@ -378,6 +378,6 @@ Port 8200 is bound to `127.0.0.1` and is not reachable from the internet by
 design. Use SSH port-forwarding to access it from your laptop:
 
 ```bash
-ssh -L 8200:127.0.0.1:8200 user@valinor.ink
+ssh -L 8200:127.0.0.1:8200 user@transcendence.mlitvino.dev
 # then open http://localhost:8200/ui
 ```
